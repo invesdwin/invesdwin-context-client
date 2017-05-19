@@ -38,4 +38,4 @@ To build your own swing applications, the following tools are available:
 - **IGuiExceptionHandlerHook**: define a bean implementing this interface or register it manually via `GuiExceptionHandler.registerHook(hook)` to override the default error dialog that occurs for uncaught exceptions on a case by case decision.
 - **RichApplicationStub**: this class is the mock you can use in your unit tests. Just inject this bean into your test and access the fixture via `getFrameFixture` for controlling the test window.
 
-For some examples you can have a look at the test cases and implemented components inside the module itself.
+For some examples you can have a look at the test cases and implemented components/views inside the module itself.
