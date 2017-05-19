@@ -1,0 +1,17 @@
+<lifecycleMappingMetadata>
+	<pluginExecutions>
+		<pluginExecution>
+			<pluginExecutionFilter>
+				<groupId>de.invesdwin</groupId>
+				<artifactId>invesdwin-context-client-wicket-maven-plugin</artifactId>
+				<goals>
+					<goal>process-classes</goal>
+					<goal>process-test-classes</goal>
+				</goals>
+			</pluginExecutionFilter>
+			<action>
+				<ignore />
+			</action>
+		</pluginExecution>
+	</pluginExecutions>
+</lifecycleMappingMetadata>

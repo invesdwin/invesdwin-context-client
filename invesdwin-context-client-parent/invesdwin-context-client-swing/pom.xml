@@ -1,0 +1,81 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+                             http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>de.invesdwin</groupId>
+		<artifactId>invesdwin-context-client-parent</artifactId>
+		<version>1.0.0-SNAPSHOT</version>
+	</parent>
+	<artifactId>invesdwin-context-client-swing</artifactId>
+	<packaging>jar</packaging>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<configuration>
+					<includes>
+						<include>de/invesdwin/common/client/swing/ClientSwingTestSuite.java</include>
+					</includes>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+	<dependencies>
+		<dependency>
+			<groupId>de.invesdwin</groupId>
+			<artifactId>invesdwin-context</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>net.sourceforge.mydoggy</groupId>
+			<artifactId>mydoggy-plaf</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.richclient</groupId>
+			<artifactId>spring-richclient-core</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>it.tidalwave.betterbeansbinding</groupId>
+			<artifactId>betterbeansbinding-swingbinding</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.jdesktop.bsaf</groupId>
+			<artifactId>bsaf</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.swinglabs</groupId>
+			<artifactId>swingx</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.jidesoft</groupId>
+			<artifactId>jide-oss</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.freedesktop.tango</groupId>
+			<artifactId>tango-icon-theme</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.famfamfam</groupId>
+			<artifactId>silk</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.toedter</groupId>
+			<artifactId>jcalendar</artifactId>
+		</dependency>
+
+		<!-- assertj-swing is not included in the parent as test dependencies, 
+			since this is for special cases only. if required, one also needs to include 
+			the richtlient test jar defined as a dependency to be able to use the RichApplicationStub 
+			for test integration -->
+		<dependency>
+			<groupId>org.assertj</groupId>
+			<artifactId>assertj-swing</artifactId>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+
+</project>

@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html xmlns:wicket="http://wicket.apache.org">
+<head></head>
+<body>
+	<wicket:extend>
+		<form class="form-horizontal" wicket:id="form">
+			<!-- <div wicket:id='feedback'></div>  -->
+			<div wicket:id="modal"></div>
+			<fieldset>
+				<legend wicket:id="nested_legend">Nested</legend>
+				<div class="form-group">
+					<label class="control-label col-sm-2" wicket:for="nested.one">
+						<wicket:label>
+                                 One 
+                            </wicket:label>
+					</label>
+					<div wicket:id="nested.one_gridColumn" class="col-sm-4">
+						<input type="text" class="form-control" wicket:id="nested.one"></input>
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="control-label col-sm-2"
+						wicket:for="nested.someCalendar"> <wicket:label>
+                                 Some Calendar 
+                            </wicket:label></label>
+					<div wicket:id="nested.someCalendar_gridColumn" class="col-sm-4">
+						<input type="date" class="form-control"
+							wicket:id="nested.someCalendar"></input>
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="control-label col-sm-2" wicket:for="nested.someDate">
+						<wicket:label>
+                                 Some Date 
+                            </wicket:label>
+					</label>
+					<div wicket:id="nested.someDate_gridColumn" class="col-sm-4">
+						<input type="date" class="form-control"
+							wicket:id="nested.someDate"></input>
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="control-label col-sm-2" wicket:for="nested.someEnum">
+						<wicket:label>
+                                 Some Enum 
+                            </wicket:label>
+					</label>
+					<div wicket:id="nested.someEnum_gridColumn" class="col-sm-4">
+						<select class="form-control" wicket:id="nested.someEnum"></select>
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="control-label col-sm-2" wicket:for="nested.three">
+						<wicket:label>
+                                 Three 
+                            </wicket:label>
+					</label>
+					<div wicket:id="nested.three_gridColumn" class="col-sm-4">
+						<input type="text" class="form-control" wicket:id="nested.three"></input>
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="control-label col-sm-2" wicket:for="nested.two">
+						<wicket:label>
+                                 Two 
+                            </wicket:label>
+					</label>
+					<div wicket:id="nested.two_gridColumn" class="col-sm-4">
+						<input type="text" class="form-control" wicket:id="nested.two"></input>
+					</div>
+				</div>
+				<div class="form-group">
+					<div class="col-sm-6">
+						<div class="btn-toolbar">
+							<div class="btn-group">
+								<button type="submit" class="btn btn-default"
+									wicket:id="nested.someButton">Some Button</button>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="form-group">
+					<div class="col-sm-6">
+						<div class="btn-toolbar">
+							<div class="btn-group">
+								<button type="submit" class="btn btn-default"
+									wicket:id="nested.someButtonToo">Some Button Too</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			</fieldset>
+			<div class="form-group">
+				<div class="col-sm-6">
+					<div class="btn-toolbar">
+						<div class="btn-group">
+							<button type="submit" class="btn btn-default" wicket:id="back">Back</button>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="control-label col-sm-2" wicket:for="fileUpload">
+					<wicket:label>
+                             File Upload 
+                        </wicket:label>
+				</label>
+				<div wicket:id="fileUpload_gridColumn" class="col-sm-4">
+					<input type="file" class="btn btn-default" wicket:id="fileUpload"></input>
+				</div>
+			</div>
+			<div class="form-group">
+				<label class="control-label col-sm-2" wicket:for="multiFileUpload">
+					<wicket:label>
+                             Multi File Upload 
+                        </wicket:label>
+				</label>
+				<div wicket:id="multiFileUpload_gridColumn" class="col-sm-4">
+					<input multiple="multiple" class="btn btn-default"
+						wicket:id="multiFileUpload" type="file"></input>
+				</div>
+			</div>
+			<div class="form-group">
+				<div class="col-sm-6">
+					<div class="btn-toolbar">
+						<div class="btn-group">
+							<a class="btn btn-default" wicket:id="fileDownload">File
+								Download</a>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="form-group">
+				<div class="col-sm-6">
+					<div class="btn-toolbar">
+						<div class="btn-group">
+							<button type="submit" class="btn btn-default"
+								wicket:id="offerFileDownload">Offer File Download</button>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="form-group">
+				<div class="col-sm-6">
+					<div class="btn-toolbar">
+						<div class="btn-group">
+							<a class="btn btn-default" wicket:id="multiFileDownload">Multi
+								File Download</a>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="form-group">
+				<div class="col-sm-6">
+					<div class="btn-toolbar">
+						<div class="btn-group">
+							<a class="btn btn-default" wicket:id="resourceDownload">Resource
+								Download</a>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="form-group">
+				<div class="col-sm-6">
+					<div class="btn-toolbar">
+						<div class="btn-group">
+							<a class="btn btn-default" wicket:id="resourceReferenceDownload">Resource
+								Reference Download</a>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="form-group">
+				<div class="col-sm-6">
+					<div class="btn-toolbar">
+						<div class="btn-group">
+							<a wicket:id="stringUrlLink">String Url Link</a>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="form-group">
+				<div class="col-sm-6">
+					<div class="btn-toolbar">
+						<div class="btn-group">
+							<a wicket:id="getterStringUrlLink">Getter String Url Link</a>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="form-group">
+				<div class="col-sm-6">
+					<div class="btn-toolbar">
+						<div class="btn-group">
+							<a class="btn btn-default" wicket:id="uriLink">Uri Link</a>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="form-group">
+				<div class="col-sm-6">
+					<div class="btn-toolbar">
+						<div class="btn-group">
+							<a wicket:id="urlLink">Url Link</a>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="form-group">
+				<div class="col-sm-6">
+					<div class="btn-toolbar">
+						<div class="btn-group">
+							<a class="btn btn-default" wicket:id="wicketUrlLink">Wicket
+								Url Link</a>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="form-group">
+				<div class="col-sm-6">
+					<div class="btn-toolbar">
+						<div class="btn-group">
+							<a class="btn btn-default" wicket:id="stringUrlLinkRelative">String
+								Url Link Relative</a>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="form-group">
+				<div class="col-sm-6">
+					<div class="btn-toolbar">
+						<div class="btn-group">
+							<a wicket:id="uriLinkRelative">Uri Link Relative</a>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="form-group">
+				<div class="col-sm-6">
+					<div class="btn-toolbar">
+						<div class="btn-group">
+							<a class="btn btn-default" wicket:id="wicketUrlLinkRelative">Wicket
+								Url Link Relative</a>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="form-group">
+				<div class="col-sm-6">
+					<div class="btn-toolbar">
+						<div class="btn-group">
+							<img wicket:id="stringImg" />
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="form-group">
+				<div class="col-sm-6">
+					<div class="btn-toolbar">
+						<div class="btn-group">
+							<img wicket:id="uriImg" />
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="form-group">
+				<div class="col-sm-6">
+					<div class="btn-toolbar">
+						<div class="btn-group">
+							<img wicket:id="urlImg" />
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="form-group">
+				<div class="col-sm-6">
+					<div class="btn-toolbar">
+						<div class="btn-group">
+							<img wicket:id="stringImgRelative" />
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="form-group">
+				<div class="col-sm-6">
+					<div class="btn-toolbar">
+						<div class="btn-group">
+							<img wicket:id="uriImgRelative" />
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="form-group">
+				<div class="col-sm-6">
+					<div class="btn-toolbar">
+						<div class="btn-group">
+							<img wicket:id="wicketUrlImgRelative" />
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="form-group">
+				<div class="col-sm-6">
+					<div class="btn-toolbar">
+						<div class="btn-group">
+							<img wicket:id="resourceReferenceImg" />
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="form-group">
+				<div class="col-sm-6">
+					<div class="btn-toolbar">
+						<div class="btn-group">
+							<img wicket:id="resourcImg" />
+						</div>
+					</div>
+				</div>
+			</div>
+			<fieldset>
+				<legend wicket:id="anchorTable_legend">Anchor Table</legend>
+				<div class="table-responsive">
+					<table class="table table-condensed table-hover table-striped"
+						wicket:id="anchorTable"></table>
+				</div>
+			</fieldset>
+		</form>
+	</wicket:extend>
+</body>
+</html>

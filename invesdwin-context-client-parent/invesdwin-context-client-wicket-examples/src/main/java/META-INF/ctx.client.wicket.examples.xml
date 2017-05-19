@@ -1,0 +1,93 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:security="http://www.springframework.org/schema/security"
+	xsi:schemaLocation="http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+	<security:http entry-point-ref="spnegoEntryPoint"
+		use-expressions="true" pattern="/springkerberossecure">
+
+		<security:csrf disabled="true" />
+		<security:headers>
+			<security:frame-options policy="SAMEORIGIN" />
+		</security:headers>
+
+		<security:custom-filter ref="spnegoAuthenticationProcessingFilter"
+			before="BASIC_AUTH_FILTER" />
+		<!-- need to redirect to form login on failed single sign on -->
+		<security:form-login login-page="/signin" />
+
+		<security:intercept-url pattern="/springkerberossecure"
+			access="hasRole('KERBEROS_AUTHENTICATED')" />
+	</security:http>
+
+	<security:http entry-point-ref="samlEntryPoint"
+		use-expressions="true" pattern="/springsamlsecure">
+
+		<security:csrf disabled="true" />
+		<security:headers>
+			<security:frame-options policy="SAMEORIGIN" />
+		</security:headers>
+
+		<!-- register saml login page, a missing metadatageneratorfilter will result 
+			in exceptions -->
+		<security:custom-filter before="FIRST"
+			ref="metadataGeneratorFilter" />
+		<security:custom-filter after="BASIC_AUTH_FILTER"
+			ref="samlFilter" />
+
+		<security:intercept-url pattern="/springsamlsecure"
+			access="hasRole('SAML_AUTHENTICATED')" />
+	</security:http>
+
+	<security:http entry-point-ref="casEntryPoint"
+		use-expressions="true" pattern="/springcassecure">
+
+		<security:csrf disabled="true" />
+		<security:headers>
+			<security:frame-options policy="SAMEORIGIN" />
+		</security:headers>
+
+		<security:custom-filter position="CAS_FILTER"
+			ref="casFilter" />
+			
+		<security:intercept-url pattern="/springcassecure"
+			access="hasRole('CAS_AUTHENTICATED')" />
+	</security:http>
+	
+	<security:http authentication-manager-ref="exampleAuthenticationManager"
+		use-expressions="true">
+
+		<security:csrf disabled="true" />
+		<security:headers>
+			<security:frame-options policy="SAMEORIGIN" />
+		</security:headers>
+
+		<!-- register wicket sigin in page -->
+		<security:form-login login-page="/signin" />
+
+		<security:intercept-url pattern="/springsecure"
+			access="hasRole('ADMIN')" />
+		<!-- alternatively with use-expressions="false": access="ADMIN" -->
+	</security:http>
+
+	<security:authentication-manager id="exampleAuthenticationManager">
+		<security:authentication-provider>
+			<security:user-service>
+				<security:user name="admin" password="4dm1nFTW"
+					authorities="ADMIN" />
+				<security:user name="user" password="us3rFTW"
+					authorities="USER" />
+			</security:user-service>
+		</security:authentication-provider>
+		<!-- integrate saml authentication -->
+		<security:authentication-provider
+			ref="samlAuthenticationProvider" />
+		<security:authentication-provider
+			ref="kerberosAuthenticationProvider" />
+		<security:authentication-provider
+			ref="kerberosServiceAuthenticationProvider" />
+		<security:authentication-provider
+			ref="casAuthenticationProvider" />
+	</security:authentication-manager>
+
+</beans>
