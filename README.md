@@ -1,5 +1,5 @@
 # invesdwin-context-client
-This project provides frontend modules to create desktop and web clients for the invesdwin-context module system.
+This project provides frontend modules to create desktop and web clients for the [invesdwin-context](https://github.com/subes/invesdwin-context) module system.
 
 ## Maven
 
