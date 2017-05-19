@@ -3,16 +3,16 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-	<bean class="de.invesdwin.common.client.swing.internal.app.SelectAllActionWorkaround" />
-	<bean class="de.invesdwin.common.client.swing.internal.app.UndoRedoActions" />
-	<bean class="de.invesdwin.common.client.swing.internal.content.ContentPaneView" />
-	<bean class="de.invesdwin.common.client.swing.internal.menu.MenuBarView" />
-	<bean class="de.invesdwin.common.client.swing.internal.splash.ConfiguredSplashScreen"/>
-	<bean class="de.invesdwin.common.client.swing.internal.status.message.StatusBarMessageView" />
-	<bean class="de.invesdwin.common.client.swing.internal.status.task.StatusBarTaskView" />
-	<bean class="de.invesdwin.common.client.swing.internal.status.StatusBarView" />
-	<bean class="de.invesdwin.common.client.swing.ContentPane" />
-	<bean class="de.invesdwin.common.client.swing.SplashScreen" />
-	<bean class="de.invesdwin.common.client.swing.StatusBar" />
+	<bean class="de.invesdwin.context.client.swing.internal.app.SelectAllActionWorkaround" />
+	<bean class="de.invesdwin.context.client.swing.internal.app.UndoRedoActions" />
+	<bean class="de.invesdwin.context.client.swing.internal.content.ContentPaneView" />
+	<bean class="de.invesdwin.context.client.swing.internal.menu.MenuBarView" />
+	<bean class="de.invesdwin.context.client.swing.internal.splash.ConfiguredSplashScreen"/>
+	<bean class="de.invesdwin.context.client.swing.internal.status.message.StatusBarMessageView" />
+	<bean class="de.invesdwin.context.client.swing.internal.status.task.StatusBarTaskView" />
+	<bean class="de.invesdwin.context.client.swing.internal.status.StatusBarView" />
+	<bean class="de.invesdwin.context.client.swing.ContentPane" />
+	<bean class="de.invesdwin.context.client.swing.SplashScreen" />
+	<bean class="de.invesdwin.context.client.swing.StatusBar" />
 
 </beans>

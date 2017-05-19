@@ -17,7 +17,7 @@
 				<artifactId>maven-surefire-plugin</artifactId>
 				<configuration>
 					<includes>
-						<include>de/invesdwin/common/client/swing/ClientSwingTestSuite.java</include>
+						<include>de/invesdwin/context/client/swing/ClientSwingTestSuite.java</include>
 					</includes>
 				</configuration>
 			</plugin>

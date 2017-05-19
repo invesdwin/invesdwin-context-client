@@ -16,7 +16,7 @@ import org.junit.Test;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.security.kerberos.client.config.SunJaasKrb5LoginConfig;
 
-import de.invesdwin.common.client.wicket.examples.secure.kerberos.SpringKerberosSecurePage;
+import de.invesdwin.context.client.wicket.examples.secure.kerberos.SpringKerberosSecurePage;
 import de.invesdwin.context.integration.IntegrationProperties;
 import de.invesdwin.context.security.kerberos.Keytabs;
 import de.invesdwin.context.security.kerberos.ProxyEnabledKerberosRestTemplate;

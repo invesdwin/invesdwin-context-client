@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <web-fragment>
-	<name>de.invesdwin.common.client.wicket</name>
+	<name>de.invesdwin.context.client.wicket</name>
 
 	<filter>
 		<filter-name>wicket</filter-name>
-		<filter-class>de.invesdwin.common.client.wicket.internal.DelegateWicketFilter
+		<filter-class>de.invesdwin.context.client.wicket.internal.DelegateWicketFilter
 		</filter-class>
 		<init-param>
 			<param-name>applicationClassName</param-name>
-			<param-value>de.invesdwin.common.client.wicket.internal.DelegateWebApplication
+			<param-value>de.invesdwin.context.client.wicket.internal.DelegateWebApplication
 			</param-value>
 		</init-param>
 		<init-param>

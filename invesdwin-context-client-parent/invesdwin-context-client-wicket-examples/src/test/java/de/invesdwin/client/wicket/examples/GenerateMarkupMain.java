@@ -2,8 +2,8 @@ package de.invesdwin.client.wicket.examples;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
-import de.invesdwin.common.client.wicket.generated.markup.AnnotatedGeneratedMarkup;
 import de.invesdwin.context.PlatformInitializerProperties;
+import de.invesdwin.context.client.wicket.generated.markup.AnnotatedGeneratedMarkup;
 
 @NotThreadSafe
 public final class GenerateMarkupMain {
