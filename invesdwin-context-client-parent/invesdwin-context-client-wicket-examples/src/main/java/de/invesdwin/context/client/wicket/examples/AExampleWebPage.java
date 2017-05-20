@@ -24,6 +24,8 @@ import de.invesdwin.context.client.wicket.examples.secure.kerberos.SpringKerbero
 import de.invesdwin.context.client.wicket.examples.secure.local.SpringSecurePage;
 import de.invesdwin.context.client.wicket.examples.secure.local.WicketSecurePage;
 import de.invesdwin.context.client.wicket.examples.secure.saml.SpringSamlSecurePage;
+import de.invesdwin.context.client.wicket.saml.page.SamlLoginPage;
+import de.invesdwin.context.client.wicket.saml.page.SamlLogoutPage;
 import de.invesdwin.nowicket.application.AWebPage;
 import de.invesdwin.nowicket.application.auth.ABaseWebApplication;
 import de.invesdwin.nowicket.application.auth.Roles;
@@ -90,10 +92,10 @@ public abstract class AExampleWebPage extends AWebPage {
                                 new ResourceModel("menu.springsamlsecure")));
 
                         if (Roles.isAuthenticated()) {
-                            subMenu.add(new MenuBookmarkablePageLink<Void>(CasLogoutPage.class,
+                            subMenu.add(new MenuBookmarkablePageLink<Void>(SamlLogoutPage.class,
                                     new ResourceModel("menu.sign.out")));
                         } else {
-                            subMenu.add(new MenuBookmarkablePageLink<Void>(CasLoginPage.class,
+                            subMenu.add(new MenuBookmarkablePageLink<Void>(SamlLoginPage.class,
                                     new ResourceModel("menu.sign.in")));
                         }
 
@@ -146,10 +148,10 @@ public abstract class AExampleWebPage extends AWebPage {
                                 new ResourceModel("menu.springcassecure")));
 
                         if (Roles.isAuthenticated()) {
-                            subMenu.add(new MenuBookmarkablePageLink<Void>(DefaultSignOutPage.class,
+                            subMenu.add(new MenuBookmarkablePageLink<Void>(CasLogoutPage.class,
                                     new ResourceModel("menu.sign.out")));
                         } else {
-                            subMenu.add(new MenuBookmarkablePageLink<Void>(DefaultSignInPage.class,
+                            subMenu.add(new MenuBookmarkablePageLink<Void>(CasLoginPage.class,
                                     new ResourceModel("menu.sign.in")));
                         }
 
