@@ -20,7 +20,7 @@
 				<artifactId>maven-surefire-plugin</artifactId>
 				<configuration>
 					<includes>
-						<include>de/invesdwin/client/wicket/examples/ClientWicketExamplesTestSuite.java</include>
+						<include>de/invesdwin/context/client/wicket/examples/ClientWicketExamplesTestSuite.java</include>
 					</includes>
 				</configuration>
 			</plugin>
