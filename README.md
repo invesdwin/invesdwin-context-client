@@ -53,3 +53,7 @@ The `invesdwin-context-client-wicket` module provides support for writing [wicke
 	- `invesdwin-context-client-wicket-cas`: this module provides support for single sign on via [CAS](https://en.wikipedia.org/wiki/Central_Authentication_Service). This module is currently in an experimental state and is not yet fully tested. Work needs to be done in the `invesdwin-context-security-web-cas-server` module to provide an embedded server to test against.
 
 See the `invesdwin-context-client-wicket-examples` module for some test cases and examples for the security modules. There is also a sample application (see [granatasoft-remotelist-parent](https://github.com/subes/invesdwin-nowicket/tree/master/invesdwin-nowicket-parent/invesdwin-nowicket-examples)) available that demonstrates how to create a web application with `invesdwin-context-client-wicket` as a platform provider for `invesdwin-nowicket` (which itself is platform neutral).
+
+## Support
+
+If you need further assistance or have some ideas for improvements and don't want to create an issue here on github, feel free to ask a question in our [invesdwin-platform googlegroup](https://groups.google.com/forum/#!forum/invesdwin-platform).
