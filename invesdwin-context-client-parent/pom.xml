@@ -28,6 +28,7 @@
 		<module>invesdwin-context-client-wicket-saml</module>
 		<module>invesdwin-context-client-wicket-kerberos</module>
 		<module>invesdwin-context-client-wicket-cas</module>
+		<module>invesdwin-context-client-vaadin</module>
 	</modules>
 
 	<properties>
@@ -46,9 +47,11 @@
 		<version.tango-icon-theme>0.8.90</version.tango-icon-theme>
 		<version.silk>1.3</version.silk>
 		<version.jcalendar>1.4</version.jcalendar>
-		
+
 		<version.objenesis>2.5.1</version.objenesis>
-		
+		<version.vaadin>8.1.1</version.vaadin>
+		<version.vaadstrap>0.2.1</version.vaadstrap>
+
 		<version.maven>3.3.9</version.maven>
 		<version.plexus-utils>3.0.22</version.plexus-utils>
 		<version.plexus-classworlds>2.5.2</version.plexus-classworlds>
@@ -119,7 +122,7 @@
 				<artifactId>invesdwin-context-client-wicket-maven-plugin</artifactId>
 				<version>${version.invesdwin-context-client}</version>
 			</dependency>
-			
+
 			<dependency>
 				<groupId>net.sourceforge.mydoggy</groupId>
 				<artifactId>mydoggy-plaf</artifactId>
@@ -194,7 +197,7 @@
 				<artifactId>jcalendar</artifactId>
 				<version>${version.jcalendar}</version>
 			</dependency>
-			
+
 			<dependency>
 				<groupId>org.apache.maven</groupId>
 				<artifactId>maven-plugin-api</artifactId>
@@ -226,15 +229,36 @@
 				<artifactId>plexus-classworlds</artifactId>
 				<version>${version.plexus-classworlds}</version>
 			</dependency>
-			
+
 			<dependency>
 				<groupId>org.objenesis</groupId>
 				<artifactId>objenesis</artifactId>
 				<version>${version.objenesis}</version>
 			</dependency>
+
+			<dependency>
+				<groupId>com.vaadin</groupId>
+				<artifactId>vaadin-server</artifactId>
+				<version>${version.vaadin}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.vaadin</groupId>
+				<artifactId>vaadin-push</artifactId>
+				<version>${version.vaadin}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.vaadin</groupId>
+				<artifactId>vaadin-themes</artifactId>
+				<version>${version.vaadin}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.sebworks</groupId>
+				<artifactId>vaadstrap</artifactId>
+				<version>${version.vaadstrap}</version>
+			</dependency>
 		</dependencies>
 	</dependencyManagement>
-	
+
 	<build>
 		<pluginManagement>
 			<plugins>
