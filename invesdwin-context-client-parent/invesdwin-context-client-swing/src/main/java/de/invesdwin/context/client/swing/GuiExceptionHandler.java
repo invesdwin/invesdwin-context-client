@@ -21,7 +21,8 @@ import de.invesdwin.util.assertions.Assertions;
 public final class GuiExceptionHandler implements IErrHook {
 
     public static final GuiExceptionHandler INSTANCE = new GuiExceptionHandler();
-    private final Set<IGuiExceptionHandlerHook> hooks = Collections.synchronizedSet(new LinkedHashSet<IGuiExceptionHandlerHook>());
+    private final Set<IGuiExceptionHandlerHook> hooks = Collections
+            .synchronizedSet(new LinkedHashSet<IGuiExceptionHandlerHook>());
     private volatile Throwable shutdownAfterShowing;
 
     private GuiExceptionHandler() {
@@ -54,7 +55,7 @@ public final class GuiExceptionHandler implements IErrHook {
             basicErrorMessage.append("</b>");
 
             final ErrorInfo errorInfo = new ErrorInfo(title, basicErrorMessage.toString(), null, null, e, null, null);
-            JXErrorPane.showDialog(Dialogs.getRootFrame(), errorInfo);
+            JXErrorPane.showFrame(Dialogs.getRootFrame(), errorInfo);
             if (Err.isSameMeaning(shutdownAfterShowing, e)) {
                 System.exit(1);
             }
