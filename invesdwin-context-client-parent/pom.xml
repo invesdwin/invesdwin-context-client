@@ -53,7 +53,7 @@
 		<version.vaadstrap>0.2.1</version.vaadstrap>
 
 		<version.maven>3.3.9</version.maven>
-		<version.plexus-utils>3.0.22</version.plexus-utils>
+		<version.plexus-utils>3.0.24</version.plexus-utils>
 		<version.plexus-classworlds>2.5.2</version.plexus-classworlds>
 	</properties>
 
