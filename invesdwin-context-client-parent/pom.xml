@@ -40,7 +40,7 @@
 		<version.mydoggy>1.5.0-beta-r1389</version.mydoggy>
 		<version.spring-richclient>1.1.0</version.spring-richclient>
 		<version.betterbeansbinding>1.3.0</version.betterbeansbinding>
-		<version.assertj-swing>2.1.1</version.assertj-swing>
+		<version.assertj-swing>3.8.0</version.assertj-swing>
 		<version.bsaf>1.9.2</version.bsaf>
 		<version.swingx>1.6.1</version.swingx>
 		<version.jide-oss>3.5.8</version.jide-oss>
@@ -48,13 +48,8 @@
 		<version.silk>1.3</version.silk>
 		<version.jcalendar>1.4</version.jcalendar>
 
-		<version.objenesis>2.5.1</version.objenesis>
 		<version.vaadin>8.1.1</version.vaadin>
 		<version.vaadstrap>0.2.1</version.vaadstrap>
-
-		<version.maven>3.3.9</version.maven>
-		<version.plexus-utils>3.0.24</version.plexus-utils>
-		<version.plexus-classworlds>2.5.2</version.plexus-classworlds>
 	</properties>
 
 	<dependencyManagement>
@@ -196,44 +191,6 @@
 				<groupId>com.toedter</groupId>
 				<artifactId>jcalendar</artifactId>
 				<version>${version.jcalendar}</version>
-			</dependency>
-
-			<dependency>
-				<groupId>org.apache.maven</groupId>
-				<artifactId>maven-plugin-api</artifactId>
-				<version>${version.maven}</version>
-				<exclusions>
-					<exclusion>
-						<groupId>javax.enterprise</groupId>
-						<artifactId>cdi-api</artifactId>
-					</exclusion>
-				</exclusions>
-			</dependency>
-			<dependency>
-				<groupId>org.apache.maven</groupId>
-				<artifactId>maven-core</artifactId>
-				<version>${version.maven}</version>
-			</dependency>
-			<dependency>
-				<groupId>org.apache.maven</groupId>
-				<artifactId>maven-artifact</artifactId>
-				<version>${version.maven}</version>
-			</dependency>
-			<dependency>
-				<groupId>org.codehaus.plexus</groupId>
-				<artifactId>plexus-utils</artifactId>
-				<version>${version.plexus-utils}</version>
-			</dependency>
-			<dependency>
-				<groupId>org.codehaus.plexus</groupId>
-				<artifactId>plexus-classworlds</artifactId>
-				<version>${version.plexus-classworlds}</version>
-			</dependency>
-
-			<dependency>
-				<groupId>org.objenesis</groupId>
-				<artifactId>objenesis</artifactId>
-				<version>${version.objenesis}</version>
 			</dependency>
 
 			<dependency>

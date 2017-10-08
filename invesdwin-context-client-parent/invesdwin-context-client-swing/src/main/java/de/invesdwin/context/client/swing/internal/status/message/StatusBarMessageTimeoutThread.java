@@ -18,7 +18,7 @@ public final class StatusBarMessageTimeoutThread extends Thread {
     public static final Duration DEFAULT_TIMEOUT = new Duration(10, FTimeUnit.SECONDS);
     public static final Duration MIN_TIMEOUT_AFTER_PAUSE = new Duration(2, FTimeUnit.SECONDS);
 
-    @GuardedBy("this.class")
+    @GuardedBy("StatusBarMessageTimeoutThread.class")
     private static StatusBarMessageTimeoutThread instance;
 
     @GuardedBy("this")

@@ -21,7 +21,7 @@ public final class ConfiguredSplashScreen implements SplashScreen, FactoryBean<C
 
     public static final ConfiguredSplashScreen INSTANCE = new ConfiguredSplashScreen();
 
-    @GuardedBy("this.class")
+    @GuardedBy("ConfiguredSplashScreen.class")
     private static ProgressSplashScreen splashScreen;
 
     private ConfiguredSplashScreen() {}

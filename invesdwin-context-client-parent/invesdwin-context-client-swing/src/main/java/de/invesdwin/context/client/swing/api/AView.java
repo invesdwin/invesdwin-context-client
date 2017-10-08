@@ -69,10 +69,11 @@ public abstract class AView<M extends AModel, C extends JComponent> extends AMod
                         }
                     });
                     if (getModel() != null) {
+                        final C componentCopy = component;
                         bindingGroup = EventDispatchThreadUtil.invokeAndWait(new Callable<BindingGroup>() {
                             @Override
                             public BindingGroup call() throws Exception {
-                                return initBindingGroup(component);
+                                return initBindingGroup(componentCopy);
                             }
                         });
                     }
