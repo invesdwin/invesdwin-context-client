@@ -4,7 +4,7 @@ import javax.annotation.concurrent.ThreadSafe;
 import javax.inject.Inject;
 
 import org.assertj.swing.fixture.JTextComponentFixture;
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import de.invesdwin.context.client.swing.test.RichApplicationStub;
 import de.invesdwin.context.test.ATest;

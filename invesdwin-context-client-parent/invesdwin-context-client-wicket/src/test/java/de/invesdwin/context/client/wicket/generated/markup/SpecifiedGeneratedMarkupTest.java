@@ -4,7 +4,7 @@ import java.io.File;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import de.invesdwin.context.client.wicket.generated.markup.internal.RedirectedModel;
 import de.invesdwin.context.test.ATest;

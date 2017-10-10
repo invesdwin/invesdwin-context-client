@@ -2,9 +2,9 @@ package de.invesdwin.context.client.wicket;
 
 import javax.annotation.concurrent.Immutable;
 
-import org.junit.platform.runner.JUnitPlatform;
-import org.junit.platform.suite.api.SelectClasses;
 import org.junit.runner.RunWith;
+import org.junit.runners.Suite;
+import org.junit.runners.Suite.SuiteClasses;
 
 import de.invesdwin.context.client.wicket.generated.markup.AnnotatedGeneratedMarkupTest;
 import de.invesdwin.context.client.wicket.generated.markup.SpecifiedGeneratedMarkupMainTest;
@@ -13,8 +13,8 @@ import de.invesdwin.context.client.wicket.generated.markup.internal.run.Automate
 import de.invesdwin.context.client.wicket.internal.SimpleHomePageTest;
 import de.invesdwin.context.client.wicket.internal.SimpleHomePageWebServerTest;
 
-@RunWith(JUnitPlatform.class)
-@SelectClasses({ SimpleHomePageWebServerTest.class, SimpleHomePageTest.class, SpecifiedGeneratedMarkupTest.class,
+@RunWith(Suite.class)
+@SuiteClasses({ SimpleHomePageWebServerTest.class, SimpleHomePageTest.class, SpecifiedGeneratedMarkupTest.class,
         SpecifiedGeneratedMarkupMainTest.class, AnnotatedGeneratedMarkupTest.class,
         AutomatedAnotherSampleModelTest.class })
 @Immutable

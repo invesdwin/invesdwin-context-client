@@ -4,7 +4,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 import javax.inject.Inject;
 
 import org.apache.wicket.util.tester.WicketTester;
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 
 import de.invesdwin.context.client.wicket.generated.markup.internal.AnotherSampleModel;
