@@ -8,7 +8,7 @@ import javax.inject.Inject;
 import org.junit.Test;
 
 import de.invesdwin.context.security.ldap.directory.server.DirectoryServer;
-import de.invesdwin.context.security.ldap.directory.test.DirectoryServerTest;
+import de.invesdwin.context.security.ldap.directory.server.test.DirectoryServerTest;
 import de.invesdwin.context.test.ATest;
 import de.invesdwin.context.webserver.test.WebserverTest;
 
