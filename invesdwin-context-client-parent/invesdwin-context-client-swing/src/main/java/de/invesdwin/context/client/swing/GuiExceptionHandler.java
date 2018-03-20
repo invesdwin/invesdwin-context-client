@@ -5,12 +5,14 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import javax.annotation.concurrent.ThreadSafe;
+import javax.swing.UIManager;
 
 import org.jdesktop.application.Application;
 import org.jdesktop.application.ResourceMap;
 import org.jdesktop.swingx.JXErrorPane;
 import org.jdesktop.swingx.error.ErrorInfo;
 
+import de.invesdwin.context.client.swing.internal.DetailedErrorPaneUI;
 import de.invesdwin.context.log.error.Err;
 import de.invesdwin.context.log.error.LoggedRuntimeException;
 import de.invesdwin.context.log.error.hook.ErrHookManager;
@@ -27,6 +29,7 @@ public final class GuiExceptionHandler implements IErrHook {
 
     private GuiExceptionHandler() {
         ErrHookManager.register(this);
+        UIManager.getDefaults().put(JXErrorPane.uiClassID, DetailedErrorPaneUI.class.getName());
     }
 
     public static void requestShutdownAfterShowing(final Throwable shutdownAfterShowing) {
@@ -51,7 +54,7 @@ public final class GuiExceptionHandler implements IErrHook {
             basicErrorMessage.append(resourceMap.getString("errorInfo.text"));
             basicErrorMessage.append("<br>");
             basicErrorMessage.append("<br><b>");
-            basicErrorMessage.append(e.getMessage());
+            basicErrorMessage.append(e.toString());
             basicErrorMessage.append("</b>");
 
             final ErrorInfo errorInfo = new ErrorInfo(title, basicErrorMessage.toString(), null, null, e, null, null);

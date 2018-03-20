@@ -24,7 +24,6 @@ public class TestViewTest extends ATest {
     @Override
     public void setUpContext(final TestContext ctx) throws Exception {
         super.setUpContext(ctx);
-        ctx.activate(TestView.class);
         ctx.activate(TestRichApplication.class);
     }
 
