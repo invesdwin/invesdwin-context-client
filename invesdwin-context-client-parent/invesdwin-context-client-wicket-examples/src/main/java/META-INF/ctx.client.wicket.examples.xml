@@ -1,5 +1,6 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:security="http://www.springframework.org/schema/security"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:security="http://www.springframework.org/schema/security"
 	xsi:schemaLocation="http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security.xsd
 		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
@@ -11,12 +12,13 @@
 			<security:frame-options policy="SAMEORIGIN" />
 		</security:headers>
 
-		<security:custom-filter ref="spnegoAuthenticationProcessingFilter"
-			before="BASIC_AUTH_FILTER" />
+		<security:custom-filter
+			ref="spnegoAuthenticationProcessingFilter" before="BASIC_AUTH_FILTER" />
 		<!-- need to redirect to form login on failed single sign on -->
 		<security:form-login login-page="/signin" />
 
-		<security:intercept-url pattern="/springkerberossecure"
+		<security:intercept-url
+			pattern="/springkerberossecure"
 			access="hasRole('KERBEROS_AUTHENTICATED')" />
 	</security:http>
 
@@ -32,11 +34,11 @@
 			in exceptions -->
 		<security:custom-filter before="FIRST"
 			ref="metadataGeneratorFilter" />
-		<security:custom-filter after="BASIC_AUTH_FILTER"
-			ref="samlFilter" />
+		<security:custom-filter
+			after="BASIC_AUTH_FILTER" ref="samlFilter" />
 
-		<security:intercept-url pattern="/springsamlsecure"
-			access="hasRole('SAML_AUTHENTICATED')" />
+		<security:intercept-url
+			pattern="/springsamlsecure" access="hasRole('SAML_AUTHENTICATED')" />
 	</security:http>
 
 	<security:http entry-point-ref="casEntryPoint"
@@ -49,12 +51,13 @@
 
 		<security:custom-filter position="CAS_FILTER"
 			ref="casFilter" />
-			
-		<security:intercept-url pattern="/springcassecure"
-			access="hasRole('CAS_AUTHENTICATED')" />
+
+		<security:intercept-url
+			pattern="/springcassecure" access="hasRole('CAS_AUTHENTICATED')" />
 	</security:http>
-	
-	<security:http authentication-manager-ref="exampleAuthenticationManager"
+
+	<security:http
+		authentication-manager-ref="exampleAuthenticationManager"
 		use-expressions="true">
 
 		<security:csrf disabled="true" />
@@ -70,8 +73,11 @@
 		<!-- alternatively with use-expressions="false": access="ADMIN" -->
 	</security:http>
 
-	<security:authentication-manager id="exampleAuthenticationManager">
+	<security:authentication-manager
+		id="exampleAuthenticationManager">
 		<security:authentication-provider>
+			<security:password-encoder
+				ref="noopPasswordEncoder" />
 			<security:user-service>
 				<security:user name="admin" password="4dm1nFTW"
 					authorities="ADMIN" />
