@@ -52,7 +52,7 @@ public class AdvancedBrowser {
         data.bottom = new FormAttachment(100, 0);
         status.setLayoutData(data);
 
-        final Browser browser = new Browser(shell, SWT.MOZILLA);
+        final Browser browser = new Browser(shell, SWT.WEBKIT);
         data = new FormData();
         data.top = new FormAttachment(controls);
         data.bottom = new FormAttachment(status);
@@ -117,13 +117,14 @@ public class AdvancedBrowser {
         shell.setDefaultButton(button);
 
         browser.addCloseWindowListener(new AdvancedCloseWindowListener());
-        browser.addLocationListener(new AdvancedLocationListener(url));
+        //        browser.addLocationListener(new AdvancedLocationListener(url));
         browser.addProgressListener(new AdvancedProgressListener(throbber));
         browser.addStatusTextListener(new AdvancedStatusTextListener(status));
 
         // Go to the initial URL
         if (location != null) {
             browser.setUrl(location);
+            url.setText(location);
         }
 
         shell.open();
