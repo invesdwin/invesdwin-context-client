@@ -12,7 +12,7 @@
 	<packaging>jar</packaging>
 
 	<properties>
-		<swt.version>4.6.1</swt.version>
+		<swt.version>3.107.0</swt.version>
 		<lib.directory>swt</lib.directory>
 	</properties>
 
@@ -23,9 +23,10 @@
 		</dependency>
 
 		<dependency>
-			<groupId>org.eclipse.swt</groupId>
+			<groupId>org.eclipse.platform</groupId>
 			<artifactId>${swt.artifactId}</artifactId>
 			<version>${swt.version}</version>
+			<scope>provided</scope>
 		</dependency>
 	</dependencies>
 
