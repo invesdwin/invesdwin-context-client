@@ -52,7 +52,7 @@ public class AdvancedBrowser {
         data.bottom = new FormAttachment(100, 0);
         status.setLayoutData(data);
 
-        final Browser browser = new Browser(shell, SWT.BORDER);
+        final Browser browser = new Browser(shell, SWT.MOZILLA);
         data = new FormData();
         data.top = new FormAttachment(controls);
         data.bottom = new FormAttachment(status);
