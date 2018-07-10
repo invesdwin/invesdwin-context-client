@@ -106,7 +106,7 @@ public final class StatusBarMessageTimeoutThread extends Thread {
                 if (getPaused()) {
                     MIN_TIMEOUT_AFTER_PAUSE.sleep();
                 } else {
-                    getTimeoutStarted().sleepRelativeTo(getTimeout());
+                    getTimeoutStarted().sleepRelative(getTimeout());
                 }
             }
 
