@@ -1,5 +1,7 @@
 package de.invesdwin.context.client.wicket.samples;
 
+import java.util.Optional;
+
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxFallbackButton;
 import org.apache.wicket.markup.html.form.Form;
@@ -31,13 +33,15 @@ public class FileUploadRequiredPage extends AWebPage {
         form.add(file);
         final AjaxFallbackButton submit = new AjaxFallbackButton("submit", form) {
             @Override
-            protected void onSubmit(final AjaxRequestTarget target, final Form<?> form) {
-                target.add(form);
+            protected void onSubmit(final Optional<AjaxRequestTarget> target) {
+                if (target.isPresent()) {
+                    target.get().add(getForm());
+                }
             }
 
             @Override
-            protected void onError(final AjaxRequestTarget target, final Form<?> form) {
-                onSubmit(target, form);
+            protected void onError(final Optional<AjaxRequestTarget> target) {
+                onSubmit(target);
             }
 
         };
