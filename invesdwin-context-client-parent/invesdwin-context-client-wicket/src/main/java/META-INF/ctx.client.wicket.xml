@@ -3,8 +3,11 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-	<bean class="de.invesdwin.nowicket.generated.guiservice.GuiService" />
+	<bean
+		class="de.invesdwin.nowicket.generated.guiservice.GuiService" />
 	<bean
 		class="de.invesdwin.nowicket.application.filter.init.hook.WebApplicationInitializerHookSupport" />
+	<bean
+		class="org.apache.wicket.protocol.ws.javax.WicketServerEndpointConfig" />
 
 </beans>
