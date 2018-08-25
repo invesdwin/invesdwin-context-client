@@ -11,6 +11,7 @@ import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 
 import de.invesdwin.context.ContextProperties;
 import de.invesdwin.context.beans.init.MergedContext;
+import de.invesdwin.context.integration.IntegrationProperties;
 import de.invesdwin.context.system.properties.SystemProperties;
 import de.invesdwin.nowicket.application.IWebApplicationConfig;
 import de.invesdwin.nowicket.application.WebApplicationConfigSupport;
@@ -77,6 +78,12 @@ public class DelegateWebApplication extends AWebApplication {
     @Override
     public File getSessionsDirectory() {
         return ContextProperties.TEMP_DIRECTORY;
+    }
+
+    @Override
+    public String getSessionCookieName() {
+        //make sure multiple instances don't collide per default by making the session cookie unique on the given domain
+        return "JSESSIONID_" + IntegrationProperties.WEBSERVER_BIND_URI.getPort();
     }
 
 }
