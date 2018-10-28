@@ -54,7 +54,7 @@
 
 		<version.vaadin>8.1.1</version.vaadin>
 		<version.vaadstrap>0.2.1</version.vaadstrap>
-		
+
 		<version.swt>3.107.0</version.swt>
 	</properties>
 
