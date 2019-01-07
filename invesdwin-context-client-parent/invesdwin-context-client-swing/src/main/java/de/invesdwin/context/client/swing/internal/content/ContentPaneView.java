@@ -19,8 +19,7 @@ import bibliothek.gui.dock.common.intern.CDockable;
 import bibliothek.gui.dock.common.intern.CommonDockable;
 import bibliothek.gui.dock.common.mode.ExtendedMode;
 import bibliothek.gui.dock.control.focus.DefaultFocusRequest;
-import bibliothek.gui.dock.station.stack.tab.MenuLineLayout;
-import bibliothek.gui.dock.station.stack.tab.TabPane;
+import bibliothek.gui.dock.themes.NoStackTheme;
 import de.invesdwin.aspects.EventDispatchThreadUtil;
 import de.invesdwin.context.client.swing.ContentPane;
 import de.invesdwin.context.client.swing.api.AView;
@@ -45,7 +44,6 @@ public class ContentPaneView extends AView<ContentPaneView, CContentArea> {
         final SingleFrameApplication app = (SingleFrameApplication) Application.getInstance();
         final JFrame frame = app.getMainFrame();
         this.control = new CControl(frame);
-        control.putProperty(TabPane.LAYOUT_MANAGER, new MenuLineLayout());
         control.addGlobalKeyListener(new KeyListener() {
             @Override
             public void keyTyped(final KeyEvent e) {}
@@ -73,6 +71,8 @@ public class ContentPaneView extends AView<ContentPaneView, CContentArea> {
         grid.add(1, 1, 1, 1, workingArea);
         final CContentArea contentArea = control.getContentArea();
         contentArea.deploy(grid);
+
+        control.getController().setTheme(new NoStackTheme(new CustomTheme()));
         return contentArea;
     }
 
