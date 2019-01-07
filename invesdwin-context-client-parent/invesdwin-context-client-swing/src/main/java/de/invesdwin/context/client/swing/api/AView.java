@@ -8,7 +8,6 @@ import javax.swing.Icon;
 import javax.swing.JComponent;
 
 import org.jdesktop.beansbinding.BindingGroup;
-import org.noos.xing.mydoggy.Content;
 
 import de.invesdwin.aspects.EventDispatchThreadUtil;
 import de.invesdwin.context.client.swing.ContentPane;
@@ -17,8 +16,6 @@ import de.invesdwin.context.client.swing.api.internal.ViewIdGenerator;
 import de.invesdwin.context.client.swing.util.ComponentStandardizer;
 import de.invesdwin.util.assertions.Assertions;
 
-// TODO exitlisteners
-@SuppressWarnings("serial")
 @ThreadSafe
 public abstract class AView<M extends AModel, C extends JComponent> extends AModel {
 
@@ -36,9 +33,9 @@ public abstract class AView<M extends AModel, C extends JComponent> extends AMod
     private C component;
     @GuardedBy("componentLock")
     private BindingGroup bindingGroup;
-    private final Object contentLock = new Object();
-    @GuardedBy("contentLock")
-    private Content content;
+    private final Object dockableLock = new Object();
+    @GuardedBy("dockableLock")
+    private DockableContent dockable;
 
     public AView() {
         id = ViewIdGenerator.newId(this);
@@ -124,30 +121,30 @@ public abstract class AView<M extends AModel, C extends JComponent> extends AMod
         return getResourceMap().getString(VIEW_DESCRIPTION_KEY);
     }
 
-    public Content getContent() {
-        synchronized (contentLock) {
-            return content;
+    public DockableContent getDockable() {
+        synchronized (dockableLock) {
+            return dockable;
         }
     }
 
     /**
      * This method may only be called by the ContentPane class.
      */
-    public void setContent(final ContentPane contentPane, final Content content) {
-        synchronized (contentLock) {
-            if (this.content == null) {
-                Assertions.assertThat(content.getId()).isEqualTo(getId());
-                Assertions.assertThat(content.getComponent()).isSameAs(getComponent());
+    public void setDockable(final ContentPane contentPane, final DockableContent dockable) {
+        synchronized (dockableLock) {
+            if (this.dockable == null) {
+                Assertions.assertThat(dockable.getId()).isEqualTo(getId());
+                Assertions.assertThat(dockable.getComponent()).isSameAs(getComponent());
                 Assertions.assertThat(contentPane.containsView(this))
                         .as("ContentPane is not synchronous to the content in the View. The View is missing there despite the content being set here.")
                         .isTrue();
             } else {
-                Assertions.assertThat(content).as("A View instance can only be made visible once.").isNull();
+                Assertions.assertThat(dockable).as("A View instance can only be made visible once.").isNull();
                 Assertions.assertThat(contentPane.containsView(this))
                         .as("ContentPane is not synchronous to the content in the View. The View still exists there, despite the content being removed from here.")
                         .isFalse();
             }
-            this.content = content;
+            this.dockable = dockable;
         }
     }
 

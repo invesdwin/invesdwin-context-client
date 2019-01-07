@@ -7,18 +7,19 @@ import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 import javax.inject.Inject;
 
-import org.noos.xing.mydoggy.Content;
-
+import bibliothek.gui.dock.common.CControl;
+import bibliothek.gui.dock.common.SingleCDockable;
+import bibliothek.gui.dock.common.intern.CDockable;
 import de.invesdwin.aspects.annotation.EventDispatchThread;
 import de.invesdwin.aspects.annotation.EventDispatchThread.InvocationType;
 import de.invesdwin.context.client.swing.api.AView;
+import de.invesdwin.context.client.swing.api.DockableContent;
 import de.invesdwin.context.client.swing.internal.content.ContentPaneView;
 import de.invesdwin.util.assertions.Assertions;
 
 @ThreadSafe
 public class ContentPane {
 
-    @SuppressWarnings("GuardedBy")
     @GuardedBy("@EventDispatchThread")
     private final Map<String, AView<?, ?>> id_visibleView = new HashMap<String, AView<?, ?>>();
 
@@ -31,8 +32,8 @@ public class ContentPane {
     @EventDispatchThread(InvocationType.INVOKE_AND_WAIT)
     public void addView(final AView<?, ?> view) {
         Assertions.assertThat(containsView(view)).as("View [%s] is already being displayed.", view.getId()).isFalse();
-        final Content content = contentPaneView.addView(ContentPane.this, view);
-        view.setContent(ContentPane.this, content);
+        final DockableContent content = contentPaneView.addView(ContentPane.this, view);
+        view.setDockable(ContentPane.this, content);
         Assertions.assertThat(id_visibleView.put(view.getId(), view)).isNull();
     }
 
@@ -46,19 +47,32 @@ public class ContentPane {
         if (containsView(view)) {
             Assertions.assertThat(contentPaneView.removeView(view)).isTrue();
         }
-        view.setContent(ContentPane.this, null);
+        view.setDockable(ContentPane.this, null);
+    }
+
+    public void removeDockable(final CDockable dockable) {
+        removeDockable((SingleCDockable) dockable);
     }
 
     @EventDispatchThread(InvocationType.INVOKE_AND_WAIT)
-    public void removeContent(final Content content) {
-        final AView<?, ?> view = id_visibleView.get(content.getId());
-        Assertions.assertThat(view).as("No View for Content [%s] found.", content.getId()).isNotNull();
+    public void removeDockable(final SingleCDockable dockable) {
+        final AView<?, ?> view = id_visibleView.get(dockable.getUniqueId());
+        Assertions.assertThat(view).as("No View for Content [%s] found.", dockable.getUniqueId()).isNotNull();
         removeView(view);
     }
 
+    public boolean containsDockable(final CDockable dockable) {
+        return containsDockable((SingleCDockable) dockable);
+    }
+
     @EventDispatchThread(InvocationType.INVOKE_AND_WAIT)
-    public boolean containsContent(final Content content) {
-        return id_visibleView.containsKey(content.getId());
+    public boolean containsDockable(final SingleCDockable dockable) {
+        return id_visibleView.containsKey(dockable.getUniqueId());
+    }
+
+    @EventDispatchThread(InvocationType.INVOKE_AND_WAIT)
+    public boolean containsDockable(final DockableContent dockable) {
+        return id_visibleView.containsKey(dockable.getId());
     }
 
     @EventDispatchThread(InvocationType.INVOKE_AND_WAIT)
@@ -68,8 +82,9 @@ public class ContentPane {
 
     @EventDispatchThread(InvocationType.INVOKE_AND_WAIT)
     public void reset() {
-        for (final Content content : contentPaneView.getComponent().getContentManager().getContents()) {
-            removeContent(content);
+        final CControl control = contentPaneView.getComponent().getControl();
+        while (control.getCDockableCount() > 0) {
+            removeDockable((SingleCDockable) control.getCDockable(0));
         }
     }
 

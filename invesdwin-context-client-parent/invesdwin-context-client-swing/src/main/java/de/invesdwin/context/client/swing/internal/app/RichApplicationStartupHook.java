@@ -94,8 +94,8 @@ public class RichApplicationStartupHook implements IStartupHook {
         setInitialFrameSize(frameView);
         if (!delegate.keepSplashVisible()) {
             Assertions.assertThat(!delegate.hideMainFrameOnStartup())
-            .as("Keeping open the splash is only useful if you want to hide the MainFrame.")
-            .isTrue();
+                    .as("Keeping open the splash is only useful if you want to hide the MainFrame.")
+                    .isTrue();
             splashScreen.dispose();
         }
 

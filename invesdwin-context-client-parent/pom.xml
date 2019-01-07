@@ -41,7 +41,7 @@
 		<version.invesdwin-context-security>${version.invesdwin-context}</version.invesdwin-context-security>
 		<version.invesdwin-context-client>${version.invesdwin-context}</version.invesdwin-context-client>
 
-		<version.mydoggy>1.5.0-beta-r1389</version.mydoggy>
+		<version.docking-frames>1.1.2-P20c</version.docking-frames>
 		<version.spring-richclient>1.1.0</version.spring-richclient>
 		<version.betterbeansbinding>1.3.0</version.betterbeansbinding>
 		<version.assertj-swing>3.8.0</version.assertj-swing>
@@ -135,11 +135,6 @@
 			</dependency>
 
 			<dependency>
-				<groupId>net.sourceforge.mydoggy</groupId>
-				<artifactId>mydoggy-plaf</artifactId>
-				<version>${version.mydoggy}</version>
-			</dependency>
-			<dependency>
 				<groupId>org.springframework.richclient</groupId>
 				<artifactId>spring-richclient-core</artifactId>
 				<version>${version.spring-richclient}</version>
@@ -228,6 +223,11 @@
 				<groupId>com.sebworks</groupId>
 				<artifactId>vaadstrap</artifactId>
 				<version>${version.vaadstrap}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.dockingframes</groupId>
+				<artifactId>docking-frames-common</artifactId>
+				<version>${version.docking-frames}</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
