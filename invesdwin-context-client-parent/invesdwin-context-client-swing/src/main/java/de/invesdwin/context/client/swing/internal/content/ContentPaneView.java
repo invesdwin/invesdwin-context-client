@@ -19,7 +19,6 @@ import bibliothek.gui.dock.common.intern.CDockable;
 import bibliothek.gui.dock.common.intern.CommonDockable;
 import bibliothek.gui.dock.common.mode.ExtendedMode;
 import bibliothek.gui.dock.control.focus.DefaultFocusRequest;
-import bibliothek.gui.dock.themes.NoStackTheme;
 import de.invesdwin.aspects.EventDispatchThreadUtil;
 import de.invesdwin.context.client.swing.ContentPane;
 import de.invesdwin.context.client.swing.api.AView;
@@ -72,7 +71,7 @@ public class ContentPaneView extends AView<ContentPaneView, CContentArea> {
         final CContentArea contentArea = control.getContentArea();
         contentArea.deploy(grid);
 
-        control.getController().setTheme(new NoStackTheme(new CustomTheme()));
+        control.getController().setTheme(new CustomTheme());
         return contentArea;
     }
 
