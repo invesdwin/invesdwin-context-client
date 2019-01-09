@@ -42,7 +42,8 @@ public class CustomTheme extends EclipseTheme {
                 setColor("stack.tab.top", DockUI.getColor(LookAndFeelColors.PANEL_BACKGROUND));
                 setColor("stack.tab.top.disabled", DockUI.getColor(LookAndFeelColors.PANEL_BACKGROUND));
                 setColor("stack.tab.top.selected", DockUI.getColor(LookAndFeelColors.PANEL_BACKGROUND));
-                setColor("stack.tab.top.selected.focused", DockUI.getColor(LookAndFeelColors.PANEL_BACKGROUND));
+                setColor("stack.tab.top.selected.focused",
+                        Colors.darker(DockUI.getColor(LookAndFeelColors.PANEL_BACKGROUND), 0.15D));
                 setColor("stack.tab.top.selected.focuslost", DockUI.getColor(LookAndFeelColors.PANEL_BACKGROUND));
                 setColor("stack.tab.top.disabled",
                         Colors.brighter(DockUI.getColor(LookAndFeelColors.PANEL_BACKGROUND)));
@@ -59,7 +60,8 @@ public class CustomTheme extends EclipseTheme {
                 setColor("stack.tab.text.selected", DockUI.getColor(LookAndFeelColors.PANEL_FOREGROUND));
                 setColor("stack.tab.text.selected.focused", DockUI.getColor(LookAndFeelColors.PANEL_FOREGROUND));
                 setColor("stack.tab.text.selected.focuslost", DockUI.getColor(LookAndFeelColors.PANEL_FOREGROUND));
-                setColor("stack.tab.text.disabled", DockUI.getColor(LookAndFeelColors.PANEL_FOREGROUND));
+                setColor("stack.tab.text.disabled",
+                        Colors.brighter(DockUI.getColor(LookAndFeelColors.PANEL_FOREGROUND)));
 
                 setColor("stack.border", RexSystemColor.getBorderColor());
                 setColor("stack.border.edges", DockUI.getColor(LookAndFeelColors.PANEL_BACKGROUND));
