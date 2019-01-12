@@ -20,7 +20,7 @@ Dependency declaration:
 ## Swing Module
 
 The `invesdwin-context-client-swing` module provides some tools to simplify building swing applications. The following frameworks have been integrated to function as a platform:
-- [Docking Frames](https://github.com/Benoker/DockingFrames): this is a lightweight docking framework that provides a flexible container for your views.
+- [DockingFrames](https://github.com/Benoker/DockingFrames): this is a lightweight docking framework that provides a flexible container for your views.
 - [BetterBeansBinding](https://github.com/stephenneal/betterbeansbinding): this allows to easily keep models in sync with view components. It is an improved version of the reference implementation for [JSR-295](https://jcp.org/en/jsr/detail?id=295).
 - [BetterSwingApplicationFramework](https://sourceforge.net/projects/bsaf/): this provides a framework to handle the application lifecycline, internationalization and action binding. It is an improved version of the reference implementation for [JSR-296](https://en.wikipedia.org/wiki/Swing_Application_Framework).
 - [AssertJ Swing](http://joel-costigliola.github.io/assertj/assertj-swing.html): to write unit tests for your swing views by automating actions.
