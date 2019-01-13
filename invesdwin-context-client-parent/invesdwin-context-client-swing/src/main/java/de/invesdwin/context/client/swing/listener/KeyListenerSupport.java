@@ -1,4 +1,4 @@
-package de.invesdwin.context.client.swing.util;
+package de.invesdwin.context.client.swing.listener;
 
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
