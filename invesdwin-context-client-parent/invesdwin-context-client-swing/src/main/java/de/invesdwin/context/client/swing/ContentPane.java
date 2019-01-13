@@ -7,7 +7,6 @@ import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 import javax.inject.Inject;
 
-import bibliothek.gui.dock.common.CControl;
 import bibliothek.gui.dock.common.SingleCDockable;
 import bibliothek.gui.dock.common.intern.CDockable;
 import de.invesdwin.aspects.annotation.EventDispatchThread;
@@ -82,9 +81,8 @@ public class ContentPane {
 
     @EventDispatchThread(InvocationType.INVOKE_AND_WAIT)
     public void reset() {
-        final CControl control = contentPaneView.getComponent().getControl();
-        while (control.getCDockableCount() > 0) {
-            removeDockable((SingleCDockable) control.getCDockable(0));
+        for (final AView<?, ?> view : id_visibleView.values()) {
+            removeView(view);
         }
     }
 

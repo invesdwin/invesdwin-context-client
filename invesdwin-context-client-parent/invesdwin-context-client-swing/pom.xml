@@ -68,14 +68,9 @@
 			<artifactId>jcalendar</artifactId>
 		</dependency>
 
-		<!-- assertj-swing is not included in the parent as test dependencies, 
-			since this is for special cases only. if required, one also needs to include 
-			the richtlient test jar defined as a dependency to be able to use the RichApplicationStub 
-			for test integration -->
 		<dependency>
 			<groupId>org.assertj</groupId>
 			<artifactId>assertj-swing</artifactId>
-			<scope>test</scope>
 		</dependency>
 	</dependencies>
 

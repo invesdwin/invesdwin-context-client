@@ -12,6 +12,7 @@ import org.jdesktop.application.ResourceMap;
 import org.jdesktop.swingx.JXErrorPane;
 import org.jdesktop.swingx.error.ErrorInfo;
 
+import de.invesdwin.aspects.EventDispatchThreadUtil;
 import de.invesdwin.context.client.swing.internal.DetailedErrorPaneUI;
 import de.invesdwin.context.log.error.Err;
 import de.invesdwin.context.log.error.LoggedRuntimeException;
@@ -57,11 +58,17 @@ public final class GuiExceptionHandler implements IErrHook {
             basicErrorMessage.append(e.toString());
             basicErrorMessage.append("</b>");
 
-            final ErrorInfo errorInfo = new ErrorInfo(title, basicErrorMessage.toString(), null, null, e, null, null);
-            JXErrorPane.showFrame(Dialogs.getRootFrame(), errorInfo);
-            if (Err.isSameMeaning(shutdownAfterShowing, e)) {
-                System.exit(1);
-            }
+            EventDispatchThreadUtil.invokeLater(new Runnable() {
+                @Override
+                public void run() {
+                    final ErrorInfo errorInfo = new ErrorInfo(title, basicErrorMessage.toString(), null, null, e, null,
+                            null);
+                    JXErrorPane.showFrame(Dialogs.getRootFrame(), errorInfo);
+                    if (Err.isSameMeaning(shutdownAfterShowing, e)) {
+                        System.exit(1);
+                    }
+                }
+            });
         }
     }
 }

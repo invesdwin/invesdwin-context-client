@@ -143,14 +143,21 @@ public abstract class AView<M extends AModel, C extends JComponent> extends AMod
                 Assertions.assertThat(contentPane.containsView(this))
                         .as("ContentPane is not synchronous to the content in the View. The View is missing there despite the content being set here.")
                         .isTrue();
+                this.dockable = dockable;
+                onOpen();
             } else {
                 Assertions.assertThat(dockable).as("A View instance can only be made visible once.").isNull();
                 Assertions.assertThat(contentPane.containsView(this))
                         .as("ContentPane is not synchronous to the content in the View. The View still exists there, despite the content being removed from here.")
                         .isFalse();
+                this.dockable = null;
+                onClose();
             }
-            this.dockable = dockable;
         }
     }
+
+    protected void onOpen() {}
+
+    protected void onClose() {}
 
 }
