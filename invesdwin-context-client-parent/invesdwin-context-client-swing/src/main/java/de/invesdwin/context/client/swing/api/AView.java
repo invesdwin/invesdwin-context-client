@@ -41,6 +41,11 @@ public abstract class AView<M extends AModel, C extends JComponent> extends AMod
         id = ViewIdGenerator.newId(this);
     }
 
+    public AView(final M model) {
+        id = ViewIdGenerator.newId(this);
+        this.model = model;
+    }
+
     public M getModel() {
         synchronized (modelLock) {
             if (model == null) {
