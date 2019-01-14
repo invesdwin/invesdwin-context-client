@@ -7,12 +7,15 @@ import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 import javax.inject.Inject;
 
+import org.jdesktop.application.Application;
+
 import bibliothek.gui.dock.common.SingleCDockable;
 import bibliothek.gui.dock.common.intern.CDockable;
 import de.invesdwin.aspects.annotation.EventDispatchThread;
 import de.invesdwin.aspects.annotation.EventDispatchThread.InvocationType;
 import de.invesdwin.context.client.swing.api.AView;
 import de.invesdwin.context.client.swing.api.DockableContent;
+import de.invesdwin.context.client.swing.internal.app.DelegateRichApplication;
 import de.invesdwin.context.client.swing.internal.content.ContentPaneView;
 import de.invesdwin.util.assertions.Assertions;
 
@@ -84,6 +87,11 @@ public class ContentPane {
         for (final AView<?, ?> view : id_visibleView.values()) {
             removeView(view);
         }
+    }
+
+    public void showMainView() {
+        final DelegateRichApplication application = (DelegateRichApplication) Application.getInstance();
+        application.showMainView();
     }
 
 }

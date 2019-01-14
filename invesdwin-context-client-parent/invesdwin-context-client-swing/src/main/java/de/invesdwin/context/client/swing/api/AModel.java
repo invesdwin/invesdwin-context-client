@@ -14,7 +14,6 @@ import de.invesdwin.norva.beanpath.annotation.Hidden;
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.bean.AValueObject;
 
-@SuppressWarnings("serial")
 @ThreadSafe
 public abstract class AModel extends AValueObject {
 

@@ -1,12 +1,18 @@
 package de.invesdwin.context.client.swing.internal.app;
 
-import javax.annotation.concurrent.NotThreadSafe;
+import java.awt.event.WindowListener;
 
+import javax.annotation.concurrent.NotThreadSafe;
+import javax.swing.JFrame;
+
+import org.jdesktop.application.FrameView;
 import org.jdesktop.application.ProxyActions;
 import org.jdesktop.application.SingleFrameApplication;
 import org.springframework.beans.factory.config.BeanDefinition;
 
 import de.invesdwin.aspects.EventDispatchThreadUtil;
+import de.invesdwin.aspects.annotation.EventDispatchThread;
+import de.invesdwin.aspects.annotation.EventDispatchThread.InvocationType;
 import de.invesdwin.context.beans.hook.StartupHookManager;
 import de.invesdwin.context.beans.init.MergedContext;
 import de.invesdwin.context.beans.init.PreMergedContext;
@@ -99,6 +105,28 @@ public class DelegateRichApplication extends SingleFrameApplication {
                 .isEqualTo(1);
         final BeanDefinition beanDefinition = PreMergedContext.getInstance().getBeanDefinition(beanNames[0]);
         return Reflections.classForName(beanDefinition.getBeanClassName());
+    }
+
+    @EventDispatchThread(InvocationType.INVOKE_LATER_IF_NOT_IN_EDT)
+    public void showMainView() {
+        final FrameView frameView = getMainView();
+        frameView.getFrame().setVisible(true);
+        frameView.getFrame().repaint(); //to be safe we call a repaint so that the temporary grey area on the top is less likely to occur
+        show(frameView);
+        final IRichApplication application = MergedContext.getInstance().getBean(IRichApplication.class);
+        if (application.isExitOnMainFrameClose()) {
+            frameView.getFrame().setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        } else {
+            frameView.getFrame().setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+        }
+        final WindowListener[] listeners = frameView.getFrame().getWindowListeners();
+        for (final WindowListener l : listeners) {
+            final String name = l.getClass().getName();
+            if ("org.jdesktop.application.SingleFrameApplication$MainFrameListener".equals(name)) {
+                frameView.getFrame().removeWindowListener(l);
+                break;
+            }
+        }
     }
 
 }

@@ -10,12 +10,22 @@ import de.invesdwin.context.client.swing.api.menu.IMenuBarConfig;
 public abstract class ARichApplication implements IRichApplication {
 
     @Override
-    public boolean hideMainFrameOnStartup() {
+    public boolean isHideMainFrameOnStartup() {
         return false;
     }
 
     @Override
-    public boolean keepSplashVisible() {
+    public boolean isHideSplashOnStartup() {
+        return false;
+    }
+
+    @Override
+    public boolean isExitOnMainFrameClose() {
+        return true;
+    }
+
+    @Override
+    public boolean isKeepSplashVisible() {
         return false;
     }
 

@@ -6,9 +6,13 @@ import de.invesdwin.context.client.swing.api.menu.IMenuBarConfig;
 
 public interface IRichApplication {
 
-    boolean hideMainFrameOnStartup();
+    boolean isHideMainFrameOnStartup();
 
-    boolean keepSplashVisible();
+    boolean isHideSplashOnStartup();
+
+    boolean isExitOnMainFrameClose();
+
+    boolean isKeepSplashVisible();
 
     AView<?, ?> getInitialView();
 

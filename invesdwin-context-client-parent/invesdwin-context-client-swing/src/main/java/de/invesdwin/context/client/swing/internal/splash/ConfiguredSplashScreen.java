@@ -14,6 +14,7 @@ import org.springframework.richclient.progress.ProgressMonitor;
 
 import de.invesdwin.aspects.EventDispatchThreadUtil;
 import de.invesdwin.context.beans.init.MergedContext;
+import de.invesdwin.context.client.swing.api.IRichApplication;
 import de.invesdwin.context.client.swing.internal.app.DelegateRichApplication;
 
 @NotThreadSafe
@@ -40,18 +41,20 @@ public final class ConfiguredSplashScreen implements SplashScreen, FactoryBean<C
                         .getMessage(DelegateRichApplication.KEY_APPLICATION_SPLASH, null, null)));
                 splashScreen.setIconResourcePath(
                         splashScreen.getMessageSource().getMessage(Application.KEY_APPLICATION_ICON, null, null));
-                final ProgressMonitor tracker = ((MonitoringSplashScreen) splashScreen).getProgressMonitor();
-                MergedContext.autowire(new ProgressMonitoringBeanFactoryPostProcessor(tracker, messageSource));
-
-                try {
-                    EventDispatchThreadUtil.invokeAndWait(new Runnable() {
-                        @Override
-                        public void run() {
-                            splashScreen.splash();
-                        }
-                    });
-                } catch (final Exception e) {
-                    throw new RuntimeException("EDT threading issue while showing splash screen", e);
+                final IRichApplication richApplication = MergedContext.getInstance().getBean(IRichApplication.class);
+                if (!richApplication.isHideSplashOnStartup()) {
+                    final ProgressMonitor tracker = ((MonitoringSplashScreen) splashScreen).getProgressMonitor();
+                    MergedContext.autowire(new ProgressMonitoringBeanFactoryPostProcessor(tracker, messageSource));
+                    try {
+                        EventDispatchThreadUtil.invokeAndWait(new Runnable() {
+                            @Override
+                            public void run() {
+                                splashScreen.splash();
+                            }
+                        });
+                    } catch (final Exception e) {
+                        throw new RuntimeException("EDT threading issue while showing splash screen", e);
+                    }
                 }
             }
         }

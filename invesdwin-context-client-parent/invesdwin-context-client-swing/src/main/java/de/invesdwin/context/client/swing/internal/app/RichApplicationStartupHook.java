@@ -25,7 +25,6 @@ import de.invesdwin.context.client.swing.api.IRichApplication;
 import de.invesdwin.context.client.swing.internal.content.ContentPaneView;
 import de.invesdwin.context.client.swing.internal.menu.MenuBarView;
 import de.invesdwin.context.client.swing.internal.status.StatusBarView;
-import de.invesdwin.util.assertions.Assertions;
 
 /**
  * This class handles the initilization and displaying of the MainFrame.
@@ -92,17 +91,12 @@ public class RichApplicationStartupHook implements IStartupHook {
 
         frameView.getFrame().pack();
         setInitialFrameSize(frameView);
-        if (!delegate.keepSplashVisible()) {
-            Assertions.assertThat(!delegate.hideMainFrameOnStartup())
-                    .as("Keeping open the splash is only useful if you want to hide the MainFrame.")
-                    .isTrue();
+        if (!delegate.isKeepSplashVisible()) {
             splashScreen.dispose();
         }
 
-        if (!delegate.hideMainFrameOnStartup()) {
-            frameView.getFrame().setVisible(true);
-            frameView.getFrame().repaint(); //to be safe we call a repaint so that the temporary grey area on the top is less likely to occur
-            application.show(frameView);
+        if (!delegate.isHideMainFrameOnStartup()) {
+            application.showMainView();
         }
     }
 
