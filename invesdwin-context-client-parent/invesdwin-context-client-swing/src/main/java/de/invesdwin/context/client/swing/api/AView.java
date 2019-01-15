@@ -1,5 +1,7 @@
 package de.invesdwin.context.client.swing.api;
 
+import java.util.LinkedHashSet;
+import java.util.Set;
 import java.util.concurrent.Callable;
 
 import javax.annotation.concurrent.GuardedBy;
@@ -16,9 +18,10 @@ import de.invesdwin.context.client.swing.api.internal.ViewIdGenerator;
 import de.invesdwin.context.client.swing.util.ComponentStandardizer;
 import de.invesdwin.norva.beanpath.annotation.Hidden;
 import de.invesdwin.util.assertions.Assertions;
+import de.invesdwin.util.collections.fast.concurrent.SynchronizedSet;
 
 @ThreadSafe
-public abstract class AView<M extends AModel, C extends JComponent> extends AModel {
+public abstract class AView<M extends AModel, C extends JComponent> extends AModel implements IDockableListener {
 
     public static final String VIEW_DESCRIPTION_KEY = "View.description";
     public static final String VIEW_ICON_KEY = "View.icon";
@@ -35,6 +38,8 @@ public abstract class AView<M extends AModel, C extends JComponent> extends AMod
     private final Object dockableLock = new Object();
     @GuardedBy("dockableLock")
     private DockableContent dockable;
+    @GuardedBy("dockableLock")
+    private Set<IDockableListener> dockableListeners;
 
     @SuppressWarnings("unchecked")
     public AView() {
@@ -149,6 +154,11 @@ public abstract class AView<M extends AModel, C extends JComponent> extends AMod
                         .isTrue();
                 this.dockable = dockable;
                 onOpen();
+                if (dockableListeners != null) {
+                    for (final IDockableListener l : dockableListeners) {
+                        l.onOpen();
+                    }
+                }
             } else {
                 Assertions.assertThat(dockable).as("A View instance can only be made visible once.").isNull();
                 Assertions.assertThat(contentPane.containsView(this))
@@ -156,14 +166,31 @@ public abstract class AView<M extends AModel, C extends JComponent> extends AMod
                         .isFalse();
                 this.dockable = null;
                 onClose();
+                if (dockableListeners != null) {
+                    for (final IDockableListener l : dockableListeners) {
+                        l.onClose();
+                    }
+                }
             }
         }
     }
 
     @Hidden(skip = true)
-    protected void onOpen() {}
+    public Set<IDockableListener> getDockableListeners() {
+        synchronized (dockableLock) {
+            if (dockableListeners == null) {
+                dockableListeners = new SynchronizedSet<>(new LinkedHashSet<>(), dockableLock);
+            }
+            return dockableListeners;
+        }
+    }
 
+    @Override
     @Hidden(skip = true)
-    protected void onClose() {}
+    public void onOpen() {}
+
+    @Override
+    @Hidden(skip = true)
+    public void onClose() {}
 
 }
