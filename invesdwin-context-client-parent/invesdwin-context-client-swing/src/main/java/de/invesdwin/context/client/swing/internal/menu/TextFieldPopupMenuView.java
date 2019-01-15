@@ -32,11 +32,6 @@ public class TextFieldPopupMenuView extends AView<TextFieldPopupMenuView, JPopup
         this.textComponent = textComponent;
     }
 
-    @Override
-    protected TextFieldPopupMenuView initModel() {
-        return this;
-    }
-
     /**
      * @wbp.parser.entryPoint
      */

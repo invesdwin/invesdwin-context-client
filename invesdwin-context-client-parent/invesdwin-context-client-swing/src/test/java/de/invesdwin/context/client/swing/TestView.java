@@ -38,10 +38,9 @@ public class TestView extends AView<TestModel, JPanel> {
     private JScrollPane scrollPane_2;
     private JCheckBox chckbxCheckboxTest;
 
-    @Override
-    protected TestModel initModel() {
-        return new TestModel();
-    };
+    public TestView() {
+        super(new TestModel());
+    }
 
     /**
      * @wbp.parser.entryPoint
@@ -169,9 +168,9 @@ public class TestView extends AView<TestModel, JPanel> {
 
         nextJButton = new JButton("Next");
         nextJButton.setName("next");
-        nextJButton.setIcon(
-                new ImageIcon(new ImageIcon(TestView.class.getResource("/de/invesdwin/context/client/swing/icon.png"))
-                        .getImage().getScaledInstance(24, 24, java.awt.Image.SCALE_SMOOTH)));
+        nextJButton.setIcon(new ImageIcon(
+                new ImageIcon(TestView.class.getResource("/de/invesdwin/context/client/swing/icon.png")).getImage()
+                        .getScaledInstance(24, 24, java.awt.Image.SCALE_SMOOTH)));
         final GridBagConstraints gbc_nextJButton = new GridBagConstraints();
         gbc_nextJButton.anchor = GridBagConstraints.EAST;
         gbc_nextJButton.gridx = 2;

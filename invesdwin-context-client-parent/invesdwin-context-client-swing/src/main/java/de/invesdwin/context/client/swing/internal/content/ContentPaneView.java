@@ -34,11 +34,6 @@ public class ContentPaneView extends AView<ContentPaneView, CContentArea> {
     private CWorkingArea workingArea;
 
     @Override
-    protected ContentPaneView initModel() {
-        return null;
-    }
-
-    @Override
     protected CContentArea initComponent() {
         final SingleFrameApplication app = (SingleFrameApplication) Application.getInstance();
         final JFrame frame = app.getMainFrame();

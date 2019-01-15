@@ -34,11 +34,6 @@ public class StatusBarTaskView extends AView<StatusBarTaskView, JPanel> implemen
     private JProgressBar pgbForegroundTask;
     private JPanel pnlProgress;
 
-    @Override
-    protected StatusBarTaskView initModel() {
-        return null;
-    }
-
     /**
      * @wbp.parser.entryPoint
      */
@@ -164,18 +159,18 @@ public class StatusBarTaskView extends AView<StatusBarTaskView, JPanel> implemen
                 if (newForegroundTask != null) {
                     newForegroundTask.getPropertyChangeSupport()
                             .addPropertyChangeListener(new PropertyChangeListener() {
-                        @Override
-                        public void propertyChange(final PropertyChangeEvent evt) {
-                            final Task<?, ?> task = (Task<?, ?>) evt.getSource();
-                            if (task != taskMonitor.getForegroundTask()) {
-                                task.removePropertyChangeListener(this);
-                            } else {
-                                setForegroundTaskText(task);
-                                final List<Task<?, ?>> tasks = (List) taskMonitor.getTasks();
-                                setTasksText(tasks);
-                            }
-                        }
-                    });
+                                @Override
+                                public void propertyChange(final PropertyChangeEvent evt) {
+                                    final Task<?, ?> task = (Task<?, ?>) evt.getSource();
+                                    if (task != taskMonitor.getForegroundTask()) {
+                                        task.removePropertyChangeListener(this);
+                                    } else {
+                                        setForegroundTaskText(task);
+                                        final List<Task<?, ?>> tasks = (List) taskMonitor.getTasks();
+                                        setTasksText(tasks);
+                                    }
+                                }
+                            });
                 }
                 setForegroundTaskText(newForegroundTask);
                 final List<Task<?, ?>> tasks = (List) taskMonitor.getTasks();

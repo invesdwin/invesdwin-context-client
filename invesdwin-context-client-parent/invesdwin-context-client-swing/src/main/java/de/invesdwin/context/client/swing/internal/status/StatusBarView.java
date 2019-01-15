@@ -23,11 +23,6 @@ public class StatusBarView extends AView<StatusBarView, JXStatusBar> {
     @Inject
     private StatusBarTaskView taskView;
 
-    @Override
-    protected StatusBarView initModel() {
-        return null;
-    }
-
     /**
      * @wbp.parser.entryPoint
      */

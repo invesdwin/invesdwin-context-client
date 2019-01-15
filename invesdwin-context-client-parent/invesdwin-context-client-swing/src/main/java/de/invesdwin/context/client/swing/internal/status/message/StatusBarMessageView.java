@@ -22,11 +22,6 @@ public class StatusBarMessageView extends AView<StatusBarMessageView, JPanel> {
     private JLabel lblMessage;
     private JLabel lblSpace;
 
-    @Override
-    protected StatusBarMessageView initModel() {
-        return null;
-    }
-
     /**
      * @wbp.parser.entryPoint
      */

@@ -31,11 +31,6 @@ public class MenuBarView extends AView<MenuBarView, JMenuBar> {
     @Inject
     private IRichApplication richApplication;
 
-    @Override
-    protected MenuBarView initModel() {
-        return this;
-    }
-
     /**
      * @wbp.parser.entryPoint
      */

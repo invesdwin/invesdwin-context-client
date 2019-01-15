@@ -25,9 +25,7 @@ public abstract class AView<M extends AModel, C extends JComponent> extends AMod
 
     private final String id;
 
-    private final Object modelLock = new Object();
-    @GuardedBy("modelLock")
-    private M model;
+    private final M model;
     private final Object componentLock = new Object();
     @GuardedBy("componentLock")
     private C component;
@@ -37,8 +35,10 @@ public abstract class AView<M extends AModel, C extends JComponent> extends AMod
     @GuardedBy("dockableLock")
     private DockableContent dockable;
 
+    @SuppressWarnings("unchecked")
     public AView() {
         id = ViewIdGenerator.newId(this);
+        this.model = (M) this;
     }
 
     public AView(final M model) {
@@ -47,15 +47,8 @@ public abstract class AView<M extends AModel, C extends JComponent> extends AMod
     }
 
     public M getModel() {
-        synchronized (modelLock) {
-            if (model == null) {
-                model = initModel();
-            }
-            return model;
-        }
+        return model;
     }
-
-    protected abstract M initModel();
 
     public C getComponent() {
         synchronized (componentLock) {
