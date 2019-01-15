@@ -13,12 +13,12 @@ import de.invesdwin.util.error.UnknownArgumentException;
 import de.invesdwin.util.time.fdate.FDate;
 
 @Immutable
-public class DateConverter extends Converter<Object, Object> {
+public class DateToStringConverter extends Converter<Object, Object> {
 
     private final java.text.SimpleDateFormat format;
     private final Class<?> type;
 
-    public DateConverter(final IPropertyBeanPathElement element) {
+    public DateToStringConverter(final IPropertyBeanPathElement element) {
         final String formatStr = element.getFormatString();
         if (formatStr != null) {
             format = new java.text.SimpleDateFormat(formatStr);

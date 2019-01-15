@@ -30,8 +30,9 @@ import org.jdesktop.swingbinding.SwingBindings;
 import com.google.common.base.Optional;
 
 import de.invesdwin.context.client.swing.api.AModel;
-import de.invesdwin.context.client.swing.api.internal.property.converter.DateConverter;
-import de.invesdwin.context.client.swing.api.internal.property.converter.NumberConverter;
+import de.invesdwin.context.client.swing.api.internal.property.converter.ArrayToListConverter;
+import de.invesdwin.context.client.swing.api.internal.property.converter.DateToStringConverter;
+import de.invesdwin.context.client.swing.api.internal.property.converter.NumberToStringConverter;
 import de.invesdwin.context.client.swing.api.internal.property.selection.EnumValuesProperty;
 import de.invesdwin.context.client.swing.api.internal.property.selection.JListMultipleSelectionProperty;
 import de.invesdwin.context.client.swing.api.internal.property.selection.JTableMultipleSelectionProperty;
@@ -86,17 +87,18 @@ public class PropertyBinding {
         final APropertyBeanPathElement element = context.getElementRegistry().getElement(component.getName());
         final Binding binding = initBinding(component, "text");
         if (element.getAccessor().getType().isDate()) {
-            binding.setConverter(new DateConverter(element));
+            binding.setConverter(new DateToStringConverter(element));
         } else if (element.getAccessor().getType().isNumber()) {
-            binding.setConverter(new NumberConverter(element));
+            binding.setConverter(new NumberToStringConverter(element));
         }
     }
 
     private void initBinding(final JTable component) {
         final AChoiceBeanPathElement element = context.getElementRegistry().getElement(component.getName());
         final Property<AModel, List<Object>> choiceProperty = newChoiceProperty(element);
-        final JTableBinding<Object, AModel, JTable> binding = SwingBindings.createJTableBinding(
-                UpdateStrategy.READ_WRITE, model, choiceProperty, component, element.getBeanPath());
+        final JTableBinding binding = SwingBindings.createJTableBinding(UpdateStrategy.READ_WRITE, model,
+                choiceProperty, component, element.getBeanPath());
+        maybeAddArrayToListConverter(element, binding);
         bindingGroup.addBinding(binding);
 
         final Class<?> rowClass = element.getModifier().getBeanClassAccessor().getType().getType();
@@ -148,8 +150,9 @@ public class PropertyBinding {
     private void initBinding(final JList component) {
         final AChoiceBeanPathElement element = context.getElementRegistry().getElement(component.getName());
         final Property<AModel, List<Object>> choiceProperty = newChoiceProperty(element);
-        final JListBinding<Object, AModel, JList> binding = SwingBindings.createJListBinding(UpdateStrategy.READ_WRITE,
-                model, choiceProperty, component, element.getBeanPath());
+        final JListBinding binding = SwingBindings.createJListBinding(UpdateStrategy.READ_WRITE, model, choiceProperty,
+                component, element.getBeanPath());
+        maybeAddArrayToListConverter(element, binding);
         bindingGroup.addBinding(binding);
 
         final String choicePropertyName = element.getChoiceElement().getBeanPath();
@@ -167,7 +170,7 @@ public class PropertyBinding {
     private Property<AModel, List<Object>> newChoiceProperty(final AChoiceBeanPathElement element) {
         final IBeanPathPropertyModifier<List<?>> choiceModifier = element.getChoiceModifier();
         final BeanClassType type = choiceModifier.getBeanClassAccessor().getType();
-        if (type.isEnum() && element.isChoiceOnly()) {
+        if (type.isEnum() && element.getChoiceElement().getBeanPath().equals(element.getBeanPath())) {
             return new EnumValuesProperty(choiceModifier);
         } else {
             final Property<AModel, List<Object>> choiceProperty = BeanProperty
@@ -180,12 +183,19 @@ public class PropertyBinding {
         final AChoiceBeanPathElement element = context.getElementRegistry().getElement(component.getName());
         final String choicePropertyName = element.getChoiceElement().getBeanPath();
         final Property<AModel, List<Object>> choiceProperty = newChoiceProperty(element);
-        final JComboBoxBinding<Object, AModel, JComboBox> binding = SwingBindings.createJComboBoxBinding(
-                UpdateStrategy.READ_WRITE, model, choiceProperty, component, choicePropertyName);
+        final JComboBoxBinding binding = SwingBindings.createJComboBoxBinding(UpdateStrategy.READ_WRITE, model,
+                choiceProperty, component, choicePropertyName);
+        maybeAddArrayToListConverter(element, binding);
         bindingGroup.addBinding(binding);
         final String selectionPropertyName = element.getBeanPath();
         if (!selectionPropertyName.equals(choicePropertyName)) {
             initBinding(selectionPropertyName, component, "selectedItem");
+        }
+    }
+
+    private void maybeAddArrayToListConverter(final AChoiceBeanPathElement element, final Binding binding) {
+        if (element.getChoiceModifier().getAccessor().getRawType().isArray()) {
+            binding.setConverter(new ArrayToListConverter(element));
         }
     }
 

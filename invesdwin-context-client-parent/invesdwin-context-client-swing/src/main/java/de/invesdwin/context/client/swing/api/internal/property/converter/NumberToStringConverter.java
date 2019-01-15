@@ -14,12 +14,12 @@ import de.invesdwin.util.error.UnknownArgumentException;
 import de.invesdwin.util.math.decimal.Decimal;
 
 @Immutable
-public class NumberConverter extends Converter<Object, Object> {
+public class NumberToStringConverter extends Converter<Object, Object> {
 
     private final NumberFormat format;
     private final Class<?> type;
 
-    public NumberConverter(final IPropertyBeanPathElement element) {
+    public NumberToStringConverter(final IPropertyBeanPathElement element) {
         final String formatStr = element.getFormatString();
         if (formatStr != null) {
             format = Decimal.newDecimalFormatInstance(formatStr);
