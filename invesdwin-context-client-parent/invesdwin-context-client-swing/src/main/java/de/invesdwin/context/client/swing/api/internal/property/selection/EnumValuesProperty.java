@@ -20,10 +20,10 @@ public class EnumValuesProperty extends PropertyHelper<AModel, List<Object>> {
         this.modifier = modifier;
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     @Override
     public Class<? extends List<Object>> getWriteType(final AModel source) {
-        return (Class<? extends List<Object>>) List.class;
+        return (Class) List.class;
     }
 
     @Override
