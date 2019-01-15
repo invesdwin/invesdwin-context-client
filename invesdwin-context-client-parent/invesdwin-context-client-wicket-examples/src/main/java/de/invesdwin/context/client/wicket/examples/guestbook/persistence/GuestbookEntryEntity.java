@@ -5,7 +5,7 @@ import javax.persistence.Entity;
 
 import de.invesdwin.context.persistence.jpa.api.dao.entity.AEntity;
 import de.invesdwin.norva.beanpath.annotation.Disabled;
-import de.invesdwin.nowicket.generated.binding.annotation.Format;
+import de.invesdwin.norva.beanpath.annotation.Format;
 import de.invesdwin.nowicket.generated.markup.annotation.GeneratedMarkup;
 import de.invesdwin.util.time.fdate.FDate;
 
