@@ -20,8 +20,8 @@ public abstract class ARichApplication implements IRichApplication {
     }
 
     @Override
-    public boolean isExitOnMainFrameClose() {
-        return true;
+    public MainFrameCloseOperation getMainFrameCloseOperation() {
+        return MainFrameCloseOperation.SystemExit;
     }
 
     @Override

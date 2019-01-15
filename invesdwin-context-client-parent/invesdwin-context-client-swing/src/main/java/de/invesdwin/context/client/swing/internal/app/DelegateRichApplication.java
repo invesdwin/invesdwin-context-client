@@ -1,5 +1,6 @@
 package de.invesdwin.context.client.swing.internal.app;
 
+import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 
 import javax.annotation.concurrent.NotThreadSafe;
@@ -18,8 +19,11 @@ import de.invesdwin.context.beans.init.MergedContext;
 import de.invesdwin.context.beans.init.PreMergedContext;
 import de.invesdwin.context.client.swing.GuiExceptionHandler;
 import de.invesdwin.context.client.swing.api.IRichApplication;
+import de.invesdwin.context.client.swing.api.MainFrameCloseOperation;
 import de.invesdwin.context.client.swing.internal.splash.ConfiguredSplashScreen;
+import de.invesdwin.context.client.swing.listener.WindowListenerSupport;
 import de.invesdwin.util.assertions.Assertions;
+import de.invesdwin.util.error.UnknownArgumentException;
 import de.invesdwin.util.lang.Reflections;
 
 /**
@@ -110,20 +114,39 @@ public class DelegateRichApplication extends SingleFrameApplication {
     @EventDispatchThread(InvocationType.INVOKE_LATER_IF_NOT_IN_EDT)
     public void showMainView() {
         final FrameView frameView = getMainView();
-        frameView.getFrame().setVisible(true);
-        frameView.getFrame().repaint(); //to be safe we call a repaint so that the temporary grey area on the top is less likely to occur
+        final JFrame frame = frameView.getFrame();
+        frame.setVisible(true);
+        frame.repaint(); //to be safe we call a repaint so that the temporary grey area on the top is less likely to occur
         show(frameView);
         final IRichApplication application = MergedContext.getInstance().getBean(IRichApplication.class);
-        if (application.isExitOnMainFrameClose()) {
-            frameView.getFrame().setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        } else {
-            frameView.getFrame().setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+        final MainFrameCloseOperation closeOperation = application.getMainFrameCloseOperation();
+        switch (closeOperation) {
+        case HideFrame:
+            frame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+            break;
+        case MinimizeFrame:
+            frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+            frame.addWindowListener(new WindowListenerSupport() {
+                @Override
+                public void windowClosing(final WindowEvent e) {
+                    frame.setState(JFrame.ICONIFIED);
+                }
+            });
+            break;
+        case Nothing:
+            frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+            break;
+        case SystemExit:
+            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            break;
+        default:
+            throw UnknownArgumentException.newInstance(MainFrameCloseOperation.class, closeOperation);
         }
-        final WindowListener[] listeners = frameView.getFrame().getWindowListeners();
+        final WindowListener[] listeners = frame.getWindowListeners();
         for (final WindowListener l : listeners) {
             final String name = l.getClass().getName();
             if ("org.jdesktop.application.SingleFrameApplication$MainFrameListener".equals(name)) {
-                frameView.getFrame().removeWindowListener(l);
+                frame.removeWindowListener(l);
                 break;
             }
         }

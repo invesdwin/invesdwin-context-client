@@ -167,7 +167,7 @@ public class PropertyBinding {
     private Property<AModel, List<Object>> newChoiceProperty(final AChoiceBeanPathElement element) {
         final IBeanPathPropertyModifier<List<?>> choiceModifier = element.getChoiceModifier();
         final BeanClassType type = choiceModifier.getBeanClassAccessor().getType();
-        if (type.isEnum()) {
+        if (type.isEnum() && element.isChoiceOnly()) {
             return new EnumValuesProperty(choiceModifier);
         } else {
             final Property<AModel, List<Object>> choiceProperty = BeanProperty
