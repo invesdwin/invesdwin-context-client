@@ -30,11 +30,15 @@ import org.jdesktop.swingbinding.SwingBindings;
 import com.google.common.base.Optional;
 
 import de.invesdwin.context.client.swing.api.AModel;
+import de.invesdwin.context.client.swing.api.internal.property.selection.EnumValuesProperty;
 import de.invesdwin.context.client.swing.api.internal.property.selection.JListMultipleSelectionProperty;
 import de.invesdwin.context.client.swing.api.internal.property.selection.JTableMultipleSelectionProperty;
 import de.invesdwin.context.client.swing.api.internal.property.selection.JTableSingleSelectionProperty;
 import de.invesdwin.norva.beanpath.BeanPathReflections;
-import de.invesdwin.norva.beanpath.spi.element.utility.ChoiceBeanPathElement;
+import de.invesdwin.norva.beanpath.impl.clazz.BeanClassContext;
+import de.invesdwin.norva.beanpath.impl.clazz.BeanClassType;
+import de.invesdwin.norva.beanpath.spi.element.AChoiceBeanPathElement;
+import de.invesdwin.norva.beanpath.spi.element.simple.modifier.IBeanPathPropertyModifier;
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.lang.Reflections;
@@ -43,11 +47,14 @@ import de.invesdwin.util.lang.Strings;
 @NotThreadSafe
 public class PropertyBinding {
 
+    private final BeanClassContext context;
     private final AModel model;
     private final Component component;
     private final BindingGroup bindingGroup;
 
-    public PropertyBinding(final AModel model, final Component component, final BindingGroup bindingGroup) {
+    public PropertyBinding(final BeanClassContext context, final AModel model, final Component component,
+            final BindingGroup bindingGroup) {
+        this.context = context;
         this.model = model;
         this.component = component;
         this.bindingGroup = bindingGroup;
@@ -73,21 +80,13 @@ public class PropertyBinding {
     }
 
     private void initBinding(final JTable component) {
-        final String listPropertyName = component.getName();
-        final Property<AModel, List<Object>> listProperty = BeanProperty.create(listPropertyName);
+        final AChoiceBeanPathElement element = context.getElementRegistry().getElement(component.getName());
+        final Property<AModel, List<Object>> choiceProperty = newChoiceProperty(element);
         final JTableBinding<Object, AModel, JTable> binding = SwingBindings.createJTableBinding(
-                UpdateStrategy.READ_WRITE, model, listProperty, component, listPropertyName);
+                UpdateStrategy.READ_WRITE, model, choiceProperty, component, element.getBeanPath());
         bindingGroup.addBinding(binding);
 
-        final Class<? extends AModel> modelClass = model.getClass();
-        final String listPropertyMethodName = BeanPathReflections.PROPERTY_GET_METHOD_PREFIX
-                + Strings.capitalize(listPropertyName);
-        final Method listPropertyMethod = Reflections.findMethod(modelClass, listPropertyMethodName);
-        Assertions.assertThat(listPropertyMethod)
-                .as("Method [%s] does not exist on type [%s].", listPropertyMethodName, modelClass.getName())
-                .isNotNull();
-        final Class<?> rowClass = Reflections.resolveReturnTypeArgument(listPropertyMethod,
-                Reflections.resolveReturnType(listPropertyMethod, modelClass));
+        final Class<?> rowClass = element.getModifier().getBeanClassAccessor().getType().getType();
         final ResourceMap rowResourceMap = Application.getInstance().getContext().getResourceMap(rowClass);
         for (int i = 0; i < component.getModel().getColumnCount(); i++) {
             final String columnProperty = component.getModel().getColumnName(i);
@@ -121,38 +120,63 @@ public class PropertyBinding {
                     .setColumnClass(columnClass);
         }
 
-        final String selectionPropertyName = component.getName() + ChoiceBeanPathElement.CHOICE_SUFFIX;
-        if (component.getSelectionModel().getSelectionMode() == ListSelectionModel.SINGLE_SELECTION) {
-            initBinding(selectionPropertyName, component, new JTableSingleSelectionProperty(model, listProperty));
-        } else {
-            initBinding(selectionPropertyName, component, new JTableMultipleSelectionProperty(model, listProperty));
+        final String choicePropertyName = element.getChoiceElement().getBeanPath();
+        final String selectionPropertyName = element.getBeanPath();
+        if (!selectionPropertyName.equals(choicePropertyName)) {
+            if (component.getSelectionModel().getSelectionMode() == ListSelectionModel.SINGLE_SELECTION) {
+                initBinding(selectionPropertyName, component, new JTableSingleSelectionProperty(model, choiceProperty));
+            } else {
+                initBinding(selectionPropertyName, component,
+                        new JTableMultipleSelectionProperty(model, choiceProperty));
+            }
         }
     }
 
     @SuppressWarnings("rawtypes")
     private void initBinding(final JList component) {
-        final String listPropertyName = component.getName();
-        final Property<AModel, List<Object>> listProperty = BeanProperty.create(listPropertyName);
+        final AChoiceBeanPathElement element = context.getElementRegistry().getElement(component.getName());
+        final Property<AModel, List<Object>> choiceProperty = newChoiceProperty(element);
         final JListBinding<Object, AModel, JList> binding = SwingBindings.createJListBinding(UpdateStrategy.READ_WRITE,
-                model, listProperty, component, listPropertyName);
+                model, choiceProperty, component, element.getBeanPath());
         bindingGroup.addBinding(binding);
-        final String selectionPropertyName = component.getName() + ChoiceBeanPathElement.CHOICE_SUFFIX;
-        if (component.getSelectionModel().getSelectionMode() == ListSelectionModel.SINGLE_SELECTION) {
-            initBinding(selectionPropertyName, component, "selectedValue");
+
+        final String choicePropertyName = element.getChoiceElement().getBeanPath();
+        final String selectionPropertyName = element.getBeanPath();
+        if (!selectionPropertyName.equals(choicePropertyName)) {
+            if (component.getSelectionModel().getSelectionMode() == ListSelectionModel.SINGLE_SELECTION) {
+                initBinding(selectionPropertyName, component, "selectedValue");
+            } else {
+                initBinding(selectionPropertyName, component,
+                        new JListMultipleSelectionProperty(model, choiceProperty));
+            }
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private Property<AModel, List<Object>> newChoiceProperty(final AChoiceBeanPathElement element) {
+        final IBeanPathPropertyModifier<List<?>> choiceModifier = element.getChoiceModifier();
+        final BeanClassType type = choiceModifier.getBeanClassAccessor().getType();
+        if (type.isEnum()) {
+            return new EnumValuesProperty(choiceModifier);
         } else {
-            initBinding(selectionPropertyName, component, new JListMultipleSelectionProperty(model, listProperty));
+            final Property<AModel, List<Object>> choiceProperty = BeanProperty
+                    .create(element.getChoiceElement().getBeanPath());
+            return choiceProperty;
         }
     }
 
     @SuppressWarnings("rawtypes")
     private void initBinding(final JComboBox component) {
-        final String listPropertyName = component.getName();
-        final Property<AModel, List<Object>> listProperty = BeanProperty.create(listPropertyName);
+        final AChoiceBeanPathElement element = context.getElementRegistry().getElement(component.getName());
+        final String choicePropertyName = element.getChoiceElement().getBeanPath();
+        final Property<AModel, List<Object>> choiceProperty = newChoiceProperty(element);
         final JComboBoxBinding<Object, AModel, JComboBox> binding = SwingBindings.createJComboBoxBinding(
-                UpdateStrategy.READ_WRITE, model, listProperty, component, listPropertyName);
+                UpdateStrategy.READ_WRITE, model, choiceProperty, component, choicePropertyName);
         bindingGroup.addBinding(binding);
-        final String selectionPropertyName = component.getName() + ChoiceBeanPathElement.CHOICE_SUFFIX;
-        initBinding(selectionPropertyName, component, "selectedItem");
+        final String selectionPropertyName = element.getBeanPath();
+        if (!selectionPropertyName.equals(choicePropertyName)) {
+            initBinding(selectionPropertyName, component, "selectedItem");
+        }
     }
 
     private void initBinding(final Component component, final String componentPath) {
