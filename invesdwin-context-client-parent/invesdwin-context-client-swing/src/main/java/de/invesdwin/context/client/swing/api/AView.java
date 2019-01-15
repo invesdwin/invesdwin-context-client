@@ -14,6 +14,7 @@ import de.invesdwin.context.client.swing.ContentPane;
 import de.invesdwin.context.client.swing.api.internal.GeneratedBinding;
 import de.invesdwin.context.client.swing.api.internal.ViewIdGenerator;
 import de.invesdwin.context.client.swing.util.ComponentStandardizer;
+import de.invesdwin.norva.beanpath.annotation.Hidden;
 import de.invesdwin.util.assertions.Assertions;
 
 @ThreadSafe
@@ -46,10 +47,12 @@ public abstract class AView<M extends AModel, C extends JComponent> extends AMod
         this.model = model;
     }
 
+    @Hidden(skip = true)
     public M getModel() {
         return model;
     }
 
+    @Hidden(skip = true)
     public C getComponent() {
         synchronized (componentLock) {
             if (component == null) {
@@ -80,12 +83,15 @@ public abstract class AView<M extends AModel, C extends JComponent> extends AMod
         }
     }
 
+    @Hidden(skip = true)
     protected abstract C initComponent();
 
+    @Hidden(skip = true)
     protected BindingGroup initBindingGroup(final C component) {
         return new GeneratedBinding(getModel(), component).initBindingGroup();
     }
 
+    @Hidden(skip = true)
     public BindingGroup getBindingGroup() {
         synchronized (componentLock) {
             return bindingGroup;
@@ -95,10 +101,12 @@ public abstract class AView<M extends AModel, C extends JComponent> extends AMod
     /**
      * The ID is unique for every instance of this View.
      */
+    @Hidden(skip = true)
     public String getId() {
         return id;
     }
 
+    @Hidden(skip = true)
     public String getTitle() {
         final String title = getResourceMap().getString(VIEW_TITLE_KEY);
         if (title == null) {
@@ -108,6 +116,7 @@ public abstract class AView<M extends AModel, C extends JComponent> extends AMod
         }
     }
 
+    @Hidden(skip = true)
     public Icon getIcon() {
         return getResourceMap().getIcon(VIEW_ICON_KEY);
     }
@@ -115,10 +124,12 @@ public abstract class AView<M extends AModel, C extends JComponent> extends AMod
     /**
      * The ToolTipText.
      */
+    @Hidden(skip = true)
     public String getDescription() {
         return getResourceMap().getString(VIEW_DESCRIPTION_KEY);
     }
 
+    @Hidden(skip = true)
     public DockableContent getDockable() {
         synchronized (dockableLock) {
             return dockable;
@@ -149,8 +160,10 @@ public abstract class AView<M extends AModel, C extends JComponent> extends AMod
         }
     }
 
+    @Hidden(skip = true)
     protected void onOpen() {}
 
+    @Hidden(skip = true)
     protected void onClose() {}
 
 }

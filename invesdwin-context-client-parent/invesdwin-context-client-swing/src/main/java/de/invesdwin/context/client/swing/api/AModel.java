@@ -41,7 +41,7 @@ public abstract class AModel extends AValueObject {
         resourceMap.injectFields(this);
     }
 
-    @Hidden
+    @Hidden(skip = true)
     public ResourceMap getResourceMap() {
         return resourceMap;
     }
@@ -49,7 +49,7 @@ public abstract class AModel extends AValueObject {
     /**
      * ActionMaps must be initialized lazy because else the ProxyActions don't get configured properly on startup!
      */
-    @Hidden
+    @Hidden(skip = true)
     public ActionMap getActionMap() {
         synchronized (actionMapLock) {
             if (actionMap == null) {

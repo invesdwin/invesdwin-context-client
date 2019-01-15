@@ -30,6 +30,8 @@ import org.jdesktop.swingbinding.SwingBindings;
 import com.google.common.base.Optional;
 
 import de.invesdwin.context.client.swing.api.AModel;
+import de.invesdwin.context.client.swing.api.internal.property.converter.DateConverter;
+import de.invesdwin.context.client.swing.api.internal.property.converter.NumberConverter;
 import de.invesdwin.context.client.swing.api.internal.property.selection.EnumValuesProperty;
 import de.invesdwin.context.client.swing.api.internal.property.selection.JListMultipleSelectionProperty;
 import de.invesdwin.context.client.swing.api.internal.property.selection.JTableMultipleSelectionProperty;
@@ -38,12 +40,14 @@ import de.invesdwin.norva.beanpath.BeanPathReflections;
 import de.invesdwin.norva.beanpath.impl.clazz.BeanClassContext;
 import de.invesdwin.norva.beanpath.impl.clazz.BeanClassType;
 import de.invesdwin.norva.beanpath.spi.element.AChoiceBeanPathElement;
+import de.invesdwin.norva.beanpath.spi.element.APropertyBeanPathElement;
 import de.invesdwin.norva.beanpath.spi.element.simple.modifier.IBeanPathPropertyModifier;
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.lang.Reflections;
 import de.invesdwin.util.lang.Strings;
 
+@SuppressWarnings({ "rawtypes", "unchecked" })
 @NotThreadSafe
 public class PropertyBinding {
 
@@ -60,10 +64,9 @@ public class PropertyBinding {
         this.bindingGroup = bindingGroup;
     }
 
-    @SuppressWarnings("rawtypes")
     public void initBinding() {
         if (component instanceof JTextComponent) {
-            initBinding(component, "text");
+            initBinding((JTextComponent) component);
         } else if (component instanceof JLabel) {
             initBinding(component, "text");
         } else if (component instanceof JProgressBar) {
@@ -76,6 +79,16 @@ public class PropertyBinding {
             initBinding((JTable) component);
         } else if (component instanceof JCheckBox) {
             initBinding(component, "selected");
+        }
+    }
+
+    private void initBinding(final JTextComponent component) {
+        final APropertyBeanPathElement element = context.getElementRegistry().getElement(component.getName());
+        final Binding binding = initBinding(component, "text");
+        if (element.getAccessor().getType().isDate()) {
+            binding.setConverter(new DateConverter(element));
+        } else if (element.getAccessor().getType().isNumber()) {
+            binding.setConverter(new NumberConverter(element));
         }
     }
 
@@ -132,7 +145,6 @@ public class PropertyBinding {
         }
     }
 
-    @SuppressWarnings("rawtypes")
     private void initBinding(final JList component) {
         final AChoiceBeanPathElement element = context.getElementRegistry().getElement(component.getName());
         final Property<AModel, List<Object>> choiceProperty = newChoiceProperty(element);
@@ -152,7 +164,6 @@ public class PropertyBinding {
         }
     }
 
-    @SuppressWarnings("unchecked")
     private Property<AModel, List<Object>> newChoiceProperty(final AChoiceBeanPathElement element) {
         final IBeanPathPropertyModifier<List<?>> choiceModifier = element.getChoiceModifier();
         final BeanClassType type = choiceModifier.getBeanClassAccessor().getType();
@@ -165,7 +176,6 @@ public class PropertyBinding {
         }
     }
 
-    @SuppressWarnings("rawtypes")
     private void initBinding(final JComboBox component) {
         final AChoiceBeanPathElement element = context.getElementRegistry().getElement(component.getName());
         final String choicePropertyName = element.getChoiceElement().getBeanPath();
@@ -179,29 +189,31 @@ public class PropertyBinding {
         }
     }
 
-    private void initBinding(final Component component, final String componentPath) {
-        initBinding(component, BeanProperty.create(componentPath));
+    private Binding initBinding(final Component component, final String componentPath) {
+        return initBinding(component, BeanProperty.create(componentPath));
     }
 
-    @SuppressWarnings({ "rawtypes" })
-    private void initBinding(final Component component, final Property componentProperty) {
-        initBinding(component.getName(), component, componentProperty);
+    private Binding initBinding(final Component component, final Property componentProperty) {
+        return initBinding(component.getName(), component, componentProperty);
     }
 
-    private void initBinding(final String modelProperty, final Component component, final String componentPath) {
-        initBinding(modelProperty, component, BeanProperty.create(componentPath));
+    private Binding initBinding(final String modelProperty, final Component component, final String componentPath) {
+        return initBinding(modelProperty, component, BeanProperty.create(componentPath));
     }
 
     /**
      * Source = model
      * 
      * Target = component
+     * 
+     * @return
      */
-    @SuppressWarnings({ "rawtypes", "unchecked" })
-    private void initBinding(final String modelProperty, final Component component, final Property componentProperty) {
+    private Binding<Object, Object, Object, Object> initBinding(final String modelProperty, final Component component,
+            final Property componentProperty) {
         final EventDispatchThreadProperty edtProperty = new EventDispatchThreadProperty(componentProperty);
-        final Binding<?, ?, ?, ?> binding = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, model,
+        final Binding binding = Bindings.createAutoBinding(UpdateStrategy.READ_WRITE, model,
                 BeanProperty.create(modelProperty), component, edtProperty, modelProperty);
         bindingGroup.addBinding(binding);
+        return binding;
     }
 }
