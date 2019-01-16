@@ -7,6 +7,7 @@ import javax.inject.Inject;
 
 import org.junit.Test;
 
+import de.invesdwin.context.client.swing.api.guiservice.ContentPane;
 import de.invesdwin.context.test.ATest;
 import de.invesdwin.context.test.TestContext;
 

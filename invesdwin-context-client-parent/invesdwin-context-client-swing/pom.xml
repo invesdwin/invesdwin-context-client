@@ -40,10 +40,6 @@
 			<artifactId>spring-richclient-core</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>it.tidalwave.betterbeansbinding</groupId>
-			<artifactId>betterbeansbinding-swingbinding</artifactId>
-		</dependency>
-		<dependency>
 			<groupId>org.jdesktop.bsaf</groupId>
 			<artifactId>bsaf</artifactId>
 		</dependency>

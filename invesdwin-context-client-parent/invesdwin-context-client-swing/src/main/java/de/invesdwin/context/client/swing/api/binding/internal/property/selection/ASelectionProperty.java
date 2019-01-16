@@ -1,4 +1,4 @@
-package de.invesdwin.context.client.swing.api.internal.property.selection;
+package de.invesdwin.context.client.swing.api.binding.internal.property.selection;
 
 import java.util.ArrayList;
 import java.util.List;

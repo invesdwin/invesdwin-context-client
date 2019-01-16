@@ -15,6 +15,8 @@ import org.springframework.beans.factory.annotation.Configurable;
 import de.invesdwin.aspects.EventDispatchThreadUtil;
 import de.invesdwin.context.client.swing.api.AModel;
 import de.invesdwin.context.client.swing.api.ATask;
+import de.invesdwin.context.client.swing.api.guiservice.Dialogs;
+import de.invesdwin.context.client.swing.api.guiservice.StatusBar;
 import de.invesdwin.context.log.error.Err;
 import de.invesdwin.util.lang.Objects;
 

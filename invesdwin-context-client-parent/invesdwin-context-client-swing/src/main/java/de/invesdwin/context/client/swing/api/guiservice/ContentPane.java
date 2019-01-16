@@ -1,4 +1,4 @@
-package de.invesdwin.context.client.swing;
+package de.invesdwin.context.client.swing.api.guiservice;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -15,8 +15,6 @@ import de.invesdwin.aspects.annotation.EventDispatchThread;
 import de.invesdwin.aspects.annotation.EventDispatchThread.InvocationType;
 import de.invesdwin.context.client.swing.api.AView;
 import de.invesdwin.context.client.swing.api.DockableContent;
-import de.invesdwin.context.client.swing.internal.app.DelegateRichApplication;
-import de.invesdwin.context.client.swing.internal.content.ContentPaneView;
 import de.invesdwin.util.assertions.Assertions;
 
 @ThreadSafe
@@ -26,7 +24,7 @@ public class ContentPane {
     private final Map<String, AView<?, ?>> id_visibleView = new HashMap<String, AView<?, ?>>();
 
     @Inject
-    private ContentPaneView contentPaneView;
+    private de.invesdwin.context.client.swing.internal.content.ContentPaneView contentPaneView;
 
     /**
      * Throws an exception if the View has already been added.
@@ -74,7 +72,7 @@ public class ContentPane {
 
     @EventDispatchThread(InvocationType.INVOKE_AND_WAIT)
     public boolean containsDockable(final DockableContent dockable) {
-        return id_visibleView.containsKey(dockable.getId());
+        return id_visibleView.containsKey(dockable.getUniqueId());
     }
 
     @EventDispatchThread(InvocationType.INVOKE_AND_WAIT)
@@ -90,7 +88,8 @@ public class ContentPane {
     }
 
     public void showMainView() {
-        final DelegateRichApplication application = (DelegateRichApplication) Application.getInstance();
+        final de.invesdwin.context.client.swing.internal.app.DelegateRichApplication application = (de.invesdwin.context.client.swing.internal.app.DelegateRichApplication) Application
+                .getInstance();
         application.showMainView();
     }
 

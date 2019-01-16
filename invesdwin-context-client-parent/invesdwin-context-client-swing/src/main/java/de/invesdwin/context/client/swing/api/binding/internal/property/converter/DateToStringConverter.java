@@ -1,4 +1,4 @@
-package de.invesdwin.context.client.swing.api.internal.property.converter;
+package de.invesdwin.context.client.swing.api.binding.internal.property.converter;
 
 import java.text.ParseException;
 import java.util.Calendar;

@@ -1,4 +1,4 @@
-package de.invesdwin.context.client.swing;
+package de.invesdwin.context.client.swing.api.guiservice;
 
 import java.awt.Component;
 import java.awt.Desktop;
@@ -15,7 +15,6 @@ import de.invesdwin.context.client.swing.util.ComponentStandardizer;
 import de.invesdwin.context.log.error.Err;
 import de.invesdwin.util.lang.uri.URIs;
 
-@SuppressWarnings("serial")
 @Immutable
 public final class Dialogs extends javax.swing.JOptionPane {
 
@@ -41,13 +40,15 @@ public final class Dialogs extends javax.swing.JOptionPane {
 
     public static String showInputDialog(final Component parentComponent, final Object message, final String title,
             final int messageType) {
-        return javax.swing.JOptionPane.showInputDialog(parentComponent, standardizeMessage(message), title, messageType);
+        return javax.swing.JOptionPane.showInputDialog(parentComponent, standardizeMessage(message), title,
+                messageType);
     }
 
     public static Object showInputDialog(final Component parentComponent, final Object message, final String title,
-            final int messageType, final Icon icon, final Object[] selectionValues, final Object initialSelectionValue) {
-        return javax.swing.JOptionPane.showInputDialog(parentComponent, standardizeMessage(message), title,
-                messageType, icon, selectionValues, initialSelectionValue);
+            final int messageType, final Icon icon, final Object[] selectionValues,
+            final Object initialSelectionValue) {
+        return javax.swing.JOptionPane.showInputDialog(parentComponent, standardizeMessage(message), title, messageType,
+                icon, selectionValues, initialSelectionValue);
     }
 
     public static void showMessageDialog(final Component parentComponent, final Object message) {
@@ -92,8 +93,8 @@ public final class Dialogs extends javax.swing.JOptionPane {
             final int optionType, final int messageType, final Icon icon, final Object[] options,
             final Object initialValue) {
         //CHECKSTYLE:ON
-        return javax.swing.JOptionPane.showOptionDialog(parentComponent, standardizeMessage(message), title,
-                optionType, messageType, icon, options, initialValue);
+        return javax.swing.JOptionPane.showOptionDialog(parentComponent, standardizeMessage(message), title, optionType,
+                messageType, icon, options, initialValue);
     }
 
     public static void showInternalMessageDialog(final Component parentComponent, final Object message) {

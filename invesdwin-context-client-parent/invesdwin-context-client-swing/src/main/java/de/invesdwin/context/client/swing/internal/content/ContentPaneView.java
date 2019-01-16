@@ -20,9 +20,9 @@ import bibliothek.gui.dock.common.intern.CommonDockable;
 import bibliothek.gui.dock.common.mode.ExtendedMode;
 import bibliothek.gui.dock.control.focus.DefaultFocusRequest;
 import de.invesdwin.aspects.EventDispatchThreadUtil;
-import de.invesdwin.context.client.swing.ContentPane;
 import de.invesdwin.context.client.swing.api.AView;
 import de.invesdwin.context.client.swing.api.DockableContent;
+import de.invesdwin.context.client.swing.api.guiservice.ContentPane;
 
 @NotThreadSafe
 public class ContentPaneView extends AView<ContentPaneView, CContentArea> {

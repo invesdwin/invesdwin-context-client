@@ -13,6 +13,7 @@ import org.jdesktop.swingx.JXErrorPane;
 import org.jdesktop.swingx.error.ErrorInfo;
 
 import de.invesdwin.aspects.EventDispatchThreadUtil;
+import de.invesdwin.context.client.swing.api.guiservice.Dialogs;
 import de.invesdwin.context.client.swing.internal.DetailedErrorPaneUI;
 import de.invesdwin.context.log.error.Err;
 import de.invesdwin.context.log.error.LoggedRuntimeException;

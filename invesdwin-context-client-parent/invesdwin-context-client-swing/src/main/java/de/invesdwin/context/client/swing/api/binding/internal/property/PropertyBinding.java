@@ -1,4 +1,4 @@
-package de.invesdwin.context.client.swing.api.internal.property;
+package de.invesdwin.context.client.swing.api.binding.internal.property;
 
 import java.awt.Component;
 import java.lang.reflect.Method;
@@ -30,13 +30,13 @@ import org.jdesktop.swingbinding.SwingBindings;
 import com.google.common.base.Optional;
 
 import de.invesdwin.context.client.swing.api.AModel;
-import de.invesdwin.context.client.swing.api.internal.property.converter.ArrayToListConverter;
-import de.invesdwin.context.client.swing.api.internal.property.converter.DateToStringConverter;
-import de.invesdwin.context.client.swing.api.internal.property.converter.NumberToStringConverter;
-import de.invesdwin.context.client.swing.api.internal.property.selection.EnumValuesProperty;
-import de.invesdwin.context.client.swing.api.internal.property.selection.JListMultipleSelectionProperty;
-import de.invesdwin.context.client.swing.api.internal.property.selection.JTableMultipleSelectionProperty;
-import de.invesdwin.context.client.swing.api.internal.property.selection.JTableSingleSelectionProperty;
+import de.invesdwin.context.client.swing.api.binding.internal.property.converter.ArrayToListConverter;
+import de.invesdwin.context.client.swing.api.binding.internal.property.converter.DateToStringConverter;
+import de.invesdwin.context.client.swing.api.binding.internal.property.converter.NumberToStringConverter;
+import de.invesdwin.context.client.swing.api.binding.internal.property.selection.EnumValuesProperty;
+import de.invesdwin.context.client.swing.api.binding.internal.property.selection.JListMultipleSelectionProperty;
+import de.invesdwin.context.client.swing.api.binding.internal.property.selection.JTableMultipleSelectionProperty;
+import de.invesdwin.context.client.swing.api.binding.internal.property.selection.JTableSingleSelectionProperty;
 import de.invesdwin.norva.beanpath.BeanPathReflections;
 import de.invesdwin.norva.beanpath.impl.clazz.BeanClassContext;
 import de.invesdwin.norva.beanpath.impl.clazz.BeanClassType;

@@ -53,10 +53,6 @@ public class DockableContent extends DefaultSingleCDockable {
         }
     }
 
-    public String getId() {
-        return getUniqueId();
-    }
-
     @Override
     public JComponent getContentPane() {
         return (JComponent) super.getContentPane();

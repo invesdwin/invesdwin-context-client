@@ -1,4 +1,4 @@
-package de.invesdwin.context.client.swing.api.internal;
+package de.invesdwin.context.client.swing.api.binding.internal;
 
 import java.util.concurrent.atomic.AtomicInteger;
 

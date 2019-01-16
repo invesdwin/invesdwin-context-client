@@ -1,4 +1,4 @@
-package de.invesdwin.context.client.swing.api.internal.action;
+package de.invesdwin.context.client.swing.api.binding.internal.action;
 
 import java.lang.reflect.Method;
 

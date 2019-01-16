@@ -12,8 +12,8 @@ import org.jdesktop.application.Application;
 import org.jdesktop.application.SingleFrameApplication;
 
 import de.invesdwin.aspects.EventDispatchThreadUtil;
-import de.invesdwin.context.client.swing.ContentPane;
-import de.invesdwin.context.client.swing.StatusBar;
+import de.invesdwin.context.client.swing.api.guiservice.ContentPane;
+import de.invesdwin.context.client.swing.api.guiservice.StatusBar;
 import de.invesdwin.context.test.ATest;
 import de.invesdwin.context.test.TestContext;
 import de.invesdwin.context.test.stub.StubSupport;

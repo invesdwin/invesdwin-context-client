@@ -12,8 +12,8 @@ import org.jdesktop.application.ResourceMap;
 import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.context.ApplicationContext;
 
-import de.invesdwin.context.client.swing.ContentPane;
 import de.invesdwin.context.client.swing.api.AView;
+import de.invesdwin.context.client.swing.api.guiservice.ContentPane;
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.lang.Reflections;
 

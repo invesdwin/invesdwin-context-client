@@ -1,4 +1,4 @@
-package de.invesdwin.context.client.swing;
+package de.invesdwin.context.client.swing.api.guiservice;
 
 import java.awt.Color;
 
@@ -9,7 +9,6 @@ import javax.inject.Inject;
 import org.jdesktop.application.Application;
 import org.jdesktop.application.TaskService;
 
-import de.invesdwin.context.client.swing.internal.status.message.StatusBarMessageView;
 import de.invesdwin.util.time.duration.Duration;
 
 @ThreadSafe
@@ -17,7 +16,7 @@ public class StatusBar {
 
     @Inject
     @GuardedBy("this")
-    private StatusBarMessageView view;
+    private de.invesdwin.context.client.swing.internal.status.message.StatusBarMessageView view;
 
     public synchronized void message(final String message) {
         message(message, null);
