@@ -6,7 +6,7 @@ import java.util.List;
 import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.context.client.swing.api.AModel;
-import de.invesdwin.context.client.swing.api.binding.BindingContext;
+import de.invesdwin.context.client.swing.api.binding.BindingGroup;
 import de.invesdwin.context.client.swing.api.binding.internal.action.ActionBinding;
 import de.invesdwin.context.client.swing.api.binding.internal.property.PropertyBinding;
 import de.invesdwin.context.client.swing.util.AComponentFinder;
@@ -42,21 +42,20 @@ public final class GeneratedBinding {
 
     private final AModel model;
     private final Component component;
-    private BindingContext bindingGroup;
+    private BindingGroup bindingGroup;
 
     public GeneratedBinding(final AModel model, final Component component) {
         this.model = model;
         this.component = component;
     }
 
-    public BindingContext initBindingGroup() {
-        bindingGroup = new BindingContext();
+    public BindingGroup initBindingGroup() {
+        bindingGroup = new BindingGroup(MODELCLASS_CONTEXT.get(model.getClass()));
 
-        final BeanClassContext context = MODELCLASS_CONTEXT.get(model.getClass());
         final List<Component> components = NAMED_COMPONENT_FINDER.findAll(component);
         for (final Component c : components) {
-            new ActionBinding(context, model, c, bindingGroup).initBinding();
-            new PropertyBinding(context, model, c, bindingGroup).initBinding();
+            new ActionBinding(model, c, bindingGroup).initBinding();
+            new PropertyBinding(model, c, bindingGroup).initBinding();
         }
         return bindingGroup;
     }

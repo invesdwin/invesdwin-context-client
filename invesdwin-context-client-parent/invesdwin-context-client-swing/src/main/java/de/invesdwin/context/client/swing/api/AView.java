@@ -8,7 +8,7 @@ import javax.swing.Icon;
 import javax.swing.JComponent;
 
 import de.invesdwin.aspects.EventDispatchThreadUtil;
-import de.invesdwin.context.client.swing.api.binding.BindingContext;
+import de.invesdwin.context.client.swing.api.binding.BindingGroup;
 import de.invesdwin.context.client.swing.api.binding.internal.GeneratedBinding;
 import de.invesdwin.context.client.swing.api.binding.internal.ViewIdGenerator;
 import de.invesdwin.context.client.swing.api.guiservice.ContentPane;
@@ -33,7 +33,7 @@ public abstract class AView<M extends AModel, C extends JComponent> extends AMod
     @GuardedBy("componentLock")
     private C component;
     @GuardedBy("componentLock")
-    private BindingContext bindingContext;
+    private BindingGroup bindingGroup;
     private final Object dockableLock = new Object();
     @GuardedBy("dockableLock")
     private DockableContent dockable;
@@ -71,10 +71,10 @@ public abstract class AView<M extends AModel, C extends JComponent> extends AMod
                     });
                     if (getModel() != null) {
                         final C componentCopy = component;
-                        bindingContext = EventDispatchThreadUtil.invokeAndWait(new Callable<BindingContext>() {
+                        bindingGroup = EventDispatchThreadUtil.invokeAndWait(new Callable<BindingGroup>() {
                             @Override
-                            public BindingContext call() throws Exception {
-                                return initBindingContext(componentCopy);
+                            public BindingGroup call() throws Exception {
+                                return initBindingGroup(componentCopy);
                             }
                         });
                     }
@@ -90,14 +90,14 @@ public abstract class AView<M extends AModel, C extends JComponent> extends AMod
     protected abstract C initComponent();
 
     @Hidden(skip = true)
-    protected BindingContext initBindingContext(final C component) {
+    protected BindingGroup initBindingGroup(final C component) {
         return new GeneratedBinding(getModel(), component).initBindingGroup();
     }
 
     @Hidden(skip = true)
-    public BindingContext getBindingContext() {
+    public BindingGroup getBindingGroup() {
         synchronized (componentLock) {
-            return bindingContext;
+            return bindingGroup;
         }
     }
 

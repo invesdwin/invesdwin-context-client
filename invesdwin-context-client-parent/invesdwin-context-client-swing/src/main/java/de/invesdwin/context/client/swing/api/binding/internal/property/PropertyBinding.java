@@ -17,11 +17,6 @@ import javax.swing.text.JTextComponent;
 import org.jdesktop.application.Application;
 import org.jdesktop.application.ResourceMap;
 import org.jdesktop.beansbinding.AutoBinding.UpdateStrategy;
-import org.jdesktop.beansbinding.BeanProperty;
-import org.jdesktop.beansbinding.Binding;
-import org.jdesktop.beansbinding.BindingGroup;
-import org.jdesktop.beansbinding.Bindings;
-import org.jdesktop.beansbinding.Property;
 import org.jdesktop.swingbinding.JComboBoxBinding;
 import org.jdesktop.swingbinding.JListBinding;
 import org.jdesktop.swingbinding.JTableBinding;
@@ -30,6 +25,7 @@ import org.jdesktop.swingbinding.SwingBindings;
 import com.google.common.base.Optional;
 
 import de.invesdwin.context.client.swing.api.AModel;
+import de.invesdwin.context.client.swing.api.binding.BindingGroup;
 import de.invesdwin.context.client.swing.api.binding.internal.property.converter.ArrayToListConverter;
 import de.invesdwin.context.client.swing.api.binding.internal.property.converter.DateToStringConverter;
 import de.invesdwin.context.client.swing.api.binding.internal.property.converter.NumberToStringConverter;
@@ -38,7 +34,6 @@ import de.invesdwin.context.client.swing.api.binding.internal.property.selection
 import de.invesdwin.context.client.swing.api.binding.internal.property.selection.JTableMultipleSelectionProperty;
 import de.invesdwin.context.client.swing.api.binding.internal.property.selection.JTableSingleSelectionProperty;
 import de.invesdwin.norva.beanpath.BeanPathReflections;
-import de.invesdwin.norva.beanpath.impl.clazz.BeanClassContext;
 import de.invesdwin.norva.beanpath.impl.clazz.BeanClassType;
 import de.invesdwin.norva.beanpath.spi.element.AChoiceBeanPathElement;
 import de.invesdwin.norva.beanpath.spi.element.APropertyBeanPathElement;
@@ -52,14 +47,11 @@ import de.invesdwin.util.lang.Strings;
 @NotThreadSafe
 public class PropertyBinding {
 
-    private final BeanClassContext context;
     private final AModel model;
     private final Component component;
     private final BindingGroup bindingGroup;
 
-    public PropertyBinding(final BeanClassContext context, final AModel model, final Component component,
-            final BindingGroup bindingGroup) {
-        this.context = context;
+    public PropertyBinding(final AModel model, final Component component, final BindingGroup bindingGroup) {
         this.model = model;
         this.component = component;
         this.bindingGroup = bindingGroup;

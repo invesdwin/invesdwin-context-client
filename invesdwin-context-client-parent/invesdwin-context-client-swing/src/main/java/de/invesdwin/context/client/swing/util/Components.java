@@ -98,7 +98,7 @@ public final class Components {
         new AViewVisitor() {
             @Override
             protected void visit(final AView<?, ?> view) {
-                view.getBindingContext().update();
+                view.getBindingGroup().update();
             }
         }.visitAll(root);
     }

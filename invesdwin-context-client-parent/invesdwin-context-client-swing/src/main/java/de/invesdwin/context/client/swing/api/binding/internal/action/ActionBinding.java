@@ -16,8 +16,8 @@ import org.jdesktop.application.Application;
 import org.jdesktop.application.ResourceMap;
 
 import de.invesdwin.context.client.swing.api.AModel;
+import de.invesdwin.context.client.swing.api.binding.BindingGroup;
 import de.invesdwin.context.log.Log;
-import de.invesdwin.norva.beanpath.impl.clazz.BeanClassContext;
 import de.invesdwin.util.lang.Reflections;
 import de.invesdwin.util.lang.Strings;
 
@@ -26,9 +26,9 @@ public class ActionBinding {
 
     private final Log log = new Log(this);
 
-    private final BeanClassContext context;
     private final AModel model;
     private final Component component;
+    private final BindingGroup bindingGroup;
 
     private String targetActionName;
     private String targetMethodName;
@@ -38,10 +38,10 @@ public class ActionBinding {
     private ActionMap actionMap;
     private ResourceMap resourceMap;
 
-    public ActionBinding(final BeanClassContext context, final AModel model, final Component component) {
-        this.context = context;
+    public ActionBinding(final AModel model, final Component component, final BindingGroup bindingGroup) {
         this.model = model;
         this.component = component;
+        this.bindingGroup = bindingGroup;
     }
 
     public void initBinding() {
