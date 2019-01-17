@@ -15,9 +15,9 @@ import de.invesdwin.context.client.wicket.generated.markup.internal.removefrom.B
 import de.invesdwin.context.client.wicket.generated.markup.internal.suffix.SuffixModelSuffix;
 import de.invesdwin.context.log.error.Err;
 import de.invesdwin.norva.beanpath.annotation.Disabled;
+import de.invesdwin.norva.beanpath.annotation.Eager;
+import de.invesdwin.norva.beanpath.annotation.Forced;
 import de.invesdwin.nowicket.component.modal.panel.ModalMessage;
-import de.invesdwin.nowicket.generated.binding.annotation.Eager;
-import de.invesdwin.nowicket.generated.binding.annotation.Forced;
 import de.invesdwin.nowicket.generated.binding.annotation.ModalCloser;
 import de.invesdwin.nowicket.generated.guiservice.GuiService;
 import de.invesdwin.nowicket.generated.markup.annotation.GeneratedMarkup;
