@@ -1,9 +1,5 @@
 package de.invesdwin.context.client.swing.api;
 
-import java.awt.Container;
-import java.awt.event.ContainerListener;
-import java.util.LinkedHashSet;
-import java.util.Set;
 import java.util.concurrent.Callable;
 
 import javax.annotation.concurrent.GuardedBy;
@@ -16,14 +12,15 @@ import de.invesdwin.context.client.swing.api.binding.BindingContext;
 import de.invesdwin.context.client.swing.api.binding.internal.GeneratedBinding;
 import de.invesdwin.context.client.swing.api.binding.internal.ViewIdGenerator;
 import de.invesdwin.context.client.swing.api.guiservice.ContentPane;
-import de.invesdwin.context.client.swing.listener.ContainerListenerSupport;
+import de.invesdwin.context.client.swing.util.AViewVisitor;
 import de.invesdwin.context.client.swing.util.ComponentStandardizer;
+import de.invesdwin.context.client.swing.util.Components;
+import de.invesdwin.context.client.swing.util.ViewAttachingContainerListener;
 import de.invesdwin.norva.beanpath.annotation.Hidden;
 import de.invesdwin.util.assertions.Assertions;
-import de.invesdwin.util.collections.fast.concurrent.SynchronizedSet;
 
 @ThreadSafe
-public abstract class AView<M extends AModel, C extends JComponent> extends AModel implements IDockableListener {
+public abstract class AView<M extends AModel, C extends JComponent> extends AModel {
 
     public static final String VIEW_DESCRIPTION_KEY = "View.description";
     public static final String VIEW_ICON_KEY = "View.icon";
@@ -36,12 +33,10 @@ public abstract class AView<M extends AModel, C extends JComponent> extends AMod
     @GuardedBy("componentLock")
     private C component;
     @GuardedBy("componentLock")
-    private BindingContext binding;
+    private BindingContext bindingContext;
     private final Object dockableLock = new Object();
     @GuardedBy("dockableLock")
     private DockableContent dockable;
-    @GuardedBy("dockableLock")
-    private Set<IDockableListener> dockableListeners;
 
     @SuppressWarnings("unchecked")
     public AView() {
@@ -76,10 +71,10 @@ public abstract class AView<M extends AModel, C extends JComponent> extends AMod
                     });
                     if (getModel() != null) {
                         final C componentCopy = component;
-                        binding = EventDispatchThreadUtil.invokeAndWait(new Callable<BindingContext>() {
+                        bindingContext = EventDispatchThreadUtil.invokeAndWait(new Callable<BindingContext>() {
                             @Override
                             public BindingContext call() throws Exception {
-                                return initBinding(componentCopy);
+                                return initBindingContext(componentCopy);
                             }
                         });
                     }
@@ -95,14 +90,14 @@ public abstract class AView<M extends AModel, C extends JComponent> extends AMod
     protected abstract C initComponent();
 
     @Hidden(skip = true)
-    protected BindingContext initBinding(final C component) {
+    protected BindingContext initBindingContext(final C component) {
         return new GeneratedBinding(getModel(), component).initBindingGroup();
     }
 
     @Hidden(skip = true)
-    public BindingContext getBindingGroup() {
+    public BindingContext getBindingContext() {
         synchronized (componentLock) {
-            return binding;
+            return bindingContext;
         }
     }
 
@@ -156,88 +151,32 @@ public abstract class AView<M extends AModel, C extends JComponent> extends AMod
                         .as("ContentPane is not synchronous to the content in the View. The View is missing there despite the content being set here.")
                         .isTrue();
                 this.dockable = dockable;
-                onOpen();
-                if (dockableListeners != null) {
-                    for (final IDockableListener l : dockableListeners) {
-                        l.onOpen();
+                new AViewVisitor() {
+                    @Override
+                    protected void visit(final AView<?, ?> view) {
+                        onOpen();
                     }
-                }
+                }.visitAll(Components.getRootComponent(getComponent()));
             } else {
                 Assertions.assertThat(dockable).as("A View instance can only be made visible once.").isNull();
                 Assertions.assertThat(contentPane.containsView(this))
                         .as("ContentPane is not synchronous to the content in the View. The View still exists there, despite the content being removed from here.")
                         .isFalse();
                 this.dockable = null;
-                onClose();
-                if (dockableListeners != null) {
-                    for (final IDockableListener l : dockableListeners) {
-                        l.onClose();
+                new AViewVisitor() {
+                    @Override
+                    protected void visit(final AView<?, ?> view) {
+                        onClose();
                     }
-                }
+                }.visitAll(Components.getRootComponent(getComponent()));
             }
         }
     }
 
-    @Hidden(skip = true)
-    public Set<IDockableListener> getDockableListeners() {
-        synchronized (dockableLock) {
-            if (dockableListeners == null) {
-                dockableListeners = new SynchronizedSet<>(new LinkedHashSet<>(), dockableLock);
-            }
-            return dockableListeners;
-        }
-    }
-
-    @Override
     @Hidden(skip = true)
     public void onOpen() {}
 
-    @Override
     @Hidden(skip = true)
     public void onClose() {}
-
-    private static final class ViewAttachingContainerListener extends ContainerListenerSupport {
-
-        private final AView<?, ?> view;
-
-        private ViewAttachingContainerListener(final AView<?, ?> view) {
-            this.view = view;
-        }
-
-        public AView<?, ?> getView() {
-            return view;
-        }
-
-    }
-
-    public static AView<?, ?> findParentView(final Container container) {
-        return findParentView(container, null);
-    }
-
-    @SuppressWarnings("unchecked")
-    public static <T extends AView<?, ?>> T findParentView(final Container container, final Class<T> type) {
-        Container parent = container;
-        while (parent != null) {
-            final AView<?, ?> view = getViewAt(parent);
-            if (view != null && (type == null || type.isAssignableFrom(view.getClass()))) {
-                return (T) view;
-            }
-            parent = parent.getParent();
-        }
-        return null;
-    }
-
-    private static AView<?, ?> getViewAt(final Container container) {
-        final ContainerListener[] containerListeners = container.getContainerListeners();
-        for (int i = 0; i < containerListeners.length; i++) {
-            final ContainerListener l = containerListeners[i];
-            if (l instanceof ViewAttachingContainerListener) {
-                final ViewAttachingContainerListener viewL = (ViewAttachingContainerListener) l;
-                final AView<?, ?> view = viewL.getView();
-                return view;
-            }
-        }
-        return null;
-    }
 
 }

@@ -14,8 +14,6 @@ import javax.swing.JToggleButton;
 import org.fest.reflect.beanproperty.Invoker;
 import org.jdesktop.application.Application;
 import org.jdesktop.application.ResourceMap;
-import org.jdesktop.beansbinding.BeanProperty;
-import org.jdesktop.beansbinding.BindingGroup;
 
 import de.invesdwin.context.client.swing.api.AModel;
 import de.invesdwin.context.log.Log;
@@ -31,7 +29,6 @@ public class ActionBinding {
     private final BeanClassContext context;
     private final AModel model;
     private final Component component;
-    private final BindingGroup bindingGroup;
 
     private String targetActionName;
     private String targetMethodName;
@@ -41,12 +38,10 @@ public class ActionBinding {
     private ActionMap actionMap;
     private ResourceMap resourceMap;
 
-    public ActionBinding(final BeanClassContext context, final AModel model, final Component component,
-            final BindingGroup bindingGroup) {
+    public ActionBinding(final BeanClassContext context, final AModel model, final Component component) {
         this.context = context;
         this.model = model;
         this.component = component;
-        this.bindingGroup = bindingGroup;
     }
 
     public void initBinding() {
