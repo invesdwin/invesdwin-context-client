@@ -24,7 +24,7 @@ public abstract class AJComponentBinding<C extends JComponent> implements IBindi
     protected final APropertyBeanPathElement element;
     protected final ValidateBeanPathElement validateElement;
     protected final AModel model;
-    protected final SubmitAllViewsHelper eagerHelper;
+    protected final Runnable eagerSubmitRunnable;
     protected Object prevModelValue;
     protected boolean submitted = false;
     protected String invalidMessage = null;
@@ -34,39 +34,54 @@ public abstract class AJComponentBinding<C extends JComponent> implements IBindi
         this.element = element;
         this.validateElement = element.getValidateElement();
         this.model = model;
-        this.eagerHelper = newEagerHelper(element);
+        this.eagerSubmitRunnable = newEagerSubmitRunnable();
     }
 
-    private SubmitAllViewsHelper newEagerHelper(final APropertyBeanPathElement element) {
+    private Runnable newEagerSubmitRunnable() {
         if (element.isEager()) {
             if (element.isForced()) {
-                return new SubmitAllViewsHelper() {
-                    @SuppressWarnings("unused")
-                    protected boolean validate(final AView<?, ?> views) {
-                        //only show conversion errors, ignore any other validation errors
-                        if (Strings.isNotBlank(invalidMessage)) {
-                            GuiService.get().getStatusBar().error(invalidMessage);
-                            return false;
+                return new Runnable() {
+                    private final SubmitAllViewsHelper helper = new SubmitAllViewsHelper() {
+                        @SuppressWarnings("unused")
+                        protected boolean validate(final AView<?, ?> views) {
+                            //only show conversion errors, ignore any other validation errors
+                            if (Strings.isNotBlank(invalidMessage)) {
+                                GuiService.get().getStatusBar().error(invalidMessage);
+                                return false;
+                            }
+                            return true;
                         }
-                        return true;
-                    }
+
+                        @Override
+                        public void process(final Component component) {
+                            if (!isModifiable()) {
+                                return;
+                            }
+                            super.process(component);
+                        }
+                    };
 
                     @Override
-                    public void process(final Component component) {
-                        if (!isModifiable()) {
-                            return;
-                        }
-                        super.process(component);
+                    public void run() {
+                        helper.process(component);
                     }
                 };
+
             } else {
-                return new SubmitAllViewsHelper() {
-                    @Override
-                    public void process(final Component component) {
-                        if (!isModifiable()) {
-                            return;
+                return new Runnable() {
+                    private final SubmitAllViewsHelper helper = new SubmitAllViewsHelper() {
+                        @Override
+                        public void process(final Component component) {
+                            if (!isModifiable()) {
+                                return;
+                            }
+                            super.process(component);
                         }
-                        super.process(component);
+                    };
+
+                    @Override
+                    public void run() {
+                        helper.process(component);
                     }
                 };
             }

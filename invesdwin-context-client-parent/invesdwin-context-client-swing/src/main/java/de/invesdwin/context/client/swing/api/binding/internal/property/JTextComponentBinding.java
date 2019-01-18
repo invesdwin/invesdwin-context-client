@@ -24,11 +24,11 @@ public class JTextComponentBinding extends AJComponentBinding<JTextComponent> {
             final AModel model) {
         super(component, element, model);
         this.converter = newConverter();
-        if (eagerHelper != null) {
+        if (eagerSubmitRunnable != null) {
             component.addFocusListener(new FocusListenerSupport() {
                 @Override
                 public void focusLost(final FocusEvent e) {
-                    eagerHelper.process(component);
+                    eagerSubmitRunnable.run();
                 }
             });
         }
