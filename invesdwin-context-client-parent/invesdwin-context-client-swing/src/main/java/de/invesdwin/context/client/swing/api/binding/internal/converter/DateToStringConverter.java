@@ -1,4 +1,4 @@
-package de.invesdwin.context.client.swing.api.binding.internal.property.converter;
+package de.invesdwin.context.client.swing.api.binding.internal.converter;
 
 import java.text.ParseException;
 import java.util.Calendar;
@@ -6,14 +6,12 @@ import java.util.Date;
 
 import javax.annotation.concurrent.Immutable;
 
-import org.jdesktop.beansbinding.Converter;
-
 import de.invesdwin.norva.beanpath.spi.element.IPropertyBeanPathElement;
 import de.invesdwin.util.error.UnknownArgumentException;
 import de.invesdwin.util.time.fdate.FDate;
 
 @Immutable
-public class DateToStringConverter extends Converter<Object, Object> {
+public class DateToStringConverter implements IConverter<Object, String> {
 
     private final java.text.SimpleDateFormat format;
     private final Class<?> type;
@@ -29,7 +27,7 @@ public class DateToStringConverter extends Converter<Object, Object> {
     }
 
     @Override
-    public Object convertForward(final Object value) {
+    public String fromModelToComponent(final Object value) {
         if (value == null) {
             return null;
         }
@@ -49,13 +47,12 @@ public class DateToStringConverter extends Converter<Object, Object> {
     }
 
     @Override
-    public Object convertReverse(final Object value) {
+    public Object fromComponentToModel(final String value) {
         if (value == null) {
             return null;
         }
-        final String str = (String) value;
         try {
-            final Date date = format.parse(str);
+            final Date date = format.parse(value);
             if (type == Date.class) {
                 return date;
             } else if (type == Calendar.class) {

@@ -1,4 +1,4 @@
-package de.invesdwin.context.client.swing.api.binding.internal.property.converter;
+package de.invesdwin.context.client.swing.api.binding.internal.converter;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -7,14 +7,12 @@ import java.text.ParseException;
 
 import javax.annotation.concurrent.Immutable;
 
-import org.jdesktop.beansbinding.Converter;
-
 import de.invesdwin.norva.beanpath.spi.element.IPropertyBeanPathElement;
 import de.invesdwin.util.error.UnknownArgumentException;
 import de.invesdwin.util.math.decimal.Decimal;
 
 @Immutable
-public class NumberToStringConverter extends Converter<Object, Object> {
+public class NumberToStringConverter implements IConverter<Object, String> {
 
     private final NumberFormat format;
     private final Class<?> type;
@@ -30,7 +28,7 @@ public class NumberToStringConverter extends Converter<Object, Object> {
     }
 
     @Override
-    public Object convertForward(final Object value) {
+    public String fromModelToComponent(final Object value) {
         if (value == null) {
             return null;
         }
@@ -39,11 +37,11 @@ public class NumberToStringConverter extends Converter<Object, Object> {
     }
 
     @Override
-    public Object convertReverse(final Object value) {
+    public Object fromComponentToModel(final String value) {
         if (value == null) {
             return null;
         }
-        final String str = (String) value;
+        final String str = value;
         try {
             final Number number = format.parse(str);
             if (type == byte.class || type == Byte.class) {
