@@ -4,8 +4,6 @@ import java.awt.Color;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.event.ContainerListener;
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.annotation.concurrent.Immutable;
 import javax.swing.JTable;
@@ -94,49 +92,6 @@ public final class Components {
             }
         }
         return null;
-    }
-
-    public static boolean submitAllViews(final Component component) {
-        final List<AView<?, ?>> views = new ArrayList<>();
-        new AViewVisitor() {
-            @Override
-            protected void visit(final AView<?, ?> view) {
-                view.getBindingGroup().submit();
-                views.add(view);
-            }
-        }.visitAll(getRootComponentInDockable(component));
-
-        boolean valid = true;
-        for (int i = 0; i < views.size(); i++) {
-            if (!views.get(i).getBindingGroup().validate()) {
-                valid = false;
-            }
-        }
-
-        if (valid) {
-            for (int i = 0; i < views.size(); i++) {
-                views.get(i).getBindingGroup().commit();
-            }
-        } else {
-            for (int i = 0; i < views.size(); i++) {
-                views.get(i).getBindingGroup().rollback();
-            }
-        }
-
-        for (int i = 0; i < views.size(); i++) {
-            views.get(i).getBindingGroup().update();
-        }
-
-        return valid;
-    }
-
-    public static void updateAllViews(final Component component) {
-        new AViewVisitor() {
-            @Override
-            protected void visit(final AView<?, ?> view) {
-                view.getBindingGroup().update();
-            }
-        }.visitAll(getRootComponentInDockable(component));
     }
 
 }
