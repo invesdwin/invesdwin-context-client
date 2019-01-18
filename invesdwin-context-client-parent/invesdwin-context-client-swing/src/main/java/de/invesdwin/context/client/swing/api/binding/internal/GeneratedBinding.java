@@ -23,6 +23,7 @@ import de.invesdwin.norva.beanpath.impl.clazz.BeanClassContext;
 import de.invesdwin.norva.beanpath.impl.clazz.BeanClassProcessor;
 import de.invesdwin.norva.beanpath.impl.clazz.BeanClassType;
 import de.invesdwin.norva.beanpath.spi.element.APropertyBeanPathElement;
+import de.invesdwin.norva.beanpath.spi.element.IBeanPathElement;
 import de.invesdwin.util.collections.loadingcache.ALoadingCache;
 import de.invesdwin.util.error.UnknownArgumentException;
 import de.invesdwin.util.lang.Strings;
@@ -114,10 +115,18 @@ public final class GeneratedBinding {
     }
 
     protected IBinding initBinding(final JTextComponent component) {
-        final APropertyBeanPathElement element = bindingGroup.getContext()
-                .getElementRegistry()
-                .getElement(component.getName());
+        final APropertyBeanPathElement element = getElement(component);
         return new JTextComponentBinding(component, element, model);
+    }
+
+    private <T> T getElement(final JTextComponent component) {
+        final T element = bindingGroup.getContext().getElementRegistry().getElement(component.getName());
+        if (element == null) {
+            throw new IllegalArgumentException("No " + IBeanPathElement.class.getSimpleName() + " found for "
+                    + component.getClass().getSimpleName() + " with name: " + component.getName());
+        } else {
+            return element;
+        }
     }
 
     protected IBinding initBinding(final JButton component) {
