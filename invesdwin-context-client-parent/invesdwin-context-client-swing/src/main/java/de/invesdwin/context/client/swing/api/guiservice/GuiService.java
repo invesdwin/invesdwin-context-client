@@ -2,15 +2,19 @@ package de.invesdwin.context.client.swing.api.guiservice;
 
 import java.awt.Component;
 
-import javax.annotation.concurrent.Immutable;
+import javax.annotation.concurrent.GuardedBy;
+import javax.annotation.concurrent.ThreadSafe;
 import javax.inject.Inject;
 import javax.inject.Named;
+
+import org.jdesktop.application.Application;
+import org.jdesktop.application.TaskService;
 
 import de.invesdwin.context.beans.init.MergedContext;
 import de.invesdwin.context.client.swing.util.Components;
 
 @Named
-@Immutable
+@ThreadSafe
 public class GuiService implements IGuiService {
 
     @Inject
@@ -19,6 +23,8 @@ public class GuiService implements IGuiService {
     private ContentPane contentPane;
     @Inject
     private SplashScreen splashScreen;
+    @GuardedBy("none for performance")
+    private TaskService taskService;
 
     public static IGuiService get() {
         return MergedContext.getInstance().getBean(IGuiService.class);
@@ -40,8 +46,16 @@ public class GuiService implements IGuiService {
     }
 
     @Override
-    public void processRequestFinally(final Component component) {
-        Components.updateAllViews(component);
+    public void submitAllViews(final Component component) {
+        Components.submitAllViews(component);
+    }
+
+    @Override
+    public TaskService getTaskService() {
+        if (taskService == null) {
+            taskService = Application.getInstance().getContext().getTaskService();
+        }
+        return taskService;
     }
 
 }

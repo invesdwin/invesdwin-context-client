@@ -156,7 +156,7 @@ public abstract class AView<M extends AModel, C extends JComponent> extends AMod
                     protected void visit(final AView<?, ?> view) {
                         onOpen();
                     }
-                }.visitAll(Components.getRootComponent(getComponent()));
+                }.visitAll(Components.getRootComponentInDockable(getComponent()));
             } else {
                 Assertions.assertThat(dockable).as("A View instance can only be made visible once.").isNull();
                 Assertions.assertThat(contentPane.containsView(this))
@@ -168,7 +168,7 @@ public abstract class AView<M extends AModel, C extends JComponent> extends AMod
                     protected void visit(final AView<?, ?> view) {
                         onClose();
                     }
-                }.visitAll(Components.getRootComponent(getComponent()));
+                }.visitAll(Components.getRootComponentInDockable(getComponent()));
             }
         }
     }

@@ -18,6 +18,7 @@ import org.jdesktop.application.ResourceMap;
 import de.invesdwin.context.client.swing.api.AModel;
 import de.invesdwin.context.client.swing.api.binding.BindingGroup;
 import de.invesdwin.context.log.Log;
+import de.invesdwin.norva.beanpath.spi.element.IPropertyBeanPathElement;
 import de.invesdwin.util.lang.Reflections;
 import de.invesdwin.util.lang.Strings;
 
@@ -34,7 +35,7 @@ public class ActionBinding {
     private String targetMethodName;
     private Method targetMethod;
     private String targetPath;
-    private Object target;
+    private Class<?> targetType;
     private ActionMap actionMap;
     private ResourceMap resourceMap;
 
@@ -46,7 +47,7 @@ public class ActionBinding {
 
     public void initBinding() {
         initialize();
-        if (target == null) {
+        if (targetType == null) {
             //it was already warned about this
             return;
         }
@@ -57,37 +58,21 @@ public class ActionBinding {
         if (component.getName().contains(".")) {
             targetActionName = component.getName().substring(component.getName().lastIndexOf('.') + 1);
             targetPath = Strings.removeEnd(component.getName(), "." + targetActionName);
-            target = extractTargetFromModelPath();
-            if (target != null) {
-                actionMap = Application.getInstance().getContext().getActionMap(target);
-                resourceMap = Application.getInstance().getContext().getResourceMap(target.getClass());
-            }
+            final IPropertyBeanPathElement targetElement = bindingGroup.getContext()
+                    .getElementRegistry()
+                    .getElement(targetPath);
+            targetType = targetElement.getModifier().getBeanClassAccessor().getType().getType();
+            actionMap = Application.getInstance().getContext().getActionMap(targetType);
+            resourceMap = Application.getInstance().getContext().getResourceMap(targetType.getClass());
         } else {
             targetActionName = component.getName();
             targetPath = null;
-            target = model;
+            targetType = model.getClass();
             actionMap = model.getActionMap();
             resourceMap = model.getResourceMap();
         }
-        if (target != null) {
-            targetMethodName = Strings.stripNonAlphanumeric(targetActionName);
-            targetMethod = Reflections.findMethod(target.getClass(), targetMethodName);
-        }
-    }
-
-    private Object extractTargetFromModelPath() {
-        final BeanProperty<AModel, Object> targetProperty = BeanProperty.create(targetPath);
-        if (targetProperty.isReadable(model)) {
-            final Object target = targetProperty.getValue(model);
-            if (target != null) {
-                return target;
-            } else {
-                log.warn(
-                        "Getter [%s] returned null at [%s], thus no Action binding can happen for the path [%s] on the component [%s]. Please initialize the property properly.",
-                        targetProperty, model, component.getName(), component);
-            }
-        }
-        return null;
+        targetMethodName = Strings.stripNonAlphanumeric(targetActionName);
+        targetMethod = Reflections.findMethod(targetType.getClass(), targetMethodName);
     }
 
     private void intAction() {
@@ -105,7 +90,7 @@ public class ActionBinding {
                 //We should expect that actions should be available for buttons
                 log.warn(
                         "Action [%s] does not exist in [%s], thus Action binding cannot occur for the path [%s] on the component [%s]. Please create the method [%s] or correct the path.",
-                        targetActionName, target.getClass(), component.getName(), component, targetMethodName);
+                        targetActionName, targetType.getClass(), component.getName(), component, targetMethodName);
             } else if (action != null) {
                 final Runnable textSetter = initActionText(action);
                 initActionIcon(action);

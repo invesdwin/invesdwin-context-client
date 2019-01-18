@@ -16,6 +16,7 @@ import de.invesdwin.aspects.EventDispatchThreadUtil;
 import de.invesdwin.context.client.swing.api.AModel;
 import de.invesdwin.context.client.swing.api.ATask;
 import de.invesdwin.context.client.swing.api.guiservice.Dialogs;
+import de.invesdwin.context.client.swing.api.guiservice.GuiService;
 import de.invesdwin.context.client.swing.api.guiservice.StatusBar;
 import de.invesdwin.context.log.error.Err;
 import de.invesdwin.util.lang.Objects;
@@ -119,8 +120,7 @@ public class TestModel extends AModel {
                     @Override
                     public void run() {
                         for (int i = 1; i <= 3; i++) {
-                            Application.getInstance().getContext().getTaskService().execute(
-                                    new ProgressTask(Application.getInstance(), i));
+                            GuiService.get().getTaskService().execute(new ProgressTask(Application.getInstance(), i));
                             try {
                                 TimeUnit.SECONDS.sleep(i);
                             } catch (final InterruptedException e) {
@@ -132,7 +132,7 @@ public class TestModel extends AModel {
             }
 
         };
-        Application.getInstance().getContext().getTaskService().execute(popupTask);
+        GuiService.get().getTaskService().execute(popupTask);
     }
 
     private class ProgressTask extends ATask<Object, Object> {

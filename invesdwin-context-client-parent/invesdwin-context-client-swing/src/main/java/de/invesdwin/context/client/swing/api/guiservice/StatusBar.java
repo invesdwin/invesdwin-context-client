@@ -6,9 +6,6 @@ import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 import javax.inject.Inject;
 
-import org.jdesktop.application.Application;
-import org.jdesktop.application.TaskService;
-
 import de.invesdwin.util.time.duration.Duration;
 
 @ThreadSafe
@@ -36,10 +33,6 @@ public class StatusBar {
 
     public synchronized void reset() {
         view.setMessageText(null, null, null);
-    }
-
-    public TaskService getTaskService() {
-        return Application.getInstance().getContext().getTaskService();
     }
 
 }
