@@ -49,7 +49,7 @@ public final class GeneratedBinding {
         this.component = component;
     }
 
-    public BindingGroup initBindingGroup() {
+    public BindingGroup bind() {
         bindingGroup = new BindingGroup(MODELCLASS_CONTEXT.get(model.getClass()));
 
         final List<Component> components = NAMED_COMPONENT_FINDER.findAll(component);

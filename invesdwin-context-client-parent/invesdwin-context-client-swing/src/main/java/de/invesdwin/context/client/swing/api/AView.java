@@ -91,7 +91,7 @@ public abstract class AView<M extends AModel, C extends JComponent> extends AMod
 
     @Hidden(skip = true)
     protected BindingGroup initBindingGroup(final C component) {
-        return new GeneratedBinding(getModel(), component).initBindingGroup();
+        return new GeneratedBinding(getModel(), component).bind();
     }
 
     @Hidden(skip = true)
