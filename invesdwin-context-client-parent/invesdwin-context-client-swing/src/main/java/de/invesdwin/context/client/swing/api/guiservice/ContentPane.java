@@ -115,8 +115,7 @@ public class ContentPane {
 
     private AView<?, ?> findViewWithEqualModel(final AView<?, ?> view) {
         for (final AView<?, ?> visibleView : class_id_visibleView.get(view.getClass()).values()) {
-            if (Objects.equals(visibleView.getClass(), view.getClass())
-                    && Objects.equals(visibleView.getModel(), view.getModel())) {
+            if (Objects.equals(visibleView.getModel(), view.getModel())) {
                 return visibleView;
             }
         }
