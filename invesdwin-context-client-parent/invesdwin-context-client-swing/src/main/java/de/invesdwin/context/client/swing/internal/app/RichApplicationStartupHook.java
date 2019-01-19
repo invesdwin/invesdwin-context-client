@@ -84,7 +84,7 @@ public class RichApplicationStartupHook implements IStartupHook {
         frameView.setComponent(contentPaneView.getComponent());
         final AView<?, ?> initialView = delegate.getInitialView();
         if (initialView != null) {
-            contentPane.addView(initialView);
+            contentPane.showView(initialView);
         }
         frameView.setMenuBar(menuBarView.getComponent());
         frameView.setStatusBar(statusBarView.getComponent());

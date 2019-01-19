@@ -31,7 +31,7 @@ public class TestViewTest extends ATest {
     public void setUp() throws Exception {
         super.setUp();
         view = new TestView();
-        contentPane.addView(view);
+        contentPane.showView(view);
     }
 
     @Test

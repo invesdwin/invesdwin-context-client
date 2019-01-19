@@ -1,4 +1,4 @@
-package de.invesdwin.context.client.swing.api.binding.internal;
+package de.invesdwin.context.client.swing.internal.content;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -8,7 +8,7 @@ import de.invesdwin.context.client.swing.api.AView;
 import de.invesdwin.util.collections.loadingcache.ALoadingCache;
 
 @ThreadSafe
-public final class ViewIdGenerator {
+public final class DockableContentIdGenerator {
 
     @SuppressWarnings("rawtypes")
     private static final ALoadingCache<Class<? extends AView>, AtomicInteger> CLASS_SEQUENCENUMBER = new ALoadingCache<Class<? extends AView>, AtomicInteger>() {
@@ -18,7 +18,7 @@ public final class ViewIdGenerator {
         }
     };
 
-    private ViewIdGenerator() {}
+    private DockableContentIdGenerator() {}
 
     /**
      * Generates IDs in the schema of [ClassFQN]_[SequenceNumber].

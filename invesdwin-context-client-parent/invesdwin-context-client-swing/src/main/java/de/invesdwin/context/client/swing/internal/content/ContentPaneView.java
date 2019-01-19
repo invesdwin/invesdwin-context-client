@@ -71,7 +71,8 @@ public class ContentPaneView extends AView<ContentPaneView, CContentArea> {
     }
 
     public DockableContent addView(final ContentPane contentPane, final AView<?, ?> view) {
-        final DockableContent dockable = new DockableContent(view.getId(), view.getIcon(), view.getTitle(),
+        final String uniqueId = DockableContentIdGenerator.newId(view);
+        final DockableContent dockable = new DockableContent(uniqueId, view.getIcon(), view.getTitle(),
                 view.getComponent());
         dockable.setTitleToolTip(view.getDescription());
         workingArea.show(dockable);
@@ -103,6 +104,6 @@ public class ContentPaneView extends AView<ContentPaneView, CContentArea> {
     }
 
     public boolean containsView(final AView<?, ?> view) {
-        return getComponent().getControl().getSingleDockable(view.getId()) != null;
+        return getComponent().getControl().getSingleDockable(view.getDockableUniqueId()) != null;
     }
 }

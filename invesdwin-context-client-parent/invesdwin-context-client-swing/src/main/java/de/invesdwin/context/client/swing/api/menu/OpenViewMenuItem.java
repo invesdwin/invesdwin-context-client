@@ -57,9 +57,9 @@ public class OpenViewMenuItem<V extends AView<?, ?>> extends JMenuItem {
                     if (cachedViewInstance == null) {
                         cachedViewInstance = createView();
                     }
-                    contentPane.addView(cachedViewInstance);
+                    contentPane.showView(cachedViewInstance);
                 } else {
-                    contentPane.addView(createView());
+                    contentPane.showView(createView());
                 }
             }
         });

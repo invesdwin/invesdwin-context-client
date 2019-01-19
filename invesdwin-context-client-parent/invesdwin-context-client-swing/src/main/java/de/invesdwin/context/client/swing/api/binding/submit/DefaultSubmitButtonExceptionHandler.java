@@ -8,7 +8,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 import org.jdesktop.application.Application;
 import org.jdesktop.application.ResourceMap;
 
-import de.invesdwin.context.client.swing.api.guiservice.GuiService;
+import de.invesdwin.context.client.swing.api.guiservice.Dialogs;
 import de.invesdwin.norva.beanpath.spi.element.IBeanPathElement;
 import de.invesdwin.util.lang.Strings;
 
@@ -56,12 +56,12 @@ public class DefaultSubmitButtonExceptionHandler implements ISubmitButtonExcepti
 
     protected void showExceptionMessage(final IBeanPathElement element, final Component component, final Throwable t,
             final String title, final String message) {
-        GuiService.get().showModalView(new ModalMessageView(new ModalMessage(title, message)));
+        Dialogs.showMessageDialog(component, message, title, Dialogs.OK_OPTION);
     }
 
     public void logShowExceptionMessage(final Throwable t) {
         LOG.catching(org.slf4j.ext.XLogger.Level.WARN,
-                new RuntimeException("Showing " + ModalMessage.class.getSimpleName() + " for button exception...", t));
+                new RuntimeException("Showing message dialog for button exception...", t));
     }
 
 }

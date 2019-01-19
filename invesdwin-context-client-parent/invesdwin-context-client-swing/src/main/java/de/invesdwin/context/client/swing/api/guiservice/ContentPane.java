@@ -27,17 +27,6 @@ public class ContentPane {
     @Inject
     private de.invesdwin.context.client.swing.internal.content.ContentPaneView contentPaneView;
 
-    /**
-     * Throws an exception if the View has already been added.
-     */
-    @EventDispatchThread(InvocationType.INVOKE_AND_WAIT)
-    public void addView(final AView<?, ?> view) {
-        Assertions.assertThat(containsView(view)).as("View [%s] is already being displayed.", view.getId()).isFalse();
-        final DockableContent content = contentPaneView.addView(ContentPane.this, view);
-        view.setDockable(ContentPane.this, content);
-        Assertions.assertThat(id_visibleView.put(view.getId(), view)).isNull();
-    }
-
     public AView<?, ?> findViewWithEqualModel(final AModel model) {
         for (final AView<?, ?> view : id_visibleView.values()) {
             if (view.getModel().equals(model)) {
@@ -52,7 +41,7 @@ public class ContentPane {
      */
     @EventDispatchThread(InvocationType.INVOKE_AND_WAIT)
     public void removeView(final AView<?, ?> view) {
-        Assertions.assertThat(id_visibleView.remove(view.getId())).isNotNull();
+        Assertions.assertThat(id_visibleView.remove(view.getDockableUniqueId())).isNotNull();
         //May also be called by contentRemoved, in that case we should not trigger that again.
         if (containsView(view)) {
             Assertions.assertThat(contentPaneView.removeView(view)).isTrue();
@@ -101,6 +90,35 @@ public class ContentPane {
         final de.invesdwin.context.client.swing.internal.app.DelegateRichApplication application = (de.invesdwin.context.client.swing.internal.app.DelegateRichApplication) Application
                 .getInstance();
         application.showMainView();
+    }
+
+    @EventDispatchThread(InvocationType.INVOKE_AND_WAIT)
+    public void showView(final AView<?, ?> view) {
+        if (containsView(view)) {
+            final DockableContent dockable = view.getDockable();
+            dockable.toFront(dockable.getFocusComponent());
+        } else {
+            final AView<?, ?> existingView = findViewWithEqualModel(view.getModel());
+            if (existingView != null) {
+                view.replaceView(existingView);
+                final DockableContent dockable = view.getDockable();
+                dockable.toFront(dockable.getFocusComponent());
+            } else {
+                addView(view);
+            }
+        }
+    }
+
+    /**
+     * Throws an exception if the View has already been added.
+     */
+    private void addView(final AView<?, ?> view) {
+        Assertions.assertThat(containsView(view))
+                .as("View [%s] is already being displayed.", view.getDockableUniqueId())
+                .isFalse();
+        final DockableContent content = contentPaneView.addView(ContentPane.this, view);
+        view.setDockable(ContentPane.this, content);
+        Assertions.assertThat(id_visibleView.put(view.getDockableUniqueId(), view)).isNull();
     }
 
 }

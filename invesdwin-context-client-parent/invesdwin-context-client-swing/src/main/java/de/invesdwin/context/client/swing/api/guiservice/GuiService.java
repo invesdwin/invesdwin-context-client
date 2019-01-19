@@ -10,7 +10,6 @@ import org.jdesktop.application.TaskService;
 
 import de.invesdwin.context.beans.init.MergedContext;
 import de.invesdwin.context.client.swing.api.AView;
-import de.invesdwin.context.client.swing.api.DockableContent;
 
 @Named
 @ThreadSafe
@@ -67,22 +66,9 @@ public class GuiService implements IGuiService {
         return false;
     }
 
-    @SuppressWarnings({ "rawtypes" })
     @Override
     public void showView(final AView<?, ?> view) {
-        if (getContentPane().containsView(view)) {
-            final DockableContent dockable = view.getDockable();
-            dockable.toFront(dockable.getFocusComponent());
-        } else {
-            final AView existingView = getContentPane().findViewWithEqualModel(view.getModel());
-            if (existingView != null) {
-                view.replaceView(existingView);
-                final DockableContent dockable = view.getDockable();
-                dockable.toFront(dockable.getFocusComponent());
-            } else {
-                getContentPane().addView(view);
-            }
-        }
+        getContentPane().showView(view);
     }
 
 }

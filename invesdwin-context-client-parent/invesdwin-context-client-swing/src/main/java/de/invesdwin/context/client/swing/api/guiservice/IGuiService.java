@@ -18,6 +18,10 @@ public interface IGuiService {
 
     void showModalView(AView<?, ?> view);
 
+    /**
+     * If a view is already visible with an equal model, then that is being replaced with the new view. Otherwise this
+     * view is just displayed in a new dockable.
+     */
     void showView(AView<?, ?> view);
 
     boolean isModalViewShowing();

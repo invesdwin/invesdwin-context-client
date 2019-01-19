@@ -10,7 +10,6 @@ import javax.swing.JComponent;
 import de.invesdwin.aspects.EventDispatchThreadUtil;
 import de.invesdwin.context.client.swing.api.binding.BindingGroup;
 import de.invesdwin.context.client.swing.api.binding.GeneratedBindingGroup;
-import de.invesdwin.context.client.swing.api.binding.internal.ViewIdGenerator;
 import de.invesdwin.context.client.swing.api.guiservice.ContentPane;
 import de.invesdwin.context.client.swing.util.AViewVisitor;
 import de.invesdwin.context.client.swing.util.ComponentStandardizer;
@@ -26,8 +25,6 @@ public abstract class AView<M extends AModel, C extends JComponent> extends AMod
     public static final String VIEW_ICON_KEY = "View.icon";
     public static final String VIEW_TITLE_KEY = "View.title";
 
-    private final String id;
-
     private final Object modelLock = new Object();
     @GuardedBy("modelLock")
     private M model;
@@ -42,13 +39,21 @@ public abstract class AView<M extends AModel, C extends JComponent> extends AMod
 
     @SuppressWarnings("unchecked")
     public AView() {
-        id = ViewIdGenerator.newId(this);
         this.model = (M) this;
     }
 
     public AView(final M model) {
-        id = ViewIdGenerator.newId(this);
         this.model = model;
+    }
+
+    public String getDockableUniqueId() {
+        synchronized (dockableLock) {
+            if (dockable != null) {
+                return dockable.getUniqueId();
+            } else {
+                return null;
+            }
+        }
     }
 
     @Hidden(skip = true)
@@ -112,25 +117,11 @@ public abstract class AView<M extends AModel, C extends JComponent> extends AMod
         }
     }
 
-    /**
-     * The ID is unique for every instance of this View.
-     */
-    @Hidden(skip = true)
-    public String getId() {
-        synchronized (dockableLock) {
-            if (dockable != null) {
-                return dockable.getUniqueId();
-            } else {
-                return id;
-            }
-        }
-    }
-
     @Hidden(skip = true)
     public String getTitle() {
         final String title = getResourceMap().getString(VIEW_TITLE_KEY);
         if (title == null) {
-            return getId();
+            return getDockable().getUniqueId();
         } else {
             return title;
         }
@@ -162,7 +153,6 @@ public abstract class AView<M extends AModel, C extends JComponent> extends AMod
     public void setDockable(final ContentPane contentPane, final DockableContent dockable) {
         synchronized (dockableLock) {
             if (this.dockable == null) {
-                Assertions.assertThat(dockable.getUniqueId()).isEqualTo(getId());
                 Assertions.assertThat(dockable.getComponent()).isSameAs(getComponent());
                 Assertions.assertThat(contentPane.containsView(this))
                         .as("ContentPane is not synchronous to the content in the View. The View is missing there despite the content being set here.")
