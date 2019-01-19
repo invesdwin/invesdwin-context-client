@@ -1,11 +1,11 @@
-package de.invesdwin.context.client.swing.api.binding.internal.property;
+package de.invesdwin.context.client.swing.api.binding.internal.components;
 
 import java.awt.event.FocusEvent;
 
 import javax.annotation.concurrent.NotThreadSafe;
 import javax.swing.text.JTextComponent;
 
-import de.invesdwin.context.client.swing.api.AModel;
+import de.invesdwin.context.client.swing.api.binding.BindingGroup;
 import de.invesdwin.context.client.swing.api.binding.internal.converter.DateToStringConverter;
 import de.invesdwin.context.client.swing.api.binding.internal.converter.IConverter;
 import de.invesdwin.context.client.swing.api.binding.internal.converter.NoConverter;
@@ -16,13 +16,13 @@ import de.invesdwin.norva.beanpath.impl.clazz.BeanClassType;
 import de.invesdwin.norva.beanpath.spi.element.APropertyBeanPathElement;
 
 @NotThreadSafe
-public class JTextComponentBinding extends AJComponentBinding<JTextComponent> {
+public class TextComponentBinding extends AComponentBinding<JTextComponent> {
 
     private final IConverter<Object, String> converter;
 
-    public JTextComponentBinding(final JTextComponent component, final APropertyBeanPathElement element,
-            final AModel model) {
-        super(component, element, model);
+    public TextComponentBinding(final JTextComponent component, final APropertyBeanPathElement element,
+            final BindingGroup bindingGroup) {
+        super(component, element, bindingGroup);
         this.converter = newConverter();
         if (eagerSubmitRunnable != null) {
             component.addFocusListener(new FocusListenerSupport() {

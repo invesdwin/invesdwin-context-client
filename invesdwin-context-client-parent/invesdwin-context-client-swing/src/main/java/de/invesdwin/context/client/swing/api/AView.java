@@ -9,7 +9,7 @@ import javax.swing.JComponent;
 
 import de.invesdwin.aspects.EventDispatchThreadUtil;
 import de.invesdwin.context.client.swing.api.binding.BindingGroup;
-import de.invesdwin.context.client.swing.api.binding.internal.GeneratedBinding;
+import de.invesdwin.context.client.swing.api.binding.GeneratedBindingGroup;
 import de.invesdwin.context.client.swing.api.binding.internal.ViewIdGenerator;
 import de.invesdwin.context.client.swing.api.guiservice.ContentPane;
 import de.invesdwin.context.client.swing.util.AViewVisitor;
@@ -91,7 +91,7 @@ public abstract class AView<M extends AModel, C extends JComponent> extends AMod
 
     @Hidden(skip = true)
     protected BindingGroup initBindingGroup(final C component) {
-        return new GeneratedBinding(getModel(), component).bind();
+        return new GeneratedBindingGroup(this, component).bind();
     }
 
     @Hidden(skip = true)

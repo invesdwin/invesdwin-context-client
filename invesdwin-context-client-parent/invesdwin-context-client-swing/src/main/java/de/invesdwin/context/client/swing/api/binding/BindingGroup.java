@@ -5,20 +5,36 @@ import java.util.List;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
+import de.invesdwin.context.client.swing.api.AModel;
+import de.invesdwin.context.client.swing.api.AView;
+import de.invesdwin.context.client.swing.api.binding.submit.ISubmitButtonExceptionHandler;
 import de.invesdwin.norva.beanpath.impl.clazz.BeanClassContext;
 
 @NotThreadSafe
 public class BindingGroup implements IBinding {
 
     private final List<IBinding> bindings = new ArrayList<>();
-    private final BeanClassContext context;
+    private final AView<?, ?> view;
+    private final BeanClassContext modelContext;
+    private final ISubmitButtonExceptionHandler submitButtonExceptionHandler;
 
-    public BindingGroup(final BeanClassContext context) {
-        this.context = context;
+    public BindingGroup(final AView<?, ?> view, final BeanClassContext modelContext,
+            final ISubmitButtonExceptionHandler submitButtonExceptionHandler) {
+        this.view = view;
+        this.modelContext = modelContext;
+        this.submitButtonExceptionHandler = submitButtonExceptionHandler;
     }
 
-    public BeanClassContext getContext() {
-        return context;
+    public AView<?, ?> getView() {
+        return view;
+    }
+
+    public AModel getModel() {
+        return view.getModel();
+    }
+
+    public BeanClassContext getModelContext() {
+        return modelContext;
     }
 
     public void add(final IBinding binding) {
@@ -62,5 +78,9 @@ public class BindingGroup implements IBinding {
         for (int i = 0; i < bindings.size(); i++) {
             bindings.get(i).update();
         }
+    }
+
+    public ISubmitButtonExceptionHandler getSubmitButtonExceptionHandler() {
+        return submitButtonExceptionHandler;
     }
 }
