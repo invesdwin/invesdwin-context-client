@@ -1,5 +1,6 @@
 package de.invesdwin.context.client.swing.api.guiservice;
 
+import org.jdesktop.application.ResourceMap;
 import org.jdesktop.application.TaskService;
 
 import de.invesdwin.context.client.swing.api.AView;
@@ -25,5 +26,7 @@ public interface IGuiService {
     void showView(AView<?, ?> view);
 
     boolean isModalViewShowing();
+
+    ResourceMap getResourceMap(Class<?> clazz);
 
 }

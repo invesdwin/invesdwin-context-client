@@ -6,6 +6,8 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 import org.jdesktop.application.Application;
+import org.jdesktop.application.ApplicationContext;
+import org.jdesktop.application.ResourceMap;
 import org.jdesktop.application.TaskService;
 
 import de.invesdwin.context.beans.init.MergedContext;
@@ -23,6 +25,8 @@ public class GuiService implements IGuiService {
     private SplashScreen splashScreen;
     @GuardedBy("none for performance")
     private TaskService taskService;
+    @GuardedBy("none for performance")
+    private ApplicationContext applicationContext;
 
     public static IGuiService get() {
         return MergedContext.getInstance().getBean(IGuiService.class);
@@ -69,6 +73,14 @@ public class GuiService implements IGuiService {
     @Override
     public void showView(final AView<?, ?> view) {
         getContentPane().showView(view);
+    }
+
+    @Override
+    public ResourceMap getResourceMap(final Class<?> clazz) {
+        if (applicationContext == null) {
+            applicationContext = Application.getInstance().getContext();
+        }
+        return applicationContext.getResourceMap(clazz);
     }
 
 }

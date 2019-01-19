@@ -7,13 +7,13 @@ import javax.inject.Inject;
 import javax.swing.AbstractAction;
 import javax.swing.JMenuItem;
 
-import org.jdesktop.application.Application;
 import org.jdesktop.application.ResourceMap;
 import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.context.ApplicationContext;
 
 import de.invesdwin.context.client.swing.api.AView;
 import de.invesdwin.context.client.swing.api.guiservice.ContentPane;
+import de.invesdwin.context.client.swing.api.guiservice.GuiService;
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.lang.Reflections;
 
@@ -23,7 +23,6 @@ import de.invesdwin.util.lang.Reflections;
  * 
  * @author subes
  */
-@SuppressWarnings("serial")
 @NotThreadSafe
 @Configurable
 public class OpenViewMenuItem<V extends AView<?, ?>> extends JMenuItem {
@@ -44,9 +43,8 @@ public class OpenViewMenuItem<V extends AView<?, ?>> extends JMenuItem {
         initialize();
     }
 
-    @SuppressWarnings("serial")
     private void initialize() {
-        final ResourceMap resourceMap = Application.getInstance().getContext().getResourceMap(viewClass);
+        final ResourceMap resourceMap = GuiService.get().getResourceMap(viewClass);
         setText(resourceMap.getString(AView.VIEW_TITLE_KEY));
         setToolTipText(resourceMap.getString(AView.VIEW_DESCRIPTION_KEY));
         setIcon(resourceMap.getIcon(AView.VIEW_ICON_KEY));

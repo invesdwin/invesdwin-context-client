@@ -5,10 +5,8 @@ import java.util.MissingResourceException;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
-import org.jdesktop.application.Application;
-import org.jdesktop.application.ResourceMap;
-
 import de.invesdwin.context.client.swing.api.guiservice.Dialogs;
+import de.invesdwin.context.client.swing.api.guiservice.GuiService;
 import de.invesdwin.norva.beanpath.spi.element.IBeanPathElement;
 import de.invesdwin.util.lang.Strings;
 
@@ -26,9 +24,9 @@ public class DefaultSubmitButtonExceptionHandler implements ISubmitButtonExcepti
         } else {
             if (shouldShowExceptionMessage(t)) {
                 logShowExceptionMessage(t);
-                final ResourceMap resourceMap = Application.getInstance().getContext().getResourceMap(this.getClass());
-                final String title = resourceMap.getString(
-                        DefaultSubmitButtonExceptionHandler.class.getSimpleName() + ".exception.title", component);
+                final String title = GuiService.get()
+                        .getResourceMap(DefaultSubmitButtonExceptionHandler.class)
+                        .getString(DefaultSubmitButtonExceptionHandler.class.getSimpleName() + ".exception.title");
                 String message;
                 try {
                     message = t.getMessage();
