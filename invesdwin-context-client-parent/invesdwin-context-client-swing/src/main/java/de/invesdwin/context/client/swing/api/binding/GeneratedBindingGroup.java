@@ -15,6 +15,7 @@ import javax.swing.text.JTextComponent;
 
 import de.invesdwin.context.client.swing.api.AModel;
 import de.invesdwin.context.client.swing.api.AView;
+import de.invesdwin.context.client.swing.api.binding.component.CheckBoxBinding;
 import de.invesdwin.context.client.swing.api.binding.component.IComponentBinding;
 import de.invesdwin.context.client.swing.api.binding.component.TextComponentBinding;
 import de.invesdwin.context.client.swing.api.binding.component.button.DefaultSubmitButtonExceptionHandler;
@@ -109,7 +110,8 @@ public final class GeneratedBindingGroup {
     }
 
     protected IComponentBinding bindJCheckBox(final JCheckBox component) {
-        return null;
+        final APropertyBeanPathElement element = getElement(component);
+        return new CheckBoxBinding(component, element, bindingGroup);
     }
 
     protected IComponentBinding bindJTable(final JTable component) {
