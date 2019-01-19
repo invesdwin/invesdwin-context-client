@@ -1,6 +1,8 @@
 package de.invesdwin.context.client.swing.api.guiservice;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.annotation.concurrent.GuardedBy;
@@ -13,28 +15,28 @@ import bibliothek.gui.dock.common.SingleCDockable;
 import bibliothek.gui.dock.common.intern.CDockable;
 import de.invesdwin.aspects.annotation.EventDispatchThread;
 import de.invesdwin.aspects.annotation.EventDispatchThread.InvocationType;
-import de.invesdwin.context.client.swing.api.AModel;
 import de.invesdwin.context.client.swing.api.AView;
 import de.invesdwin.context.client.swing.api.DockableContent;
 import de.invesdwin.util.assertions.Assertions;
+import de.invesdwin.util.collections.loadingcache.ALoadingCache;
+import de.invesdwin.util.lang.Objects;
 
 @ThreadSafe
 public class ContentPane {
 
     @GuardedBy("@EventDispatchThread")
     private final Map<String, AView<?, ?>> id_visibleView = new HashMap<String, AView<?, ?>>();
+    @GuardedBy("@EventDispatchThread")
+    private final ALoadingCache<Class<?>, Map<String, AView<?, ?>>> class_id_visibleView = new ALoadingCache<Class<?>, Map<String, AView<?, ?>>>() {
+
+        @Override
+        protected Map<String, AView<?, ?>> loadValue(final Class<?> key) {
+            return new HashMap<>();
+        }
+    };
 
     @Inject
     private de.invesdwin.context.client.swing.internal.content.ContentPaneView contentPaneView;
-
-    public AView<?, ?> findViewWithEqualModel(final AModel model) {
-        for (final AView<?, ?> view : id_visibleView.values()) {
-            if (view.getModel().equals(model)) {
-                return view;
-            }
-        }
-        return null;
-    }
 
     /**
      * Throws an exception if the View has not been added yet.
@@ -42,6 +44,7 @@ public class ContentPane {
     @EventDispatchThread(InvocationType.INVOKE_AND_WAIT)
     public void removeView(final AView<?, ?> view) {
         Assertions.assertThat(id_visibleView.remove(view.getDockableUniqueId())).isNotNull();
+        Assertions.assertThat(class_id_visibleView.get(view.getClass()).remove(view.getDockableUniqueId())).isNotNull();
         //May also be called by contentRemoved, in that case we should not trigger that again.
         if (containsView(view)) {
             Assertions.assertThat(contentPaneView.removeView(view)).isTrue();
@@ -81,7 +84,8 @@ public class ContentPane {
 
     @EventDispatchThread(InvocationType.INVOKE_AND_WAIT)
     public void reset() {
-        for (final AView<?, ?> view : id_visibleView.values()) {
+        final List<AView<?, ?>> viewsCopy = new ArrayList<>(id_visibleView.values());
+        for (final AView<?, ?> view : viewsCopy) {
             removeView(view);
         }
     }
@@ -98,7 +102,7 @@ public class ContentPane {
             final DockableContent dockable = view.getDockable();
             dockable.toFront(dockable.getFocusComponent());
         } else {
-            final AView<?, ?> existingView = findViewWithEqualModel(view.getModel());
+            final AView<?, ?> existingView = findViewWithEqualModel(view);
             if (existingView != null) {
                 view.replaceView(existingView);
                 final DockableContent dockable = view.getDockable();
@@ -107,6 +111,16 @@ public class ContentPane {
                 addView(view);
             }
         }
+    }
+
+    private AView<?, ?> findViewWithEqualModel(final AView<?, ?> view) {
+        for (final AView<?, ?> visibleView : class_id_visibleView.get(view.getClass()).values()) {
+            if (Objects.equals(visibleView.getClass(), view.getClass())
+                    && Objects.equals(visibleView.getModel(), view.getModel())) {
+                return visibleView;
+            }
+        }
+        return null;
     }
 
     /**
@@ -119,6 +133,7 @@ public class ContentPane {
         final DockableContent content = contentPaneView.addView(ContentPane.this, view);
         view.setDockable(ContentPane.this, content);
         Assertions.assertThat(id_visibleView.put(view.getDockableUniqueId(), view)).isNull();
+        Assertions.assertThat(class_id_visibleView.get(view.getClass()).put(view.getDockableUniqueId(), view)).isNull();
     }
 
 }
