@@ -16,6 +16,7 @@ import javax.swing.text.JTextComponent;
 import de.invesdwin.context.client.swing.api.AModel;
 import de.invesdwin.context.client.swing.api.AView;
 import de.invesdwin.context.client.swing.api.binding.component.CheckBoxBinding;
+import de.invesdwin.context.client.swing.api.binding.component.ComboBoxBinding;
 import de.invesdwin.context.client.swing.api.binding.component.IComponentBinding;
 import de.invesdwin.context.client.swing.api.binding.component.TextComponentBinding;
 import de.invesdwin.context.client.swing.api.binding.component.button.DefaultSubmitButtonExceptionHandler;
@@ -26,6 +27,7 @@ import de.invesdwin.norva.beanpath.impl.clazz.BeanClassContext;
 import de.invesdwin.norva.beanpath.impl.clazz.BeanClassProcessor;
 import de.invesdwin.norva.beanpath.impl.clazz.BeanClassType;
 import de.invesdwin.norva.beanpath.spi.element.AActionBeanPathElement;
+import de.invesdwin.norva.beanpath.spi.element.AChoiceBeanPathElement;
 import de.invesdwin.norva.beanpath.spi.element.APropertyBeanPathElement;
 import de.invesdwin.norva.beanpath.spi.element.IBeanPathElement;
 import de.invesdwin.util.collections.loadingcache.ALoadingCache;
@@ -33,6 +35,7 @@ import de.invesdwin.util.error.UnknownArgumentException;
 import de.invesdwin.util.lang.Strings;
 
 @NotThreadSafe
+@SuppressWarnings("rawtypes")
 public final class GeneratedBindingGroup {
 
     private static final AComponentFinder NAMED_COMPONENT_FINDER = new AComponentFinder() {
@@ -123,7 +126,8 @@ public final class GeneratedBindingGroup {
     }
 
     protected IComponentBinding bindJComboBox(final JComboBox component) {
-        return null;
+        final AChoiceBeanPathElement element = getElement(component);
+        return new ComboBoxBinding(component, element, bindingGroup);
     }
 
     protected IComponentBinding bindJProgressBar(final JProgressBar component) {
