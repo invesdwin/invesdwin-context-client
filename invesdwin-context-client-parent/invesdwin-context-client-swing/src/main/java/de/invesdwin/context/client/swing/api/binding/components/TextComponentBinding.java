@@ -1,4 +1,4 @@
-package de.invesdwin.context.client.swing.api.binding.internal.components;
+package de.invesdwin.context.client.swing.api.binding.components;
 
 import java.awt.event.FocusEvent;
 
@@ -6,11 +6,11 @@ import javax.annotation.concurrent.NotThreadSafe;
 import javax.swing.text.JTextComponent;
 
 import de.invesdwin.context.client.swing.api.binding.BindingGroup;
-import de.invesdwin.context.client.swing.api.binding.internal.converter.DateToStringConverter;
-import de.invesdwin.context.client.swing.api.binding.internal.converter.IConverter;
-import de.invesdwin.context.client.swing.api.binding.internal.converter.NoConverter;
-import de.invesdwin.context.client.swing.api.binding.internal.converter.NumberToStringConverter;
-import de.invesdwin.context.client.swing.api.binding.internal.converter.ObjectToStringConverter;
+import de.invesdwin.context.client.swing.api.binding.converter.DateToStringConverter;
+import de.invesdwin.context.client.swing.api.binding.converter.IConverter;
+import de.invesdwin.context.client.swing.api.binding.converter.NoConverter;
+import de.invesdwin.context.client.swing.api.binding.converter.NumberToStringConverter;
+import de.invesdwin.context.client.swing.api.binding.converter.ObjectToStringConverter;
 import de.invesdwin.context.client.swing.listener.FocusListenerSupport;
 import de.invesdwin.norva.beanpath.impl.clazz.BeanClassType;
 import de.invesdwin.norva.beanpath.spi.element.APropertyBeanPathElement;

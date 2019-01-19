@@ -1,4 +1,4 @@
-package de.invesdwin.context.client.swing.api.binding.internal.components;
+package de.invesdwin.context.client.swing.api.binding.components.button;
 
 import java.awt.Component;
 import java.awt.event.ActionEvent;
@@ -20,14 +20,14 @@ import de.invesdwin.norva.beanpath.spi.element.AActionBeanPathElement;
 import de.invesdwin.util.assertions.Assertions;
 
 @NotThreadSafe
-public class ButtonBinding implements IBinding {
+public class SubmitButtonBinding implements IBinding {
 
     private final AbstractButton component;
     private final AActionBeanPathElement element;
     private final BindingGroup bindingGroup;
     private final Runnable submitRunnable;
 
-    public ButtonBinding(final AbstractButton component, final AActionBeanPathElement element,
+    public SubmitButtonBinding(final AbstractButton component, final AActionBeanPathElement element,
             final BindingGroup bindingGroup) {
         this.component = component;
         this.element = element;
@@ -142,18 +142,25 @@ public class ButtonBinding implements IBinding {
     }
 
     @Override
-    public void submit() {}
+    public void submit() {
+        //noop
+    }
 
     @Override
     public boolean validate() {
+        //noop
         return true;
     }
 
     @Override
-    public void commit() {}
+    public void commit() {
+        //noop
+    }
 
     @Override
-    public void rollback() {}
+    public void rollback() {
+        //noop
+    }
 
     @Override
     public void update() {

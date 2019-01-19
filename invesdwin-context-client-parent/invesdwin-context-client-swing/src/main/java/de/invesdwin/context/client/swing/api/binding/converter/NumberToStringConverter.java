@@ -1,4 +1,4 @@
-package de.invesdwin.context.client.swing.api.binding.internal.converter;
+package de.invesdwin.context.client.swing.api.binding.converter;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;

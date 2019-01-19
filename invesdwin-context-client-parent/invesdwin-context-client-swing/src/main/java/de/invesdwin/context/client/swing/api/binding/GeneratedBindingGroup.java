@@ -15,9 +15,9 @@ import javax.swing.text.JTextComponent;
 
 import de.invesdwin.context.client.swing.api.AModel;
 import de.invesdwin.context.client.swing.api.AView;
-import de.invesdwin.context.client.swing.api.binding.internal.components.ButtonBinding;
-import de.invesdwin.context.client.swing.api.binding.internal.components.TextComponentBinding;
-import de.invesdwin.context.client.swing.api.binding.submit.DefaultSubmitButtonExceptionHandler;
+import de.invesdwin.context.client.swing.api.binding.components.TextComponentBinding;
+import de.invesdwin.context.client.swing.api.binding.components.button.SubmitButtonBinding;
+import de.invesdwin.context.client.swing.api.binding.components.button.DefaultSubmitButtonExceptionHandler;
 import de.invesdwin.context.client.swing.util.AComponentFinder;
 import de.invesdwin.norva.beanpath.impl.clazz.BeanClassContainer;
 import de.invesdwin.norva.beanpath.impl.clazz.BeanClassContext;
@@ -138,7 +138,7 @@ public final class GeneratedBindingGroup {
 
     protected IBinding bindJButton(final JButton component) {
         final AActionBeanPathElement element = getElement(component);
-        return new ButtonBinding(component, element, bindingGroup);
+        return new SubmitButtonBinding(component, element, bindingGroup);
     }
 
 }

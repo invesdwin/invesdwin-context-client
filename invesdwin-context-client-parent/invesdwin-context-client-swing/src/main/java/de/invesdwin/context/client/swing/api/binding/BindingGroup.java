@@ -7,7 +7,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.context.client.swing.api.AModel;
 import de.invesdwin.context.client.swing.api.AView;
-import de.invesdwin.context.client.swing.api.binding.submit.ISubmitButtonExceptionHandler;
+import de.invesdwin.context.client.swing.api.binding.components.button.ISubmitButtonExceptionHandler;
 import de.invesdwin.norva.beanpath.impl.clazz.BeanClassContext;
 
 @NotThreadSafe

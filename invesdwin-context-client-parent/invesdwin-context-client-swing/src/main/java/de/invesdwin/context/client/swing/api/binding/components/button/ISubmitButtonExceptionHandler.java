@@ -1,4 +1,4 @@
-package de.invesdwin.context.client.swing.api.binding.submit;
+package de.invesdwin.context.client.swing.api.binding.components.button;
 
 import java.awt.Component;
 import java.io.Serializable;

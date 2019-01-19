@@ -1,4 +1,4 @@
-package de.invesdwin.context.client.swing.api.binding.internal.converter;
+package de.invesdwin.context.client.swing.api.binding.converter;
 
 import javax.annotation.concurrent.Immutable;
 

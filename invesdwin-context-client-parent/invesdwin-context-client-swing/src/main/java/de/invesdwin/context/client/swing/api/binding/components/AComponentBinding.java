@@ -1,4 +1,4 @@
-package de.invesdwin.context.client.swing.api.binding.internal.components;
+package de.invesdwin.context.client.swing.api.binding.components;
 
 import java.awt.Component;
 import java.util.List;
