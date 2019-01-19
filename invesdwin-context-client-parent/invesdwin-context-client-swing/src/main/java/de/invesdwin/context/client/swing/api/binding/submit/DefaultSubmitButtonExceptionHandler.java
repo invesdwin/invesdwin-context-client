@@ -56,7 +56,7 @@ public class DefaultSubmitButtonExceptionHandler implements ISubmitButtonExcepti
 
     protected void showExceptionMessage(final IBeanPathElement element, final Component component, final Throwable t,
             final String title, final String message) {
-        Dialogs.showMessageDialog(component, message, title, Dialogs.OK_OPTION);
+        Dialogs.showMessageDialog(component, message, title, Dialogs.ERROR_MESSAGE);
     }
 
     public void logShowExceptionMessage(final Throwable t) {
