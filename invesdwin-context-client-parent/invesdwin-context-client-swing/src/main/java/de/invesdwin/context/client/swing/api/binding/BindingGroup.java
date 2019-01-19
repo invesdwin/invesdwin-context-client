@@ -7,13 +7,14 @@ import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.context.client.swing.api.AModel;
 import de.invesdwin.context.client.swing.api.AView;
-import de.invesdwin.context.client.swing.api.binding.components.button.ISubmitButtonExceptionHandler;
+import de.invesdwin.context.client.swing.api.binding.component.IComponentBinding;
+import de.invesdwin.context.client.swing.api.binding.component.button.ISubmitButtonExceptionHandler;
 import de.invesdwin.norva.beanpath.impl.clazz.BeanClassContext;
 
 @NotThreadSafe
-public class BindingGroup implements IBinding {
+public class BindingGroup implements IComponentBinding {
 
-    private final List<IBinding> bindings = new ArrayList<>();
+    private final List<IComponentBinding> bindings = new ArrayList<>();
     private final AView<?, ?> view;
     private final BeanClassContext modelContext;
     private final ISubmitButtonExceptionHandler submitButtonExceptionHandler;
@@ -37,7 +38,7 @@ public class BindingGroup implements IBinding {
         return modelContext;
     }
 
-    public void add(final IBinding binding) {
+    public void add(final IComponentBinding binding) {
         bindings.add(binding);
     }
 

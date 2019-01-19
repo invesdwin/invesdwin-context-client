@@ -15,9 +15,10 @@ import javax.swing.text.JTextComponent;
 
 import de.invesdwin.context.client.swing.api.AModel;
 import de.invesdwin.context.client.swing.api.AView;
-import de.invesdwin.context.client.swing.api.binding.components.TextComponentBinding;
-import de.invesdwin.context.client.swing.api.binding.components.button.SubmitButtonBinding;
-import de.invesdwin.context.client.swing.api.binding.components.button.DefaultSubmitButtonExceptionHandler;
+import de.invesdwin.context.client.swing.api.binding.component.IComponentBinding;
+import de.invesdwin.context.client.swing.api.binding.component.TextComponentBinding;
+import de.invesdwin.context.client.swing.api.binding.component.button.DefaultSubmitButtonExceptionHandler;
+import de.invesdwin.context.client.swing.api.binding.component.button.SubmitButtonBinding;
 import de.invesdwin.context.client.swing.util.AComponentFinder;
 import de.invesdwin.norva.beanpath.impl.clazz.BeanClassContainer;
 import de.invesdwin.norva.beanpath.impl.clazz.BeanClassContext;
@@ -82,7 +83,7 @@ public final class GeneratedBindingGroup {
 
         final List<Component> components = NAMED_COMPONENT_FINDER.findAll(component);
         for (final Component c : components) {
-            final IBinding binding;
+            final IComponentBinding binding;
             if (component instanceof JButton) {
                 binding = bindJButton((JButton) component);
             } else if (component instanceof JTextComponent) {
@@ -107,36 +108,36 @@ public final class GeneratedBindingGroup {
         return bindingGroup;
     }
 
-    protected IBinding bindJCheckBox(final JCheckBox component) {
+    protected IComponentBinding bindJCheckBox(final JCheckBox component) {
         return null;
     }
 
-    protected IBinding bindJTable(final JTable component) {
+    protected IComponentBinding bindJTable(final JTable component) {
         return null;
     }
 
-    protected IBinding bindJList(final JList component) {
+    protected IComponentBinding bindJList(final JList component) {
         return null;
     }
 
-    protected IBinding bindJComboBox(final JComboBox component) {
+    protected IComponentBinding bindJComboBox(final JComboBox component) {
         return null;
     }
 
-    protected IBinding bindJProgressBar(final JProgressBar component) {
+    protected IComponentBinding bindJProgressBar(final JProgressBar component) {
         return null;
     }
 
-    protected IBinding bindJLabel(final JLabel component) {
+    protected IComponentBinding bindJLabel(final JLabel component) {
         return null;
     }
 
-    protected IBinding bindJTextComponent(final JTextComponent component) {
+    protected IComponentBinding bindJTextComponent(final JTextComponent component) {
         final APropertyBeanPathElement element = getElement(component);
         return new TextComponentBinding(component, element, bindingGroup);
     }
 
-    protected IBinding bindJButton(final JButton component) {
+    protected IComponentBinding bindJButton(final JButton component) {
         final AActionBeanPathElement element = getElement(component);
         return new SubmitButtonBinding(component, element, bindingGroup);
     }

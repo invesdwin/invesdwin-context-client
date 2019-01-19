@@ -1,4 +1,4 @@
-package de.invesdwin.context.client.swing.api.binding.components.button;
+package de.invesdwin.context.client.swing.api.binding.component.button;
 
 import java.awt.Component;
 import java.util.MissingResourceException;

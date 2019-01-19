@@ -1,6 +1,6 @@
-package de.invesdwin.context.client.swing.api.binding;
+package de.invesdwin.context.client.swing.api.binding.component;
 
-public interface IBinding {
+public interface IComponentBinding {
 
     /**
      * Moves the UI component value to the model, though keeping a record of the previous model value.

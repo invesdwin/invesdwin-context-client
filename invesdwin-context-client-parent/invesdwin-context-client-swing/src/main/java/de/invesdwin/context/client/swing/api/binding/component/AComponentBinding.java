@@ -1,4 +1,4 @@
-package de.invesdwin.context.client.swing.api.binding.components;
+package de.invesdwin.context.client.swing.api.binding.component;
 
 import java.awt.Component;
 import java.util.List;
@@ -11,7 +11,6 @@ import com.jgoodies.common.base.Strings;
 import de.invesdwin.context.client.swing.api.AModel;
 import de.invesdwin.context.client.swing.api.AView;
 import de.invesdwin.context.client.swing.api.binding.BindingGroup;
-import de.invesdwin.context.client.swing.api.binding.IBinding;
 import de.invesdwin.context.client.swing.api.guiservice.GuiService;
 import de.invesdwin.context.client.swing.util.SubmitAllViewsHelper;
 import de.invesdwin.norva.beanpath.impl.clazz.BeanClassContainer;
@@ -20,7 +19,7 @@ import de.invesdwin.norva.beanpath.spi.element.utility.ValidateBeanPathElement;
 import de.invesdwin.util.lang.Objects;
 
 @NotThreadSafe
-public abstract class AComponentBinding<C extends JComponent> implements IBinding {
+public abstract class AComponentBinding<C extends JComponent> implements IComponentBinding {
 
     protected final C component;
     protected final APropertyBeanPathElement element;

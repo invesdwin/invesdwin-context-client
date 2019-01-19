@@ -1,4 +1,4 @@
-package de.invesdwin.context.client.swing.api.binding.components;
+package de.invesdwin.context.client.swing.api.binding.component;
 
 import java.awt.event.FocusEvent;
 

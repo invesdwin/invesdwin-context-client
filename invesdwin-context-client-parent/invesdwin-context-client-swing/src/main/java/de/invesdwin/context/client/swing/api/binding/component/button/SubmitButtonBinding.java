@@ -1,4 +1,4 @@
-package de.invesdwin.context.client.swing.api.binding.components.button;
+package de.invesdwin.context.client.swing.api.binding.component.button;
 
 import java.awt.Component;
 import java.awt.event.ActionEvent;
@@ -12,7 +12,7 @@ import javax.swing.AbstractButton;
 import de.invesdwin.context.client.swing.api.AModel;
 import de.invesdwin.context.client.swing.api.AView;
 import de.invesdwin.context.client.swing.api.binding.BindingGroup;
-import de.invesdwin.context.client.swing.api.binding.IBinding;
+import de.invesdwin.context.client.swing.api.binding.component.IComponentBinding;
 import de.invesdwin.context.client.swing.api.guiservice.GuiService;
 import de.invesdwin.context.client.swing.util.SubmitAllViewsHelper;
 import de.invesdwin.norva.beanpath.impl.clazz.BeanClassContainer;
@@ -20,7 +20,7 @@ import de.invesdwin.norva.beanpath.spi.element.AActionBeanPathElement;
 import de.invesdwin.util.assertions.Assertions;
 
 @NotThreadSafe
-public class SubmitButtonBinding implements IBinding {
+public class SubmitButtonBinding implements IComponentBinding {
 
     private final AbstractButton component;
     private final AActionBeanPathElement element;
