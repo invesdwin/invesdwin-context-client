@@ -14,9 +14,10 @@ import de.invesdwin.context.client.swing.api.binding.converter.ObjectToStringCon
 import de.invesdwin.context.client.swing.listener.FocusListenerSupport;
 import de.invesdwin.norva.beanpath.impl.clazz.BeanClassType;
 import de.invesdwin.norva.beanpath.spi.element.APropertyBeanPathElement;
+import de.invesdwin.norva.beanpath.spi.element.simple.modifier.IBeanPathPropertyModifier;
 
 @NotThreadSafe
-public class TextComponentBinding extends AComponentBinding<JTextComponent> {
+public class TextComponentBinding extends AComponentBinding<JTextComponent, Object> {
 
     private final IConverter<Object, String> converter;
 
@@ -63,6 +64,11 @@ public class TextComponentBinding extends AComponentBinding<JTextComponent> {
         final String componentValue = component.getText();
         final Object newModelValue = converter.fromComponentToModel(componentValue);
         return newModelValue;
+    }
+
+    @Override
+    protected IBeanPathPropertyModifier<Object> getModifier() {
+        return element.getModifier();
     }
 
 }

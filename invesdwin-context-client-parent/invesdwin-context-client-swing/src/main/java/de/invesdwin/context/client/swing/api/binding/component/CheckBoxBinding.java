@@ -8,9 +8,10 @@ import javax.swing.JCheckBox;
 
 import de.invesdwin.context.client.swing.api.binding.BindingGroup;
 import de.invesdwin.norva.beanpath.spi.element.APropertyBeanPathElement;
+import de.invesdwin.norva.beanpath.spi.element.simple.modifier.IBeanPathPropertyModifier;
 
 @Immutable
-public class CheckBoxBinding extends AComponentBinding<JCheckBox> {
+public class CheckBoxBinding extends AComponentBinding<JCheckBox, Boolean> {
 
     public CheckBoxBinding(final JCheckBox component, final APropertyBeanPathElement element,
             final BindingGroup bindingGroup) {
@@ -25,13 +26,19 @@ public class CheckBoxBinding extends AComponentBinding<JCheckBox> {
         }
     }
 
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     @Override
-    protected void fromModelToComponent(final Object modelValue) {
-        component.setSelected((boolean) modelValue);
+    protected IBeanPathPropertyModifier<Boolean> getModifier() {
+        return (IBeanPathPropertyModifier) element.getModifier();
     }
 
     @Override
-    protected Object fromComponentToModel() {
+    protected void fromModelToComponent(final Boolean modelValue) {
+        component.setSelected(modelValue);
+    }
+
+    @Override
+    protected Boolean fromComponentToModel() {
         return component.isSelected();
     }
 

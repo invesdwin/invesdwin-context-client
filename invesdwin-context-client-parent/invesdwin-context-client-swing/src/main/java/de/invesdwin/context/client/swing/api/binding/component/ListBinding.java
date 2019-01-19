@@ -5,16 +5,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.concurrent.NotThreadSafe;
+import javax.swing.DefaultListModel;
 import javax.swing.JList;
 
 import de.invesdwin.context.client.swing.api.binding.BindingGroup;
 import de.invesdwin.context.client.swing.listener.FocusListenerSupport;
 import de.invesdwin.norva.beanpath.spi.element.AChoiceBeanPathElement;
+import de.invesdwin.norva.beanpath.spi.element.simple.modifier.IBeanPathPropertyModifier;
 import de.invesdwin.util.lang.Objects;
 
 @NotThreadSafe
 @SuppressWarnings({ "unchecked", "rawtypes" })
-public class ListBinding extends AComponentBinding<JList> {
+public class ListBinding extends AComponentBinding<JList, List<?>> {
 
     private final AChoiceBeanPathElement element;
     private List<Object> prevChoices = new ArrayList<>();
@@ -33,23 +35,32 @@ public class ListBinding extends AComponentBinding<JList> {
     }
 
     @Override
-    protected void fromModelToComponent(final Object modelValue) {
-        component.setSelectedItem(modelValue);
+    protected void fromModelToComponent(final List<?> modelValue) {
         final List<?> choices = element.getChoiceModifier().getValueFromRoot(bindingGroup.getModel());
+        final int[] indices = new int[modelValue.size()];
+        for (int i = 0; i < indices.length; i++) {
+            final int index = choices.indexOf(modelValue.get(i));
+            indices[i] = index;
+        }
         if (!Objects.equals(choices, prevChoices)) {
-            final Object selection = component.getSelectedItem();
-            component.setModel(model);.removeAllItems();
+            final DefaultListModel<Object> model = new DefaultListModel<>();
             for (final Object choice : choices) {
-                component.addItem(choice);
+                model.addElement(choice);
             }
-            component.setSelectedItem(selection);
+            component.setModel(model);
             prevChoices = new ArrayList<>(choices);
         }
+        component.setSelectedIndices(indices);
     }
 
     @Override
-    protected Object fromComponentToModel() {
-        return component.getSelectedItem();
+    protected List<?> fromComponentToModel() {
+        return component.getSelectedValuesList();
+    }
+
+    @Override
+    protected IBeanPathPropertyModifier<List<?>> getModifier() {
+        return element.getSelectionModifier();
     }
 
 }

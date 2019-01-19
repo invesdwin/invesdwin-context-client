@@ -10,11 +10,12 @@ import javax.swing.JComboBox;
 import de.invesdwin.context.client.swing.api.binding.BindingGroup;
 import de.invesdwin.context.client.swing.listener.FocusListenerSupport;
 import de.invesdwin.norva.beanpath.spi.element.AChoiceBeanPathElement;
+import de.invesdwin.norva.beanpath.spi.element.simple.modifier.IBeanPathPropertyModifier;
 import de.invesdwin.util.lang.Objects;
 
 @NotThreadSafe
 @SuppressWarnings({ "unchecked", "rawtypes" })
-public class ComboBoxBinding extends AComponentBinding<JComboBox> {
+public class ComboBoxBinding extends AComponentBinding<JComboBox, Object> {
 
     private final AChoiceBeanPathElement element;
     private List<Object> prevChoices = new ArrayList<>();
@@ -35,22 +36,25 @@ public class ComboBoxBinding extends AComponentBinding<JComboBox> {
 
     @Override
     protected void fromModelToComponent(final Object modelValue) {
-        component.setSelectedItem(modelValue);
         final List<?> choices = element.getChoiceModifier().getValueFromRoot(bindingGroup.getModel());
         if (!Objects.equals(choices, prevChoices)) {
-            final Object selection = component.getSelectedItem();
             component.removeAllItems();
             for (final Object choice : choices) {
                 component.addItem(choice);
             }
-            component.setSelectedItem(selection);
             prevChoices = new ArrayList<>(choices);
         }
+        component.setSelectedItem(modelValue);
     }
 
     @Override
     protected Object fromComponentToModel() {
         return component.getSelectedItem();
+    }
+
+    @Override
+    protected IBeanPathPropertyModifier<Object> getModifier() {
+        return element.getModifier();
     }
 
 }

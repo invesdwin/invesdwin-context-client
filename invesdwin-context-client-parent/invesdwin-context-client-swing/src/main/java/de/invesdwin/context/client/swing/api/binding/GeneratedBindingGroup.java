@@ -18,6 +18,7 @@ import de.invesdwin.context.client.swing.api.AView;
 import de.invesdwin.context.client.swing.api.binding.component.CheckBoxBinding;
 import de.invesdwin.context.client.swing.api.binding.component.ComboBoxBinding;
 import de.invesdwin.context.client.swing.api.binding.component.IComponentBinding;
+import de.invesdwin.context.client.swing.api.binding.component.ListBinding;
 import de.invesdwin.context.client.swing.api.binding.component.TextComponentBinding;
 import de.invesdwin.context.client.swing.api.binding.component.button.DefaultSubmitButtonExceptionHandler;
 import de.invesdwin.context.client.swing.api.binding.component.button.SubmitButtonBinding;
@@ -122,7 +123,8 @@ public final class GeneratedBindingGroup {
     }
 
     protected IComponentBinding bindJList(final JList component) {
-        return null;
+        final AChoiceBeanPathElement element = getElement(component);
+        return new ListBinding(component, element, bindingGroup);
     }
 
     protected IComponentBinding bindJComboBox(final JComboBox component) {

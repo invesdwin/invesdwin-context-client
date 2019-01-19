@@ -15,18 +15,19 @@ import de.invesdwin.context.client.swing.api.guiservice.GuiService;
 import de.invesdwin.context.client.swing.util.SubmitAllViewsHelper;
 import de.invesdwin.norva.beanpath.impl.clazz.BeanClassContainer;
 import de.invesdwin.norva.beanpath.spi.element.APropertyBeanPathElement;
+import de.invesdwin.norva.beanpath.spi.element.simple.modifier.IBeanPathPropertyModifier;
 import de.invesdwin.norva.beanpath.spi.element.utility.ValidateBeanPathElement;
 import de.invesdwin.util.lang.Objects;
 
 @NotThreadSafe
-public abstract class AComponentBinding<C extends JComponent> implements IComponentBinding {
+public abstract class AComponentBinding<C extends JComponent, V> implements IComponentBinding {
 
     protected final C component;
     protected final APropertyBeanPathElement element;
     protected final ValidateBeanPathElement validateElement;
     protected final BindingGroup bindingGroup;
     protected final Runnable eagerSubmitRunnable;
-    protected Object prevModelValue;
+    protected V prevModelValue;
     protected boolean submitted = false;
     protected String invalidMessage = null;
 
@@ -106,11 +107,11 @@ public abstract class AComponentBinding<C extends JComponent> implements ICompon
             return;
         }
         final AModel model = bindingGroup.getModel();
-        prevModelValue = element.getModifier().getValueFromRoot(model);
-        final Object newModelValue = fromComponentToModel();
+        prevModelValue = getModifier().getValueFromRoot(model);
+        final V newModelValue = fromComponentToModel();
         if (!Objects.equals(prevModelValue, newModelValue)) {
             try {
-                element.getModifier().setValueFromRoot(model, newModelValue);
+                getModifier().setValueFromRoot(model, newModelValue);
                 invalidMessage = null;
                 submitted = true;
             } catch (final Throwable t) {
@@ -123,6 +124,8 @@ public abstract class AComponentBinding<C extends JComponent> implements ICompon
         }
     }
 
+    protected abstract IBeanPathPropertyModifier<V> getModifier();
+
     @Override
     public boolean validate() {
         if (Strings.isNotBlank(invalidMessage)) {
@@ -132,7 +135,7 @@ public abstract class AComponentBinding<C extends JComponent> implements ICompon
         if (validateElement != null) {
             //validate using custom validator only once all properties have been synchronized
             final AModel model = bindingGroup.getModel();
-            final Object modelValue = element.getModifier().getValueFromRoot(model);
+            final Object modelValue = getModifier().getValueFromRoot(model);
             final String invalid = validateElement.validate(modelValue);
             if (Strings.isNotBlank(invalid)) {
                 invalidMessage = element.getTitle(getTarget()) + ": " + invalid;
@@ -162,7 +165,7 @@ public abstract class AComponentBinding<C extends JComponent> implements ICompon
             return;
         }
         final AModel model = bindingGroup.getModel();
-        element.getModifier().setValueFromRoot(model, prevModelValue);
+        getModifier().setValueFromRoot(model, prevModelValue);
         prevModelValue = null;
         submitted = false;
         invalidMessage = null;
@@ -171,7 +174,7 @@ public abstract class AComponentBinding<C extends JComponent> implements ICompon
     @Override
     public void update() {
         final AModel model = bindingGroup.getModel();
-        final Object modelValue = element.getModifier().getValueFromRoot(model);
+        final V modelValue = getModifier().getValueFromRoot(model);
         fromModelToComponent(modelValue);
 
         final Object target = getTarget();
@@ -190,8 +193,8 @@ public abstract class AComponentBinding<C extends JComponent> implements ICompon
         return component.isVisible() && component.isEnabled();
     }
 
-    protected abstract void fromModelToComponent(Object modelValue);
+    protected abstract void fromModelToComponent(V modelValue);
 
-    protected abstract Object fromComponentToModel();
+    protected abstract V fromComponentToModel();
 
 }
