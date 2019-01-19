@@ -67,13 +67,21 @@ public class GuiService implements IGuiService {
         return false;
     }
 
+    @SuppressWarnings({ "rawtypes" })
     @Override
     public void showView(final AView<?, ?> view) {
         if (getContentPane().containsView(view)) {
             final DockableContent dockable = view.getDockable();
             dockable.toFront(dockable.getFocusComponent());
         } else {
-            getContentPane().addView(view);
+            final AView existingView = getContentPane().findViewWithEqualModel(view.getModel());
+            if (existingView != null) {
+                view.replaceView(existingView);
+                final DockableContent dockable = view.getDockable();
+                dockable.toFront(dockable.getFocusComponent());
+            } else {
+                getContentPane().addView(view);
+            }
         }
     }
 

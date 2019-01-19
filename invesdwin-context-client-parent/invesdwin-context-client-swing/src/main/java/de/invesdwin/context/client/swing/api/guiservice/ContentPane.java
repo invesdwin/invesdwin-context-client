@@ -13,6 +13,7 @@ import bibliothek.gui.dock.common.SingleCDockable;
 import bibliothek.gui.dock.common.intern.CDockable;
 import de.invesdwin.aspects.annotation.EventDispatchThread;
 import de.invesdwin.aspects.annotation.EventDispatchThread.InvocationType;
+import de.invesdwin.context.client.swing.api.AModel;
 import de.invesdwin.context.client.swing.api.AView;
 import de.invesdwin.context.client.swing.api.DockableContent;
 import de.invesdwin.util.assertions.Assertions;
@@ -35,6 +36,15 @@ public class ContentPane {
         final DockableContent content = contentPaneView.addView(ContentPane.this, view);
         view.setDockable(ContentPane.this, content);
         Assertions.assertThat(id_visibleView.put(view.getId(), view)).isNull();
+    }
+
+    public AView<?, ?> findViewWithEqualModel(final AModel model) {
+        for (final AView<?, ?> view : id_visibleView.values()) {
+            if (view.getModel().equals(model)) {
+                return view;
+            }
+        }
+        return null;
     }
 
     /**

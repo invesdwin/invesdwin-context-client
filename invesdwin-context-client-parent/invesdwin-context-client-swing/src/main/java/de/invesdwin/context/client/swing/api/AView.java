@@ -28,7 +28,9 @@ public abstract class AView<M extends AModel, C extends JComponent> extends AMod
 
     private final String id;
 
-    private final M model;
+    private final Object modelLock = new Object();
+    @GuardedBy("modelLock")
+    private M model;
     private final Object componentLock = new Object();
     @GuardedBy("componentLock")
     private C component;
@@ -51,7 +53,16 @@ public abstract class AView<M extends AModel, C extends JComponent> extends AMod
 
     @Hidden(skip = true)
     public M getModel() {
-        return model;
+        synchronized (modelLock) {
+            return model;
+        }
+    }
+
+    @Hidden(skip = true)
+    public void setModel(final M model) {
+        synchronized (modelLock) {
+            this.model = model;
+        }
     }
 
     @Hidden(skip = true)
@@ -106,7 +117,13 @@ public abstract class AView<M extends AModel, C extends JComponent> extends AMod
      */
     @Hidden(skip = true)
     public String getId() {
-        return id;
+        synchronized (dockableLock) {
+            if (dockable != null) {
+                return dockable.getUniqueId();
+            } else {
+                return id;
+            }
+        }
     }
 
     @Hidden(skip = true)
@@ -154,7 +171,7 @@ public abstract class AView<M extends AModel, C extends JComponent> extends AMod
                 new AViewVisitor() {
                     @Override
                     protected void visit(final AView<?, ?> view) {
-                        onOpen();
+                        view.onOpen();
                     }
                 }.visitAll(Components.getRootComponentInDockable(getComponent()));
             } else {
@@ -166,7 +183,34 @@ public abstract class AView<M extends AModel, C extends JComponent> extends AMod
                 new AViewVisitor() {
                     @Override
                     protected void visit(final AView<?, ?> view) {
-                        onClose();
+                        view.onClose();
+                    }
+                }.visitAll(Components.getRootComponentInDockable(getComponent()));
+            }
+        }
+    }
+
+    public void replaceView(final AView<?, ?> existingView) {
+        synchronized (dockableLock) {
+            synchronized (existingView.dockableLock) {
+                Assertions.assertThat(existingView.dockable).isNotNull();
+                //move dockable
+                this.dockable = existingView.dockable;
+                existingView.dockable = null;
+                //replace dockable content
+                this.dockable.setComponent(getComponent());
+                //close existing view
+                new AViewVisitor() {
+                    @Override
+                    protected void visit(final AView<?, ?> view) {
+                        view.onClose();
+                    }
+                }.visitAll(Components.getRootComponentInDockable(existingView.getComponent()));
+                //open new view
+                new AViewVisitor() {
+                    @Override
+                    protected void visit(final AView<?, ?> view) {
+                        view.onOpen();
                     }
                 }.visitAll(Components.getRootComponentInDockable(getComponent()));
             }
