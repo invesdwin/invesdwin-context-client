@@ -182,6 +182,7 @@ public abstract class AComponentBinding<C extends JComponent, V> implements ICom
         final Object target = getTarget();
         component.setEnabled(element.isEnabled(target));
         component.setVisible(element.isVisible(target));
+        component.setToolTipText(element.getTooltip(target));
     }
 
     protected Object getTarget() {

@@ -168,6 +168,7 @@ public class SubmitButtonBinding implements IComponentBinding {
         component.setText(element.getTitle(target));
         component.setEnabled(element.isEnabled(target));
         component.setVisible(element.isVisible(target));
+        component.setToolTipText(element.getTooltip(target));
     }
 
     protected Object getTarget() {
