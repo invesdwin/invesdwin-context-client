@@ -60,13 +60,13 @@ public class StatusBarTaskView extends AView<StatusBarTaskView, JPanel> implemen
         lblTasks.setVerticalAlignment(SwingConstants.BOTTOM);
         component.add(lblTasks, BorderLayout.EAST);
 
-        berechneProgressbarPreferredSize();
+        calculateProgressbarPreferredSize();
         setForegroundTaskText(null);
         setTasksText(new ArrayList<Task<?, ?>>());
         return component;
     }
 
-    private void berechneProgressbarPreferredSize() {
+    private void calculateProgressbarPreferredSize() {
         final Dimension pgbPreferredSize = new Dimension();
         pgbPreferredSize.height = lblForegroundTask.getFont().getSize() + 2;
         pgbPreferredSize.width = pgbPreferredSize.height * 3;

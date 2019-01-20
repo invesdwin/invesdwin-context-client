@@ -9,7 +9,6 @@ import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JList;
-import javax.swing.JProgressBar;
 import javax.swing.JTable;
 import javax.swing.text.JTextComponent;
 
@@ -95,8 +94,6 @@ public final class GeneratedBindingGroup {
                 binding = bindJTextComponent((JTextComponent) component);
             } else if (component instanceof JLabel) {
                 binding = bindJLabel((JLabel) component);
-            } else if (component instanceof JProgressBar) {
-                binding = bindJProgressBar((JProgressBar) component);
             } else if (component instanceof JComboBox) {
                 binding = bindJComboBox((JComboBox) component);
             } else if (component instanceof JList) {
@@ -130,10 +127,6 @@ public final class GeneratedBindingGroup {
     protected IComponentBinding bindJComboBox(final JComboBox component) {
         final AChoiceBeanPathElement element = getElement(component);
         return new ComboBoxBinding(component, element, bindingGroup);
-    }
-
-    protected IComponentBinding bindJProgressBar(final JProgressBar component) {
-        return null;
     }
 
     protected IComponentBinding bindJLabel(final JLabel component) {
