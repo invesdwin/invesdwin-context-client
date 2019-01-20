@@ -21,15 +21,19 @@ import de.invesdwin.context.client.swing.api.binding.component.ListBinding;
 import de.invesdwin.context.client.swing.api.binding.component.TextComponentBinding;
 import de.invesdwin.context.client.swing.api.binding.component.button.DefaultSubmitButtonExceptionHandler;
 import de.invesdwin.context.client.swing.api.binding.component.button.SubmitButtonBinding;
+import de.invesdwin.context.client.swing.api.binding.component.label.LabelBinding;
+import de.invesdwin.context.client.swing.api.binding.component.label.LabelTitleBinding;
 import de.invesdwin.context.client.swing.util.AComponentFinder;
 import de.invesdwin.norva.beanpath.impl.clazz.BeanClassContainer;
 import de.invesdwin.norva.beanpath.impl.clazz.BeanClassContext;
 import de.invesdwin.norva.beanpath.impl.clazz.BeanClassProcessor;
 import de.invesdwin.norva.beanpath.impl.clazz.BeanClassType;
+import de.invesdwin.norva.beanpath.spi.BeanPathUtil;
 import de.invesdwin.norva.beanpath.spi.element.AActionBeanPathElement;
 import de.invesdwin.norva.beanpath.spi.element.AChoiceBeanPathElement;
 import de.invesdwin.norva.beanpath.spi.element.APropertyBeanPathElement;
 import de.invesdwin.norva.beanpath.spi.element.IBeanPathElement;
+import de.invesdwin.norva.beanpath.spi.element.utility.ContainerTitleBeanPathElement;
 import de.invesdwin.util.collections.loadingcache.ALoadingCache;
 import de.invesdwin.util.error.UnknownArgumentException;
 import de.invesdwin.util.lang.Strings;
@@ -38,6 +42,8 @@ import de.invesdwin.util.lang.Strings;
 @SuppressWarnings("rawtypes")
 public final class GeneratedBindingGroup {
 
+    public static final String TITLE_NAME_SUFFIX = BeanPathUtil.BEAN_PATH_SEPARATOR
+            + ContainerTitleBeanPathElement.CONTAINER_TITLE_BEAN_PATH_FRAGMENT;
     private static final AComponentFinder NAMED_COMPONENT_FINDER = new AComponentFinder() {
         @Override
         protected boolean matches(final Component component) {
@@ -72,10 +78,15 @@ public final class GeneratedBindingGroup {
     }
 
     protected <T> T getElement(final Component component) {
-        final T element = bindingGroup.getModelContext().getElementRegistry().getElement(component.getName());
+        final String beanPath = component.getName();
+        return getElement(component, beanPath);
+    }
+
+    protected <T> T getElement(final Component component, final String beanPath) {
+        final T element = bindingGroup.getModelContext().getElementRegistry().getElement(beanPath);
         if (element == null) {
             throw new IllegalArgumentException("No " + IBeanPathElement.class.getSimpleName() + " found for "
-                    + component.getClass().getSimpleName() + " with name: " + component.getName());
+                    + component.getClass().getSimpleName() + " with name: " + beanPath);
         } else {
             return element;
         }
@@ -130,7 +141,14 @@ public final class GeneratedBindingGroup {
     }
 
     protected IComponentBinding bindJLabel(final JLabel component) {
-        return null;
+        if (component.getName().endsWith(TITLE_NAME_SUFFIX)) {
+            final String beanPath = Strings.removeEnd(component.getName(), TITLE_NAME_SUFFIX);
+            final APropertyBeanPathElement element = getElement(component, beanPath);
+            return new LabelTitleBinding(component, element, bindingGroup);
+        } else {
+            final APropertyBeanPathElement element = getElement(component);
+            return new LabelBinding(component, element, bindingGroup);
+        }
     }
 
     protected IComponentBinding bindJTextComponent(final JTextComponent component) {
