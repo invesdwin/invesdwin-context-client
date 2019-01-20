@@ -1,15 +1,15 @@
 package de.invesdwin.context.client.swing.api.binding.component;
 
-import java.awt.event.FocusEvent;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.concurrent.NotThreadSafe;
 import javax.swing.DefaultListModel;
 import javax.swing.JList;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 
 import de.invesdwin.context.client.swing.api.binding.BindingGroup;
-import de.invesdwin.context.client.swing.listener.FocusListenerSupport;
 import de.invesdwin.norva.beanpath.spi.element.AChoiceBeanPathElement;
 import de.invesdwin.norva.beanpath.spi.element.simple.modifier.IBeanPathPropertyModifier;
 import de.invesdwin.util.lang.Objects;
@@ -25,9 +25,9 @@ public class ListBinding extends AComponentBinding<JList, List<?>> {
         super(component, element, bindingGroup);
         this.element = element;
         if (eagerSubmitRunnable != null) {
-            component.addFocusListener(new FocusListenerSupport() {
+            component.addListSelectionListener(new ListSelectionListener() {
                 @Override
-                public void focusLost(final FocusEvent e) {
+                public void valueChanged(final ListSelectionEvent e) {
                     eagerSubmitRunnable.run();
                 }
             });

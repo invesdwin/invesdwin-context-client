@@ -1,6 +1,7 @@
 package de.invesdwin.context.client.swing.api.binding.component;
 
-import java.awt.event.FocusEvent;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -8,7 +9,6 @@ import javax.annotation.concurrent.NotThreadSafe;
 import javax.swing.JComboBox;
 
 import de.invesdwin.context.client.swing.api.binding.BindingGroup;
-import de.invesdwin.context.client.swing.listener.FocusListenerSupport;
 import de.invesdwin.norva.beanpath.spi.element.AChoiceBeanPathElement;
 import de.invesdwin.norva.beanpath.spi.element.simple.modifier.IBeanPathPropertyModifier;
 import de.invesdwin.util.lang.Objects;
@@ -25,9 +25,9 @@ public class ComboBoxBinding extends AComponentBinding<JComboBox, Object> {
         super(component, element, bindingGroup);
         this.element = element;
         if (eagerSubmitRunnable != null) {
-            component.addFocusListener(new FocusListenerSupport() {
+            component.addActionListener(new ActionListener() {
                 @Override
-                public void focusLost(final FocusEvent e) {
+                public void actionPerformed(final ActionEvent e) {
                     eagerSubmitRunnable.run();
                 }
             });
