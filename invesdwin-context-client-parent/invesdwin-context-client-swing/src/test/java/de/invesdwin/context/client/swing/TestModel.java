@@ -7,7 +7,6 @@ import java.util.concurrent.TimeUnit;
 import javax.annotation.concurrent.NotThreadSafe;
 import javax.inject.Inject;
 
-import org.jdesktop.application.Action;
 import org.jdesktop.application.Application;
 import org.jdesktop.application.Resource;
 import org.springframework.beans.factory.annotation.Configurable;
@@ -91,7 +90,6 @@ public class TestModel extends AModel {
         return checkboxTest;
     }
 
-    @Action
     public void next() {
         statusBar.message("Next has been clicked!");
 
@@ -176,7 +174,6 @@ public class TestModel extends AModel {
             this.notice = notice;
         }
 
-        @Action
         public void doNothing() {
             Dialogs.showMessageDialog(null, "Doing nothing!");
         }

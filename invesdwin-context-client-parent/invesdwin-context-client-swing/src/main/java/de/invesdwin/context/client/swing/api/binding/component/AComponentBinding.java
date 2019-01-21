@@ -112,7 +112,7 @@ public abstract class AComponentBinding<C extends JComponent, V> implements ICom
                 submitted = true;
             } catch (final Throwable t) {
                 Err.process(t);
-                invalidMessage = element.getTitle(getTarget()) + ": " + t.toString();
+                invalidMessage = getTitle() + ": " + t.toString();
                 submitted = false;
             }
         } else {
@@ -134,11 +134,15 @@ public abstract class AComponentBinding<C extends JComponent, V> implements ICom
             final Object modelValue = getModifier().getValueFromRoot(model);
             final String invalid = validateElement.validate(modelValue);
             if (Strings.isNotBlank(invalid)) {
-                invalidMessage = element.getTitle(getTarget()) + ": " + invalid;
+                invalidMessage = getTitle() + ": " + invalid;
                 return invalidMessage;
             }
         }
         return null;
+    }
+
+    protected String getTitle() {
+        return bindingGroup.getTitle(element, getTarget());
     }
 
     @Override
@@ -190,7 +194,7 @@ public abstract class AComponentBinding<C extends JComponent, V> implements ICom
         final Object target = getTarget();
         component.setEnabled(element.isEnabled(target));
         component.setVisible(element.isVisible(target));
-        component.setToolTipText(element.getTooltip(target));
+        component.setToolTipText(bindingGroup.i18n(element.getTooltip(target)));
     }
 
     protected Object getTarget() {

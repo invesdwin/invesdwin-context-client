@@ -20,8 +20,10 @@ public class TableBinding extends AComponentBinding<JTable, List<?>> {
     public TableBinding(final JTable component, final ATableBeanPathElement element, final BindingGroup bindingGroup) {
         super(component, element, bindingGroup);
         this.element = element;
-        this.tableModel = new TableModelBinding(element.getColumns());
+        this.tableModel = new TableModelBinding(element, bindingGroup);
+        component.setModel(tableModel);
         configureSelectionMode(component);
+        component.setAutoCreateColumnsFromModel(true);
     }
 
     protected void configureSelectionMode(final JTable component) {

@@ -10,15 +10,23 @@ import de.invesdwin.norva.beanpath.spi.element.simple.modifier.IBeanPathProperty
 @NotThreadSafe
 public class LabelTitleBinding extends LabelBinding {
 
+    private final de.invesdwin.norva.beanpath.spi.element.simple.modifier.internal.FixedValueBeanPathModifier<Object> modifier;
+
     public LabelTitleBinding(final JLabel component, final APropertyBeanPathElement element,
             final BindingGroup bindingGroup) {
         super(component, element, bindingGroup);
+        this.modifier = new de.invesdwin.norva.beanpath.spi.element.simple.modifier.internal.FixedValueBeanPathModifier<>(
+                element.getAccessor(), null);
     }
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
+    @Override
+    protected void fromModelToComponent(final Object modelValue) {
+        component.setText(getTitle());
+    }
+
     @Override
     protected IBeanPathPropertyModifier<Object> getModifier() {
-        return (IBeanPathPropertyModifier) element.getTitleModifier();
+        return modifier;
     }
 
 }

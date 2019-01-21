@@ -181,10 +181,10 @@ public class SubmitButtonBinding implements IComponentBinding {
     @Override
     public void update() {
         final Object target = getTarget();
-        component.setText(element.getTitle(target));
+        component.setText(bindingGroup.getTitle(element, target));
         component.setEnabled(element.isEnabled(target));
         component.setVisible(element.isVisible(target));
-        component.setToolTipText(element.getTooltip(target));
+        component.setToolTipText(bindingGroup.i18n(element.getTooltip(target)));
     }
 
     protected Object getTarget() {

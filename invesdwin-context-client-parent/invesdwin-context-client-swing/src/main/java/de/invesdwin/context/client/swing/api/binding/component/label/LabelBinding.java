@@ -3,8 +3,6 @@ package de.invesdwin.context.client.swing.api.binding.component.label;
 import javax.annotation.concurrent.NotThreadSafe;
 import javax.swing.JLabel;
 
-import com.jgoodies.common.base.Strings;
-
 import de.invesdwin.context.client.swing.api.binding.BindingGroup;
 import de.invesdwin.context.client.swing.api.binding.component.AComponentBinding;
 import de.invesdwin.context.client.swing.api.binding.converter.DateToStringConverter;
@@ -43,18 +41,7 @@ public class LabelBinding extends AComponentBinding<JLabel, Object> {
     @Override
     protected void fromModelToComponent(final Object modelValue) {
         final String newComponentValue = converter.fromModelToComponent(modelValue);
-        if (Strings.isNotBlank(newComponentValue)) {
-            String i18n = bindingGroup.getModel().getResourceMap().getString(newComponentValue);
-            if (i18n == null) {
-                i18n = bindingGroup.getView().getResourceMap().getString(newComponentValue);
-            }
-            if (i18n == null) {
-                i18n = newComponentValue;
-            }
-            component.setText(i18n);
-        } else {
-            component.setText(newComponentValue);
-        }
+        component.setText(bindingGroup.i18n(newComponentValue));
     }
 
     @Override

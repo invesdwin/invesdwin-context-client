@@ -15,9 +15,11 @@ import de.invesdwin.context.client.swing.api.AView;
 import de.invesdwin.context.client.swing.api.binding.component.IComponentBinding;
 import de.invesdwin.context.client.swing.api.binding.component.button.ISubmitButtonExceptionHandler;
 import de.invesdwin.norva.beanpath.impl.clazz.BeanClassContext;
+import de.invesdwin.norva.beanpath.spi.element.IBeanPathElement;
 import de.invesdwin.norva.beanpath.spi.element.RootBeanPathElement;
 import de.invesdwin.util.collections.fast.AFastIterableDelegateList;
 import de.invesdwin.util.collections.loadingcache.ALoadingCache;
+import de.invesdwin.util.lang.Objects;
 
 @NotThreadSafe
 public class BindingGroup implements IComponentBinding {
@@ -61,6 +63,7 @@ public class BindingGroup implements IComponentBinding {
 
     public void add(final IComponentBinding binding) {
         beanPath_binding.get(binding.getBeanPath()).add(binding);
+        bindings.add(binding);
     }
 
     @Override
@@ -151,5 +154,47 @@ public class BindingGroup implements IComponentBinding {
     @Override
     public String getBeanPath() {
         return RootBeanPathElement.ROOT_BEAN_PATH;
+    }
+
+    public String getTitle(final IBeanPathElement element, final Object target) {
+        final String title = element.getTitle(target);
+        if (title == null) {
+            return null;
+        }
+        if (hasTitleUtilityElement(element) && !isVisibleName(element, title)) {
+            //title() or getXYZTitle() method has priority
+            final String str = i18n(title);
+            return str;
+        } else {
+            //properties have priority over static title or title annotation
+            final String str = i18n(element.getBeanPath(), title);
+            return str;
+        }
+    }
+
+    protected boolean hasTitleUtilityElement(final IBeanPathElement element) {
+        return element.getTitleElement() != null || element.getContainerTitleElement() != null;
+    }
+
+    protected boolean isVisibleName(final IBeanPathElement element, final String title) {
+        return Objects.equals(element.getVisibleName(), title);
+    }
+
+    public String i18n(final String value) {
+        return i18n(value, value);
+    }
+
+    public String i18n(final String value, final String defaultValue) {
+        if (Strings.isBlank(value)) {
+            return value;
+        }
+        String i18n = getModel().getResourceMap().getString(value);
+        if (i18n == null) {
+            i18n = getView().getResourceMap().getString(value);
+        }
+        if (i18n == null) {
+            i18n = defaultValue;
+        }
+        return i18n;
     }
 }
