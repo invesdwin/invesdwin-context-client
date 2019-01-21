@@ -150,9 +150,6 @@ public abstract class AView<M extends AModel, C extends JComponent> extends AMod
         synchronized (dockableLock) {
             if (this.dockable == null) {
                 Assertions.assertThat(dockable.getComponent()).isSameAs(getComponent());
-                Assertions.assertThat(contentPane.containsView(this))
-                        .as("ContentPane is not synchronous to the content in the View. The View is missing there despite the content being set here.")
-                        .isTrue();
                 this.dockable = dockable;
                 new AViewVisitor() {
                     @Override
@@ -162,9 +159,6 @@ public abstract class AView<M extends AModel, C extends JComponent> extends AMod
                 }.visitAll(Components.getRootComponentInDockable(getComponent()));
             } else {
                 Assertions.assertThat(dockable).as("A View instance can only be made visible once.").isNull();
-                Assertions.assertThat(contentPane.containsView(this))
-                        .as("ContentPane is not synchronous to the content in the View. The View still exists there, despite the content being removed from here.")
-                        .isFalse();
                 this.dockable = null;
                 new AViewVisitor() {
                     @Override

@@ -20,10 +20,12 @@ import de.invesdwin.context.client.swing.api.guiservice.GuiService;
 import de.invesdwin.context.client.swing.api.guiservice.StatusBar;
 import de.invesdwin.context.log.error.Err;
 import de.invesdwin.norva.beanpath.annotation.ColumnOrder;
+import de.invesdwin.norva.beanpath.annotation.Eager;
 import de.invesdwin.util.lang.Objects;
 
 @NotThreadSafe
 @Configurable
+@Eager
 public class TestModel extends AModel {
 
     @Inject

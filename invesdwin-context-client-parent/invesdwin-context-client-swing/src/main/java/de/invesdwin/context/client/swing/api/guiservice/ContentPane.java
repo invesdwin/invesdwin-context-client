@@ -43,13 +43,14 @@ public class ContentPane {
      */
     @EventDispatchThread(InvocationType.INVOKE_AND_WAIT)
     public void removeView(final AView<?, ?> view) {
-        Assertions.assertThat(id_visibleView.remove(view.getDockableUniqueId())).isNotNull();
-        Assertions.assertThat(class_id_visibleView.get(view.getClass()).remove(view.getDockableUniqueId())).isNotNull();
         //May also be called by contentRemoved, in that case we should not trigger that again.
         if (containsView(view)) {
             Assertions.assertThat(contentPaneView.removeView(view)).isTrue();
+            Assertions.assertThat(id_visibleView.remove(view.getDockableUniqueId())).isNotNull();
+            Assertions.assertThat(class_id_visibleView.get(view.getClass()).remove(view.getDockableUniqueId()))
+                    .isNotNull();
+            view.setDockable(ContentPane.this, null);
         }
-        view.setDockable(ContentPane.this, null);
     }
 
     public void removeDockable(final CDockable dockable) {
@@ -79,7 +80,7 @@ public class ContentPane {
 
     @EventDispatchThread(InvocationType.INVOKE_AND_WAIT)
     public boolean containsView(final AView<?, ?> view) {
-        return contentPaneView.containsView(view);
+        return id_visibleView.containsKey(view.getDockableUniqueId());
     }
 
     @EventDispatchThread(InvocationType.INVOKE_AND_WAIT)

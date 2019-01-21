@@ -131,6 +131,7 @@ public final class GeneratedBindingGroup {
                 bindingGroup.add(binding);
             }
         }
+        bindingGroup.update();
         return bindingGroup;
     }
 

@@ -36,6 +36,11 @@ public class ListBinding extends AComponentBinding<JList, List<?>> {
         configureSelectionMode(component, element);
     }
 
+    @Override
+    protected boolean isModifiable() {
+        return super.isModifiable() && !element.isChoiceOnly();
+    }
+
     protected void configureSelectionMode(final JList component, final AChoiceBeanPathElement element) {
         if (element.isMultiSelection()) {
             component.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);

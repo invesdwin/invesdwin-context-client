@@ -35,6 +35,11 @@ public class ComboBoxBinding extends AComponentBinding<JComboBox, Object> {
     }
 
     @Override
+    protected boolean isModifiable() {
+        return super.isModifiable() && !element.isChoiceOnly();
+    }
+
+    @Override
     protected void fromModelToComponent(final Object modelValue) {
         final List<?> choices = element.getChoiceModifier().getValueFromRoot(bindingGroup.getModel());
         if (!Objects.equals(choices, prevChoices)) {
