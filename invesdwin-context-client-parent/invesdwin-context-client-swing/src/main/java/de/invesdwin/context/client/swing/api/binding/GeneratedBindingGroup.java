@@ -181,6 +181,7 @@ public final class GeneratedBindingGroup {
         if (action != null) {
             return new ActionButtonBinding(component, action);
         } else {
+            //allow menus not to be bound
             return null;
         }
     }
