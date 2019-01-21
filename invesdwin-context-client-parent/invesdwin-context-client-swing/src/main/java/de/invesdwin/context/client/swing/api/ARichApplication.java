@@ -9,6 +9,14 @@ import de.invesdwin.context.client.swing.api.menu.IMenuBarConfig;
 @Immutable
 public abstract class ARichApplication implements IRichApplication {
 
+    /**
+     * If this is null, the native look and feel will be used
+     */
+    @Override
+    public String getLookAndFeelOverride() {
+        return null;
+    }
+
     @Override
     public boolean isHideMainFrameOnStartup() {
         return false;

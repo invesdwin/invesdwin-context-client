@@ -2,6 +2,8 @@ package de.invesdwin.context.client.swing.internal.splash;
 
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.NotThreadSafe;
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
 
 import org.jdesktop.application.Application;
 import org.springframework.beans.factory.FactoryBean;
@@ -16,14 +18,19 @@ import de.invesdwin.aspects.EventDispatchThreadUtil;
 import de.invesdwin.context.beans.init.MergedContext;
 import de.invesdwin.context.client.swing.api.IRichApplication;
 import de.invesdwin.context.client.swing.internal.app.DelegateRichApplication;
+import de.invesdwin.context.log.error.Err;
+import de.invesdwin.util.lang.Reflections;
 
 @NotThreadSafe
 public final class ConfiguredSplashScreen implements SplashScreen, FactoryBean<ConfiguredSplashScreen> {
 
     public static final ConfiguredSplashScreen INSTANCE = new ConfiguredSplashScreen();
+    private static final String GTK_LAF = "com.sun.java.swing.plaf.gtk.GTKLookAndFeel";
 
     @GuardedBy("ConfiguredSplashScreen.class")
     private static ProgressSplashScreen splashScreen;
+    @GuardedBy("ConfiguredSplashScreen.class")
+    private static boolean lookAndFeelConfigured = false;
 
     private ConfiguredSplashScreen() {}
 
@@ -32,6 +39,9 @@ public final class ConfiguredSplashScreen implements SplashScreen, FactoryBean<C
             if (splashScreen == null || force) {
                 dispose();
 
+                final IRichApplication richApplication = MergedContext.getInstance().getBean(IRichApplication.class);
+
+                configureLookAndFeel(richApplication);
                 final ApplicationMessageSource messageSource = new ApplicationMessageSource();
 
                 splashScreen = new ProgressSplashScreen();
@@ -41,10 +51,10 @@ public final class ConfiguredSplashScreen implements SplashScreen, FactoryBean<C
                         .getMessage(DelegateRichApplication.KEY_APPLICATION_SPLASH, null, null)));
                 splashScreen.setIconResourcePath(
                         splashScreen.getMessageSource().getMessage(Application.KEY_APPLICATION_ICON, null, null));
-                final IRichApplication richApplication = MergedContext.getInstance().getBean(IRichApplication.class);
+                final ProgressMonitor tracker = ((MonitoringSplashScreen) splashScreen).getProgressMonitor();
+                MergedContext.autowire(new ProgressMonitoringBeanFactoryPostProcessor(tracker, messageSource));
+
                 if (!richApplication.isHideSplashOnStartup()) {
-                    final ProgressMonitor tracker = ((MonitoringSplashScreen) splashScreen).getProgressMonitor();
-                    MergedContext.autowire(new ProgressMonitoringBeanFactoryPostProcessor(tracker, messageSource));
                     try {
                         EventDispatchThreadUtil.invokeAndWait(new Runnable() {
                             @Override
@@ -58,6 +68,26 @@ public final class ConfiguredSplashScreen implements SplashScreen, FactoryBean<C
                 }
             }
         }
+    }
+
+    private void configureLookAndFeel(final IRichApplication richApplication) {
+        if (lookAndFeelConfigured) {
+            return;
+        }
+        String lookAndFeel = richApplication.getLookAndFeelOverride();
+        if (lookAndFeel == null) {
+            lookAndFeel = UIManager.getSystemLookAndFeelClassName();
+        }
+        if (lookAndFeel.equals(UIManager.getCrossPlatformLookAndFeelClassName()) && Reflections.classExists(GTK_LAF)) {
+            lookAndFeel = GTK_LAF;
+        }
+        try {
+            UIManager.setLookAndFeel(lookAndFeel);
+        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException
+                | UnsupportedLookAndFeelException e) {
+            Err.process(e);
+        }
+        lookAndFeelConfigured = true;
     }
 
     @Override

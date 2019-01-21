@@ -60,7 +60,6 @@ public class DelegateRichApplication extends SingleFrameApplication {
         EventDispatchThreadUtil.invokeLater(new Runnable() {
             @Override
             public void run() {
-                //show splash after LookAndFeel has been configured
                 final ConfiguredSplashScreen splashScreen = ConfiguredSplashScreen.INSTANCE;
                 splashScreen.splash();
             }

@@ -6,6 +6,8 @@ import de.invesdwin.context.client.swing.api.menu.IMenuBarConfig;
 
 public interface IRichApplication {
 
+    String getLookAndFeelOverride();
+
     boolean isHideMainFrameOnStartup();
 
     boolean isHideSplashOnStartup();
