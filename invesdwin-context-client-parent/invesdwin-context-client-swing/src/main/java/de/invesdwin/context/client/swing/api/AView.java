@@ -120,11 +120,7 @@ public abstract class AView<M extends AModel, C extends JComponent> extends AMod
     @Hidden(skip = true)
     public String getTitle() {
         final String title = getResourceMap().getString(VIEW_TITLE_KEY);
-        if (title == null) {
-            return getDockable().getUniqueId();
-        } else {
-            return title;
-        }
+        return title;
     }
 
     @Hidden(skip = true)

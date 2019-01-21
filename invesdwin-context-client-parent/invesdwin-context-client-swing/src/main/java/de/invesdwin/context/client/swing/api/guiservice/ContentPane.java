@@ -130,9 +130,9 @@ public class ContentPane {
                 .as("View [%s] is already being displayed.", view.getDockableUniqueId())
                 .isFalse();
         final DockableContent content = contentPaneView.addView(ContentPane.this, view);
+        Assertions.assertThat(id_visibleView.put(content.getUniqueId(), view)).isNull();
+        Assertions.assertThat(class_id_visibleView.get(view.getClass()).put(content.getUniqueId(), view)).isNull();
         view.setDockable(ContentPane.this, content);
-        Assertions.assertThat(id_visibleView.put(view.getDockableUniqueId(), view)).isNull();
-        Assertions.assertThat(class_id_visibleView.get(view.getClass()).put(view.getDockableUniqueId(), view)).isNull();
     }
 
 }

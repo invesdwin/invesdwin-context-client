@@ -4,11 +4,13 @@ import java.awt.Component;
 import java.util.List;
 
 import javax.annotation.concurrent.NotThreadSafe;
+import javax.swing.Action;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JList;
+import javax.swing.JMenuItem;
 import javax.swing.JTable;
 import javax.swing.text.JTextComponent;
 
@@ -19,6 +21,7 @@ import de.invesdwin.context.client.swing.api.binding.component.ComboBoxBinding;
 import de.invesdwin.context.client.swing.api.binding.component.IComponentBinding;
 import de.invesdwin.context.client.swing.api.binding.component.ListBinding;
 import de.invesdwin.context.client.swing.api.binding.component.TextComponentBinding;
+import de.invesdwin.context.client.swing.api.binding.component.button.ActionButtonBinding;
 import de.invesdwin.context.client.swing.api.binding.component.button.DefaultSubmitButtonExceptionHandler;
 import de.invesdwin.context.client.swing.api.binding.component.button.SubmitButtonBinding;
 import de.invesdwin.context.client.swing.api.binding.component.label.LabelBinding;
@@ -68,11 +71,11 @@ public final class GeneratedBindingGroup {
 
     protected BindingGroup bindingGroup;
     private final AView<?, ?> view;
-    private final Component component;
+    private final Component rootComponent;
 
-    public GeneratedBindingGroup(final AView<?, ?> view, final Component component) {
+    public GeneratedBindingGroup(final AView<?, ?> view, final Component rootComponent) {
         this.view = view;
-        this.component = component;
+        this.rootComponent = rootComponent;
     }
 
     protected DefaultSubmitButtonExceptionHandler newSubmitButtonExceptionHandler() {
@@ -98,27 +101,31 @@ public final class GeneratedBindingGroup {
         bindingGroup = new BindingGroup(view, MODELCLASS_CONTEXT.get(view.getModel().getClass()),
                 newSubmitButtonExceptionHandler());
 
-        final List<Component> components = NAMED_COMPONENT_FINDER.findAll(component);
+        final List<Component> components = NAMED_COMPONENT_FINDER.findAll(rootComponent);
         for (final Component c : components) {
             final IComponentBinding binding;
-            if (component instanceof JButton) {
-                binding = bindJButton((JButton) component);
-            } else if (component instanceof JTextComponent) {
-                binding = bindJTextComponent((JTextComponent) component);
-            } else if (component instanceof JLabel) {
-                binding = bindJLabel((JLabel) component);
-            } else if (component instanceof JComboBox) {
-                binding = bindJComboBox((JComboBox) component);
-            } else if (component instanceof JList) {
-                binding = bindJList((JList) component);
-            } else if (component instanceof JTable) {
-                binding = bindJTable((JTable) component);
-            } else if (component instanceof JCheckBox) {
-                binding = bindJCheckBox((JCheckBox) component);
+            if (c instanceof JMenuItem) {
+                binding = bindJMenuItem((JMenuItem) c);
+            } else if (c instanceof JButton) {
+                binding = bindJButton((JButton) c);
+            } else if (c instanceof JTextComponent) {
+                binding = bindJTextComponent((JTextComponent) c);
+            } else if (c instanceof JLabel) {
+                binding = bindJLabel((JLabel) c);
+            } else if (c instanceof JComboBox) {
+                binding = bindJComboBox((JComboBox) c);
+            } else if (c instanceof JList) {
+                binding = bindJList((JList) c);
+            } else if (c instanceof JTable) {
+                binding = bindJTable((JTable) c);
+            } else if (c instanceof JCheckBox) {
+                binding = bindJCheckBox((JCheckBox) c);
             } else {
                 throw UnknownArgumentException.newInstance(Class.class, c.getClass());
             }
-            bindingGroup.add(binding);
+            if (binding != null) {
+                bindingGroup.add(binding);
+            }
         }
         return bindingGroup;
     }
@@ -159,9 +166,23 @@ public final class GeneratedBindingGroup {
         return new TextComponentBinding(component, element, bindingGroup);
     }
 
+    protected IComponentBinding bindJMenuItem(final JMenuItem component) {
+        final Action action = view.getActionMap().get(component.getName());
+        if (action != null) {
+            return new ActionButtonBinding(component, action);
+        } else {
+            return null;
+        }
+    }
+
     protected IComponentBinding bindJButton(final JButton component) {
-        final AActionBeanPathElement element = getElement(component);
-        return new SubmitButtonBinding(component, element, bindingGroup);
+        final Action action = view.getActionMap().get(component.getName());
+        if (action != null) {
+            return new ActionButtonBinding(component, action);
+        } else {
+            final AActionBeanPathElement element = getElement(component);
+            return new SubmitButtonBinding(component, element, bindingGroup);
+        }
     }
 
 }

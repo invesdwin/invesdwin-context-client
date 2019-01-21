@@ -70,8 +70,11 @@ public class ContentPaneView extends AView<ContentPaneView, CContentArea> {
 
     public DockableContent addView(final ContentPane contentPane, final AView<?, ?> view) {
         final String uniqueId = DockableContentIdGenerator.newId(view);
-        final DockableContent dockable = new DockableContent(uniqueId, view.getIcon(), view.getTitle(),
-                view.getComponent());
+        String title = view.getTitle();
+        if (title == null) {
+            title = uniqueId;
+        }
+        final DockableContent dockable = new DockableContent(uniqueId, view.getIcon(), title, view.getComponent());
         dockable.setTitleToolTip(view.getDescription());
         workingArea.show(dockable);
         return dockable;
