@@ -90,11 +90,15 @@ public final class GeneratedBindingGroup {
     protected <T> T getElement(final Component component, final String beanPath) {
         final T element = bindingGroup.getModelContext().getElementRegistry().getElement(beanPath);
         if (element == null) {
-            throw new IllegalArgumentException("No " + IBeanPathElement.class.getSimpleName() + " found for "
-                    + component.getClass().getSimpleName() + " with name: " + beanPath);
+            throw newElementNotFoundException(component, beanPath);
         } else {
             return element;
         }
+    }
+
+    private IllegalArgumentException newElementNotFoundException(final Component component, final String beanPath) {
+        return new IllegalArgumentException("No " + IBeanPathElement.class.getSimpleName() + " found for "
+                + component.getClass().getSimpleName() + " with name: " + beanPath);
     }
 
     public BindingGroup bind() {
@@ -167,6 +171,12 @@ public final class GeneratedBindingGroup {
     }
 
     protected IComponentBinding bindJMenuItem(final JMenuItem component) {
+        final AActionBeanPathElement element = bindingGroup.getModelContext()
+                .getElementRegistry()
+                .getElement(component.getName());
+        if (element != null) {
+            return new SubmitButtonBinding(component, element, bindingGroup);
+        }
         final Action action = view.getActionMap().get(component.getName());
         if (action != null) {
             return new ActionButtonBinding(component, action);
@@ -176,12 +186,16 @@ public final class GeneratedBindingGroup {
     }
 
     protected IComponentBinding bindJButton(final JButton component) {
-        final Action action = view.getActionMap().get(component.getName());
+        final String beanPath = component.getName();
+        final AActionBeanPathElement element = bindingGroup.getModelContext().getElementRegistry().getElement(beanPath);
+        if (element != null) {
+            return new SubmitButtonBinding(component, element, bindingGroup);
+        }
+        final Action action = view.getActionMap().get(beanPath);
         if (action != null) {
             return new ActionButtonBinding(component, action);
         } else {
-            final AActionBeanPathElement element = getElement(component);
-            return new SubmitButtonBinding(component, element, bindingGroup);
+            throw newElementNotFoundException(component, beanPath);
         }
     }
 
