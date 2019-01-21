@@ -11,7 +11,6 @@ import com.jgoodies.common.base.Strings;
 import de.invesdwin.context.client.swing.api.AModel;
 import de.invesdwin.context.client.swing.api.AView;
 import de.invesdwin.context.client.swing.api.binding.BindingGroup;
-import de.invesdwin.context.client.swing.api.guiservice.GuiService;
 import de.invesdwin.context.client.swing.util.SubmitAllViewsHelper;
 import de.invesdwin.context.log.error.Err;
 import de.invesdwin.norva.beanpath.impl.clazz.BeanClassContainer;
@@ -47,13 +46,9 @@ public abstract class AComponentBinding<C extends JComponent, V> implements ICom
                 return new Runnable() {
                     private final SubmitAllViewsHelper helper = new SubmitAllViewsHelper() {
                         @Override
-                        protected boolean validate(final List<AView<?, ?>> views) {
+                        protected String validate(final List<AView<?, ?>> views) {
                             //only show conversion errors, ignore any other validation errors
-                            if (Strings.isNotBlank(invalidMessage)) {
-                                GuiService.get().getStatusBar().error(invalidMessage);
-                                return false;
-                            }
-                            return true;
+                            return invalidMessage;
                         }
 
                         @Override
@@ -129,10 +124,9 @@ public abstract class AComponentBinding<C extends JComponent, V> implements ICom
     protected abstract IBeanPathPropertyModifier<V> getModifier();
 
     @Override
-    public boolean validate() {
+    public String validate() {
         if (Strings.isNotBlank(invalidMessage)) {
-            GuiService.get().getStatusBar().error(invalidMessage);
-            return false;
+            return invalidMessage;
         }
         if (validateElement != null) {
             //validate using custom validator only once all properties have been synchronized
@@ -141,11 +135,25 @@ public abstract class AComponentBinding<C extends JComponent, V> implements ICom
             final String invalid = validateElement.validate(modelValue);
             if (Strings.isNotBlank(invalid)) {
                 invalidMessage = element.getTitle(getTarget()) + ": " + invalid;
-                GuiService.get().getStatusBar().error(invalidMessage);
-                return false;
+                return invalidMessage;
             }
         }
-        return true;
+        return null;
+    }
+
+    @Override
+    public void setInvalidMessage(final String invalidMessage) {
+        this.invalidMessage = invalidMessage;
+    }
+
+    @Override
+    public String getInvalidMessage() {
+        return invalidMessage;
+    }
+
+    @Override
+    public String getBeanPath() {
+        return element.getBeanPath();
     }
 
     @Override

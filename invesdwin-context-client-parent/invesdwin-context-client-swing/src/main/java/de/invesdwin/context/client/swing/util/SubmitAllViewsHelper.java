@@ -6,7 +6,10 @@ import java.util.List;
 
 import javax.annotation.concurrent.Immutable;
 
+import com.jgoodies.common.base.Strings;
+
 import de.invesdwin.context.client.swing.api.AView;
+import de.invesdwin.context.client.swing.api.guiservice.GuiService;
 
 @Immutable
 public class SubmitAllViewsHelper {
@@ -14,13 +17,18 @@ public class SubmitAllViewsHelper {
     public void process(final Component component) {
         final List<AView<?, ?>> views = getViews(component);
         submit(views);
-        final boolean valid = validate(views);
-        if (valid) {
+        final String invalidMessage = validate(views);
+        if (invalidMessage == null) {
             commit(views);
         } else {
+            showInvalidMessage(invalidMessage);
             rollback(views);
         }
         update(views);
+    }
+
+    protected void showInvalidMessage(final String invalidMessage) {
+        GuiService.get().getStatusBar().error(invalidMessage);
     }
 
     protected void submit(final List<AView<?, ?>> views) {
@@ -29,14 +37,20 @@ public class SubmitAllViewsHelper {
         }
     }
 
-    protected boolean validate(final List<AView<?, ?>> views) {
-        boolean valid = true;
+    protected String validate(final List<AView<?, ?>> views) {
+        String combinedInvalidMessage = null;
         for (int i = 0; i < views.size(); i++) {
-            if (!views.get(i).getBindingGroup().validate()) {
-                valid = false;
+            final String invalidMessage = views.get(i).getBindingGroup().validate();
+            if (Strings.isNotBlank(invalidMessage)) {
+                if (combinedInvalidMessage != null) {
+                    combinedInvalidMessage += "\n";
+                    combinedInvalidMessage += invalidMessage;
+                } else {
+                    combinedInvalidMessage = invalidMessage;
+                }
             }
         }
-        return valid;
+        return combinedInvalidMessage;
     }
 
     protected void commit(final List<AView<?, ?>> views) {

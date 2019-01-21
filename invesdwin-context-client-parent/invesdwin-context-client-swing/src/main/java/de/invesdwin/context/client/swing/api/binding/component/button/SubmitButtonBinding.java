@@ -54,10 +54,10 @@ public class SubmitButtonBinding implements IComponentBinding {
                     }
 
                     @Override
-                    protected boolean validate(final List<AView<?, ?>> views) {
+                    protected String validate(final List<AView<?, ?>> views) {
                         //ignore all validation errors
                         invoke();
-                        return true;
+                        return null;
                     }
                 };
 
@@ -79,14 +79,14 @@ public class SubmitButtonBinding implements IComponentBinding {
                     }
 
                     @Override
-                    protected boolean validate(final List<AView<?, ?>> views) {
-                        final boolean valid = super.validate(views);
-                        if (valid) {
-                            invoke();
-                            //validate again after invoking
-                            return super.validate(views);
+                    protected String validate(final List<AView<?, ?>> views) {
+                        final String invalidMessage = super.validate(views);
+                        if (invalidMessage != null) {
+                            return invalidMessage;
                         }
-                        return valid;
+                        invoke();
+                        //validate again after invoking
+                        return super.validate(views);
                     }
                 };
 
@@ -108,6 +108,11 @@ public class SubmitButtonBinding implements IComponentBinding {
         } catch (final Throwable t) {
             handleButtonException(component, t);
         }
+    }
+
+    @Override
+    public String getBeanPath() {
+        return element.getBeanPath();
     }
 
     protected void processResult(final Object result) {
@@ -147,9 +152,20 @@ public class SubmitButtonBinding implements IComponentBinding {
     }
 
     @Override
-    public boolean validate() {
+    public String validate() {
         //noop
-        return true;
+        return null;
+    }
+
+    @Override
+    public String getInvalidMessage() {
+        //noop
+        return null;
+    }
+
+    @Override
+    public void setInvalidMessage(final String message) {
+        //noop
     }
 
     @Override

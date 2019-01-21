@@ -16,6 +16,11 @@ public class ActionButtonBinding implements IComponentBinding {
         component.setAction(action);
     }
 
+    @Override
+    public String getBeanPath() {
+        return component.getName();
+    }
+
     protected boolean isModifiable() {
         return component.isVisible() && component.isEnabled();
     }
@@ -26,9 +31,20 @@ public class ActionButtonBinding implements IComponentBinding {
     }
 
     @Override
-    public boolean validate() {
+    public String validate() {
         //noop
-        return true;
+        return null;
+    }
+
+    @Override
+    public String getInvalidMessage() {
+        //noop
+        return null;
+    }
+
+    @Override
+    public void setInvalidMessage(final String message) {
+        //noop
     }
 
     @Override
