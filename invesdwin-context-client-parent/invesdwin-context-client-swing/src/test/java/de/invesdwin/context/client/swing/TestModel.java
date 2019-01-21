@@ -19,9 +19,9 @@ import de.invesdwin.context.client.swing.api.guiservice.Dialogs;
 import de.invesdwin.context.client.swing.api.guiservice.GuiService;
 import de.invesdwin.context.client.swing.api.guiservice.StatusBar;
 import de.invesdwin.context.log.error.Err;
+import de.invesdwin.norva.beanpath.annotation.ColumnOrder;
 import de.invesdwin.util.lang.Objects;
 
-@SuppressWarnings("serial")
 @NotThreadSafe
 @Configurable
 public class TestModel extends AModel {
@@ -181,6 +181,7 @@ public class TestModel extends AModel {
 
     }
 
+    @ColumnOrder({ "columnInteger", "columnString", "columnBoolean" })
     public static class BeanRow extends AModel {
         private final Integer columnInteger;
         private final String columnString;

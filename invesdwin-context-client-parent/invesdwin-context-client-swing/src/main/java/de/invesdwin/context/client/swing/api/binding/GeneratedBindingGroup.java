@@ -23,6 +23,7 @@ import de.invesdwin.context.client.swing.api.binding.component.button.DefaultSub
 import de.invesdwin.context.client.swing.api.binding.component.button.SubmitButtonBinding;
 import de.invesdwin.context.client.swing.api.binding.component.label.LabelBinding;
 import de.invesdwin.context.client.swing.api.binding.component.label.LabelTitleBinding;
+import de.invesdwin.context.client.swing.api.binding.component.table.TableBinding;
 import de.invesdwin.context.client.swing.util.AComponentFinder;
 import de.invesdwin.norva.beanpath.impl.clazz.BeanClassContainer;
 import de.invesdwin.norva.beanpath.impl.clazz.BeanClassContext;
@@ -32,6 +33,7 @@ import de.invesdwin.norva.beanpath.spi.BeanPathUtil;
 import de.invesdwin.norva.beanpath.spi.element.AActionBeanPathElement;
 import de.invesdwin.norva.beanpath.spi.element.AChoiceBeanPathElement;
 import de.invesdwin.norva.beanpath.spi.element.APropertyBeanPathElement;
+import de.invesdwin.norva.beanpath.spi.element.ATableBeanPathElement;
 import de.invesdwin.norva.beanpath.spi.element.IBeanPathElement;
 import de.invesdwin.norva.beanpath.spi.element.utility.ContainerTitleBeanPathElement;
 import de.invesdwin.util.collections.loadingcache.ALoadingCache;
@@ -127,7 +129,8 @@ public final class GeneratedBindingGroup {
     }
 
     protected IComponentBinding bindJTable(final JTable component) {
-        return null;
+        final ATableBeanPathElement element = getElement(component);
+        return new TableBinding(component, element, bindingGroup);
     }
 
     protected IComponentBinding bindJList(final JList component) {

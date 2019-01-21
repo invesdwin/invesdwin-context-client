@@ -6,6 +6,7 @@ import java.util.List;
 import javax.annotation.concurrent.NotThreadSafe;
 import javax.swing.DefaultListModel;
 import javax.swing.JList;
+import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
@@ -31,6 +32,15 @@ public class ListBinding extends AComponentBinding<JList, List<?>> {
                     eagerSubmitRunnable.run();
                 }
             });
+        }
+        configureSelectionMode(component, element);
+    }
+
+    protected void configureSelectionMode(final JList component, final AChoiceBeanPathElement element) {
+        if (element.isMultiSelection()) {
+            component.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+        } else {
+            component.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         }
     }
 
