@@ -30,7 +30,10 @@ public class TableBinding extends AComponentBinding<JTable, List<?>> {
         //model selection is handled via a special checkbox column
         component.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         component.setCellSelectionEnabled(false);
-        component.setRowSelectionAllowed(true);
+        component.setRowSelectionAllowed(false);
+        component.setColumnSelectionAllowed(false);
+        component.getTableHeader().setReorderingAllowed(false);
+        component.setAutoCreateRowSorter(true);
     }
 
     @Override

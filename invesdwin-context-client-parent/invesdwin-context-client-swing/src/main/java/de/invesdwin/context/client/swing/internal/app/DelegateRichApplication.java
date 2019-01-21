@@ -82,13 +82,8 @@ public class DelegateRichApplication extends SingleFrameApplication {
         EventDispatchThreadUtil.invokeLater(new Runnable() {
             @Override
             public void run() {
-                new Thread() {
-                    @Override
-                    public void run() {
-                        //Bootstrap must run in another Thread, so that splash progress does not halt because the EDT is blocked
-                        MergedContext.autowire(this);
-                    };
-                }.start();
+                //Bootstrap must run in another Thread, so that splash progress does not halt because the EDT is blocked
+                MergedContext.autowire(this);
             }
         });
     }

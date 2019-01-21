@@ -51,10 +51,10 @@ public final class ConfiguredSplashScreen implements SplashScreen, FactoryBean<C
                         .getMessage(DelegateRichApplication.KEY_APPLICATION_SPLASH, null, null)));
                 splashScreen.setIconResourcePath(
                         splashScreen.getMessageSource().getMessage(Application.KEY_APPLICATION_ICON, null, null));
-                final ProgressMonitor tracker = ((MonitoringSplashScreen) splashScreen).getProgressMonitor();
-                MergedContext.autowire(new ProgressMonitoringBeanFactoryPostProcessor(tracker, messageSource));
 
                 if (!richApplication.isHideSplashOnStartup()) {
+                    final ProgressMonitor tracker = ((MonitoringSplashScreen) splashScreen).getProgressMonitor();
+                    MergedContext.autowire(new ProgressMonitoringBeanFactoryPostProcessor(tracker, messageSource));
                     try {
                         EventDispatchThreadUtil.invokeAndWait(new Runnable() {
                             @Override

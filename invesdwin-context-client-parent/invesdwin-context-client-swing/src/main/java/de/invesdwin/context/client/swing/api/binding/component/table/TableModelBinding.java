@@ -6,6 +6,8 @@ import java.util.List;
 import javax.annotation.concurrent.NotThreadSafe;
 import javax.swing.table.AbstractTableModel;
 
+import org.apache.commons.lang3.BooleanUtils;
+
 import de.invesdwin.context.client.swing.api.binding.BindingGroup;
 import de.invesdwin.norva.beanpath.impl.clazz.BeanClassType;
 import de.invesdwin.norva.beanpath.spi.element.APropertyBeanPathElement;
@@ -33,7 +35,7 @@ public class TableModelBinding extends AbstractTableModel {
 
     public void update(final List<?> newValues) {
         if (!Objects.equals(newValues, rows)) {
-            this.rows = new ArrayList<>(rows);
+            this.rows = new ArrayList<>(newValues);
             fireTableDataChanged();
         }
         final List<ITableColumnBeanPathElement> newColumns = element.getColumns();
@@ -50,8 +52,17 @@ public class TableModelBinding extends AbstractTableModel {
 
     @Override
     public Class<?> getColumnClass(final int columnIndex) {
-        final BeanClassType type = (BeanClassType) columns.get(columnIndex).getAccessor().getType();
-        return type.getType();
+        final ITableColumnBeanPathElement column = columns.get(columnIndex);
+        if (column instanceof APropertyBeanPathElement) {
+            final BeanClassType type = (BeanClassType) column.getAccessor().getType();
+            return type.getType();
+        } else if (column instanceof TableSelectionButtonColumnBeanPathElement) {
+            return Boolean.class;
+        } else if (column instanceof TableButtonColumnBeanPathElement) {
+            return Integer.class;
+        } else {
+            throw UnknownArgumentException.newInstance(Class.class, column.getClass());
+        }
     }
 
     @Override
@@ -83,4 +94,40 @@ public class TableModelBinding extends AbstractTableModel {
         }
     }
 
+    @Override
+    public boolean isCellEditable(final int rowIndex, final int columnIndex) {
+        final ITableColumnBeanPathElement column = columns.get(columnIndex);
+        if (column instanceof APropertyBeanPathElement) {
+            final Object row = rows.get(rowIndex);
+            return column.isEnabled(row);
+        } else if (column instanceof TableSelectionButtonColumnBeanPathElement) {
+            return true;
+        } else if (column instanceof TableButtonColumnBeanPathElement) {
+            return false;
+        } else {
+            throw UnknownArgumentException.newInstance(Class.class, column.getClass());
+        }
+    }
+
+    @Override
+    public void setValueAt(final Object value, final int rowIndex, final int columnIndex) {
+        final ITableColumnBeanPathElement column = columns.get(columnIndex);
+        if (column instanceof APropertyBeanPathElement) {
+            final APropertyBeanPathElement property = (APropertyBeanPathElement) column;
+            final Object row = rows.get(rowIndex);
+            property.getModifier().setValueFromTarget(row, value);
+        } else if (column instanceof TableSelectionButtonColumnBeanPathElement) {
+            final TableSelectionButtonColumnBeanPathElement selection = (TableSelectionButtonColumnBeanPathElement) column;
+            final SelectionBeanPathPropertyModifier modifier = selection.getSelectionModifier();
+            final Object row = rows.get(rowIndex);
+            final Boolean selected = (Boolean) value;
+            if (BooleanUtils.isTrue(selected)) {
+                modifier.select(row);
+            } else {
+                modifier.unselect(row);
+            }
+        } else {
+            throw UnknownArgumentException.newInstance(Class.class, column.getClass());
+        }
+    }
 }

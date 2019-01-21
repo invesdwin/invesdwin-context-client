@@ -7,13 +7,13 @@ import java.util.Set;
 import javax.annotation.concurrent.ThreadSafe;
 import javax.swing.UIManager;
 
+import org.jdesktop.application.Application;
 import org.jdesktop.application.ResourceMap;
 import org.jdesktop.swingx.JXErrorPane;
 import org.jdesktop.swingx.error.ErrorInfo;
 
 import de.invesdwin.aspects.EventDispatchThreadUtil;
 import de.invesdwin.context.client.swing.api.guiservice.Dialogs;
-import de.invesdwin.context.client.swing.api.guiservice.GuiService;
 import de.invesdwin.context.client.swing.internal.DetailedErrorPaneUI;
 import de.invesdwin.context.log.error.Err;
 import de.invesdwin.context.log.error.LoggedRuntimeException;
@@ -50,7 +50,7 @@ public final class GuiExceptionHandler implements IErrHook {
                     return;
                 }
             }
-            final ResourceMap resourceMap = GuiService.get().getResourceMap(this.getClass());
+            final ResourceMap resourceMap = Application.getInstance().getContext().getResourceMap(this.getClass());
             final String title = resourceMap.getString("errorInfo.title");
             final StringBuilder basicErrorMessage = new StringBuilder("<html>");
             basicErrorMessage.append(resourceMap.getString("errorInfo.text"));
