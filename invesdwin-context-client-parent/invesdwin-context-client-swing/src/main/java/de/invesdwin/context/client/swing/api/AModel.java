@@ -9,7 +9,6 @@ import javax.swing.ActionMap;
 import org.jdesktop.application.Application;
 import org.jdesktop.application.ResourceMap;
 
-import de.invesdwin.context.client.swing.api.guiservice.GuiService;
 import de.invesdwin.context.log.Log;
 import de.invesdwin.norva.beanpath.annotation.Hidden;
 import de.invesdwin.util.assertions.Assertions;
@@ -37,8 +36,7 @@ public abstract class AModel extends AValueObject {
     }
 
     public AModel() {
-
-        resourceMap = GuiService.get().getResourceMap(this.getClass());
+        resourceMap = Application.getInstance().getContext().getResourceMap(this.getClass());
         resourceMap.injectFields(this);
     }
 

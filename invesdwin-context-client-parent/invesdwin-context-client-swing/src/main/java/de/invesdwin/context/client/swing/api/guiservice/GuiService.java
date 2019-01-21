@@ -3,7 +3,6 @@ package de.invesdwin.context.client.swing.api.guiservice;
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 import javax.inject.Inject;
-import javax.inject.Named;
 
 import org.jdesktop.application.Application;
 import org.jdesktop.application.ApplicationContext;
@@ -13,7 +12,6 @@ import org.jdesktop.application.TaskService;
 import de.invesdwin.context.beans.init.MergedContext;
 import de.invesdwin.context.client.swing.api.AView;
 
-@Named
 @ThreadSafe
 public class GuiService implements IGuiService {
 

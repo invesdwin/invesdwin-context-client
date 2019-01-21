@@ -4,7 +4,6 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
 import javax.annotation.concurrent.NotThreadSafe;
-import javax.inject.Inject;
 import javax.swing.JFrame;
 
 import org.jdesktop.application.Application;
@@ -23,12 +22,10 @@ import de.invesdwin.aspects.EventDispatchThreadUtil;
 import de.invesdwin.context.client.swing.api.AView;
 import de.invesdwin.context.client.swing.api.DockableContent;
 import de.invesdwin.context.client.swing.api.guiservice.ContentPane;
+import de.invesdwin.context.client.swing.api.guiservice.GuiService;
 
 @NotThreadSafe
 public class ContentPaneView extends AView<ContentPaneView, CContentArea> {
-
-    @Inject
-    private ContentPane contentPane;
 
     private CControl control;
     private CWorkingArea workingArea;
@@ -49,6 +46,7 @@ public class ContentPaneView extends AView<ContentPaneView, CContentArea> {
                         @Override
                         public void run() {
                             final CDockable focused = control.getFocusedCDockable();
+                            final ContentPane contentPane = GuiService.get().getContentPane();
                             if (focused != null && focused.isCloseable() && contentPane.containsDockable(focused)) {
                                 contentPane.removeDockable(focused);
                             }
