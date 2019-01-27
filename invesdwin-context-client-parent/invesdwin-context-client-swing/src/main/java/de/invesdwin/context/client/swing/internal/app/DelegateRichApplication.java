@@ -86,6 +86,11 @@ public class DelegateRichApplication extends SingleFrameApplication {
                     @Override
                     public void run() {
                         //Bootstrap must run in another Thread, so that splash progress does not halt because the EDT is blocked
+                        try {
+                            MergedContext.awaitBootstrapFinishedIfRunning();
+                        } catch (final InterruptedException e) {
+                            throw new RuntimeException(e);
+                        }
                         MergedContext.autowire(this);
                     };
                 }.start();
