@@ -76,7 +76,9 @@ public class SubmitAllViewsHelper {
         new AViewVisitor() {
             @Override
             protected void visit(final AView<?, ?> view) {
-                views.add(view);
+                if (view.getBindingGroup() != null) {
+                    views.add(view);
+                }
             }
         }.visitAll(getRootComponent(component));
         return views;

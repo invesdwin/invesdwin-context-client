@@ -28,6 +28,7 @@ import de.invesdwin.context.client.swing.api.binding.component.label.LabelBindin
 import de.invesdwin.context.client.swing.api.binding.component.label.LabelTitleBinding;
 import de.invesdwin.context.client.swing.api.binding.component.table.TableBinding;
 import de.invesdwin.context.client.swing.util.AComponentFinder;
+import de.invesdwin.context.client.swing.util.Components;
 import de.invesdwin.norva.beanpath.impl.clazz.BeanClassContainer;
 import de.invesdwin.norva.beanpath.impl.clazz.BeanClassContext;
 import de.invesdwin.norva.beanpath.impl.clazz.BeanClassProcessor;
@@ -49,17 +50,6 @@ public final class GeneratedBindingGroup {
 
     public static final String TITLE_NAME_SUFFIX = BeanPathUtil.BEAN_PATH_SEPARATOR
             + ContainerTitleBeanPathElement.CONTAINER_TITLE_BEAN_PATH_FRAGMENT;
-    private static final AComponentFinder NAMED_COMPONENT_FINDER = new AComponentFinder() {
-        @Override
-        protected boolean matches(final Component component) {
-            return Strings.isNotBlank(component.getName()) && !"ScrollBar.button".equals(component.getName());
-        }
-
-        @Override
-        protected boolean shouldIgnoreTree(final Component rootComponent) {
-            return AModel.IGNORE.equals(rootComponent.getName());
-        }
-    };
     private static final ALoadingCache<Class<?>, BeanClassContext> MODELCLASS_CONTEXT = new ALoadingCache<Class<?>, BeanClassContext>() {
         @Override
         protected BeanClassContext loadValue(final Class<?> key) {
@@ -68,8 +58,8 @@ public final class GeneratedBindingGroup {
             return context;
         }
     };
-
     protected BindingGroup bindingGroup;
+
     private final AView<?, ?> view;
     private final Component rootComponent;
 
@@ -105,7 +95,7 @@ public final class GeneratedBindingGroup {
         bindingGroup = new BindingGroup(view, MODELCLASS_CONTEXT.get(view.getModel().getClass()),
                 newSubmitButtonExceptionHandler());
 
-        final List<Component> components = NAMED_COMPONENT_FINDER.findAll(rootComponent);
+        final List<Component> components = new NamedComponentFinder().findAll(rootComponent);
         for (final Component c : components) {
             final IComponentBinding binding;
             if (c instanceof JMenuItem) {
@@ -198,6 +188,24 @@ public final class GeneratedBindingGroup {
             return new ActionButtonBinding(component, action);
         } else {
             throw newElementNotFoundException(component, beanPath);
+        }
+    }
+
+    private final class NamedComponentFinder extends AComponentFinder {
+        @Override
+        protected boolean matches(final Component component) {
+            return Strings.isNotBlank(component.getName()) && !"ScrollBar.button".equals(component.getName())
+                    && !"ComboBox.arrowButton".equals(component.getName());
+        }
+
+        @Override
+        protected boolean shouldIgnoreTree(final Component rootComponent) {
+            return AModel.IGNORE.equals(rootComponent.getName()) || isNotThisView(rootComponent);
+        }
+
+        private boolean isNotThisView(final Component rootComponent) {
+            final AView<?, ?> viewAt = Components.getViewAt(rootComponent);
+            return viewAt != null && viewAt != view;
         }
     }
 

@@ -30,6 +30,7 @@ public abstract class AComponentBinding<C extends JComponent, V> implements ICom
     protected V prevModelValue;
     protected boolean submitted = false;
     protected String invalidMessage = null;
+    protected boolean updating = false;
 
     public AComponentBinding(final C component, final APropertyBeanPathElement element,
             final BindingGroup bindingGroup) {
@@ -62,7 +63,9 @@ public abstract class AComponentBinding<C extends JComponent, V> implements ICom
 
                     @Override
                     public void run() {
-                        helper.process(component);
+                        if (!updating) {
+                            helper.process(component);
+                        }
                     }
                 };
 
@@ -80,7 +83,9 @@ public abstract class AComponentBinding<C extends JComponent, V> implements ICom
 
                     @Override
                     public void run() {
-                        helper.process(component);
+                        if (!updating) {
+                            helper.process(component);
+                        }
                     }
                 };
             }
@@ -132,7 +137,7 @@ public abstract class AComponentBinding<C extends JComponent, V> implements ICom
             //validate using custom validator only once all properties have been synchronized
             final AModel model = bindingGroup.getModel();
             final Object modelValue = getModifier().getValueFromRoot(model);
-            final String invalid = validateElement.validate(modelValue);
+            final String invalid = validateElement.validateFromRoot(model, modelValue);
             if (Strings.isNotBlank(invalid)) {
                 invalidMessage = getTitle() + ": " + invalid;
                 return invalidMessage;
@@ -187,14 +192,19 @@ public abstract class AComponentBinding<C extends JComponent, V> implements ICom
 
     @Override
     public void update() {
-        final AModel model = bindingGroup.getModel();
-        final V modelValue = getModifier().getValueFromRoot(model);
-        fromModelToComponent(modelValue);
+        updating = true;
+        try {
+            final AModel model = bindingGroup.getModel();
+            final V modelValue = getModifier().getValueFromRoot(model);
+            fromModelToComponent(modelValue);
 
-        final Object target = getTarget();
-        component.setEnabled(element.isEnabled(target));
-        component.setVisible(element.isVisible(target));
-        component.setToolTipText(bindingGroup.i18n(element.getTooltip(target)));
+            final Object target = getTarget();
+            component.setEnabled(element.isEnabled(target));
+            component.setVisible(element.isVisible(target));
+            component.setToolTipText(bindingGroup.i18n(element.getTooltip(target)));
+        } finally {
+            updating = false;
+        }
     }
 
     protected Object getTarget() {
