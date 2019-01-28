@@ -19,6 +19,7 @@ import org.jdesktop.application.SingleFrameApplication;
 
 import de.invesdwin.context.client.swing.api.AView;
 import de.invesdwin.context.client.swing.api.IRichApplication;
+import de.invesdwin.context.client.swing.api.MainFrameCloseOperation;
 import de.invesdwin.context.client.swing.api.guiservice.Dialogs;
 import de.invesdwin.context.client.swing.api.menu.IMenuBarConfig;
 import de.invesdwin.context.client.swing.api.menu.MenuBarConfigSupport;
@@ -54,11 +55,10 @@ public class MenuBarView extends AView<MenuBarView, JMenuBar> {
     private void addFileMenu(final IMenuBarConfig menuBarConfig, final JMenuBar menuBar) {
         final JMenu mnFile = new JMenu();
         mnFile.setName("file");
-        menuBar.add(mnFile);
 
-        final List<JMenuItem> dateiMenuItems = menuBarConfig.getFileMenuItems();
-        if (dateiMenuItems != null && dateiMenuItems.size() > 0) {
-            for (final JMenuItem dateiMenuItem : dateiMenuItems) {
+        final List<JMenuItem> fileMenuItems = menuBarConfig.getFileMenuItems();
+        if (fileMenuItems != null && fileMenuItems.size() > 0) {
+            for (final JMenuItem dateiMenuItem : fileMenuItems) {
                 if (dateiMenuItem == null) {
                     mnFile.add(new JSeparator());
                 } else {
@@ -68,9 +68,15 @@ public class MenuBarView extends AView<MenuBarView, JMenuBar> {
             mnFile.add(new JSeparator());
         }
 
-        final JMenuItem mntmExit = new JMenuItem();
-        mntmExit.setName("quit");
-        mnFile.add(mntmExit);
+        if (richApplication.getMainFrameCloseOperation() == MainFrameCloseOperation.SystemExit) {
+            final JMenuItem mntmExit = new JMenuItem();
+            mntmExit.setName("quit");
+            mnFile.add(mntmExit);
+        }
+
+        if (mnFile.getMenuComponentCount() > 0) {
+            menuBar.add(mnFile);
+        }
     }
 
     private void addEditMenu(final IMenuBarConfig menuBarConfig, final JMenuBar menuBar) {
