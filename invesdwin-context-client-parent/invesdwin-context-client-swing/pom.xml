@@ -72,10 +72,6 @@
 			<groupId>com.jgoodies</groupId>
 			<artifactId>jgoodies-forms</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>com.jgoodies</groupId>
-			<artifactId>jgoodies-validation</artifactId>
-		</dependency>
 	</dependencies>
 
 </project>
