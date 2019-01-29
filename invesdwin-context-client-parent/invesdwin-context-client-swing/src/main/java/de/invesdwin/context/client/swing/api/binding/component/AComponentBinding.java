@@ -119,7 +119,7 @@ public abstract class AComponentBinding<C extends JComponent, V> implements ICom
                 if (validateElement != null) {
                     final String invalid = validateElement.validateFromRoot(model, newModelValue);
                     if (Strings.isNotBlank(invalid)) {
-                        invalidMessage = normalizeValidationMessage(invalid);
+                        invalidMessage = normalizeInvalidMessage(invalid);
                         return;
                     }
                 }
@@ -131,7 +131,7 @@ public abstract class AComponentBinding<C extends JComponent, V> implements ICom
             }
         } catch (final Throwable t) {
             Err.process(t);
-            invalidMessage = normalizeValidationMessage(t.toString());
+            invalidMessage = normalizeInvalidMessage(t.toString());
             submitted = false;
         }
     }
@@ -149,7 +149,7 @@ public abstract class AComponentBinding<C extends JComponent, V> implements ICom
             final Object modelValue = getModifier().getValueFromRoot(model);
             final String invalid = validateElement.validateFromRoot(model, modelValue);
             if (Strings.isNotBlank(invalid)) {
-                invalidMessage = normalizeValidationMessage(invalid);
+                invalidMessage = normalizeInvalidMessage(invalid);
                 return invalidMessage;
             }
         }
@@ -229,7 +229,7 @@ public abstract class AComponentBinding<C extends JComponent, V> implements ICom
 
     protected abstract V fromComponentToModel();
 
-    private String normalizeValidationMessage(final String m) {
+    protected String normalizeInvalidMessage(final String m) {
         String message = bindingGroup.i18n(m.trim());
         final String title = surroundTitle(getTitle());
         message = message.replace(TITLE_PLACEHOLDER, title);
