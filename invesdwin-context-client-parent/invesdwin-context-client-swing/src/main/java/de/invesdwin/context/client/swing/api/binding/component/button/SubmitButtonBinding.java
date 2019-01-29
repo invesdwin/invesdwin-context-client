@@ -18,6 +18,7 @@ import de.invesdwin.context.client.swing.util.SubmitAllViewsHelper;
 import de.invesdwin.norva.beanpath.impl.clazz.BeanClassContainer;
 import de.invesdwin.norva.beanpath.spi.element.AActionBeanPathElement;
 import de.invesdwin.util.assertions.Assertions;
+import de.invesdwin.util.lang.Strings;
 
 @NotThreadSafe
 public class SubmitButtonBinding implements IComponentBinding {
@@ -181,7 +182,10 @@ public class SubmitButtonBinding implements IComponentBinding {
     @Override
     public void update() {
         final Object target = getTarget();
-        component.setText(bindingGroup.getTitle(element, target));
+        final String title = bindingGroup.getTitle(element, target);
+        if (!Strings.equals(title, component.getText())) {
+            component.setText(title);
+        }
         component.setEnabled(element.isEnabled(target));
         component.setVisible(element.isVisible(target));
         component.setToolTipText(bindingGroup.i18n(element.getTooltip(target)));

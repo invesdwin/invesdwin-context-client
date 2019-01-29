@@ -7,6 +7,8 @@ import java.text.ParseException;
 
 import javax.annotation.concurrent.Immutable;
 
+import com.jgoodies.common.base.Strings;
+
 import de.invesdwin.norva.beanpath.spi.element.IPropertyBeanPathElement;
 import de.invesdwin.util.error.UnknownArgumentException;
 import de.invesdwin.util.math.decimal.Decimal;
@@ -38,7 +40,7 @@ public class NumberToStringConverter implements IConverter<Object, String> {
 
     @Override
     public Object fromComponentToModel(final String value) {
-        if (value == null) {
+        if (Strings.isBlank(value)) {
             return null;
         }
         final String str = value;

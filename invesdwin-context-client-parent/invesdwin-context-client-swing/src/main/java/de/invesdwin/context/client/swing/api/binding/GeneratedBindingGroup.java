@@ -11,8 +11,11 @@ import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JMenuItem;
+import javax.swing.JSpinner;
 import javax.swing.JTable;
 import javax.swing.text.JTextComponent;
+
+import org.apache.commons.lang3.CharUtils;
 
 import de.invesdwin.context.client.swing.api.AModel;
 import de.invesdwin.context.client.swing.api.AView;
@@ -20,6 +23,7 @@ import de.invesdwin.context.client.swing.api.binding.component.CheckBoxBinding;
 import de.invesdwin.context.client.swing.api.binding.component.ComboBoxBinding;
 import de.invesdwin.context.client.swing.api.binding.component.IComponentBinding;
 import de.invesdwin.context.client.swing.api.binding.component.ListBinding;
+import de.invesdwin.context.client.swing.api.binding.component.SpinnerBinding;
 import de.invesdwin.context.client.swing.api.binding.component.TextComponentBinding;
 import de.invesdwin.context.client.swing.api.binding.component.button.ActionButtonBinding;
 import de.invesdwin.context.client.swing.api.binding.component.button.DefaultSubmitButtonExceptionHandler;
@@ -114,6 +118,8 @@ public final class GeneratedBindingGroup {
                 binding = bindJTable((JTable) c);
             } else if (c instanceof JCheckBox) {
                 binding = bindJCheckBox((JCheckBox) c);
+            } else if (c instanceof JSpinner) {
+                binding = bindJSpinner((JSpinner) c);
             } else {
                 throw UnknownArgumentException.newInstance(Class.class, c.getClass());
             }
@@ -123,6 +129,11 @@ public final class GeneratedBindingGroup {
         }
         bindingGroup.update();
         return bindingGroup;
+    }
+
+    private IComponentBinding bindJSpinner(final JSpinner component) {
+        final APropertyBeanPathElement element = getElement(component);
+        return new SpinnerBinding(component, element, bindingGroup);
     }
 
     protected IComponentBinding bindJCheckBox(final JCheckBox component) {
@@ -194,8 +205,9 @@ public final class GeneratedBindingGroup {
     private final class NamedComponentFinder extends AComponentFinder {
         @Override
         protected boolean matches(final Component component) {
-            return Strings.isNotBlank(component.getName()) && !"ScrollBar.button".equals(component.getName())
-                    && !"ComboBox.arrowButton".equals(component.getName());
+            //our bean paths start with lowercase letters, swing might use uppercase names which we want to ignore
+            return Strings.isNotBlank(component.getName())
+                    && !CharUtils.isAsciiAlphaUpper(component.getName().charAt(0));
         }
 
         @Override

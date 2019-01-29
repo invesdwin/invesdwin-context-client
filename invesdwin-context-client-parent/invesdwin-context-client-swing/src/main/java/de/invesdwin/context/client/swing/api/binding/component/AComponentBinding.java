@@ -2,11 +2,10 @@ package de.invesdwin.context.client.swing.api.binding.component;
 
 import java.awt.Component;
 import java.util.List;
+import java.util.Optional;
 
 import javax.annotation.concurrent.NotThreadSafe;
 import javax.swing.JComponent;
-
-import com.jgoodies.common.base.Strings;
 
 import de.invesdwin.context.client.swing.api.AModel;
 import de.invesdwin.context.client.swing.api.AView;
@@ -18,16 +17,21 @@ import de.invesdwin.norva.beanpath.spi.element.APropertyBeanPathElement;
 import de.invesdwin.norva.beanpath.spi.element.simple.modifier.IBeanPathPropertyModifier;
 import de.invesdwin.norva.beanpath.spi.element.utility.ValidateBeanPathElement;
 import de.invesdwin.util.lang.Objects;
+import de.invesdwin.util.lang.Strings;
 
 @NotThreadSafe
 public abstract class AComponentBinding<C extends JComponent, V> implements IComponentBinding {
+
+    public static final String TITLE = "title";
+    public static final String TITLE_PLACEHOLDER = "$(" + TITLE + ")";
+    public static final String TITLE_SURROUNDING = "'";
 
     protected final C component;
     protected final APropertyBeanPathElement element;
     protected final ValidateBeanPathElement validateElement;
     protected final BindingGroup bindingGroup;
     protected final Runnable eagerSubmitRunnable;
-    protected V prevModelValue;
+    protected Optional<V> prevModelValue;
     protected boolean submitted = false;
     protected String invalidMessage = null;
     protected boolean updating = false;
@@ -108,20 +112,26 @@ public abstract class AComponentBinding<C extends JComponent, V> implements ICom
             return;
         }
         final AModel model = bindingGroup.getModel();
-        prevModelValue = getModifier().getValueFromRoot(model);
-        final V newModelValue = fromComponentToModel();
-        if (!Objects.equals(prevModelValue, newModelValue)) {
-            try {
+        try {
+            prevModelValue = Optional.ofNullable(getModifier().getValueFromRoot(model));
+            final V newModelValue = fromComponentToModel();
+            if (!Objects.equals(prevModelValue.orElse(null), newModelValue)) {
+                if (validateElement != null) {
+                    final String invalid = validateElement.validateFromRoot(model, newModelValue);
+                    if (Strings.isNotBlank(invalid)) {
+                        invalidMessage = normalizeValidationMessage(invalid);
+                        return;
+                    }
+                }
                 getModifier().setValueFromRoot(model, newModelValue);
                 invalidMessage = null;
                 submitted = true;
-            } catch (final Throwable t) {
-                Err.process(t);
-                invalidMessage = getTitle() + ": " + t.toString();
+            } else {
                 submitted = false;
             }
-        } else {
-            prevModelValue = null;
+        } catch (final Throwable t) {
+            Err.process(t);
+            invalidMessage = normalizeValidationMessage(t.toString());
             submitted = false;
         }
     }
@@ -139,15 +149,11 @@ public abstract class AComponentBinding<C extends JComponent, V> implements ICom
             final Object modelValue = getModifier().getValueFromRoot(model);
             final String invalid = validateElement.validateFromRoot(model, modelValue);
             if (Strings.isNotBlank(invalid)) {
-                invalidMessage = getTitle() + ": " + invalid;
+                invalidMessage = normalizeValidationMessage(invalid);
                 return invalidMessage;
             }
         }
         return null;
-    }
-
-    protected String getTitle() {
-        return bindingGroup.getTitle(element, getTarget());
     }
 
     @Override
@@ -173,7 +179,6 @@ public abstract class AComponentBinding<C extends JComponent, V> implements ICom
         if (!submitted) {
             return;
         }
-        prevModelValue = null;
         submitted = false;
         invalidMessage = null;
     }
@@ -184,8 +189,7 @@ public abstract class AComponentBinding<C extends JComponent, V> implements ICom
             return;
         }
         final AModel model = bindingGroup.getModel();
-        getModifier().setValueFromRoot(model, prevModelValue);
-        prevModelValue = null;
+        getModifier().setValueFromRoot(model, prevModelValue.orElse(null));
         submitted = false;
         invalidMessage = null;
     }
@@ -196,7 +200,10 @@ public abstract class AComponentBinding<C extends JComponent, V> implements ICom
         try {
             final AModel model = bindingGroup.getModel();
             final V modelValue = getModifier().getValueFromRoot(model);
-            fromModelToComponent(modelValue);
+            if (prevModelValue == null || !Objects.equals(prevModelValue.orElse(null), modelValue)) {
+                fromModelToComponent(modelValue);
+                prevModelValue = Optional.ofNullable(modelValue);
+            }
 
             final Object target = getTarget();
             component.setEnabled(element.isEnabled(target));
@@ -221,5 +228,30 @@ public abstract class AComponentBinding<C extends JComponent, V> implements ICom
     protected abstract void fromModelToComponent(V modelValue);
 
     protected abstract V fromComponentToModel();
+
+    private String normalizeValidationMessage(final String m) {
+        String message = bindingGroup.i18n(m.trim());
+        final String title = surroundTitle(getTitle());
+        message = message.replace(TITLE_PLACEHOLDER, title);
+        if (!message.contains(title)) {
+            message = title + " " + message;
+        }
+        if (!Strings.endsWithAny(message, ".", "!", "?")) {
+            message += ".";
+        }
+        return message;
+    }
+
+    protected String getTitle() {
+        return bindingGroup.getTitle(element, getTarget());
+    }
+
+    public static String surroundTitle(final String title) {
+        if (Strings.isNotBlank(title)) {
+            return TITLE_SURROUNDING + title + TITLE_SURROUNDING;
+        } else {
+            return "";
+        }
+    }
 
 }

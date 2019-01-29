@@ -6,6 +6,8 @@ import java.util.Date;
 
 import javax.annotation.concurrent.Immutable;
 
+import com.jgoodies.common.base.Strings;
+
 import de.invesdwin.norva.beanpath.spi.element.IPropertyBeanPathElement;
 import de.invesdwin.util.error.UnknownArgumentException;
 import de.invesdwin.util.time.fdate.FDate;
@@ -48,7 +50,7 @@ public class DateToStringConverter implements IConverter<Object, String> {
 
     @Override
     public Object fromComponentToModel(final String value) {
-        if (value == null) {
+        if (Strings.isBlank(value)) {
             return null;
         }
         try {
