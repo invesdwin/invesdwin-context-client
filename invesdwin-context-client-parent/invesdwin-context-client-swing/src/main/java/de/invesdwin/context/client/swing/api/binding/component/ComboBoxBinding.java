@@ -45,16 +45,33 @@ public class ComboBoxBinding extends AComponentBinding<JComboBox, Object> {
         if (!Objects.equals(choices, prevChoices)) {
             component.removeAllItems();
             for (final Object choice : choices) {
-                component.addItem(choice);
+                final Object convertedChoice = i18nChoice(choice);
+                component.addItem(convertedChoice);
             }
             prevChoices = new ArrayList<>(choices);
         }
-        component.setSelectedItem(modelValue);
+        component.setSelectedItem(i18nChoice(modelValue));
+    }
+
+    private Object i18nChoice(final Object choice) {
+        final Object convertedChoice;
+        if (choice == null) {
+            convertedChoice = null;
+        } else if (choice instanceof Enum) {
+            final Enum<?> cChoice = (Enum<?>) choice;
+            final String id = choice.getClass().getSuperclass().getSimpleName() + "." + cChoice.name();
+            final String choiceStr = bindingGroup.i18n(id, choice.toString());
+            convertedChoice = choiceStr;
+        } else {
+            final String choiceStr = bindingGroup.i18n(choice.toString());
+            convertedChoice = choiceStr;
+        }
+        return convertedChoice;
     }
 
     @Override
     protected Object fromComponentToModel() {
-        return component.getSelectedItem();
+        return prevChoices.get(component.getSelectedIndex());
     }
 
     @Override
