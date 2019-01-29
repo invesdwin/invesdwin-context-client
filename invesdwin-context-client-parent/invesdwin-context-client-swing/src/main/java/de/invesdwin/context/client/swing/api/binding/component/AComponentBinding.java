@@ -255,19 +255,17 @@ public abstract class AComponentBinding<C extends JComponent, V> implements ICom
     }
 
     protected Object renderChoice(final Object choice) {
-        final Object convertedChoice;
         if (choice == null) {
-            convertedChoice = null;
+            return null;
         } else if (choice instanceof Enum) {
             final Enum<?> cChoice = (Enum<?>) choice;
             final String id = choice.getClass().getSuperclass().getSimpleName() + "." + cChoice.name();
             final String choiceStr = bindingGroup.i18n(id, choice.toString());
-            convertedChoice = choiceStr;
+            return choiceStr;
         } else {
             final String choiceStr = bindingGroup.i18n(choice.toString());
-            convertedChoice = choiceStr;
+            return choiceStr;
         }
-        return convertedChoice;
     }
 
 }

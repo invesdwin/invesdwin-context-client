@@ -45,8 +45,7 @@ public class ComboBoxBinding extends AComponentBinding<JComboBox, Object> {
         if (!Objects.equals(choices, prevChoices)) {
             component.removeAllItems();
             for (final Object choice : choices) {
-                final Object convertedChoice = renderChoice(choice);
-                component.addItem(convertedChoice);
+                component.addItem(renderChoice(choice));
             }
             prevChoices = new ArrayList<>(choices);
         }
