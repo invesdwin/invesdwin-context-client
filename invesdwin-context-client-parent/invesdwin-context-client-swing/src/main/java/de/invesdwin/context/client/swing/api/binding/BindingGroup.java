@@ -14,6 +14,7 @@ import com.jgoodies.common.base.Strings;
 import de.invesdwin.context.beans.validator.BeanValidator;
 import de.invesdwin.context.client.swing.api.AModel;
 import de.invesdwin.context.client.swing.api.AView;
+import de.invesdwin.context.client.swing.api.binding.component.AComponentBinding;
 import de.invesdwin.context.client.swing.api.binding.component.IComponentBinding;
 import de.invesdwin.context.client.swing.api.binding.component.button.ISubmitButtonExceptionHandler;
 import de.invesdwin.norva.beanpath.impl.clazz.BeanClassContext;
@@ -91,7 +92,7 @@ public class BindingGroup implements IComponentBinding {
                             bindings.get(i).setInvalidMessage(invalidMessage);
                         }
                     } else {
-                        invalidMessages.add(invalidMessage);
+                        invalidMessages.add(AComponentBinding.surroundTitle(beanPath) + " " + invalidMessage);
                     }
                 }
             }
