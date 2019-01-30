@@ -32,4 +32,12 @@ public interface IMenuBarConfig {
      */
     List<JMenuItem> getHelpMenuItems();
 
+    default boolean isAddAboutInHelpMenu() {
+        return true;
+    }
+
+    default boolean isAddQuitInFileMenu() {
+        return true;
+    }
+
 }

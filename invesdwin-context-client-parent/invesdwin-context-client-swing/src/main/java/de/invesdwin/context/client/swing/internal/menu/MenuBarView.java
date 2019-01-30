@@ -68,7 +68,8 @@ public class MenuBarView extends AView<MenuBarView, JMenuBar> {
             mnFile.add(new JSeparator());
         }
 
-        if (richApplication.getMainFrameCloseOperation() == MainFrameCloseOperation.SystemExit) {
+        if (richApplication.getMainFrameCloseOperation() == MainFrameCloseOperation.SystemExit
+                && menuBarConfig.isAddQuitInFileMenu()) {
             final JMenuItem mntmExit = new JMenuItem();
             mntmExit.setName("quit");
             mnFile.add(mntmExit);
@@ -89,10 +90,10 @@ public class MenuBarView extends AView<MenuBarView, JMenuBar> {
             mnEdit.add(c);
         }
 
-        final List<JMenuItem> bearbeitenMenuItems = menuBarConfig.getEditMenuItems();
-        if (bearbeitenMenuItems != null && bearbeitenMenuItems.size() > 0) {
+        final List<JMenuItem> editMenuItems = menuBarConfig.getEditMenuItems();
+        if (editMenuItems != null && editMenuItems.size() > 0) {
             mnEdit.add(new JSeparator());
-            for (final JMenuItem bearbeitenMenuItem : bearbeitenMenuItems) {
+            for (final JMenuItem bearbeitenMenuItem : editMenuItems) {
                 if (bearbeitenMenuItem == null) {
                     mnEdit.add(new JSeparator());
                 } else {
@@ -144,9 +145,11 @@ public class MenuBarView extends AView<MenuBarView, JMenuBar> {
             mnHelp.add(new JSeparator());
         }
 
-        final JMenuItem mntmAbout = new JMenuItem("abt");
-        mntmAbout.setName("about");
-        mnHelp.add(mntmAbout);
+        if (menuBarConfig.isAddAboutInHelpMenu()) {
+            final JMenuItem mntmAbout = new JMenuItem("abt");
+            mntmAbout.setName("about");
+            mnHelp.add(mntmAbout);
+        }
     }
 
     /*
@@ -154,7 +157,11 @@ public class MenuBarView extends AView<MenuBarView, JMenuBar> {
      */
     @Action
     public void quit() {
-        Application.getInstance().exit();
+        final int result = Dialogs.showConfirmDialog(getComponent(), getResourceMap().getString("quit.confirm.message"),
+                getResourceMap().getString("quit.text"), Dialogs.YES_NO_OPTION);
+        if (result == Dialogs.YES_OPTION) {
+            Application.getInstance().exit();
+        }
     }
 
     @Action
