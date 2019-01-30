@@ -40,7 +40,7 @@ public abstract class AComponentBinding<C extends JComponent, V> implements ICom
     protected Optional<V> prevModelValue;
     protected boolean submitted = false;
     protected String invalidMessage = null;
-    protected String visibleInvalidMessage = null;
+    protected String showingInvalidMessage = null;
     protected boolean updating = false;
 
     public AComponentBinding(final C component, final APropertyBeanPathElement element,
@@ -123,23 +123,23 @@ public abstract class AComponentBinding<C extends JComponent, V> implements ICom
         try {
             prevModelValue = Optional.ofNullable(getModifier().getValueFromRoot(model));
             final V newModelValue = fromComponentToModel();
-            if (visibleInvalidMessage != null || !Objects.equals(prevModelValue.orElse(null), newModelValue)) {
+            if (showingInvalidMessage != null || !Objects.equals(prevModelValue.orElse(null), newModelValue)) {
                 if (validateElement != null) {
                     final String invalid = validateElement.validateFromRoot(model, newModelValue);
                     if (Strings.isNotBlank(invalid)) {
-                        invalidMessage = normalizeInvalidMessage(invalid);
+                        setInvalidMessage(invalid);
                         return;
                     }
                 }
                 getModifier().setValueFromRoot(model, newModelValue);
-                invalidMessage = null;
+                setInvalidMessage(null);
                 submitted = true;
             } else {
                 submitted = false;
             }
         } catch (final Throwable t) {
             Err.process(t);
-            invalidMessage = normalizeInvalidMessage(t.toString());
+            setInvalidMessage(t.toString());
             submitted = false;
         }
     }
@@ -148,7 +148,7 @@ public abstract class AComponentBinding<C extends JComponent, V> implements ICom
 
     @Override
     public String validate() {
-        if (Strings.isNotBlank(invalidMessage)) {
+        if (invalidMessage != null) {
             return invalidMessage;
         }
         if (validateElement != null) {
@@ -157,7 +157,7 @@ public abstract class AComponentBinding<C extends JComponent, V> implements ICom
             final Object modelValue = getModifier().getValueFromRoot(model);
             final String invalid = validateElement.validateFromRoot(model, modelValue);
             if (Strings.isNotBlank(invalid)) {
-                invalidMessage = normalizeInvalidMessage(invalid);
+                setInvalidMessage(invalid);
                 return invalidMessage;
             }
         }
@@ -166,7 +166,11 @@ public abstract class AComponentBinding<C extends JComponent, V> implements ICom
 
     @Override
     public void setInvalidMessage(final String invalidMessage) {
-        this.invalidMessage = invalidMessage;
+        if (Strings.isNotBlank(invalidMessage)) {
+            this.invalidMessage = normalizeInvalidMessage(invalidMessage);
+        } else {
+            this.invalidMessage = null;
+        }
     }
 
     @Override
@@ -189,7 +193,7 @@ public abstract class AComponentBinding<C extends JComponent, V> implements ICom
         }
         submitted = false;
         invalidMessage = null;
-        visibleInvalidMessage = null;
+        showingInvalidMessage = null;
     }
 
     @Override
@@ -200,7 +204,7 @@ public abstract class AComponentBinding<C extends JComponent, V> implements ICom
         final AModel model = bindingGroup.getModel();
         getModifier().setValueFromRoot(model, prevModelValue.orElse(null));
         submitted = false;
-        visibleInvalidMessage = invalidMessage;
+        showingInvalidMessage = invalidMessage;
         invalidMessage = null;
     }
 
@@ -219,13 +223,13 @@ public abstract class AComponentBinding<C extends JComponent, V> implements ICom
             component.setEnabled(element.isEnabled(target));
             component.setVisible(element.isVisible(target));
 
-            if (visibleInvalidMessage != null) {
+            if (showingInvalidMessage != null) {
                 setBorder(INVALID_MESSAGE_BORDER);
                 String combinedTooltip = bindingGroup.i18n(element.getTooltip(target));
                 if (Strings.isNotBlank(combinedTooltip)) {
-                    combinedTooltip += "\n\n" + visibleInvalidMessage;
+                    combinedTooltip += "\n\n" + showingInvalidMessage;
                 } else {
-                    combinedTooltip = visibleInvalidMessage;
+                    combinedTooltip = showingInvalidMessage;
                 }
                 component.setToolTipText(combinedTooltip);
             } else {
