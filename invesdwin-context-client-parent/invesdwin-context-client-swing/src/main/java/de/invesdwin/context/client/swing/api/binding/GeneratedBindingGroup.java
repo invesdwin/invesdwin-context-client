@@ -191,17 +191,20 @@ public final class GeneratedBindingGroup {
     }
 
     protected IComponentBinding bindJButton(final JButton component) {
+        //prefer element over action for normal buttons
         final String beanPath = component.getName();
         final AActionBeanPathElement element = bindingGroup.getModelContext().getElementRegistry().getElement(beanPath);
         if (element != null) {
             return new SubmitButtonBinding(component, element, bindingGroup);
         }
+
         final Action action = view.getActionMap().get(beanPath);
         if (action != null) {
             return new ActionButtonBinding(component, action);
-        } else {
-            throw newElementNotFoundException(component, beanPath);
         }
+
+        //buttons need to be always bound
+        throw newElementNotFoundException(component, beanPath);
     }
 
     private final class NamedComponentFinder extends AComponentFinder {
