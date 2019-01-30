@@ -39,7 +39,7 @@ To build your own swing applications, the following tools are available:
 - **RichApplicationStub**: this class is the mock you can use in your unit tests. Just inject this bean into your test and access the fixture via `getFrameFixture` for controlling the test window.
 - **Dialogs**: this is a replacement for the `JOptionPane` class. It delegates to it but fixes the given dialogs to properly support html in the message and making anchor urls clickable.
 
-For some examples you can have a look at the test cases and implemented components/views inside the module itself. For more fundamental documentation it is best to seek the documentation that is directly provided by the included frameworks.
+For some examples you can have a look at the test cases and implemented components/views inside the module itself. For more fundamental documentation it is best to seek the documentation that is directly provided by the referenced frameworks.
 
 ## Wicket Modules
 
