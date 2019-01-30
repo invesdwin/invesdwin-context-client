@@ -1,7 +1,9 @@
 package de.invesdwin.context.client.swing.api.binding;
 
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.annotation.concurrent.NotThreadSafe;
 import javax.validation.ConstraintViolation;
@@ -76,23 +78,20 @@ public class BindingGroup implements IComponentBinding {
 
     @Override
     public String validate() {
-        String combinedInvalidMessage = null;
+        final Set<String> invalidMessages = new LinkedHashSet<>();
         final ConstraintViolationException exception = BeanValidator.getInstance().validate(getModel());
         if (exception != null) {
             for (final ConstraintViolation<?> violation : exception.getConstraintViolations()) {
                 final String beanPath = violation.getPropertyPath().toString();
                 final String invalidMessage = violation.getMessage();
-                if (beanPath_binding.containsKey(beanPath)) {
-                    final List<IComponentBinding> bindings = beanPath_binding.get(beanPath);
-                    for (int i = 0; i < bindings.size(); i++) {
-                        bindings.get(i).setInvalidMessage(invalidMessage);
-                    }
-                } else {
-                    if (combinedInvalidMessage != null) {
-                        combinedInvalidMessage += "\n";
-                        combinedInvalidMessage += invalidMessage;
+                if (Strings.isNotBlank(invalidMessage)) {
+                    if (beanPath_binding.containsKey(beanPath)) {
+                        final List<IComponentBinding> bindings = beanPath_binding.get(beanPath);
+                        for (int i = 0; i < bindings.size(); i++) {
+                            bindings.get(i).setInvalidMessage(invalidMessage);
+                        }
                     } else {
-                        combinedInvalidMessage = invalidMessage;
+                        invalidMessages.add(invalidMessage);
                     }
                 }
             }
@@ -101,12 +100,15 @@ public class BindingGroup implements IComponentBinding {
         for (int i = 0; i < array.length; i++) {
             final String invalidMessage = array[i].validate();
             if (Strings.isNotBlank(invalidMessage)) {
-                if (combinedInvalidMessage != null) {
-                    combinedInvalidMessage += "\n";
-                    combinedInvalidMessage += invalidMessage;
-                } else {
-                    combinedInvalidMessage = invalidMessage;
-                }
+                invalidMessages.add(invalidMessage);
+            }
+        }
+        String combinedInvalidMessage = null;
+        for (final String invalidMessage : invalidMessages) {
+            if (combinedInvalidMessage == null) {
+                combinedInvalidMessage = invalidMessage;
+            } else {
+                combinedInvalidMessage += "\n" + invalidMessage;
             }
         }
         this.invalidMessage = combinedInvalidMessage;
