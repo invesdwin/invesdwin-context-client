@@ -1,5 +1,7 @@
 package de.invesdwin.context.client.swing.internal.splash;
 
+import java.util.Locale;
+
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.NotThreadSafe;
 import javax.swing.UIManager;
@@ -7,6 +9,7 @@ import javax.swing.UnsupportedLookAndFeelException;
 
 import org.jdesktop.application.Application;
 import org.springframework.beans.factory.FactoryBean;
+import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.richclient.application.ProgressMonitoringBeanFactoryPostProcessor;
 import org.springframework.richclient.application.splash.MonitoringSplashScreen;
@@ -42,6 +45,7 @@ public final class ConfiguredSplashScreen implements SplashScreen, FactoryBean<C
                 final IRichApplication richApplication = MergedContext.getInstance().getBean(IRichApplication.class);
 
                 configureLookAndFeel(richApplication);
+                configureLocale(richApplication);
                 final ApplicationMessageSource messageSource = new ApplicationMessageSource();
 
                 splashScreen = new ProgressSplashScreen();
@@ -67,6 +71,14 @@ public final class ConfiguredSplashScreen implements SplashScreen, FactoryBean<C
                     }
                 }
             }
+        }
+    }
+
+    private void configureLocale(final IRichApplication richApplication) {
+        final Locale localeOverride = richApplication.getLocaleOverride();
+        if (localeOverride != null) {
+            Locale.setDefault(localeOverride);
+            LocaleContextHolder.setDefaultLocale(localeOverride);
         }
     }
 
