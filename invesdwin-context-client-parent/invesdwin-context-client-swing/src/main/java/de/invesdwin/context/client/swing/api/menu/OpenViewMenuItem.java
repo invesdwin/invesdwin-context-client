@@ -45,9 +45,9 @@ public class OpenViewMenuItem<V extends AView<?, ?>> extends JMenuItem {
 
     private void initialize() {
         final ResourceMap resourceMap = GuiService.get().getResourceMap(viewClass);
-        setText(resourceMap.getString(AView.VIEW_TITLE_KEY));
-        setToolTipText(resourceMap.getString(AView.VIEW_DESCRIPTION_KEY));
-        setIcon(resourceMap.getIcon(AView.VIEW_ICON_KEY));
+        setText(resourceMap.getString(AView.KEY_VIEW_TITLE));
+        setToolTipText(resourceMap.getString(AView.KEY_VIEW_DESCRIPTION));
+        setIcon(resourceMap.getIcon(AView.KEY_VIEW_ICON));
         setAction(new AbstractAction() {
             @Override
             public void actionPerformed(final ActionEvent e) {

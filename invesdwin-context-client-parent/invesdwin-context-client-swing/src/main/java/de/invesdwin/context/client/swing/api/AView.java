@@ -14,16 +14,16 @@ import de.invesdwin.context.client.swing.api.guiservice.ContentPane;
 import de.invesdwin.context.client.swing.util.AViewVisitor;
 import de.invesdwin.context.client.swing.util.ComponentStandardizer;
 import de.invesdwin.context.client.swing.util.Components;
-import de.invesdwin.context.client.swing.util.ViewAttachingContainerListener;
 import de.invesdwin.norva.beanpath.annotation.Hidden;
 import de.invesdwin.util.assertions.Assertions;
 
 @ThreadSafe
 public abstract class AView<M extends AModel, C extends JComponent> extends AModel {
 
-    public static final String VIEW_DESCRIPTION_KEY = "View.description";
-    public static final String VIEW_ICON_KEY = "View.icon";
-    public static final String VIEW_TITLE_KEY = "View.title";
+    public static final String CLIENTPROP_VIEW_INSTANCE = "VIEW_INSTANCE";
+    public static final String KEY_VIEW_DESCRIPTION = "View.description";
+    public static final String KEY_VIEW_ICON = "View.icon";
+    public static final String KEY_VIEW_TITLE = "View.title";
 
     private final Object modelLock = new Object();
     @GuardedBy("modelLock")
@@ -81,7 +81,7 @@ public abstract class AView<M extends AModel, C extends JComponent> extends AMod
                             final C component = initComponent();
                             new ComponentStandardizer(component).standardize();
                             getResourceMap().injectComponents(component);
-                            component.addContainerListener(new ViewAttachingContainerListener(AView.this));
+                            component.putClientProperty(CLIENTPROP_VIEW_INSTANCE, AView.this);
                             return component;
                         }
                     });
@@ -119,13 +119,13 @@ public abstract class AView<M extends AModel, C extends JComponent> extends AMod
 
     @Hidden(skip = true)
     public String getTitle() {
-        final String title = getResourceMap().getString(VIEW_TITLE_KEY);
+        final String title = getResourceMap().getString(KEY_VIEW_TITLE);
         return title;
     }
 
     @Hidden(skip = true)
     public Icon getIcon() {
-        return getResourceMap().getIcon(VIEW_ICON_KEY);
+        return getResourceMap().getIcon(KEY_VIEW_ICON);
     }
 
     /**
@@ -133,7 +133,7 @@ public abstract class AView<M extends AModel, C extends JComponent> extends AMod
      */
     @Hidden(skip = true)
     public String getDescription() {
-        return getResourceMap().getString(VIEW_DESCRIPTION_KEY);
+        return getResourceMap().getString(KEY_VIEW_DESCRIPTION);
     }
 
     @Hidden(skip = true)

@@ -2,10 +2,9 @@ package de.invesdwin.context.client.swing.util;
 
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Container;
-import java.awt.event.ContainerListener;
 
 import javax.annotation.concurrent.Immutable;
+import javax.swing.JComponent;
 import javax.swing.JTable;
 import javax.swing.table.TableColumn;
 
@@ -79,17 +78,10 @@ public final class Components {
     }
 
     public static AView<?, ?> getViewAt(final Component component) {
-        if (component instanceof Container) {
-            final Container container = (Container) component;
-            final ContainerListener[] containerListeners = container.getContainerListeners();
-            for (int i = 0; i < containerListeners.length; i++) {
-                final ContainerListener l = containerListeners[i];
-                if (l instanceof ViewAttachingContainerListener) {
-                    final ViewAttachingContainerListener viewL = (ViewAttachingContainerListener) l;
-                    final AView<?, ?> view = viewL.getView();
-                    return view;
-                }
-            }
+        if (component instanceof JComponent) {
+            final JComponent container = (JComponent) component;
+            final AView<?, ?> view = (AView<?, ?>) container.getClientProperty(AView.CLIENTPROP_VIEW_INSTANCE);
+            return view;
         }
         return null;
     }

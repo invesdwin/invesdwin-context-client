@@ -1,11 +1,14 @@
 package de.invesdwin.context.client.swing.api.binding.component;
 
+import java.awt.Color;
 import java.awt.Component;
 import java.util.List;
 import java.util.Optional;
 
 import javax.annotation.concurrent.NotThreadSafe;
+import javax.swing.BorderFactory;
 import javax.swing.JComponent;
+import javax.swing.border.Border;
 
 import de.invesdwin.context.client.swing.api.AModel;
 import de.invesdwin.context.client.swing.api.AView;
@@ -22,6 +25,8 @@ import de.invesdwin.util.lang.Strings;
 @NotThreadSafe
 public abstract class AComponentBinding<C extends JComponent, V> implements IComponentBinding {
 
+    public static final Border INVALID_MESSAGE_BORDER = BorderFactory.createLineBorder(Color.RED);
+
     public static final String TITLE = "title";
     public static final String TITLE_PLACEHOLDER = "$(" + TITLE + ")";
     public static final String TITLE_SURROUNDING = "'";
@@ -31,9 +36,11 @@ public abstract class AComponentBinding<C extends JComponent, V> implements ICom
     protected final ValidateBeanPathElement validateElement;
     protected final BindingGroup bindingGroup;
     protected final Runnable eagerSubmitRunnable;
+    protected final Border originalBorder;
     protected Optional<V> prevModelValue;
     protected boolean submitted = false;
     protected String invalidMessage = null;
+    protected String visibleInvalidMessage = null;
     protected boolean updating = false;
 
     public AComponentBinding(final C component, final APropertyBeanPathElement element,
@@ -43,6 +50,7 @@ public abstract class AComponentBinding<C extends JComponent, V> implements ICom
         this.validateElement = element.getValidateElement();
         this.bindingGroup = bindingGroup;
         this.eagerSubmitRunnable = newEagerSubmitRunnable();
+        this.originalBorder = component.getBorder();
     }
 
     private Runnable newEagerSubmitRunnable() {
@@ -115,7 +123,7 @@ public abstract class AComponentBinding<C extends JComponent, V> implements ICom
         try {
             prevModelValue = Optional.ofNullable(getModifier().getValueFromRoot(model));
             final V newModelValue = fromComponentToModel();
-            if (!Objects.equals(prevModelValue.orElse(null), newModelValue)) {
+            if (visibleInvalidMessage != null || !Objects.equals(prevModelValue.orElse(null), newModelValue)) {
                 if (validateElement != null) {
                     final String invalid = validateElement.validateFromRoot(model, newModelValue);
                     if (Strings.isNotBlank(invalid)) {
@@ -181,6 +189,7 @@ public abstract class AComponentBinding<C extends JComponent, V> implements ICom
         }
         submitted = false;
         invalidMessage = null;
+        visibleInvalidMessage = null;
     }
 
     @Override
@@ -191,6 +200,7 @@ public abstract class AComponentBinding<C extends JComponent, V> implements ICom
         final AModel model = bindingGroup.getModel();
         getModifier().setValueFromRoot(model, prevModelValue.orElse(null));
         submitted = false;
+        visibleInvalidMessage = invalidMessage;
         invalidMessage = null;
     }
 
@@ -208,10 +218,27 @@ public abstract class AComponentBinding<C extends JComponent, V> implements ICom
             final Object target = getTarget();
             component.setEnabled(element.isEnabled(target));
             component.setVisible(element.isVisible(target));
-            component.setToolTipText(bindingGroup.i18n(element.getTooltip(target)));
+
+            if (visibleInvalidMessage != null) {
+                setBorder(INVALID_MESSAGE_BORDER);
+                String combinedTooltip = bindingGroup.i18n(element.getTooltip(target));
+                if (Strings.isNotBlank(combinedTooltip)) {
+                    combinedTooltip += "\n\n" + visibleInvalidMessage;
+                } else {
+                    combinedTooltip = visibleInvalidMessage;
+                }
+                component.setToolTipText(combinedTooltip);
+            } else {
+                setBorder(originalBorder);
+                component.setToolTipText(bindingGroup.i18n(element.getTooltip(target)));
+            }
         } finally {
             updating = false;
         }
+    }
+
+    protected void setBorder(final Border border) {
+        component.setBorder(border);
     }
 
     protected Object getTarget() {
