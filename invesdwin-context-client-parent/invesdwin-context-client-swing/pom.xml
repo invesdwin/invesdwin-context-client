@@ -74,10 +74,6 @@
 		</dependency>
 		<dependency>
 			<groupId>com.jgoodies</groupId>
-			<artifactId>jgoodies-validation</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.jgoodies</groupId>
 			<artifactId>jgoodies-looks</artifactId>
 		</dependency>
 	</dependencies>
