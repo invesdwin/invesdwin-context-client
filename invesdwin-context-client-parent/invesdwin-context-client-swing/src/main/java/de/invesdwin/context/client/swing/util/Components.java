@@ -2,6 +2,7 @@ package de.invesdwin.context.client.swing.util;
 
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.MouseInfo;
 
 import javax.annotation.concurrent.Immutable;
 import javax.swing.JComponent;
@@ -84,6 +85,15 @@ public final class Components {
             return view;
         }
         return null;
+    }
+
+    public static boolean isMouseOverComponent(final Component component) {
+        return MouseInfo.getPointerInfo().getLocation().x >= component.getLocationOnScreen().x
+                && MouseInfo.getPointerInfo().getLocation().x <= component.getLocationOnScreen().x
+                        + component.getWidth()
+                && MouseInfo.getPointerInfo().getLocation().y >= component.getLocationOnScreen().y
+                && MouseInfo.getPointerInfo().getLocation().y <= component.getLocationOnScreen().y
+                        + component.getHeight();
     }
 
 }
