@@ -68,6 +68,10 @@
 			<artifactId>ikonli-ionicons4-pack</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>org.kordamp.ikonli</groupId>
+			<artifactId>ikonli-fontawesome5-pack</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>com.toedter</groupId>
 			<artifactId>jcalendar</artifactId>
 		</dependency>
