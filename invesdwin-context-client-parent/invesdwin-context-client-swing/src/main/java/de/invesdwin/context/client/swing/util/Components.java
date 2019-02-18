@@ -3,6 +3,7 @@ package de.invesdwin.context.client.swing.util;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.MouseInfo;
+import java.awt.Point;
 
 import javax.annotation.concurrent.Immutable;
 import javax.swing.JComponent;
@@ -88,12 +89,11 @@ public final class Components {
     }
 
     public static boolean isMouseOverComponent(final Component component) {
-        return MouseInfo.getPointerInfo().getLocation().x >= component.getLocationOnScreen().x
-                && MouseInfo.getPointerInfo().getLocation().x <= component.getLocationOnScreen().x
-                        + component.getWidth()
-                && MouseInfo.getPointerInfo().getLocation().y >= component.getLocationOnScreen().y
-                && MouseInfo.getPointerInfo().getLocation().y <= component.getLocationOnScreen().y
-                        + component.getHeight();
+        final Point mouseLocation = MouseInfo.getPointerInfo().getLocation();
+        final Point componentLocation = component.getLocationOnScreen();
+        return mouseLocation.x >= componentLocation.x && mouseLocation.x <= componentLocation.x + component.getWidth()
+                && mouseLocation.y >= componentLocation.y
+                && mouseLocation.y <= componentLocation.y + component.getHeight();
     }
 
 }
