@@ -9,7 +9,8 @@ import java.io.IOException;
 import javax.annotation.concurrent.NotThreadSafe;
 import javax.imageio.ImageIO;
 
-import org.kordamp.ikonli.fontawesome5.FontAwesomeSolid;
+import org.kordamp.ikonli.Ikon;
+import org.kordamp.ikonli.ionicons4.Ionicons4IOS;
 import org.kordamp.ikonli.swing.FontIcon;
 
 import de.invesdwin.context.ContextProperties;
@@ -22,13 +23,11 @@ public final class ExportIcons {
     //CHECKSTYLE:OFF
     public static void main(final String[] args) throws IOException {
         //CHECKSTYLE:ON
-        exportIcon(newIcon(FontAwesomeSolid.TRASH_ALT), "trash");
-        exportIcon(newIcon(FontAwesomeSolid.PLUS), "add");
-        exportIcon(newIcon(FontAwesomeSolid.TIMES), "delete");
+        exportIcon(newIcon(Ionicons4IOS.SETTINGS), "configure");
 
     }
 
-    private static FontIcon newIcon(final FontAwesomeSolid iconType) {
+    private static FontIcon newIcon(final Ikon iconType) {
         return FontIcon.of(iconType, 256, new Color(20, 20, 20));
     }
 
