@@ -52,33 +52,8 @@
 			<artifactId>jide-oss</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>org.freedesktop.tango</groupId>
-			<artifactId>tango-icon-theme</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.famfamfam</groupId>
-			<artifactId>silk</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.kordamp.ikonli</groupId>
-			<artifactId>ikonli-swing</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.kordamp.ikonli</groupId>
-			<artifactId>ikonli-ionicons4-pack</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.kordamp.ikonli</groupId>
-			<artifactId>ikonli-fontawesome5-pack</artifactId>
-		</dependency>
-		<dependency>
 			<groupId>com.toedter</groupId>
 			<artifactId>jcalendar</artifactId>
-		</dependency>
-
-		<dependency>
-			<groupId>org.assertj</groupId>
-			<artifactId>assertj-swing</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>com.jgoodies</groupId>
@@ -87,6 +62,37 @@
 		<dependency>
 			<groupId>com.jgoodies</groupId>
 			<artifactId>jgoodies-looks</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.assertj</groupId>
+			<artifactId>assertj-swing</artifactId>
+		</dependency>
+
+		<!-- these icon packs are mandatory because they are used by the framework -->
+		<dependency>
+			<groupId>org.freedesktop.tango</groupId>
+			<artifactId>tango-icon-theme</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.famfamfam</groupId>
+			<artifactId>silk</artifactId>
+		</dependency>
+
+		<!-- these icon packs are optional -->
+		<dependency>
+			<groupId>org.kordamp.ikonli</groupId>
+			<artifactId>ikonli-swing</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.kordamp.ikonli</groupId>
+			<artifactId>ikonli-ionicons4-pack</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.kordamp.ikonli</groupId>
+			<artifactId>ikonli-fontawesome5-pack</artifactId>
+			<scope>test</scope>
 		</dependency>
 	</dependencies>
 
