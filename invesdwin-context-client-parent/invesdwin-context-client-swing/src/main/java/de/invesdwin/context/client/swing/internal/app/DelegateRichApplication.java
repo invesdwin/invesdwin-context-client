@@ -21,12 +21,12 @@ import de.invesdwin.context.client.swing.GuiExceptionHandler;
 import de.invesdwin.context.client.swing.api.IRichApplication;
 import de.invesdwin.context.client.swing.api.MainFrameCloseOperation;
 import de.invesdwin.context.client.swing.internal.splash.ConfiguredSplashScreen;
-import de.invesdwin.context.client.swing.listener.WindowListenerSupport;
 import de.invesdwin.context.client.swing.util.ComponentStandardizer;
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.error.UnknownArgumentException;
 import de.invesdwin.util.lang.Reflections;
 import de.invesdwin.util.swing.Dialogs;
+import de.invesdwin.util.swing.listener.WindowListenerSupport;
 
 /**
  * This class initialized only rudimentary things, so that the EDT is not blocked for too long.
