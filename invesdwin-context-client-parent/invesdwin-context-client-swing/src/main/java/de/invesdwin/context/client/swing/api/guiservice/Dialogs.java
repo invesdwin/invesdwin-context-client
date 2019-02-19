@@ -1,22 +1,34 @@
 package de.invesdwin.context.client.swing.api.guiservice;
 
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Desktop;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 
 import javax.annotation.concurrent.Immutable;
 import javax.swing.Icon;
+import javax.swing.JColorChooser;
+import javax.swing.JDialog;
 import javax.swing.JEditorPane;
+import javax.swing.colorchooser.AbstractColorChooserPanel;
+import javax.swing.colorchooser.ColorChooserComponentFactory;
 import javax.swing.event.HyperlinkEvent;
 import javax.swing.event.HyperlinkEvent.EventType;
 import javax.swing.event.HyperlinkListener;
 
 import de.invesdwin.context.client.swing.util.ComponentStandardizer;
 import de.invesdwin.context.log.error.Err;
+import de.invesdwin.util.concurrent.MutableReference;
+import de.invesdwin.util.lang.Reflections;
 import de.invesdwin.util.lang.uri.URIs;
 
 @Immutable
 public final class Dialogs extends javax.swing.JOptionPane {
+
+    private static final String EYE_DROPPER_COLOR_CHOOSER_PANEL_CLASS = "org.jdesktop.swingx.color.EyeDropperColorChooserPanel";
 
     private Dialogs() {}
 
@@ -197,4 +209,39 @@ public final class Dialogs extends javax.swing.JOptionPane {
 
         return ret;
     }
+
+    public static Color showColorChooserDialog(final Component component, final String name, final Color initialColor,
+            final boolean colorTransparencySelectionEnabled) {
+        final JColorChooser pane = new JColorChooser(initialColor != null ? initialColor : Color.white);
+        pane.setChooserPanels(ColorChooserComponentFactory.getDefaultChooserPanels());
+        if (Reflections.classExists(EYE_DROPPER_COLOR_CHOOSER_PANEL_CLASS)) {
+            final Class<Object> eyeDropperPanelClass = Reflections.classForName(EYE_DROPPER_COLOR_CHOOSER_PANEL_CLASS);
+            try {
+                final AbstractColorChooserPanel eyeDropperPanel = (AbstractColorChooserPanel) eyeDropperPanelClass
+                        .getDeclaredConstructor()
+                        .newInstance();
+                pane.addChooserPanel(eyeDropperPanel);
+            } catch (InstantiationException | IllegalAccessException | IllegalArgumentException
+                    | InvocationTargetException | NoSuchMethodException | SecurityException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        for (final AbstractColorChooserPanel ccPanel : pane.getChooserPanels()) {
+            ccPanel.setColorTransparencySelectionEnabled(colorTransparencySelectionEnabled);
+        }
+        final MutableReference<Color> selectedColor = new MutableReference<>();
+        selectedColor.set(initialColor);
+        final JDialog dialog = JColorChooser.createDialog(component, name, true, pane, new ActionListener() {
+            @Override
+            public void actionPerformed(final ActionEvent actionEvent) {
+                final Color color = pane.getColor();
+                if (color != null) {
+                    selectedColor.set(color);
+                }
+            }
+        }, null);
+        dialog.setVisible(true);
+        return selectedColor.get();
+    }
+
 }
