@@ -9,7 +9,7 @@ import javax.swing.JToggleButton;
 import javax.swing.text.JTextComponent;
 
 import bibliothek.gui.dock.common.DefaultSingleCDockable;
-import de.invesdwin.context.client.swing.util.AComponentFinder;
+import de.invesdwin.util.swing.AComponentFinder;
 
 @NotThreadSafe
 public class DockableContent extends DefaultSingleCDockable {

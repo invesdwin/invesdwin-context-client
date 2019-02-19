@@ -20,10 +20,10 @@ import org.jdesktop.application.SingleFrameApplication;
 import de.invesdwin.context.client.swing.api.AView;
 import de.invesdwin.context.client.swing.api.IRichApplication;
 import de.invesdwin.context.client.swing.api.MainFrameCloseOperation;
-import de.invesdwin.context.client.swing.api.guiservice.Dialogs;
 import de.invesdwin.context.client.swing.api.menu.IMenuBarConfig;
 import de.invesdwin.context.client.swing.api.menu.MenuBarConfigSupport;
 import de.invesdwin.context.client.swing.api.menu.OpenViewMenuItem;
+import de.invesdwin.util.swing.Dialogs;
 
 @SuppressWarnings("serial")
 @ThreadSafe

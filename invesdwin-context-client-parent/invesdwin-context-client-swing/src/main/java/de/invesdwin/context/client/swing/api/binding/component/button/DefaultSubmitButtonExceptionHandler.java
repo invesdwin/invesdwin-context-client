@@ -5,10 +5,10 @@ import java.util.MissingResourceException;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
-import de.invesdwin.context.client.swing.api.guiservice.Dialogs;
 import de.invesdwin.context.client.swing.api.guiservice.GuiService;
 import de.invesdwin.norva.beanpath.spi.element.IBeanPathElement;
 import de.invesdwin.util.lang.Strings;
+import de.invesdwin.util.swing.Dialogs;
 
 @NotThreadSafe
 public class DefaultSubmitButtonExceptionHandler implements ISubmitButtonExceptionHandler {

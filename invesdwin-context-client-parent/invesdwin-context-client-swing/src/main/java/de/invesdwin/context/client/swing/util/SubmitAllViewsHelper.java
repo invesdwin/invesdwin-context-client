@@ -85,7 +85,7 @@ public class SubmitAllViewsHelper {
     }
 
     protected Component getRootComponent(final Component component) {
-        return Components.getRootComponentInDockable(component);
+        return Views.getRootComponentInDockable(component);
     }
 
 }

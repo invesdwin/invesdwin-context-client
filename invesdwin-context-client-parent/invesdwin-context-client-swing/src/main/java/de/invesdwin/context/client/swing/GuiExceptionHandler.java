@@ -13,7 +13,6 @@ import org.jdesktop.swingx.JXErrorPane;
 import org.jdesktop.swingx.error.ErrorInfo;
 
 import de.invesdwin.aspects.EventDispatchThreadUtil;
-import de.invesdwin.context.client.swing.api.guiservice.Dialogs;
 import de.invesdwin.context.client.swing.internal.DetailedErrorPaneUI;
 import de.invesdwin.context.log.error.Err;
 import de.invesdwin.context.log.error.LoggedRuntimeException;
@@ -21,6 +20,7 @@ import de.invesdwin.context.log.error.hook.ErrHookManager;
 import de.invesdwin.context.log.error.hook.IErrHook;
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.shutdown.ShutdownHookManager;
+import de.invesdwin.util.swing.Dialogs;
 
 @ThreadSafe
 public final class GuiExceptionHandler implements IErrHook {

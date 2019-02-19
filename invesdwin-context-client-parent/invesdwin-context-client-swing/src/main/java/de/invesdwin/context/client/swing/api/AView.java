@@ -13,7 +13,7 @@ import de.invesdwin.context.client.swing.api.binding.GeneratedBindingGroup;
 import de.invesdwin.context.client.swing.api.guiservice.ContentPane;
 import de.invesdwin.context.client.swing.util.AViewVisitor;
 import de.invesdwin.context.client.swing.util.ComponentStandardizer;
-import de.invesdwin.context.client.swing.util.Components;
+import de.invesdwin.context.client.swing.util.Views;
 import de.invesdwin.norva.beanpath.annotation.Hidden;
 import de.invesdwin.util.assertions.Assertions;
 
@@ -79,7 +79,7 @@ public abstract class AView<M extends AModel, C extends JComponent> extends AMod
                         @Override
                         public C call() throws Exception {
                             final C component = initComponent();
-                            new ComponentStandardizer(component).standardize();
+                            new ComponentStandardizer().visitAll(component);
                             getResourceMap().injectComponents(component);
                             component.putClientProperty(CLIENTPROP_VIEW_INSTANCE, AView.this);
                             return component;
@@ -156,7 +156,7 @@ public abstract class AView<M extends AModel, C extends JComponent> extends AMod
                     protected void visit(final AView<?, ?> view) {
                         view.onOpen();
                     }
-                }.visitAll(Components.getRootComponentInDockable(getComponent()));
+                }.visitAll(Views.getRootComponentInDockable(getComponent()));
             } else {
                 Assertions.assertThat(dockable).as("A View instance can only be made visible once.").isNull();
                 this.dockable = null;
@@ -165,7 +165,7 @@ public abstract class AView<M extends AModel, C extends JComponent> extends AMod
                     protected void visit(final AView<?, ?> view) {
                         view.onClose();
                     }
-                }.visitAll(Components.getRootComponentInDockable(getComponent()));
+                }.visitAll(Views.getRootComponentInDockable(getComponent()));
             }
         }
     }
@@ -185,14 +185,14 @@ public abstract class AView<M extends AModel, C extends JComponent> extends AMod
                     protected void visit(final AView<?, ?> view) {
                         view.onClose();
                     }
-                }.visitAll(Components.getRootComponentInDockable(existingView.getComponent()));
+                }.visitAll(Views.getRootComponentInDockable(existingView.getComponent()));
                 //open new view
                 new AViewVisitor() {
                     @Override
                     protected void visit(final AView<?, ?> view) {
                         view.onOpen();
                     }
-                }.visitAll(Components.getRootComponentInDockable(getComponent()));
+                }.visitAll(Views.getRootComponentInDockable(getComponent()));
             }
         }
     }

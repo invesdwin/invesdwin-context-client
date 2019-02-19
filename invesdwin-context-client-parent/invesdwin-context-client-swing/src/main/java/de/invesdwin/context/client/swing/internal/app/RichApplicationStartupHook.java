@@ -20,11 +20,11 @@ import de.invesdwin.context.beans.init.MergedContext;
 import de.invesdwin.context.client.swing.api.AView;
 import de.invesdwin.context.client.swing.api.IRichApplication;
 import de.invesdwin.context.client.swing.api.guiservice.ContentPane;
-import de.invesdwin.context.client.swing.api.guiservice.Dialogs;
 import de.invesdwin.context.client.swing.api.guiservice.SplashScreen;
 import de.invesdwin.context.client.swing.internal.content.ContentPaneView;
 import de.invesdwin.context.client.swing.internal.menu.MenuBarView;
 import de.invesdwin.context.client.swing.internal.status.StatusBarView;
+import de.invesdwin.util.swing.Dialogs;
 
 /**
  * This class handles the initilization and displaying of the MainFrame.

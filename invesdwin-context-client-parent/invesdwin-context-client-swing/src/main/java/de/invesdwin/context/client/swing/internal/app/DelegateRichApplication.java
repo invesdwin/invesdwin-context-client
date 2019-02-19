@@ -22,9 +22,11 @@ import de.invesdwin.context.client.swing.api.IRichApplication;
 import de.invesdwin.context.client.swing.api.MainFrameCloseOperation;
 import de.invesdwin.context.client.swing.internal.splash.ConfiguredSplashScreen;
 import de.invesdwin.context.client.swing.listener.WindowListenerSupport;
+import de.invesdwin.context.client.swing.util.ComponentStandardizer;
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.error.UnknownArgumentException;
 import de.invesdwin.util.lang.Reflections;
+import de.invesdwin.util.swing.Dialogs;
 
 /**
  * This class initialized only rudimentary things, so that the EDT is not blocked for too long.
@@ -35,6 +37,11 @@ import de.invesdwin.util.lang.Reflections;
 @NotThreadSafe
 @ProxyActions({ "select-all", "undo", "redo" })
 public class DelegateRichApplication extends SingleFrameApplication {
+
+    static {
+        Assertions.checkNull(Dialogs.getDialogVisitor());
+        Dialogs.setDialogVisitor(new ComponentStandardizer());
+    }
 
     public static final String KEY_APPLICATION_SPLASH = "Application.splash";
 

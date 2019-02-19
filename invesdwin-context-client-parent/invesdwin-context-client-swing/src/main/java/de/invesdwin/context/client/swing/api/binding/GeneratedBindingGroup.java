@@ -31,8 +31,7 @@ import de.invesdwin.context.client.swing.api.binding.component.button.SubmitButt
 import de.invesdwin.context.client.swing.api.binding.component.label.LabelBinding;
 import de.invesdwin.context.client.swing.api.binding.component.label.LabelTitleBinding;
 import de.invesdwin.context.client.swing.api.binding.component.table.TableBinding;
-import de.invesdwin.context.client.swing.util.AComponentFinder;
-import de.invesdwin.context.client.swing.util.Components;
+import de.invesdwin.context.client.swing.util.Views;
 import de.invesdwin.norva.beanpath.impl.clazz.BeanClassContainer;
 import de.invesdwin.norva.beanpath.impl.clazz.BeanClassContext;
 import de.invesdwin.norva.beanpath.impl.clazz.BeanClassProcessor;
@@ -47,6 +46,7 @@ import de.invesdwin.norva.beanpath.spi.element.utility.ContainerTitleBeanPathEle
 import de.invesdwin.util.collections.loadingcache.ALoadingCache;
 import de.invesdwin.util.error.UnknownArgumentException;
 import de.invesdwin.util.lang.Strings;
+import de.invesdwin.util.swing.AComponentFinder;
 
 @NotThreadSafe
 @SuppressWarnings("rawtypes")
@@ -221,7 +221,7 @@ public final class GeneratedBindingGroup {
         }
 
         private boolean isNotThisView(final Component rootComponent) {
-            final AView<?, ?> viewAt = Components.getViewAt(rootComponent);
+            final AView<?, ?> viewAt = Views.getViewAt(rootComponent);
             return viewAt != null && viewAt != view;
         }
     }
