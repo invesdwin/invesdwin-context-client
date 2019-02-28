@@ -78,7 +78,7 @@
 			<artifactId>silk</artifactId>
 		</dependency>
 
-		<!-- these icon packs are optional -->
+		<!-- these icon packs are optional, you also need java 11 for that -->
 		<dependency>
 			<groupId>org.kordamp.ikonli</groupId>
 			<artifactId>ikonli-swing</artifactId>
