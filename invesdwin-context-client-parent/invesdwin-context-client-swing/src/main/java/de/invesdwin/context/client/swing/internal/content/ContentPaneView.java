@@ -59,11 +59,10 @@ public class ContentPaneView extends AView<ContentPaneView, CContentArea> {
             public void keyPressed(final KeyEvent e) {}
         });
         final CGrid grid = new CGrid(control);
-        this.workingArea = control.createWorkingArea("workingArea");
+        this.workingArea = control.createWorkingArea(ContentPane.class.getSimpleName());
         grid.add(1, 1, 1, 1, workingArea);
         final CContentArea contentArea = control.getContentArea();
         contentArea.deploy(grid);
-
         control.getController().setTheme(new CustomTheme());
         return contentArea;
     }
@@ -106,5 +105,13 @@ public class ContentPaneView extends AView<ContentPaneView, CContentArea> {
 
     public boolean containsView(final AView<?, ?> view) {
         return getComponent().getControl().getSingleDockable(view.getDockableUniqueId()) != null;
+    }
+
+    public CControl getControl() {
+        return control;
+    }
+
+    public CWorkingArea getWorkingArea() {
+        return workingArea;
     }
 }
