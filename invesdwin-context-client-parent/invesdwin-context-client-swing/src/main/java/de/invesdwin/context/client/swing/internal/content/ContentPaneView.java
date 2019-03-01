@@ -28,7 +28,7 @@ import de.invesdwin.context.client.swing.api.guiservice.GuiService;
 public class ContentPaneView extends AView<ContentPaneView, CContentArea> {
 
     private CControl control;
-    private CWorkingArea workingArea;
+    private CWorkingArea defaultWorkingArea;
 
     @Override
     protected CContentArea initComponent() {
@@ -59,8 +59,8 @@ public class ContentPaneView extends AView<ContentPaneView, CContentArea> {
             public void keyPressed(final KeyEvent e) {}
         });
         final CGrid grid = new CGrid(control);
-        this.workingArea = control.createWorkingArea(ContentPane.class.getSimpleName());
-        grid.add(1, 1, 1, 1, workingArea);
+        this.defaultWorkingArea = control.createWorkingArea(ContentPane.class.getSimpleName());
+        grid.add(1, 1, 1, 1, defaultWorkingArea);
         final CContentArea contentArea = control.getContentArea();
         contentArea.deploy(grid);
         control.getController().setTheme(new CustomTheme());
@@ -75,7 +75,7 @@ public class ContentPaneView extends AView<ContentPaneView, CContentArea> {
         }
         final DockableContent dockable = new DockableContent(uniqueId, view.getIcon(), title, view.getComponent());
         dockable.setTitleToolTip(view.getDescription());
-        workingArea.show(dockable);
+        defaultWorkingArea.show(dockable);
         return dockable;
     }
 
@@ -111,7 +111,7 @@ public class ContentPaneView extends AView<ContentPaneView, CContentArea> {
         return control;
     }
 
-    public CWorkingArea getWorkingArea() {
-        return workingArea;
+    public CWorkingArea getDefaultWorkingArea() {
+        return defaultWorkingArea;
     }
 }
