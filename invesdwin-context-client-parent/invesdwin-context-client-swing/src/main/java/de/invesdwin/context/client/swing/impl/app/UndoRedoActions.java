@@ -1,4 +1,4 @@
-package de.invesdwin.context.client.swing.internal.app;
+package de.invesdwin.context.client.swing.impl.app;
 
 import java.awt.event.ActionEvent;
 import java.beans.PropertyChangeEvent;

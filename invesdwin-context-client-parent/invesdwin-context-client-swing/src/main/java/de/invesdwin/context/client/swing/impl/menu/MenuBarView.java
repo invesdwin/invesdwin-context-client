@@ -1,4 +1,4 @@
-package de.invesdwin.context.client.swing.internal.menu;
+package de.invesdwin.context.client.swing.impl.menu;
 
 import java.awt.Component;
 import java.util.List;

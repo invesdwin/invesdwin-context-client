@@ -1,4 +1,4 @@
-package de.invesdwin.context.client.swing.internal.app;
+package de.invesdwin.context.client.swing.impl.app;
 
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
@@ -20,7 +20,7 @@ import de.invesdwin.context.beans.init.PreMergedContext;
 import de.invesdwin.context.client.swing.GuiExceptionHandler;
 import de.invesdwin.context.client.swing.api.IRichApplication;
 import de.invesdwin.context.client.swing.api.MainFrameCloseOperation;
-import de.invesdwin.context.client.swing.internal.splash.ConfiguredSplashScreen;
+import de.invesdwin.context.client.swing.impl.splash.ConfiguredSplashScreen;
 import de.invesdwin.context.client.swing.util.ComponentStandardizer;
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.error.UnknownArgumentException;

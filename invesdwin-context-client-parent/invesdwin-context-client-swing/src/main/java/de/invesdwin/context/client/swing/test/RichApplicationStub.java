@@ -43,7 +43,7 @@ public class RichApplicationStub extends StubSupport {
 
     private void initFrameFixture() {
         if (frameFixture == null) {
-            Application.launch(de.invesdwin.context.client.swing.internal.app.DelegateRichApplication.class,
+            Application.launch(de.invesdwin.context.client.swing.impl.app.DelegateRichApplication.class,
                     new String[] {});
             try {
                 frameFixture = EventDispatchThreadUtil.invokeAndWait(new Callable<FrameFixture>() {

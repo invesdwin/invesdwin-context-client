@@ -1,4 +1,4 @@
-package de.invesdwin.context.client.swing.internal.status.message;
+package de.invesdwin.context.client.swing.impl.status.message;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -11,7 +11,7 @@ import javax.swing.JPanel;
 
 import de.invesdwin.aspects.EventDispatchThreadUtil;
 import de.invesdwin.context.client.swing.api.AView;
-import de.invesdwin.context.client.swing.internal.status.StatusBarView;
+import de.invesdwin.context.client.swing.impl.status.StatusBarView;
 import de.invesdwin.util.lang.Strings;
 import de.invesdwin.util.time.duration.Duration;
 

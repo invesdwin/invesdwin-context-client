@@ -13,7 +13,7 @@ public class StatusBar {
 
     @Inject
     @GuardedBy("this")
-    private de.invesdwin.context.client.swing.internal.status.message.StatusBarMessageView view;
+    private de.invesdwin.context.client.swing.impl.status.message.StatusBarMessageView view;
 
     public synchronized void message(final String message) {
         message(message, null);

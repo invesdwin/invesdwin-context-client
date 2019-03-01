@@ -7,7 +7,7 @@ import javax.inject.Inject;
 public class SplashScreen {
 
     @Inject
-    private de.invesdwin.context.client.swing.internal.splash.ConfiguredSplashScreen view;
+    private de.invesdwin.context.client.swing.impl.splash.ConfiguredSplashScreen view;
 
     public void splash(final boolean force) {
         view.splash(force);

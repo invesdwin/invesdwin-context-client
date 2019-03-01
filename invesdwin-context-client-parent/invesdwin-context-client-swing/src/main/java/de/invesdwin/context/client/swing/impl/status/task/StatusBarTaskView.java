@@ -1,4 +1,4 @@
-package de.invesdwin.context.client.swing.internal.status.task;
+package de.invesdwin.context.client.swing.impl.status.task;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -21,7 +21,7 @@ import org.springframework.beans.factory.InitializingBean;
 import de.invesdwin.aspects.annotation.EventDispatchThread;
 import de.invesdwin.aspects.annotation.EventDispatchThread.InvocationType;
 import de.invesdwin.context.client.swing.api.AView;
-import de.invesdwin.context.client.swing.internal.status.StatusBarView;
+import de.invesdwin.context.client.swing.impl.status.StatusBarView;
 import de.invesdwin.util.lang.Strings;
 
 @SuppressWarnings("serial")

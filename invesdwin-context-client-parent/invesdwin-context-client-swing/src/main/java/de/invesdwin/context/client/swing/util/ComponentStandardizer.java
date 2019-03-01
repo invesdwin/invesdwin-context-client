@@ -21,7 +21,7 @@ public class ComponentStandardizer extends AComponentVisitor {
     protected void visit(final Component component) {
         if (component instanceof JTextComponent) {
             final JTextComponent text = ((JTextComponent) component);
-            new de.invesdwin.context.client.swing.internal.menu.TextFieldPopupMenuView(text).getComponent();
+            new de.invesdwin.context.client.swing.impl.menu.TextFieldPopupMenuView(text).getComponent();
         }
     }
 }

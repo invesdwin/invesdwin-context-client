@@ -36,7 +36,7 @@ public class ContentPane {
     };
 
     @Inject
-    private de.invesdwin.context.client.swing.internal.content.ContentPaneView contentPaneView;
+    private de.invesdwin.context.client.swing.impl.content.ContentPaneView contentPaneView;
 
     /**
      * Throws an exception if the View has not been added yet.
@@ -92,7 +92,7 @@ public class ContentPane {
     }
 
     public void showMainFrame() {
-        final de.invesdwin.context.client.swing.internal.app.DelegateRichApplication application = (de.invesdwin.context.client.swing.internal.app.DelegateRichApplication) Application
+        final de.invesdwin.context.client.swing.impl.app.DelegateRichApplication application = (de.invesdwin.context.client.swing.impl.app.DelegateRichApplication) Application
                 .getInstance();
         application.showMainFrame();
     }

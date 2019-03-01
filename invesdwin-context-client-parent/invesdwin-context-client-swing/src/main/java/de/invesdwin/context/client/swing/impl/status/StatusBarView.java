@@ -1,4 +1,4 @@
-package de.invesdwin.context.client.swing.internal.status;
+package de.invesdwin.context.client.swing.impl.status;
 
 import javax.annotation.concurrent.ThreadSafe;
 import javax.inject.Inject;
@@ -9,8 +9,8 @@ import org.jdesktop.swingx.plaf.basic.BasicStatusBarUI;
 import com.jidesoft.swing.PartialEtchedBorder;
 
 import de.invesdwin.context.client.swing.api.AView;
-import de.invesdwin.context.client.swing.internal.status.message.StatusBarMessageView;
-import de.invesdwin.context.client.swing.internal.status.task.StatusBarTaskView;
+import de.invesdwin.context.client.swing.impl.status.message.StatusBarMessageView;
+import de.invesdwin.context.client.swing.impl.status.task.StatusBarTaskView;
 
 @SuppressWarnings("serial")
 @ThreadSafe

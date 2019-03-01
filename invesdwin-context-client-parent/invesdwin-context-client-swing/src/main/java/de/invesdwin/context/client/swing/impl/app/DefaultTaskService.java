@@ -1,4 +1,4 @@
-package de.invesdwin.context.client.swing.internal.app;
+package de.invesdwin.context.client.swing.impl.app;
 
 import javax.annotation.concurrent.ThreadSafe;
 import javax.inject.Named;

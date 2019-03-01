@@ -1,4 +1,4 @@
-package de.invesdwin.context.client.swing.internal;
+package de.invesdwin.context.client.swing.impl;
 
 import javax.annotation.concurrent.NotThreadSafe;
 import javax.swing.JComponent;

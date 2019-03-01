@@ -1,4 +1,4 @@
-package de.invesdwin.context.client.swing.internal.app;
+package de.invesdwin.context.client.swing.impl.app;
 
 import java.awt.Dimension;
 import java.awt.GraphicsConfiguration;
@@ -21,9 +21,9 @@ import de.invesdwin.context.client.swing.api.AView;
 import de.invesdwin.context.client.swing.api.IRichApplication;
 import de.invesdwin.context.client.swing.api.guiservice.ContentPane;
 import de.invesdwin.context.client.swing.api.guiservice.SplashScreen;
-import de.invesdwin.context.client.swing.internal.content.ContentPaneView;
-import de.invesdwin.context.client.swing.internal.menu.MenuBarView;
-import de.invesdwin.context.client.swing.internal.status.StatusBarView;
+import de.invesdwin.context.client.swing.impl.content.ContentPaneView;
+import de.invesdwin.context.client.swing.impl.menu.MenuBarView;
+import de.invesdwin.context.client.swing.impl.status.StatusBarView;
 import de.invesdwin.util.swing.Dialogs;
 
 /**

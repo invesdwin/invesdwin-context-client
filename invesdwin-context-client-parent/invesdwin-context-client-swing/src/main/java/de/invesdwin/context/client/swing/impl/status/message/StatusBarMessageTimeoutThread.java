@@ -1,4 +1,4 @@
-package de.invesdwin.context.client.swing.internal.status.message;
+package de.invesdwin.context.client.swing.impl.status.message;
 
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;

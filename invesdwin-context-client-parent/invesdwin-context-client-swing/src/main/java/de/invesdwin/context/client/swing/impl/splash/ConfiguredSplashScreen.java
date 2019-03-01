@@ -1,4 +1,4 @@
-package de.invesdwin.context.client.swing.internal.splash;
+package de.invesdwin.context.client.swing.impl.splash;
 
 import java.util.Locale;
 
@@ -20,7 +20,7 @@ import org.springframework.richclient.progress.ProgressMonitor;
 import de.invesdwin.aspects.EventDispatchThreadUtil;
 import de.invesdwin.context.beans.init.MergedContext;
 import de.invesdwin.context.client.swing.api.IRichApplication;
-import de.invesdwin.context.client.swing.internal.app.DelegateRichApplication;
+import de.invesdwin.context.client.swing.impl.app.DelegateRichApplication;
 import de.invesdwin.context.log.error.Err;
 import de.invesdwin.util.lang.Reflections;
 

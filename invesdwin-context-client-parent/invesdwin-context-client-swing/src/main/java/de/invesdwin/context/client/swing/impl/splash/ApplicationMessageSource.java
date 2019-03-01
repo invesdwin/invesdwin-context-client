@@ -1,4 +1,4 @@
-package de.invesdwin.context.client.swing.internal.splash;
+package de.invesdwin.context.client.swing.impl.splash;
 
 import java.beans.Beans;
 import java.util.Locale;
@@ -12,7 +12,7 @@ import org.springframework.context.MessageSource;
 import org.springframework.context.MessageSourceResolvable;
 import org.springframework.richclient.application.splash.AbstractSplashScreen;
 
-import de.invesdwin.context.client.swing.internal.app.DelegateResourceManager;
+import de.invesdwin.context.client.swing.impl.app.DelegateResourceManager;
 
 /**
  * So that Spring-RCP is happy and the splash title can be set comfortably.
