@@ -10,8 +10,8 @@ import javax.swing.JSeparator;
 import javax.swing.SwingUtilities;
 import javax.swing.text.JTextComponent;
 
-import de.invesdwin.context.client.swing.RichApplicationContextLocation;
 import de.invesdwin.context.client.swing.api.AView;
+import de.invesdwin.context.client.swing.impl.RichApplicationContextLocation;
 
 /**
  * To make the ProxyActions work properly, this PopupMenu cannot be set via textComponent.setComponentPopupMenu().

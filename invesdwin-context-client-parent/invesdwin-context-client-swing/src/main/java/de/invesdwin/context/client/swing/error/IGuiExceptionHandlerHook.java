@@ -1,4 +1,4 @@
-package de.invesdwin.context.client.swing;
+package de.invesdwin.context.client.swing.error;
 
 import de.invesdwin.context.log.error.LoggedRuntimeException;
 

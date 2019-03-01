@@ -1,10 +1,12 @@
-package de.invesdwin.context.client.swing;
+package de.invesdwin.context.client.swing.error;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
 import org.junit.Test;
 
 import de.invesdwin.aspects.EventDispatchThreadUtil;
+import de.invesdwin.context.client.swing.TestRichApplication;
+import de.invesdwin.context.client.swing.TestView;
 import de.invesdwin.context.log.error.Err;
 import de.invesdwin.context.test.ATest;
 import de.invesdwin.context.test.TestContext;

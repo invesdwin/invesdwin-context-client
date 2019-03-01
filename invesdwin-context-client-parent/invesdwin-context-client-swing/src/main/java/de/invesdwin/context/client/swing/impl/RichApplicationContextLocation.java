@@ -1,4 +1,4 @@
-package de.invesdwin.context.client.swing;
+package de.invesdwin.context.client.swing.impl;
 
 import java.util.Arrays;
 import java.util.List;
