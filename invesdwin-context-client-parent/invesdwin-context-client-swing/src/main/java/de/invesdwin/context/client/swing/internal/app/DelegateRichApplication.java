@@ -123,7 +123,7 @@ public class DelegateRichApplication extends SingleFrameApplication {
     }
 
     @EventDispatchThread(InvocationType.INVOKE_LATER_IF_NOT_IN_EDT)
-    public void showMainView() {
+    public void showMainFrame() {
         final FrameView frameView = getMainView();
         final JFrame frame = frameView.getFrame();
         frame.setVisible(true);

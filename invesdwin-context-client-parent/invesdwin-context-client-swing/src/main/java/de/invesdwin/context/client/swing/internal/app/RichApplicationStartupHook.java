@@ -96,7 +96,7 @@ public class RichApplicationStartupHook implements IStartupHook {
         }
 
         if (!delegate.isHideMainFrameOnStartup()) {
-            application.showMainView();
+            application.showMainFrame();
         }
     }
 

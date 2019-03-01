@@ -91,10 +91,10 @@ public class ContentPane {
         }
     }
 
-    public void showMainView() {
+    public void showMainFrame() {
         final de.invesdwin.context.client.swing.internal.app.DelegateRichApplication application = (de.invesdwin.context.client.swing.internal.app.DelegateRichApplication) Application
                 .getInstance();
-        application.showMainView();
+        application.showMainFrame();
     }
 
     @EventDispatchThread(InvocationType.INVOKE_AND_WAIT)
