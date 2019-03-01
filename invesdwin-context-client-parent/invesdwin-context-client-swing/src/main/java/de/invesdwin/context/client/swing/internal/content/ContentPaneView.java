@@ -1,10 +1,12 @@
 package de.invesdwin.context.client.swing.internal.content;
 
+import java.awt.BorderLayout;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
 import javax.annotation.concurrent.NotThreadSafe;
 import javax.swing.JFrame;
+import javax.swing.JPanel;
 
 import org.jdesktop.application.Application;
 import org.jdesktop.application.SingleFrameApplication;
@@ -25,13 +27,14 @@ import de.invesdwin.context.client.swing.api.guiservice.ContentPane;
 import de.invesdwin.context.client.swing.api.guiservice.GuiService;
 
 @NotThreadSafe
-public class ContentPaneView extends AView<ContentPaneView, CContentArea> {
+public class ContentPaneView extends AView<ContentPaneView, JPanel> {
 
     private CControl control;
     private CWorkingArea defaultWorkingArea;
+    private CContentArea contentArea;
 
     @Override
-    protected CContentArea initComponent() {
+    protected JPanel initComponent() {
         final SingleFrameApplication app = (SingleFrameApplication) Application.getInstance();
         final JFrame frame = app.getMainFrame();
         this.control = new CControl(frame);
@@ -61,10 +64,13 @@ public class ContentPaneView extends AView<ContentPaneView, CContentArea> {
         final CGrid grid = new CGrid(control);
         this.defaultWorkingArea = control.createWorkingArea(ContentPane.class.getSimpleName());
         grid.add(1, 1, 1, 1, defaultWorkingArea);
-        final CContentArea contentArea = control.getContentArea();
+        this.contentArea = control.getContentArea();
         contentArea.deploy(grid);
         control.getController().setTheme(new CustomTheme());
-        return contentArea;
+
+        final JPanel panel = new JPanel();
+        panel.add(BorderLayout.CENTER, contentArea);
+        return panel;
     }
 
     public DockableContent addView(final ContentPane contentPane, final AView<?, ?> view) {
@@ -104,11 +110,15 @@ public class ContentPaneView extends AView<ContentPaneView, CContentArea> {
     }
 
     public boolean containsView(final AView<?, ?> view) {
-        return getComponent().getControl().getSingleDockable(view.getDockableUniqueId()) != null;
+        return control.getSingleDockable(view.getDockableUniqueId()) != null;
     }
 
     public CControl getControl() {
         return control;
+    }
+
+    public CContentArea getContentArea() {
+        return contentArea;
     }
 
     public CWorkingArea getDefaultWorkingArea() {
