@@ -1,6 +1,6 @@
 package de.invesdwin.context.client.swing.impl.content;
 
-import java.awt.BorderLayout;
+import java.awt.GridLayout;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
@@ -69,7 +69,8 @@ public class ContentPaneView extends AView<ContentPaneView, JPanel> {
         control.getController().setTheme(new CustomTheme());
 
         final JPanel panel = new JPanel();
-        panel.add(BorderLayout.CENTER, contentArea);
+        panel.setLayout(new GridLayout());
+        panel.add(contentArea);
         return panel;
     }
 
