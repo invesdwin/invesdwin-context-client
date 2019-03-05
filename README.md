@@ -38,8 +38,8 @@ To build your own swing applications, the following tools are available:
 - **IGuiExceptionHandlerHook**: define a bean implementing this interface or register it manually via `GuiExceptionHandler.registerHook(hook)` to override the default error dialog that occurs for uncaught exceptions on a case by case decision.
 
 Add the module `invesdwin-context-client-swing-test` (preferable in test maven scope) to your dependencies to access:
-- **FrameFixtureStub**: writing automated tests on your swing frames, inject this bean into your test and access the fixture via `getFrameFixture()`. This testing stub will also register a validation that throws exceptions when `EventDispatchThread` violations occur in your code. These features are provided by [assertj-swing](http://joel-costigliola.github.io/assertj/assertj-swing.html).
-- **SwingExplorerStub**: annotate your test cases with `@SwingExplorerTest` to debug your swing frame component tree. This feature is provided by [SwingExplorer](https://github.com/swingexplorer/swingexplorer).
+- **FrameFixtureStub**: write automated tests for your swing frames by injecting this bean into your test and retrieving the fixture via `getFrameFixture()`. This testing stub will also register a validation hook that throws exceptions when `EventDispatchThread` violations occur in your code. These features are provided by [assertj-swing](http://joel-costigliola.github.io/assertj/assertj-swing.html).
+- **SwingExplorerStub**: annotate your test case with `@SwingExplorerTest` to debug your swing frame component tree with a helpful analyzer next to your frames. This feature is provided by [SwingExplorer](https://github.com/swingexplorer/swingexplorer).
 
 For some examples you can have a look at the test cases and implemented components/views inside the module itself. For more fundamental documentation it is best to seek the documentation that is directly provided by the referenced frameworks.
 
