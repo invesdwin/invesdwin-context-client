@@ -19,8 +19,6 @@ public class GuiService implements IGuiService {
     private StatusBar statusBar;
     @Inject
     private ContentPane contentPane;
-    @Inject
-    private SplashScreen splashScreen;
     @GuardedBy("none for performance")
     private TaskService taskService;
     @GuardedBy("none for performance")
@@ -33,11 +31,6 @@ public class GuiService implements IGuiService {
     @Override
     public StatusBar getStatusBar() {
         return statusBar;
-    }
-
-    @Override
-    public SplashScreen getSplashScreen() {
-        return splashScreen;
     }
 
     @Override

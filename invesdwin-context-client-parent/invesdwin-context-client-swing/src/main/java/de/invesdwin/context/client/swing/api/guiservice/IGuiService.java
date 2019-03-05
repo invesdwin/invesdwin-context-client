@@ -9,8 +9,6 @@ public interface IGuiService {
 
     StatusBar getStatusBar();
 
-    SplashScreen getSplashScreen();
-
     ContentPane getContentPane();
 
     TaskService getTaskService();

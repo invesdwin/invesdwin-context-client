@@ -19,6 +19,7 @@ import org.springframework.richclient.progress.ProgressMonitor;
 
 import de.invesdwin.aspects.EventDispatchThreadUtil;
 import de.invesdwin.context.beans.init.MergedContext;
+import de.invesdwin.context.beans.init.PreMergedContext;
 import de.invesdwin.context.client.swing.api.IRichApplication;
 import de.invesdwin.context.client.swing.impl.app.DelegateRichApplication;
 import de.invesdwin.context.log.error.Err;
@@ -43,7 +44,7 @@ public final class ConfiguredSplashScreen implements SplashScreen, FactoryBean<C
             if (splashScreen == null || force) {
                 dispose();
 
-                final IRichApplication richApplication = MergedContext.getInstance().getBean(IRichApplication.class);
+                final IRichApplication richApplication = PreMergedContext.getInstance().getBean(IRichApplication.class);
 
                 configureLookAndFeel(richApplication);
                 configureLocale(richApplication);

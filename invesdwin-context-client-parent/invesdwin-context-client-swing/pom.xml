@@ -17,9 +17,10 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
 				<configuration>
-					<includes>
-						<include>de/invesdwin/context/client/swing/ClientSwingTestSuite.java</include>
-					</includes>
+					<excludes>
+						<!-- disabled since automated tests are in separate test module -->
+						<exclude>**/*</exclude>
+					</excludes>
 				</configuration>
 			</plugin>
 		</plugins>
