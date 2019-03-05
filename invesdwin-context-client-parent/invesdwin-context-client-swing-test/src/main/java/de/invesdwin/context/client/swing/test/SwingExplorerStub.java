@@ -17,7 +17,7 @@ import de.invesdwin.util.shutdown.ShutdownHookManager;
 
 @Named
 @NotThreadSafe
-public class SwingExplorerTestStub extends StubSupport implements Closeable {
+public class SwingExplorerStub extends StubSupport implements Closeable {
 
     private static volatile org.swingexplorer.internal.SwingExplorerApplication lastInstance;
 

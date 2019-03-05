@@ -7,7 +7,7 @@ import org.assertj.swing.fixture.JTextComponentFixture;
 import org.junit.Test;
 
 import de.invesdwin.context.client.swing.api.guiservice.ContentPane;
-import de.invesdwin.context.client.swing.test.FrameFixtureTestStub;
+import de.invesdwin.context.client.swing.test.FrameFixtureStub;
 import de.invesdwin.context.test.ATest;
 import de.invesdwin.context.test.TestContext;
 import de.invesdwin.util.assertions.Assertions;
@@ -19,7 +19,7 @@ public class TestViewTest extends ATest {
     @Inject
     private ContentPane contentPane;
     @Inject
-    private FrameFixtureTestStub frameFixtureTestStub;
+    private FrameFixtureStub frameFixtureTestStub;
 
     @Override
     public void setUpContext(final TestContext ctx) throws Exception {

@@ -22,7 +22,7 @@ import de.invesdwin.context.test.stub.StubSupport;
 
 @ThreadSafe
 @Named
-public class FrameFixtureTestStub extends StubSupport {
+public class FrameFixtureStub extends StubSupport {
 
     private static volatile FrameFixture frameFixture;
 
