@@ -20,9 +20,9 @@ import de.invesdwin.context.beans.init.MergedContext;
 import de.invesdwin.context.client.swing.api.AView;
 import de.invesdwin.context.client.swing.api.IRichApplication;
 import de.invesdwin.context.client.swing.api.guiservice.ContentPane;
-import de.invesdwin.context.client.swing.api.guiservice.SplashScreen;
 import de.invesdwin.context.client.swing.impl.content.ContentPaneView;
 import de.invesdwin.context.client.swing.impl.menu.MenuBarView;
+import de.invesdwin.context.client.swing.impl.splash.ConfiguredSplashScreen;
 import de.invesdwin.context.client.swing.impl.status.StatusBarView;
 import de.invesdwin.util.swing.Dialogs;
 
@@ -47,8 +47,6 @@ public class RichApplicationStartupHook implements IStartupHook {
     private ContentPane contentPane;
     @Inject
     private StatusBarView statusBarView;
-    @Inject
-    private SplashScreen splashScreen;
 
     @Override
     @EventDispatchThread(InvocationType.INVOKE_LATER)
@@ -92,7 +90,7 @@ public class RichApplicationStartupHook implements IStartupHook {
         frameView.getFrame().pack();
         setInitialFrameSize(frameView);
         if (!delegate.isKeepSplashVisible()) {
-            splashScreen.dispose();
+            ConfiguredSplashScreen.INSTANCE.dispose();
         }
 
         if (!delegate.isHideMainFrameOnStartup()) {
