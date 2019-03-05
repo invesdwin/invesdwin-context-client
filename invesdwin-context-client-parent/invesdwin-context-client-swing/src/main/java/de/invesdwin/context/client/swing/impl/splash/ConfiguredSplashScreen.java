@@ -36,6 +36,7 @@ public final class ConfiguredSplashScreen implements SplashScreen, FactoryBean<C
     private static ProgressSplashScreen splashScreen;
     @GuardedBy("ConfiguredSplashScreen.class")
     private static boolean lookAndFeelConfigured = false;
+    protected boolean showing;
 
     private ConfiguredSplashScreen() {}
 
@@ -65,6 +66,7 @@ public final class ConfiguredSplashScreen implements SplashScreen, FactoryBean<C
                         EventDispatchThreadUtil.invokeAndWait(new Runnable() {
                             @Override
                             public void run() {
+                                showing = true;
                                 splashScreen.splash();
                             }
                         });
@@ -123,6 +125,7 @@ public final class ConfiguredSplashScreen implements SplashScreen, FactoryBean<C
                         @Override
                         public void run() {
                             splashScreen.dispose();
+                            showing = false;
                         }
                     });
                 } catch (final InterruptedException e) {
@@ -145,6 +148,10 @@ public final class ConfiguredSplashScreen implements SplashScreen, FactoryBean<C
     @Override
     public boolean isSingleton() {
         return true;
+    }
+
+    public boolean isShowing() {
+        return showing;
     }
 
 }
