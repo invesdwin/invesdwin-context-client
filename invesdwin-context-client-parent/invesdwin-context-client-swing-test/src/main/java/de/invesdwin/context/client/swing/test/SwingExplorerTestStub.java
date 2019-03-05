@@ -11,7 +11,6 @@ import de.invesdwin.context.beans.init.locations.PositionedResource;
 import de.invesdwin.context.test.ATest;
 import de.invesdwin.context.test.TestContext;
 import de.invesdwin.context.test.stub.StubSupport;
-import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.lang.Reflections;
 import de.invesdwin.util.shutdown.IShutdownHook;
 import de.invesdwin.util.shutdown.ShutdownHookManager;
@@ -46,14 +45,15 @@ public class SwingExplorerTestStub extends StubSupport implements Closeable {
     }
 
     public void open() throws InterruptedException {
-        Assertions.checkNull(lastInstance);
-        lastInstance = new org.swingexplorer.internal.SwingExplorerApplication();
-        EventDispatchThreadUtil.invokeAndWait(new Runnable() {
-            @Override
-            public void run() {
-                lastInstance.run();
-            }
-        });
+        if (lastInstance == null) {
+            lastInstance = new org.swingexplorer.internal.SwingExplorerApplication();
+            EventDispatchThreadUtil.invokeAndWait(new Runnable() {
+                @Override
+                public void run() {
+                    lastInstance.run();
+                }
+            });
+        }
     }
 
     @Override
