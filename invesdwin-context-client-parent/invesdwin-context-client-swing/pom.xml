@@ -63,10 +63,6 @@
 			<groupId>com.jgoodies</groupId>
 			<artifactId>jgoodies-looks</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>org.assertj</groupId>
-			<artifactId>assertj-swing</artifactId>
-		</dependency>
 
 		<!-- these icon packs are mandatory because they are used by the framework -->
 		<dependency>
@@ -76,23 +72,6 @@
 		<dependency>
 			<groupId>com.famfamfam</groupId>
 			<artifactId>silk</artifactId>
-		</dependency>
-
-		<!-- these icon packs are optional, you also need java 11 for that -->
-		<dependency>
-			<groupId>org.kordamp.ikonli</groupId>
-			<artifactId>ikonli-swing</artifactId>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.kordamp.ikonli</groupId>
-			<artifactId>ikonli-ionicons4-pack</artifactId>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.kordamp.ikonli</groupId>
-			<artifactId>ikonli-fontawesome5-pack</artifactId>
-			<scope>test</scope>
 		</dependency>
 	</dependencies>
 

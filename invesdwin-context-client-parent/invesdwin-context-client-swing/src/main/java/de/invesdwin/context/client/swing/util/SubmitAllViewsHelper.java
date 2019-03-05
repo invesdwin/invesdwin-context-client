@@ -1,7 +1,6 @@
 package de.invesdwin.context.client.swing.util;
 
 import java.awt.Component;
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.concurrent.Immutable;
@@ -12,8 +11,11 @@ import de.invesdwin.context.client.swing.api.AView;
 import de.invesdwin.context.client.swing.api.guiservice.GuiService;
 
 @Immutable
-public class SubmitAllViewsHelper {
+public class SubmitAllViewsHelper extends UpdateAllViewsHelper {
 
+    private static final SubmitAllViewsHelper DEFAULT_INSTANCE = new SubmitAllViewsHelper();
+
+    @Override
     public void process(final Component component) {
         final List<AView<?, ?>> views = getViews(component);
         submit(views);
@@ -65,27 +67,7 @@ public class SubmitAllViewsHelper {
         }
     }
 
-    protected void update(final List<AView<?, ?>> views) {
-        for (int i = 0; i < views.size(); i++) {
-            views.get(i).getBindingGroup().update();
-        }
+    public static void submit(final Component component) {
+        DEFAULT_INSTANCE.process(component);
     }
-
-    protected List<AView<?, ?>> getViews(final Component component) {
-        final List<AView<?, ?>> views = new ArrayList<>();
-        new AViewVisitor() {
-            @Override
-            protected void visit(final AView<?, ?> view) {
-                if (view.getBindingGroup() != null) {
-                    views.add(view);
-                }
-            }
-        }.visitAll(getRootComponent(component));
-        return views;
-    }
-
-    protected Component getRootComponent(final Component component) {
-        return Views.getRootComponentInDockable(component);
-    }
-
 }

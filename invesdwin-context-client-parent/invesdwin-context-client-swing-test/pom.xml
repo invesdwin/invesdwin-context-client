@@ -1,0 +1,67 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+                             http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>de.invesdwin</groupId>
+		<artifactId>invesdwin-context-client-parent</artifactId>
+		<version>1.0.0-SNAPSHOT</version>
+	</parent>
+	<artifactId>invesdwin-context-client-swing-test</artifactId>
+	<packaging>jar</packaging>
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<configuration>
+					<includes>
+						<include>de/invesdwin/context/client/swing/ClientSwingTestSuite.java</include>
+					</includes>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+	<dependencies>
+		<dependency>
+			<groupId>de.invesdwin</groupId>
+			<artifactId>invesdwin-context-client-swing</artifactId>
+		</dependency>
+		
+		<dependency>
+			<groupId>de.invesdwin</groupId>
+			<artifactId>invesdwin-context-client-swing</artifactId>
+			<type>test-jar</type>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.assertj</groupId>
+			<artifactId>assertj-swing</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.swingexplorer</groupId>
+			<artifactId>swingexplorer-core</artifactId>
+		</dependency>
+		
+		<!-- these icon packs are optional -->
+		<dependency>
+			<groupId>org.kordamp.ikonli</groupId>
+			<artifactId>ikonli-swing</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.kordamp.ikonli</groupId>
+			<artifactId>ikonli-ionicons4-pack</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.kordamp.ikonli</groupId>
+			<artifactId>ikonli-fontawesome5-pack</artifactId>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+
+</project>

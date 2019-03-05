@@ -68,11 +68,13 @@ public class SelectAllActionWorkaround implements IStartupHook {
         }
         if (newOwner instanceof JTextComponent) {
             final JTextComponent text = (JTextComponent) newOwner;
-            final Caret caret = text.getCaret();
-            final int dot = caret.getDot();
-            final int mark = caret.getMark();
-            final int length = text.getDocument().getLength();
-            selectAllAction.setEnabled(Math.abs(mark - dot) != length);
+            if (selectAllAction != null) {
+                final Caret caret = text.getCaret();
+                final int dot = caret.getDot();
+                final int mark = caret.getMark();
+                final int length = text.getDocument().getLength();
+                selectAllAction.setEnabled(Math.abs(mark - dot) != length);
+            }
             text.addCaretListener(caretListener);
         }
     }

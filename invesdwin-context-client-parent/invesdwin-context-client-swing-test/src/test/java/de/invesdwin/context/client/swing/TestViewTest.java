@@ -7,7 +7,7 @@ import org.assertj.swing.fixture.JTextComponentFixture;
 import org.junit.Test;
 
 import de.invesdwin.context.client.swing.api.guiservice.ContentPane;
-import de.invesdwin.context.client.swing.test.RichApplicationStub;
+import de.invesdwin.context.client.swing.test.FrameFixtureTestStub;
 import de.invesdwin.context.test.ATest;
 import de.invesdwin.context.test.TestContext;
 import de.invesdwin.util.assertions.Assertions;
@@ -19,7 +19,7 @@ public class TestViewTest extends ATest {
     @Inject
     private ContentPane contentPane;
     @Inject
-    private RichApplicationStub richApplicationStub;
+    private FrameFixtureTestStub frameFixtureTestStub;
 
     @Override
     public void setUpContext(final TestContext ctx) throws Exception {
@@ -36,17 +36,19 @@ public class TestViewTest extends ATest {
 
     @Test
     public void testBeanBinding() {
-        final JTextComponentFixture tf_name = richApplicationStub.getFrameFixture().textBox("name");
+        final JTextComponentFixture tf_name = frameFixtureTestStub.getFrameFixture().textBox("name");
         Assertions.assertThat(tf_name.text()).isEqualTo(view.getModel().getName());
         view.getModel().setName("newName");
+        frameFixtureTestStub.updateAllViews(view);
         Assertions.assertThat(tf_name.text()).isEqualTo(view.getModel().getName());
     }
 
     @Test
     public void testBeanBindingAgain() {
-        final JTextComponentFixture tf_name = richApplicationStub.getFrameFixture().textBox("name");
+        final JTextComponentFixture tf_name = frameFixtureTestStub.getFrameFixture().textBox("name");
         Assertions.assertThat(tf_name.text()).isEqualTo(view.getModel().getName());
         view.getModel().setName("newName2");
+        frameFixtureTestStub.updateAllViews(view);
         Assertions.assertThat(tf_name.text()).isEqualTo(view.getModel().getName());
     }
 

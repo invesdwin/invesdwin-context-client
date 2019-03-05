@@ -9,6 +9,6 @@ import org.junit.runners.Suite.SuiteClasses;
 @RunWith(Suite.class)
 @SuiteClasses({ TestViewTest.class })
 @Immutable
-public class RichclientTestSuite {
+public class ClientSwingTestSuite {
 
 }
