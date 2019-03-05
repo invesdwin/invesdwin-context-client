@@ -57,8 +57,10 @@ public class FrameFixtureTestStub extends StubSupport {
 
     @Override
     public void tearDown(final ATest test, final TestContext ctx) {
-        frameFixture.cleanUp();
-        frameFixture = null;
+        if (frameFixture != null) {
+            frameFixture.cleanUp();
+            frameFixture = null;
+        }
     }
 
     public FrameFixture getFrameFixture() {
