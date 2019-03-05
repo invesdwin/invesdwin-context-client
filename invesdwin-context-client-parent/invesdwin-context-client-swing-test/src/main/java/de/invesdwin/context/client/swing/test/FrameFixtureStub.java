@@ -1,6 +1,5 @@
 package de.invesdwin.context.client.swing.test;
 
-import java.awt.Component;
 import java.util.concurrent.Callable;
 
 import javax.annotation.concurrent.ThreadSafe;
@@ -12,10 +11,6 @@ import org.jdesktop.application.Application;
 import org.jdesktop.application.SingleFrameApplication;
 
 import de.invesdwin.aspects.EventDispatchThreadUtil;
-import de.invesdwin.aspects.annotation.EventDispatchThread;
-import de.invesdwin.aspects.annotation.EventDispatchThread.InvocationType;
-import de.invesdwin.context.client.swing.api.AView;
-import de.invesdwin.context.client.swing.util.Views;
 import de.invesdwin.context.test.ATest;
 import de.invesdwin.context.test.TestContext;
 import de.invesdwin.context.test.stub.StubSupport;
@@ -65,24 +60,6 @@ public class FrameFixtureStub extends StubSupport {
 
     public FrameFixture getFrameFixture() {
         return frameFixture;
-    }
-
-    public void updateAllViews(final AView<?, ?> view) {
-        updateAllViews(view.getComponent());
-    }
-
-    @EventDispatchThread(InvocationType.INVOKE_AND_WAIT)
-    public void updateAllViews(final Component component) {
-        Views.updateAllViews(component);
-    }
-
-    public void submitAllViews(final AView<?, ?> view) {
-        submitAllViews(view.getComponent());
-    }
-
-    @EventDispatchThread(InvocationType.INVOKE_AND_WAIT)
-    public void submitAllViews(final Component component) {
-        Views.submitAllViews(component);
     }
 
 }

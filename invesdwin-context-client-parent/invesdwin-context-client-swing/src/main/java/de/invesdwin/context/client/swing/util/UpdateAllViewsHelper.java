@@ -41,7 +41,7 @@ public class UpdateAllViewsHelper {
         return Views.getRootComponentInDockable(component);
     }
 
-    public static void update(final Component component) {
+    public static void updateAllViews(final Component component) {
         DEFAULT_INSTANCE.process(component);
     }
 

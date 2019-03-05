@@ -47,20 +47,4 @@ public final class Views {
         return parent;
     }
 
-    public static void updateAllViews(final AView<?, ?> view) {
-        updateAllViews(view.getComponent());
-    }
-
-    public static void updateAllViews(final Component component) {
-        UpdateAllViewsHelper.update(component);
-    }
-
-    public static void submitAllViews(final AView<?, ?> view) {
-        submitAllViews(view.getComponent());
-    }
-
-    public static void submitAllViews(final Component component) {
-        SubmitAllViewsHelper.submit(component);
-    }
-
 }

@@ -67,7 +67,7 @@ public class SubmitAllViewsHelper extends UpdateAllViewsHelper {
         }
     }
 
-    public static void submit(final Component component) {
+    public static void submitAllViews(final Component component) {
         DEFAULT_INSTANCE.process(component);
     }
 }

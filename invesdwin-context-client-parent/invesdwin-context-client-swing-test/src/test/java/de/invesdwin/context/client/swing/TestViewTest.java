@@ -7,6 +7,7 @@ import org.assertj.swing.fixture.JTextComponentFixture;
 import org.junit.Test;
 
 import de.invesdwin.context.client.swing.api.guiservice.ContentPane;
+import de.invesdwin.context.client.swing.api.guiservice.GuiService;
 import de.invesdwin.context.client.swing.test.FrameFixtureStub;
 import de.invesdwin.context.test.ATest;
 import de.invesdwin.context.test.TestContext;
@@ -39,7 +40,7 @@ public class TestViewTest extends ATest {
         final JTextComponentFixture tf_name = frameFixtureTestStub.getFrameFixture().textBox("name");
         Assertions.assertThat(tf_name.text()).isEqualTo(view.getModel().getName());
         view.getModel().setName("newName");
-        frameFixtureTestStub.updateAllViews(view);
+        GuiService.get().updateAllViews(view);
         Assertions.assertThat(tf_name.text()).isEqualTo(view.getModel().getName());
     }
 
@@ -48,7 +49,7 @@ public class TestViewTest extends ATest {
         final JTextComponentFixture tf_name = frameFixtureTestStub.getFrameFixture().textBox("name");
         Assertions.assertThat(tf_name.text()).isEqualTo(view.getModel().getName());
         view.getModel().setName("newName2");
-        frameFixtureTestStub.updateAllViews(view);
+        GuiService.get().updateAllViews(view);
         Assertions.assertThat(tf_name.text()).isEqualTo(view.getModel().getName());
     }
 
