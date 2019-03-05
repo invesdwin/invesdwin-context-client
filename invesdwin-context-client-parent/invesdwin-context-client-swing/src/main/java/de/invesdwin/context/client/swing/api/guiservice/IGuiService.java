@@ -29,12 +29,26 @@ public interface IGuiService {
 
     ResourceMap getResourceMap(Class<?> clazz);
 
+    /**
+     * Synchronize binding from models to components for all views in the tree.
+     */
     void updateAllViews(AView<?, ?> view);
 
+    /**
+     * Synchronize binding from models to components for all views in the tree.
+     */
     void updateAllViews(Component component);
 
+    /**
+     * Synchronize binding from components to models for all views in the tree. Run validations and update components
+     * again accordingly.
+     */
     void submitAllViews(AView<?, ?> view);
 
+    /**
+     * Synchronize binding from components to models for all views in the tree. Run validations and update components
+     * again accordingly.
+     */
     void submitAllViews(Component component);
 
 }

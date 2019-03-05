@@ -80,36 +80,22 @@ public class GuiService implements IGuiService {
         return applicationContext.getResourceMap(clazz);
     }
 
-    /**
-     * Synchronize models to components for all views in the tree.
-     */
     @Override
     public void updateAllViews(final AView<?, ?> view) {
         updateAllViews(view.getComponent());
     }
 
-    /**
-     * Synchronize models to components for all views in the tree.
-     */
     @Override
     @EventDispatchThread(InvocationType.INVOKE_AND_WAIT)
     public void updateAllViews(final Component component) {
         UpdateAllViewsHelper.updateAllViews(component);
     }
 
-    /**
-     * Synchronize components to models for all views in the tree. Run validations and update components again
-     * accordingly.
-     */
     @Override
     public void submitAllViews(final AView<?, ?> view) {
         submitAllViews(view.getComponent());
     }
 
-    /**
-     * Synchronize components to models for all views in the tree. Run validations and update components again
-     * accordingly.
-     */
     @Override
     @EventDispatchThread(InvocationType.INVOKE_AND_WAIT)
     public void submitAllViews(final Component component) {
