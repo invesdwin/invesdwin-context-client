@@ -12,7 +12,6 @@
 	<bean class="de.invesdwin.context.client.swing.impl.status.task.StatusBarTaskView" />
 	<bean class="de.invesdwin.context.client.swing.impl.status.StatusBarView" />
 	<bean class="de.invesdwin.context.client.swing.api.guiservice.ContentPane" />
-	<bean class="de.invesdwin.context.client.swing.api.guiservice.SplashScreen" />
 	<bean class="de.invesdwin.context.client.swing.api.guiservice.StatusBar" />
 	<bean class="de.invesdwin.context.client.swing.api.guiservice.GuiService" />
 
