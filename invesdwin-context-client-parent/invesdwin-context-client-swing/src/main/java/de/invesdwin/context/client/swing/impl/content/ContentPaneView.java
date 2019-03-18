@@ -25,6 +25,7 @@ import de.invesdwin.context.client.swing.api.AView;
 import de.invesdwin.context.client.swing.api.DockableContent;
 import de.invesdwin.context.client.swing.api.guiservice.ContentPane;
 import de.invesdwin.context.client.swing.api.guiservice.GuiService;
+import de.invesdwin.util.assertions.Assertions;
 
 @NotThreadSafe
 public class ContentPaneView extends AView<ContentPaneView, JPanel> {
@@ -75,6 +76,9 @@ public class ContentPaneView extends AView<ContentPaneView, JPanel> {
     }
 
     public DockableContent addView(final ContentPane contentPane, final AView<?, ?> view) {
+        if (control == null) {
+            Assertions.checkNotNull(getComponent());
+        }
         final String uniqueId = DockableContentIdGenerator.newId(view);
         String title = view.getTitle();
         if (title == null) {
@@ -87,6 +91,9 @@ public class ContentPaneView extends AView<ContentPaneView, JPanel> {
     }
 
     public boolean removeView(final AView<?, ?> view) {
+        if (control == null) {
+            return false;
+        }
         final boolean removed = control.removeDockable(view.getDockable());
         if (removed) {
             updateFocusViaHistory();
@@ -95,6 +102,9 @@ public class ContentPaneView extends AView<ContentPaneView, JPanel> {
     }
 
     private void updateFocusViaHistory() {
+        if (control == null) {
+            return;
+        }
         final Dockable[] history = control.getController().getFocusHistory().getHistory();
         for (int i = history.length - 1; i >= 0; i--) {
             final Dockable next = history[i];
@@ -111,6 +121,9 @@ public class ContentPaneView extends AView<ContentPaneView, JPanel> {
     }
 
     public boolean containsView(final AView<?, ?> view) {
+        if (control == null) {
+            return false;
+        }
         return control.getSingleDockable(view.getDockableUniqueId()) != null;
     }
 
