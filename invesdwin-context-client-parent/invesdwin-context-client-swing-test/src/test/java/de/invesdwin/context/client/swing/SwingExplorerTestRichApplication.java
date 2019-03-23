@@ -29,7 +29,7 @@ public class SwingExplorerTestRichApplication extends ATest {
     public void setUpOnce() throws Exception {
         super.setUpOnce();
         for (int i = 0; i < 10; i++) {
-            contentPane.showView(new TestModelView());
+            contentPane.showView(new TestModelView(new TestModel("Test Model " + i)));
         }
     }
 

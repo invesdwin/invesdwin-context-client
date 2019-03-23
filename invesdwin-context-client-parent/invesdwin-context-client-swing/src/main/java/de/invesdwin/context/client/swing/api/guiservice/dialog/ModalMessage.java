@@ -9,7 +9,7 @@ import de.invesdwin.norva.beanpath.annotation.ModalCloser;
 public class ModalMessage extends AModel {
 
     private final String title;
-    private final String message;
+    private String message;
 
     public ModalMessage(final String message) {
         this(null, message);
@@ -22,6 +22,10 @@ public class ModalMessage extends AModel {
 
     public String getMessage() {
         return message;
+    }
+
+    public void setMessage(final String message) {
+        this.message = message;
     }
 
     @ModalCloser

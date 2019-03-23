@@ -82,7 +82,7 @@ public class TextFieldPopupMenuView extends AView<TextFieldPopupMenuView, JPopup
             textComponent.addMouseListener(new MouseAdapter() {
                 @Override
                 public void mousePressed(final MouseEvent e) {
-                    if (SwingUtilities.isRightMouseButton(e)) {
+                    if (SwingUtilities.isRightMouseButton(e) && textComponent.isEnabled()) {
                         textComponent.requestFocusInWindow();
                         popupMenu.show(textComponent, e.getX(), e.getY());
                     }

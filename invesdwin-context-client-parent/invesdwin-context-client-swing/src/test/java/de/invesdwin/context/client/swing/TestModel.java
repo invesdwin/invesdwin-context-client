@@ -45,13 +45,20 @@ public class TestModel extends AModel {
     private final List<BeanRow> beanList = new ArrayList<BeanRow>();
     private final List<BeanRow> beanTable = new ArrayList<BeanRow>();
 
-    public TestModel() {
+    private final String title;
+
+    public TestModel(final String title) {
+        this.title = title;
         inner = new InnerTest();
         description += descriptionEnhancement;
         for (int i = 0; i < 10; i++) {
             beanList.add(new BeanRow(i));
             beanTable.add(new BeanRow(i + 10));
         }
+    }
+
+    public String title() {
+        return title;
     }
 
     public String getName() {
@@ -180,7 +187,7 @@ public class TestModel extends AModel {
 
         @ModalOpener
         public AView<?, ?> doNothing() {
-            return new ModalMessageView(new ModalMessage("Doing nothing!"));
+            return new ModalMessageView(new ModalMessage("Title", "Doing nothing!"));
         }
 
         //        public void doNothing() {

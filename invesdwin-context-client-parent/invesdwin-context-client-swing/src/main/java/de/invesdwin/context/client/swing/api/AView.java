@@ -15,6 +15,9 @@ import de.invesdwin.context.client.swing.util.AViewVisitor;
 import de.invesdwin.context.client.swing.util.ComponentStandardizer;
 import de.invesdwin.context.client.swing.util.Views;
 import de.invesdwin.norva.beanpath.annotation.Hidden;
+import de.invesdwin.norva.beanpath.impl.object.BeanObjectContext;
+import de.invesdwin.norva.beanpath.spi.element.IBeanPathElement;
+import de.invesdwin.norva.beanpath.spi.element.RootBeanPathElement;
 import de.invesdwin.util.assertions.Assertions;
 
 @ThreadSafe
@@ -113,12 +116,26 @@ public abstract class AView<M extends AModel, C extends JComponent> extends AMod
     @Hidden(skip = true)
     public BindingGroup getBindingGroup() {
         synchronized (componentLock) {
+            if (component == null) {
+                Assertions.checkNotNull(getComponent());
+            }
             return bindingGroup;
         }
     }
 
     @Hidden(skip = true)
     public String getTitle() {
+        //try norva title element if available
+        final BindingGroup bindingGroup = getBindingGroup();
+        if (bindingGroup != null) {
+            final BeanObjectContext modelContext = bindingGroup.getModelContext();
+            if (modelContext != null) {
+                final IBeanPathElement rootElement = modelContext.getElementRegistry()
+                        .getElement(RootBeanPathElement.ROOT_BEAN_PATH);
+                return bindingGroup.i18n(rootElement.getTitle(bindingGroup.getModel()));
+            }
+        }
+        //fallback to static title from properties file
         final String title = getResourceMap().getString(KEY_VIEW_TITLE);
         return title;
     }

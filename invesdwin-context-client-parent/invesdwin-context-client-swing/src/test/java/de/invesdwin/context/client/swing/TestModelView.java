@@ -20,7 +20,6 @@ import javax.swing.table.DefaultTableModel;
 
 import de.invesdwin.context.client.swing.api.AView;
 
-@SuppressWarnings("serial")
 @NotThreadSafe
 public class TestModelView extends AView<TestModel, JPanel> {
 
@@ -38,8 +37,8 @@ public class TestModelView extends AView<TestModel, JPanel> {
     private JScrollPane scrollPane_2;
     private JCheckBox chckbxCheckboxTest;
 
-    public TestModelView() {
-        super(new TestModel());
+    public TestModelView(final TestModel model) {
+        super(model);
     }
 
     /**

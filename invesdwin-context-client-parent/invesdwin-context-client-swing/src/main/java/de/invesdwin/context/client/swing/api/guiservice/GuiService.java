@@ -76,10 +76,10 @@ public class GuiService implements IGuiService {
     @Override
     public void showModalView(final AView<?, ?> view, final Dimension dimension) {
         final JDialog dialog = new JDialog(Dialogs.getRootFrame(), true);
-        dialog.setTitle(view.getTitle());
         final Container contentPane = dialog.getContentPane();
         contentPane.setLayout(new BorderLayout());
         contentPane.add(view.getComponent());
+        dialog.setTitle(view.getTitle());
         dialog.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
         dialogs.push(dialog);
         dialog.pack();
