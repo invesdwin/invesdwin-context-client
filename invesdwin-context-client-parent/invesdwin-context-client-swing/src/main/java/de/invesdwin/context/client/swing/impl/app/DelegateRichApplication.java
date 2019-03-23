@@ -1,5 +1,6 @@
 package de.invesdwin.context.client.swing.impl.app;
 
+import java.awt.Dimension;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 
@@ -126,6 +127,7 @@ public class DelegateRichApplication extends SingleFrameApplication {
     public void showMainFrame() {
         final FrameView frameView = getMainView();
         final JFrame frame = frameView.getFrame();
+        frame.setMinimumSize(new Dimension(100, 100));
         frame.setVisible(true);
         frame.repaint(); //to be safe we call a repaint so that the temporary grey area on the top is less likely to occur
         show(frameView);
