@@ -28,6 +28,8 @@ public final class JButtons {
     }
 
     public static void setDefaultSize(final JButton button) {
-        button.setPreferredSize(getDefaultSize(button));
+        final Dimension defaultSize = getDefaultSize(button);
+        button.setPreferredSize(defaultSize);
+        button.setMinimumSize(defaultSize);
     }
 }

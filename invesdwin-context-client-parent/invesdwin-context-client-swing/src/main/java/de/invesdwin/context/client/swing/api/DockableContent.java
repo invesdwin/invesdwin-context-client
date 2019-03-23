@@ -16,7 +16,7 @@ public class DockableContent extends DefaultSingleCDockable {
 
     private static final AComponentFinder DEFAULT_FOCUS_FINDER = new AComponentFinder() {
         @Override
-        protected boolean matches(final Component component) {
+        public boolean matches(final Component component) {
             if (component instanceof JComponent
                     && (component instanceof JTextComponent || component instanceof JToggleButton)) {
                 final JComponent cComponent = (JComponent) component;

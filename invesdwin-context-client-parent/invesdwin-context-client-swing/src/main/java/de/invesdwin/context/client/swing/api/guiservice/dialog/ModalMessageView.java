@@ -11,7 +11,6 @@ import com.jgoodies.forms.layout.FormSpecs;
 import com.jgoodies.forms.layout.RowSpec;
 
 import de.invesdwin.context.client.swing.api.AView;
-import de.invesdwin.context.client.swing.util.JButtons;
 import de.invesdwin.util.swing.Dialogs;
 
 @NotThreadSafe
@@ -46,14 +45,12 @@ public class ModalMessageView extends AView<ModalMessage, JPanel> {
                         RowSpec.decode("bottom:default"), }));
         final JButton btnOk = new JButton("ok");
         btnOk.setName("ok");
-        JButtons.setDefaultSize(btnOk);
         buttonPanel.add(btnOk, "3, 2");
 
         panel.add(buttonPanel, "3, 6, fill, top");
 
         final JButton btnCancel = new JButton("cancel");
         btnCancel.setName("cancel");
-        JButtons.setDefaultSize(btnCancel);
         buttonPanel.add(btnCancel, "5, 2");
 
         return panel;

@@ -15,8 +15,6 @@ import javax.swing.JSpinner;
 import javax.swing.JTable;
 import javax.swing.text.JTextComponent;
 
-import org.apache.commons.lang3.CharUtils;
-
 import de.invesdwin.context.client.swing.api.AModel;
 import de.invesdwin.context.client.swing.api.AView;
 import de.invesdwin.context.client.swing.api.binding.component.CheckBoxBinding;
@@ -31,6 +29,7 @@ import de.invesdwin.context.client.swing.api.binding.component.button.SubmitButt
 import de.invesdwin.context.client.swing.api.binding.component.label.LabelBinding;
 import de.invesdwin.context.client.swing.api.binding.component.label.LabelTitleBinding;
 import de.invesdwin.context.client.swing.api.binding.component.table.TableBinding;
+import de.invesdwin.context.client.swing.util.NamedModelComponentFinder;
 import de.invesdwin.context.client.swing.util.Views;
 import de.invesdwin.norva.beanpath.impl.object.BeanObjectContainer;
 import de.invesdwin.norva.beanpath.impl.object.BeanObjectContext;
@@ -45,7 +44,6 @@ import de.invesdwin.norva.beanpath.spi.element.IBeanPathElement;
 import de.invesdwin.norva.beanpath.spi.element.utility.ContainerTitleBeanPathElement;
 import de.invesdwin.util.error.UnknownArgumentException;
 import de.invesdwin.util.lang.Strings;
-import de.invesdwin.util.swing.AComponentFinder;
 
 @NotThreadSafe
 @SuppressWarnings("rawtypes")
@@ -97,7 +95,7 @@ public final class GeneratedBindingGroup {
 
         bindingGroup = new BindingGroup(view, context, newSubmitButtonExceptionHandler());
 
-        final List<Component> components = new NamedComponentFinder().findAll(rootComponent);
+        final List<Component> components = new NamedViewComponentFinder().findAll(rootComponent);
         for (final Component c : components) {
             final IComponentBinding binding;
             if (c instanceof JMenuItem) {
@@ -205,13 +203,7 @@ public final class GeneratedBindingGroup {
         throw newElementNotFoundException(component, beanPath);
     }
 
-    private final class NamedComponentFinder extends AComponentFinder {
-        @Override
-        protected boolean matches(final Component component) {
-            //our bean paths start with lowercase letters, swing might use uppercase names which we want to ignore
-            return Strings.isNotBlank(component.getName())
-                    && !CharUtils.isAsciiAlphaUpper(component.getName().charAt(0));
-        }
+    private final class NamedViewComponentFinder extends NamedModelComponentFinder {
 
         @Override
         protected boolean shouldIgnoreTree(final Component rootComponent) {
