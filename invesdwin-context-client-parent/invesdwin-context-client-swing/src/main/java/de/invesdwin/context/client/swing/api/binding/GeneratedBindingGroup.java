@@ -32,10 +32,10 @@ import de.invesdwin.context.client.swing.api.binding.component.label.LabelBindin
 import de.invesdwin.context.client.swing.api.binding.component.label.LabelTitleBinding;
 import de.invesdwin.context.client.swing.api.binding.component.table.TableBinding;
 import de.invesdwin.context.client.swing.util.Views;
-import de.invesdwin.norva.beanpath.impl.clazz.BeanClassContainer;
-import de.invesdwin.norva.beanpath.impl.clazz.BeanClassContext;
-import de.invesdwin.norva.beanpath.impl.clazz.BeanClassProcessor;
-import de.invesdwin.norva.beanpath.impl.clazz.BeanClassType;
+import de.invesdwin.norva.beanpath.impl.object.BeanObjectContainer;
+import de.invesdwin.norva.beanpath.impl.object.BeanObjectContext;
+import de.invesdwin.norva.beanpath.impl.object.BeanObjectProcessor;
+import de.invesdwin.norva.beanpath.impl.object.IRootObjectReference;
 import de.invesdwin.norva.beanpath.spi.BeanPathUtil;
 import de.invesdwin.norva.beanpath.spi.element.AActionBeanPathElement;
 import de.invesdwin.norva.beanpath.spi.element.AChoiceBeanPathElement;
@@ -43,7 +43,6 @@ import de.invesdwin.norva.beanpath.spi.element.APropertyBeanPathElement;
 import de.invesdwin.norva.beanpath.spi.element.ATableBeanPathElement;
 import de.invesdwin.norva.beanpath.spi.element.IBeanPathElement;
 import de.invesdwin.norva.beanpath.spi.element.utility.ContainerTitleBeanPathElement;
-import de.invesdwin.util.collections.loadingcache.ALoadingCache;
 import de.invesdwin.util.error.UnknownArgumentException;
 import de.invesdwin.util.lang.Strings;
 import de.invesdwin.util.swing.AComponentFinder;
@@ -54,14 +53,6 @@ public final class GeneratedBindingGroup {
 
     public static final String TITLE_NAME_SUFFIX = BeanPathUtil.BEAN_PATH_SEPARATOR
             + ContainerTitleBeanPathElement.CONTAINER_TITLE_BEAN_PATH_FRAGMENT;
-    private static final ALoadingCache<Class<?>, BeanClassContext> MODELCLASS_CONTEXT = new ALoadingCache<Class<?>, BeanClassContext>() {
-        @Override
-        protected BeanClassContext loadValue(final Class<?> key) {
-            final BeanClassContext context = new BeanClassContext(new BeanClassContainer(new BeanClassType(key)));
-            new BeanClassProcessor(context).process();
-            return context;
-        }
-    };
     protected BindingGroup bindingGroup;
 
     private final AView<?, ?> view;
@@ -96,8 +87,15 @@ public final class GeneratedBindingGroup {
     }
 
     public BindingGroup bind() {
-        bindingGroup = new BindingGroup(view, MODELCLASS_CONTEXT.get(view.getModel().getClass()),
-                newSubmitButtonExceptionHandler());
+        final BeanObjectContext context = new BeanObjectContext(new BeanObjectContainer(new IRootObjectReference() {
+            @Override
+            public Object getRootObject() {
+                return view.getModel();
+            }
+        }));
+        new BeanObjectProcessor(context).process();
+
+        bindingGroup = new BindingGroup(view, context, newSubmitButtonExceptionHandler());
 
         final List<Component> components = new NamedComponentFinder().findAll(rootComponent);
         for (final Component c : components) {

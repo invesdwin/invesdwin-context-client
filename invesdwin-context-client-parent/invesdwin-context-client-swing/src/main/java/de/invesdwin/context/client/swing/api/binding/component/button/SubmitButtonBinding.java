@@ -15,7 +15,7 @@ import de.invesdwin.context.client.swing.api.binding.BindingGroup;
 import de.invesdwin.context.client.swing.api.binding.component.IComponentBinding;
 import de.invesdwin.context.client.swing.api.guiservice.GuiService;
 import de.invesdwin.context.client.swing.util.SubmitAllViewsHelper;
-import de.invesdwin.norva.beanpath.impl.clazz.BeanClassContainer;
+import de.invesdwin.norva.beanpath.impl.object.BeanObjectContainer;
 import de.invesdwin.norva.beanpath.spi.element.AActionBeanPathElement;
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.lang.Strings;
@@ -192,10 +192,8 @@ public class SubmitButtonBinding implements IComponentBinding {
     }
 
     protected Object getTarget() {
-        final AModel model = bindingGroup.getModel();
-        final BeanClassContainer container = (BeanClassContainer) element.getContainer();
-        final Object target = container.getObjectFromRoot(model);
-        return target;
+        final BeanObjectContainer container = (BeanObjectContainer) element.getContainer();
+        return container.getObject();
     }
 
 }

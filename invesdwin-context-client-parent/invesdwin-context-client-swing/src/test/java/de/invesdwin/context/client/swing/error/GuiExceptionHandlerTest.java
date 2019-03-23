@@ -6,7 +6,7 @@ import org.junit.Test;
 
 import de.invesdwin.aspects.EventDispatchThreadUtil;
 import de.invesdwin.context.client.swing.TestRichApplication;
-import de.invesdwin.context.client.swing.TestView;
+import de.invesdwin.context.client.swing.TestModelView;
 import de.invesdwin.context.log.error.Err;
 import de.invesdwin.context.test.ATest;
 import de.invesdwin.context.test.TestContext;
@@ -18,7 +18,7 @@ public class GuiExceptionHandlerTest extends ATest {
     @Override
     public void setUpContext(final TestContext ctx) throws Exception {
         super.setUpContext(ctx);
-        ctx.activate(TestView.class);
+        ctx.activate(TestModelView.class);
         ctx.activate(TestRichApplication.class);
     }
 

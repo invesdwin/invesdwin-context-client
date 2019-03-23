@@ -14,11 +14,15 @@ import org.springframework.beans.factory.annotation.Configurable;
 import de.invesdwin.aspects.EventDispatchThreadUtil;
 import de.invesdwin.context.client.swing.api.AModel;
 import de.invesdwin.context.client.swing.api.ATask;
+import de.invesdwin.context.client.swing.api.AView;
 import de.invesdwin.context.client.swing.api.guiservice.GuiService;
 import de.invesdwin.context.client.swing.api.guiservice.StatusBar;
+import de.invesdwin.context.client.swing.api.guiservice.dialog.ModalMessage;
+import de.invesdwin.context.client.swing.api.guiservice.dialog.ModalMessageView;
 import de.invesdwin.context.log.error.Err;
 import de.invesdwin.norva.beanpath.annotation.ColumnOrder;
 import de.invesdwin.norva.beanpath.annotation.Eager;
+import de.invesdwin.norva.beanpath.annotation.ModalOpener;
 import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.swing.Dialogs;
 
@@ -35,14 +39,14 @@ public class TestModel extends AModel {
 
     private String name = "init1";
     private String description = "init2";
-    private InnerTestModel inner;
+    private InnerTest inner;
     private boolean checkboxTest = true;
 
     private final List<BeanRow> beanList = new ArrayList<BeanRow>();
     private final List<BeanRow> beanTable = new ArrayList<BeanRow>();
 
     public TestModel() {
-        inner = new InnerTestModel();
+        inner = new InnerTest();
         description += descriptionEnhancement;
         for (int i = 0; i < 10; i++) {
             beanList.add(new BeanRow(i));
@@ -66,11 +70,11 @@ public class TestModel extends AModel {
         this.description = description;
     }
 
-    public InnerTestModel getInner() {
+    public InnerTest getInner() {
         return inner;
     }
 
-    public void setInner(final InnerTestModel inner) {
+    public void setInner(final InnerTest inner) {
         this.inner = inner;
     }
 
@@ -162,7 +166,7 @@ public class TestModel extends AModel {
         }
     }
 
-    public static class InnerTestModel extends AModel {
+    public static class InnerTest extends AModel {
 
         private String notice = "notice";
 
@@ -174,9 +178,14 @@ public class TestModel extends AModel {
             this.notice = notice;
         }
 
-        public void doNothing() {
-            Dialogs.showMessageDialog(null, "Doing nothing!");
+        @ModalOpener
+        public AView<?, ?> doNothing() {
+            return new ModalMessageView(new ModalMessage("Doing nothing!"));
         }
+
+        //        public void doNothing() {
+        //            Dialogs.showMessageDialog(null, "Doing nothing!", null, Dialogs.PLAIN_MESSAGE);
+        //        }
 
     }
 

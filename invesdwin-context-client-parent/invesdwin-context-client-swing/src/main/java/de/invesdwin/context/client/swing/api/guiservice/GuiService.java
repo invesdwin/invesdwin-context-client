@@ -1,10 +1,15 @@
 package de.invesdwin.context.client.swing.api.guiservice;
 
+import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.Container;
+import java.awt.Dimension;
+import java.util.Stack;
 
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 import javax.inject.Inject;
+import javax.swing.JDialog;
 
 import org.jdesktop.application.Application;
 import org.jdesktop.application.ApplicationContext;
@@ -17,9 +22,12 @@ import de.invesdwin.context.beans.init.MergedContext;
 import de.invesdwin.context.client.swing.api.AView;
 import de.invesdwin.context.client.swing.util.SubmitAllViewsHelper;
 import de.invesdwin.context.client.swing.util.UpdateAllViewsHelper;
+import de.invesdwin.util.swing.Dialogs;
 
 @ThreadSafe
 public class GuiService implements IGuiService {
+
+    private final Stack<JDialog> dialogs = new Stack<JDialog>();
 
     @Inject
     private StatusBar statusBar;
@@ -54,17 +62,40 @@ public class GuiService implements IGuiService {
 
     @Override
     public void hideModalView() {
-        throw new UnsupportedOperationException("TODO");
+        if (isModalViewShowing()) {
+            final JDialog dialog = dialogs.pop();
+            dialog.dispose();
+        }
     }
 
     @Override
     public void showModalView(final AView<?, ?> view) {
-        throw new UnsupportedOperationException("TODO");
+        showModalView(view, null);
+    }
+
+    @Override
+    public void showModalView(final AView<?, ?> view, final Dimension dimension) {
+        final JDialog dialog = new JDialog(Dialogs.getRootFrame(), true);
+        dialog.setTitle(view.getTitle());
+        final Container contentPane = dialog.getContentPane();
+        contentPane.setLayout(new BorderLayout());
+        contentPane.add(view.getComponent());
+        dialog.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
+        dialogs.push(dialog);
+        dialog.pack();
+        if (dimension != null) {
+            dialog.setSize(dimension);
+        } else {
+            dialog.setSize(new Dimension(400, 200));
+        }
+        dialog.setMinimumSize(new Dimension(100, 100));
+        dialog.setLocationRelativeTo(Dialogs.getRootFrame());
+        dialog.setVisible(true);
     }
 
     @Override
     public boolean isModalViewShowing() {
-        return false;
+        return !dialogs.isEmpty();
     }
 
     @Override

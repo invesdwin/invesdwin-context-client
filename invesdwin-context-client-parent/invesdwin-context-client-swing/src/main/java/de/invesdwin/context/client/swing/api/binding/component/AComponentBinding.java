@@ -15,7 +15,7 @@ import de.invesdwin.context.client.swing.api.AView;
 import de.invesdwin.context.client.swing.api.binding.BindingGroup;
 import de.invesdwin.context.client.swing.util.SubmitAllViewsHelper;
 import de.invesdwin.context.log.error.Err;
-import de.invesdwin.norva.beanpath.impl.clazz.BeanClassContainer;
+import de.invesdwin.norva.beanpath.impl.object.BeanObjectContainer;
 import de.invesdwin.norva.beanpath.spi.element.APropertyBeanPathElement;
 import de.invesdwin.norva.beanpath.spi.element.simple.modifier.IBeanPathPropertyModifier;
 import de.invesdwin.norva.beanpath.spi.element.utility.ValidateBeanPathElement;
@@ -246,10 +246,8 @@ public abstract class AComponentBinding<C extends JComponent, V> implements ICom
     }
 
     protected Object getTarget() {
-        final AModel model = bindingGroup.getModel();
-        final BeanClassContainer container = (BeanClassContainer) element.getContainer();
-        final Object target = container.getObjectFromRoot(model);
-        return target;
+        final BeanObjectContainer container = (BeanObjectContainer) element.getContainer();
+        return container.getObject();
     }
 
     protected boolean isModifiable() {

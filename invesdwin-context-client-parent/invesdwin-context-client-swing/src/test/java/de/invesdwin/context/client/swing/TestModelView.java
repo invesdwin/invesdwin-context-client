@@ -22,7 +22,7 @@ import de.invesdwin.context.client.swing.api.AView;
 
 @SuppressWarnings("serial")
 @NotThreadSafe
-public class TestView extends AView<TestModel, JPanel> {
+public class TestModelView extends AView<TestModel, JPanel> {
 
     private JTextArea descriptionJTextArea;
     private JTextField nameJTextField;
@@ -38,7 +38,7 @@ public class TestView extends AView<TestModel, JPanel> {
     private JScrollPane scrollPane_2;
     private JCheckBox chckbxCheckboxTest;
 
-    public TestView() {
+    public TestModelView() {
         super(new TestModel());
     }
 
@@ -169,7 +169,7 @@ public class TestView extends AView<TestModel, JPanel> {
         nextJButton = new JButton("Next");
         nextJButton.setName("next");
         nextJButton.setIcon(new ImageIcon(
-                new ImageIcon(TestView.class.getResource("/de/invesdwin/context/client/swing/icon.png")).getImage()
+                new ImageIcon(TestModelView.class.getResource("/de/invesdwin/context/client/swing/icon.png")).getImage()
                         .getScaledInstance(24, 24, java.awt.Image.SCALE_SMOOTH)));
         final GridBagConstraints gbc_nextJButton = new GridBagConstraints();
         gbc_nextJButton.anchor = GridBagConstraints.EAST;

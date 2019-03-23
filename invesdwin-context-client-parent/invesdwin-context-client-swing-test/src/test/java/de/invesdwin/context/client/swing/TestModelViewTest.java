@@ -14,9 +14,9 @@ import de.invesdwin.context.test.TestContext;
 import de.invesdwin.util.assertions.Assertions;
 
 @ThreadSafe
-public class TestViewTest extends ATest {
+public class TestModelViewTest extends ATest {
 
-    private TestView view;
+    private TestModelView view;
     @Inject
     private ContentPane contentPane;
     @Inject
@@ -31,7 +31,7 @@ public class TestViewTest extends ATest {
     @Override
     public void setUp() throws Exception {
         super.setUp();
-        view = new TestView();
+        view = new TestModelView();
         contentPane.showView(view);
     }
 

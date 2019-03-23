@@ -1,6 +1,7 @@
 package de.invesdwin.context.client.swing.api.guiservice;
 
 import java.awt.Component;
+import java.awt.Dimension;
 
 import org.jdesktop.application.ResourceMap;
 import org.jdesktop.application.TaskService;
@@ -18,6 +19,8 @@ public interface IGuiService {
     void hideModalView();
 
     void showModalView(AView<?, ?> view);
+
+    void showModalView(AView<?, ?> view, Dimension dimension);
 
     /**
      * If a view is already visible with an equal model, then that is being replaced with the new view. Otherwise this

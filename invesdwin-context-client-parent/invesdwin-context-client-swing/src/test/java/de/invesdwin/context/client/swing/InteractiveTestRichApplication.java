@@ -27,7 +27,7 @@ public class InteractiveTestRichApplication extends ATest {
     public void setUpOnce() throws Exception {
         super.setUpOnce();
         for (int i = 0; i < 10; i++) {
-            contentPane.showView(new TestView());
+            contentPane.showView(new TestModelView());
         }
     }
 
