@@ -31,18 +31,6 @@
 	<!-- different profile by maven's command line argument -P -->
 	<profiles>
 		<profile>
-			<id>linux32</id>
-			<activation>
-				<os>
-					<family>linux</family>
-					<arch>i386</arch>
-				</os>
-			</activation>
-			<properties>
-				<swt.artifactId>org.eclipse.swt.gtk.linux.x86</swt.artifactId>
-			</properties>
-		</profile>
-		<profile>
 			<id>linux64</id>
 			<activation>
 				<os>
@@ -64,18 +52,6 @@
 			</activation>
 			<properties>
 				<swt.artifactId>org.eclipse.swt.cocoa.macosx.x86_64</swt.artifactId>
-			</properties>
-		</profile>
-		<profile>
-			<id>win32</id>
-			<activation>
-				<os>
-					<family>windows</family>
-					<arch>x86</arch>
-				</os>
-			</activation>
-			<properties>
-				<swt.artifactId>org.eclipse.swt.win32.win32.x86</swt.artifactId>
 			</properties>
 		</profile>
 		<profile>
