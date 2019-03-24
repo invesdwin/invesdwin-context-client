@@ -59,7 +59,8 @@
 		<version.vaadin>8.1.1</version.vaadin>
 		<version.vaadstrap>0.2.1</version.vaadstrap>
 
-		<version.swt>3.107.0</version.swt>
+		<version.swt>3.110.0</version.swt>
+		<version.jface>3.15.100</version.jface>
 		<version.swingexplorer>1.7.0</version.swingexplorer>
 	</properties>
 
@@ -268,6 +269,39 @@
 				<artifactId>miglayout-swing</artifactId>
 				<version>${version.miglayout}</version>
 			</dependency>
+			<dependency>
+				<groupId>com.miglayout</groupId>
+				<artifactId>miglayout-swt</artifactId>
+				<version>${version.miglayout}</version>
+				<exclusions>
+					<exclusion>
+						<groupId>org.eclipse.swt</groupId>
+						<artifactId>*</artifactId>
+					</exclusion>
+					<exclusion>
+						<groupId>org.eclipse.platform</groupId>
+						<artifactId>*</artifactId>
+					</exclusion>
+				</exclusions>
+			</dependency>
+				<dependency>
+				<groupId>com.miglayout</groupId>
+				<artifactId>miglayout-core</artifactId>
+				<version>${version.miglayout}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.eclipse.platform</groupId>
+				<artifactId>org.eclipse.jface</artifactId>
+				<version>${version.jface}</version>
+				<exclusions>
+					<exclusion>
+						<groupId>org.eclipse.platform</groupId>
+						<artifactId>org.eclipse.swt</artifactId>
+					</exclusion>
+				</exclusions>
+			</dependency>
+
+
 			<dependency>
 				<groupId>org.swingexplorer</groupId>
 				<artifactId>swingexplorer-core</artifactId>
