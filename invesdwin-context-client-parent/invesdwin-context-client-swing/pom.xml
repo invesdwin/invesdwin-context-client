@@ -64,6 +64,10 @@
 			<groupId>com.jgoodies</groupId>
 			<artifactId>jgoodies-looks</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>com.miglayout</groupId>
+			<artifactId>miglayout-swing</artifactId>
+		</dependency>
 
 		<!-- these icon packs are mandatory because they are used by the framework -->
 		<dependency>

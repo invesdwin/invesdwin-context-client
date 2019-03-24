@@ -54,6 +54,7 @@
 		<version.jcalendar>1.4</version.jcalendar>
 		<version.jgoodies-forms>1.9.0</version.jgoodies-forms>
 		<version.jgoodies-looks>2.7.0</version.jgoodies-looks>
+		<version.miglayout>5.2</version.miglayout>
 
 		<version.vaadin>8.1.1</version.vaadin>
 		<version.vaadstrap>0.2.1</version.vaadstrap>
@@ -261,6 +262,11 @@
 				<groupId>com.jgoodies</groupId>
 				<artifactId>jgoodies-looks</artifactId>
 				<version>${version.jgoodies-looks}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.miglayout</groupId>
+				<artifactId>miglayout-swing</artifactId>
+				<version>${version.miglayout}</version>
 			</dependency>
 			<dependency>
 				<groupId>org.swingexplorer</groupId>
