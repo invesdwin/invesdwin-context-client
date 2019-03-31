@@ -10,7 +10,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 import javax.imageio.ImageIO;
 
 import org.kordamp.ikonli.Ikon;
-import org.kordamp.ikonli.fontawesome5.FontAwesomeSolid;
+import org.kordamp.ikonli.ionicons4.Ionicons4Material;
 import org.kordamp.ikonli.swing.FontIcon;
 
 import de.invesdwin.context.ContextProperties;
@@ -23,7 +23,7 @@ public final class ExportIcons {
     //CHECKSTYLE:OFF
     public static void main(final String[] args) throws IOException {
         //CHECKSTYLE:ON
-        exportIcon(newIcon(FontAwesomeSolid.MAP_MARKER_ALT), "marker");
+        exportIcon(newIcon(Ionicons4Material.SEARCH), "search");
 
     }
 
