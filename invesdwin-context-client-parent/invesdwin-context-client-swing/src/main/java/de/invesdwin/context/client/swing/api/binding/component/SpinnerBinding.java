@@ -5,11 +5,15 @@ import javax.swing.JSpinner;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
+import com.jgoodies.common.base.Strings;
+
 import de.invesdwin.context.client.swing.api.binding.BindingGroup;
 import de.invesdwin.context.client.swing.api.binding.converter.IConverter;
 import de.invesdwin.context.client.swing.api.binding.converter.NumberToNumberConverter;
 import de.invesdwin.norva.beanpath.spi.element.APropertyBeanPathElement;
 import de.invesdwin.norva.beanpath.spi.element.simple.modifier.IBeanPathPropertyModifier;
+import de.invesdwin.util.swing.spinner.SpinnerDecimalEditor;
+import de.invesdwin.util.swing.spinner.SpinnerDecimalModel;
 
 @NotThreadSafe
 public class SpinnerBinding extends AComponentBinding<JSpinner, Object> {
@@ -19,6 +23,12 @@ public class SpinnerBinding extends AComponentBinding<JSpinner, Object> {
     public SpinnerBinding(final JSpinner component, final APropertyBeanPathElement element,
             final BindingGroup bindingGroup) {
         super(component, element, bindingGroup);
+        final String format = getFormat(element);
+        final SpinnerDecimalModel model = SpinnerDecimalModel
+                .newModel(element.getAccessor().getType().isIntegralNumber());
+        component.setModel(model);
+        final SpinnerDecimalEditor editor = new SpinnerDecimalEditor(component, format);
+        component.setEditor(editor);
         this.converter = newConverter();
         if (eagerSubmitRunnable != null) {
             component.getModel().addChangeListener(new ChangeListener() {
@@ -27,6 +37,18 @@ public class SpinnerBinding extends AComponentBinding<JSpinner, Object> {
                     eagerSubmitRunnable.run();
                 }
             });
+        }
+    }
+
+    protected String getFormat(final APropertyBeanPathElement element) {
+        final String format = element.getFormatString();
+        if (Strings.isNotBlank(format)) {
+            return format;
+        }
+        if (element.getAccessor().getType().isIntegralNumber()) {
+            return SpinnerDecimalEditor.INTEGER_FORMAT;
+        } else {
+            return SpinnerDecimalEditor.DECIMAL_FORMAT;
         }
     }
 
