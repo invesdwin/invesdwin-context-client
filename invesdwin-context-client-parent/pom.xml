@@ -224,6 +224,11 @@
 				<version>${version.ikonli}</version>
 			</dependency>
 			<dependency>
+				<groupId>org.kordamp.ikonli</groupId>
+				<artifactId>ikonli-materialdesign-pack</artifactId>
+				<version>${version.ikonli}</version>
+			</dependency>
+			<dependency>
 				<groupId>com.toedter</groupId>
 				<artifactId>jcalendar</artifactId>
 				<version>${version.jcalendar}</version>
@@ -284,7 +289,7 @@
 					</exclusion>
 				</exclusions>
 			</dependency>
-				<dependency>
+			<dependency>
 				<groupId>com.miglayout</groupId>
 				<artifactId>miglayout-core</artifactId>
 				<version>${version.miglayout}</version>

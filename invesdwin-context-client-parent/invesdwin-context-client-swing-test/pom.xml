@@ -30,7 +30,7 @@
 			<groupId>de.invesdwin</groupId>
 			<artifactId>invesdwin-context-client-swing</artifactId>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>de.invesdwin</groupId>
 			<artifactId>invesdwin-context-client-swing</artifactId>
@@ -45,7 +45,7 @@
 			<groupId>org.swingexplorer</groupId>
 			<artifactId>swingexplorer-core</artifactId>
 		</dependency>
-		
+
 		<!-- these icon packs are optional -->
 		<dependency>
 			<groupId>org.kordamp.ikonli</groupId>
@@ -60,6 +60,11 @@
 		<dependency>
 			<groupId>org.kordamp.ikonli</groupId>
 			<artifactId>ikonli-fontawesome5-pack</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.kordamp.ikonli</groupId>
+			<artifactId>ikonli-materialdesign-pack</artifactId>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
