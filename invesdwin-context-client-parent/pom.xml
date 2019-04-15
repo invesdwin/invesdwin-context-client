@@ -27,6 +27,8 @@
 		<module>invesdwin-context-client-wicket-examples-dist</module>
 		<module>invesdwin-context-client-wicket-maven-plugin</module>
 		<module>invesdwin-context-client-swing</module>
+		<module>invesdwin-context-client-swing-jfreechart</module>
+		<module>invesdwin-context-client-swing-rsyntaxtextarea</module>
 		<module>invesdwin-context-client-swing-test</module>
 		<module>invesdwin-context-client-wicket-saml</module>
 		<module>invesdwin-context-client-wicket-kerberos</module>
@@ -123,6 +125,16 @@
 				<artifactId>invesdwin-context-client-swing</artifactId>
 				<version>${version.invesdwin-context-client}</version>
 				<type>test-jar</type>
+			</dependency>
+			<dependency>
+				<groupId>de.invesdwin</groupId>
+				<artifactId>invesdwin-context-client-swing-jfreechart</artifactId>
+				<version>${version.invesdwin-context-client}</version>
+			</dependency>
+			<dependency>
+				<groupId>de.invesdwin</groupId>
+				<artifactId>invesdwin-context-client-swing-rsyntaxtextarea</artifactId>
+				<version>${version.invesdwin-context-client}</version>
 			</dependency>
 			<dependency>
 				<groupId>de.invesdwin</groupId>
