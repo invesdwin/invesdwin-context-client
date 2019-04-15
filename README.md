@@ -45,7 +45,7 @@ For some examples you can have a look at the test cases and implemented componen
 
 ### invesdwin-context-client-swing-jfreechart
 
-This module provides an `InteractiveChartPanel` which is a financial chart implementation that supports interaction via mouse and keyboard. It supports zooming, panning, series style configuration, moving series by drag and drop, hiding, removing and adding series. It allows the user to resize plots by drag and drop of the dividers of a `CombinedDomainXYPlot`. Also a crosshair is implemented with values being displayed in the legends of series. You can also export the chart as an image and to the clipboard. It offers many more features and an improved usability compared to the [JFreeChart](http://www.jfree.org/jfreechart/) included `ChartPanel`. You can even add providers for custom indicators and expressions.
+This module provides an `InteractiveChartPanel` which is a financial chart implementation that supports interaction via mouse and keyboard. It supports zooming, panning, series style configuration, moving series by drag and drop, hiding, removing and adding series. It allows the user to resize plots by drag and drop of the dividers of a `CombinedDomainXYPlot`. Also a crosshair is implemented with values being displayed in the legends of series. You can also export the chart as an image and to the clipboard. It offers many more features and an improved usability compared to the [JFreeChart](http://www.jfree.org/jfreechart/) included `ChartPanel`. You can even add providers for custom indicators and expressions which can then be added as customizable series to the chart by the user.
 
 ### invesdwin-context-client-swing-rsyntaxtextarea
 
