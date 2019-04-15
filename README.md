@@ -49,7 +49,7 @@ This module provides an `InteractiveChartPanel` which is a financial chart imple
 
 ### invesdwin-context-client-swing-rsyntaxtextarea
 
-This module provides integration for [RSyntaxTextArea](https://github.com/bobbylight/RSyntaxTextArea)
+This module provides integration for [RSyntaxTextArea](https://github.com/bobbylight/RSyntaxTextArea) with extensions to edit [invesdwin-util expressions](https://github.com/subes/invesdwin-util#expressionparser) in the most convenient way. Though this component can also be used for other programming languages.
 
 ## Wicket Modules
 
