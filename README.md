@@ -17,7 +17,7 @@ Dependency declaration:
 </dependency>
 ```
 
-## Swing Module
+## Swing Modules
 
 The `invesdwin-context-client-swing` module provides some tools to simplify building swing applications. The following frameworks have been integrated to function as a platform:
 - [DockingFrames](https://github.com/Benoker/DockingFrames): this is a lightweight docking framework that provides a flexible container for your views.
