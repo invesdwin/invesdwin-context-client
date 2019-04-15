@@ -43,6 +43,14 @@ Add the module `invesdwin-context-client-swing-test` (preferable in test maven s
 
 For some examples you can have a look at the test cases and implemented components/views inside the module itself. For more fundamental documentation it is best to seek the documentation that is directly provided by the referenced frameworks.
 
+### invesdwin-context-client-swing-jfreechart
+
+This module provides an `InteractiveChartPanel` which is a financial chart implementation that supports interaction via mouse and keyboard. It supports zooming, panning, series style configuration, moving series by drag and drop, hiding, removing and adding series. It allows the user to resize plots by drag and drop of the dividers of a `CombinedDomainXYPlot`. Also a crosshair is implemented with values being displayed in the legends of series. You can also export the chart as an image and to the clipboard. It offers many more features and an improved usability compared to the [JFreeChart](http://www.jfree.org/jfreechart/) included `ChartPanel`.
+
+### invesdwin-context-client-swing-rsyntaxtextarea
+
+This module provides integration for [RSyntaxTextArea](https://github.com/bobbylight/RSyntaxTextArea)
+
 ## Wicket Modules
 
 The `invesdwin-context-client-wicket` module provides support for writing [wicket](https://wicket.apache.org/) web applications with [invesdwin-nowicket](https://github.com/subes/invesdwin-nowicket). For fundamental documentation, please have a look at the respective documentation provided by the frameworks themselves. The module here provides the following simplifications:
