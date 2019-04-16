@@ -37,7 +37,6 @@ public class SettingsDialog extends JDialog {
             public void windowClosing(final WindowEvent e) {
                 close();
             }
-
         });
 
         getRootPane().registerKeyboardAction(new ActionListener() {

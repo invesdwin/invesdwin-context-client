@@ -80,7 +80,7 @@ public class ExpressionSettingsPanel extends JPanel implements ISettingsPanelAct
         });
         //set tooltip but use default icon
         validateExpression(null, getExpressionValue());
-        layout.tf_expression.setIcon(ICON_EXPRESSION);
+        layout.lbl_expression.setIcon(ICON_EXPRESSION);
     }
 
     private void validateExpression(final String fromExpression, final String toExpression) {
@@ -88,17 +88,17 @@ public class ExpressionSettingsPanel extends JPanel implements ISettingsPanelAct
             try {
                 final IExpression parsedExpression = dataset.getExpressionSeriesProvider()
                         .parseExpression(toExpression);
-                layout.tf_expression.setIcon(ICON_EXPRESSION_PENDING_VALID);
-                layout.tf_expression.setToolTipText("<html><b>Validated:</b><br><pre>  "
+                layout.lbl_expression.setIcon(ICON_EXPRESSION_PENDING_VALID);
+                layout.lbl_expression.setToolTipText("<html><b>Valid:</b><br><pre>  "
                         + HtmlUtils.htmlEscape(parsedExpression.toString().replace("\n", "\n  ")) + "</pre>");
             } catch (final Throwable t) {
-                layout.tf_expression.setIcon(ICON_EXPRESSION_PENDING_INVALID);
-                layout.tf_expression.setToolTipText("<html><b>Error:</b><br><pre>  "
+                layout.lbl_expression.setIcon(ICON_EXPRESSION_PENDING_INVALID);
+                layout.lbl_expression.setToolTipText("<html><b>Error:</b><br><pre>  "
                         + HtmlUtils.htmlEscape(Throwables.concatMessagesShort(t).replace("\n", "\n  ")) + "</pre>");
             }
         } else {
-            layout.tf_expression.setIcon(ICON_EXPRESSION);
-            layout.tf_expression.setToolTipText(null);
+            layout.lbl_expression.setIcon(ICON_EXPRESSION);
+            layout.lbl_expression.setToolTipText(null);
         }
     }
 
@@ -114,7 +114,7 @@ public class ExpressionSettingsPanel extends JPanel implements ISettingsPanelAct
 
     private void setExpressionValue(final String value) {
         layout.tf_expression.setText(value);
-        layout.tf_expression.setIcon(ICON_EXPRESSION);
+        layout.lbl_expression.setIcon(ICON_EXPRESSION);
     }
 
     @Override
@@ -130,7 +130,7 @@ public class ExpressionSettingsPanel extends JPanel implements ISettingsPanelAct
         if (hasChanges(dataset.getExpressionSeriesArguments(), newExpression)) {
             apply(newExpression);
         } else {
-            layout.tf_expression.setIcon(ICON_EXPRESSION);
+            layout.lbl_expression.setIcon(ICON_EXPRESSION);
         }
     }
 
@@ -144,7 +144,7 @@ public class ExpressionSettingsPanel extends JPanel implements ISettingsPanelAct
             seriesProvider.modifyDataset(plotConfigurationHelper.getChartPanel(), dataset, toExpression);
             dataset.setExpressionSeriesArguments(toExpression);
             dataset.setSeriesTitle(toExpression);
-            layout.tf_expression.setIcon(ICON_EXPRESSION);
+            layout.lbl_expression.setIcon(ICON_EXPRESSION);
         } catch (final Throwable t) {
             final String fromExpression = dataset.getSeriesTitle();
             LOG.warn("Error modifying series expression from [" + fromExpression + "] to [" + toExpression + "]:\n"

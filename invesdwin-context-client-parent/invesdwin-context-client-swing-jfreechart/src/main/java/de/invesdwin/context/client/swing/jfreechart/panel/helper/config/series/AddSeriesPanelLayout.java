@@ -6,9 +6,11 @@ import java.awt.Dimension;
 import javax.annotation.concurrent.NotThreadSafe;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
@@ -16,7 +18,6 @@ import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
 
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.icons.PlotIcons;
-import de.invesdwin.util.swing.icon.JIconTextField;
 
 @NotThreadSafe
 public class AddSeriesPanelLayout extends JPanel {
@@ -25,12 +26,14 @@ public class AddSeriesPanelLayout extends JPanel {
     public static final ImageIcon ICON_EXPRESSION = PlotIcons.EXPRESSION.newIcon(14);
     //CHECKSTYLE:OFF
     public final JPanel pnl_expression;
-    public final JIconTextField tf_expression;
+    public final JTextField tf_expression;
     public final JButton btn_addExpression;
-    public final JIconTextField tf_search;
+    public final JTextField tf_search;
     public final JPanel pnl_indicator;
     public final JTable tbl_indicator;
     public final JButton btn_close;
+    public final JLabel lbl_expression;
+    public final JLabel lbl_search;
     //CHECKSTYLE:ON
 
     public AddSeriesPanelLayout() {
@@ -46,11 +49,14 @@ public class AddSeriesPanelLayout extends JPanel {
         btn_addExpression = new JButton("Add");
         pnl_expression.add(btn_addExpression, BorderLayout.EAST);
 
-        tf_expression = new JIconTextField();
+        tf_expression = new JTextField();
         tf_expression.setMinimumSize(DIMENSION_TEXTFIELD);
         tf_expression.setPreferredSize(tf_expression.getMinimumSize());
-        tf_expression.setIcon(ICON_EXPRESSION);
         pnl_expression.add(tf_expression, BorderLayout.CENTER);
+
+        lbl_expression = new JLabel("");
+        lbl_expression.setIcon(ICON_EXPRESSION);
+        pnl_expression.add(lbl_expression, BorderLayout.WEST);
 
         pnl_indicator = new JPanel();
         pnl_indicator.setLayout(new BorderLayout(5, 5));
@@ -59,11 +65,17 @@ public class AddSeriesPanelLayout extends JPanel {
                 new EmptyBorder(0, 5, 5, 5)));
         add(pnl_indicator, BorderLayout.CENTER);
 
-        tf_search = new JIconTextField();
-        tf_search.setIcon(PlotIcons.SEARCH.newIcon(14));
+        final JPanel pnl_search = new JPanel();
+        pnl_search.setLayout(new BorderLayout(5, 5));
+        tf_search = new JTextField();
         tf_search.setMinimumSize(DIMENSION_TEXTFIELD);
         tf_search.setPreferredSize(tf_search.getMinimumSize());
-        pnl_indicator.add(tf_search, BorderLayout.NORTH);
+        pnl_search.add(tf_search, BorderLayout.CENTER);
+        pnl_indicator.add(pnl_search, BorderLayout.NORTH);
+
+        lbl_search = new JLabel("");
+        lbl_search.setIcon(PlotIcons.SEARCH.newIcon(14));
+        pnl_search.add(lbl_search, BorderLayout.WEST);
 
         final JScrollPane scrl_indicator = new JScrollPane();
         pnl_indicator.add(scrl_indicator, BorderLayout.CENTER);

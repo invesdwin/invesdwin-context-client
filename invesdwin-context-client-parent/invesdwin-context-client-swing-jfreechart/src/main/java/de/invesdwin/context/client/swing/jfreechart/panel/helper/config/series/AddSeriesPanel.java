@@ -129,7 +129,7 @@ public class AddSeriesPanel extends JPanel {
                         dataset.setExpressionSeriesArguments(expression);
                         dataset.setSeriesTitle(expression);
 
-                        layout.tf_expression.setIcon(ICON_EXPRESSION);
+                        layout.lbl_expression.setIcon(ICON_EXPRESSION);
                     } catch (final Throwable t) {
                         LOG.warn("Error adding series with expression [" + expression + "]\n"
                                 + Throwables.getFullStackTrace(t));
@@ -153,18 +153,18 @@ public class AddSeriesPanel extends JPanel {
                         final IExpressionSeriesProvider provider = plotConfigurationHelper
                                 .getExpressionSeriesProvider();
                         final IExpression parsedExpression = provider.parseExpression(expression);
-                        layout.tf_expression.setIcon(ICON_EXPRESSION_PENDING_VALID);
-                        layout.tf_expression.setToolTipText("<html><b>Validated:</b><br><pre>  "
+                        layout.lbl_expression.setIcon(ICON_EXPRESSION_PENDING_VALID);
+                        layout.lbl_expression.setToolTipText("<html><b>Valid:</b><br><pre>  "
                                 + HtmlUtils.htmlEscape(parsedExpression.toString().replace("\n", "\n  ")) + "</pre>");
                     } catch (final Throwable t) {
-                        layout.tf_expression.setIcon(ICON_EXPRESSION_PENDING_INVALID);
-                        layout.tf_expression.setToolTipText("<html><b>Error:</b><br><pre>  "
+                        layout.lbl_expression.setIcon(ICON_EXPRESSION_PENDING_INVALID);
+                        layout.lbl_expression.setToolTipText("<html><b>Error:</b><br><pre>  "
                                 + HtmlUtils.htmlEscape(Throwables.concatMessagesShort(t).replace("\n", "\n  "))
                                 + "</pre>");
                     }
                 } else {
-                    layout.tf_expression.setIcon(ICON_EXPRESSION);
-                    layout.tf_expression.setToolTipText(null);
+                    layout.lbl_expression.setIcon(ICON_EXPRESSION);
+                    layout.lbl_expression.setToolTipText(null);
                 }
             }
         });
