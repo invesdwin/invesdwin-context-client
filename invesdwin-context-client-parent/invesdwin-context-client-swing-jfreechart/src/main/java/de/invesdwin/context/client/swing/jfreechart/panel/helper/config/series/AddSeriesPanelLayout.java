@@ -2,6 +2,7 @@ package de.invesdwin.context.client.swing.jfreechart.panel.helper.config.series;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.Window;
 
 import javax.annotation.concurrent.NotThreadSafe;
 import javax.swing.ImageIcon;
@@ -18,6 +19,7 @@ import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
 
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.icons.PlotIcons;
+import de.invesdwin.context.client.swing.rsyntaxtextarea.DynamicRSyntaxTextAreaLayout;
 
 @NotThreadSafe
 public class AddSeriesPanelLayout extends JPanel {
@@ -26,7 +28,7 @@ public class AddSeriesPanelLayout extends JPanel {
     public static final ImageIcon ICON_EXPRESSION = PlotIcons.EXPRESSION.newIcon(14);
     //CHECKSTYLE:OFF
     public final JPanel pnl_expression;
-    public final JTextField tf_expression;
+    public final DynamicRSyntaxTextAreaLayout tf_expression;
     public final JButton btn_addExpression;
     public final JTextField tf_search;
     public final JPanel pnl_indicator;
@@ -36,7 +38,7 @@ public class AddSeriesPanelLayout extends JPanel {
     public final JLabel lbl_search;
     //CHECKSTYLE:ON
 
-    public AddSeriesPanelLayout() {
+    public AddSeriesPanelLayout(final Window window) {
         setLayout(new BorderLayout());
 
         pnl_expression = new JPanel();
@@ -49,9 +51,7 @@ public class AddSeriesPanelLayout extends JPanel {
         btn_addExpression = new JButton("Add");
         pnl_expression.add(btn_addExpression, BorderLayout.EAST);
 
-        tf_expression = new JTextField();
-        tf_expression.setMinimumSize(DIMENSION_TEXTFIELD);
-        tf_expression.setPreferredSize(tf_expression.getMinimumSize());
+        tf_expression = new DynamicRSyntaxTextAreaLayout(window);
         pnl_expression.add(tf_expression, BorderLayout.CENTER);
 
         lbl_expression = new JLabel("");

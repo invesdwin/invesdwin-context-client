@@ -59,10 +59,10 @@ public class ExpressionSettingsPanel extends JPanel implements ISettingsPanelAct
         this.highlighted = highlighted;
         this.dataset = highlighted.getDataset();
         this.expressionArgumentsBefore = dataset.getExpressionSeriesArguments();
-        this.layout = new ExpressionSettingsPanelLayout();
+        this.layout = new ExpressionSettingsPanelLayout(dialog);
         add(layout, BorderLayout.CENTER);
         setExpressionValue(expressionArgumentsBefore);
-        layout.tf_expression.getDocument().addDocumentListener(new DocumentListenerSupport() {
+        layout.tf_expression.textArea.getDocument().addDocumentListener(new DocumentListenerSupport() {
             @Override
             protected void update(final DocumentEvent e) {
                 final String fromExpression = dataset.getExpressionSeriesArguments();
@@ -113,7 +113,7 @@ public class ExpressionSettingsPanel extends JPanel implements ISettingsPanelAct
     }
 
     private void setExpressionValue(final String value) {
-        layout.tf_expression.setText(value);
+        layout.tf_expression.textArea.setText(value);
         layout.lbl_expression.setIcon(ICON_EXPRESSION);
     }
 
@@ -135,7 +135,7 @@ public class ExpressionSettingsPanel extends JPanel implements ISettingsPanelAct
     }
 
     private String getExpressionValue() {
-        return layout.tf_expression.getText();
+        return layout.tf_expression.textArea.getText();
     }
 
     public void apply(final String toExpression) {

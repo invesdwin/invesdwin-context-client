@@ -52,7 +52,7 @@ public class AddSeriesPanel extends JPanel {
         this.plotConfigurationHelper = plotConfigurationHelper;
         setLayout(new BorderLayout());
 
-        layout = new AddSeriesPanelLayout();
+        layout = new AddSeriesPanelLayout(dialog);
         add(layout, BorderLayout.CENTER);
 
         layout.tbl_indicator.setModel(newTableModel(""));
@@ -116,7 +116,7 @@ public class AddSeriesPanel extends JPanel {
         layout.btn_addExpression.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(final ActionEvent e) {
-                final String expression = layout.tf_expression.getText();
+                final String expression = layout.tf_expression.textArea.getText();
                 if (Strings.isBlank(expression)) {
                     Dialogs.showMessageDialog(layout, "Expression should not be blank.", "Error",
                             Dialogs.ERROR_MESSAGE);
@@ -144,10 +144,10 @@ public class AddSeriesPanel extends JPanel {
                 }
             }
         });
-        layout.tf_expression.getDocument().addDocumentListener(new DocumentListenerSupport() {
+        layout.tf_expression.textArea.getDocument().addDocumentListener(new DocumentListenerSupport() {
             @Override
             protected void update(final DocumentEvent e) {
-                final String expression = layout.tf_expression.getText();
+                final String expression = layout.tf_expression.textArea.getText();
                 if (Strings.isNotBlank(expression)) {
                     try {
                         final IExpressionSeriesProvider provider = plotConfigurationHelper
