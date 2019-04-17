@@ -38,7 +38,6 @@ public class DynamicRSyntaxTextAreaLayout extends JPanel {
         textArea.setColumns(MIN_COLUMNS);
         textArea.setBorder(new JTextField().getBorder());
         textArea.setHighlightCurrentLine(false);
-        //        textArea.setFont(new JTextArea().getFont());
         textArea.setCaretStyle(RSyntaxTextArea.INSERT_MODE, CaretStyle.VERTICAL_LINE_STYLE);
         textArea.setCaretStyle(RSyntaxTextArea.OVERWRITE_MODE, CaretStyle.BLOCK_STYLE);
         textArea.setSyntaxEditingStyle(getSyntaxEditingStyle());
