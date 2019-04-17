@@ -11,6 +11,7 @@ import org.fife.ui.rsyntaxtextarea.parser.DefaultParseResult;
 import org.fife.ui.rsyntaxtextarea.parser.DefaultParserNotice;
 import org.fife.ui.rsyntaxtextarea.parser.ParseResult;
 
+import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.math.expression.tokenizer.IPosition;
 import de.invesdwin.util.math.expression.tokenizer.ParseException;
 
@@ -46,7 +47,7 @@ public class ExpressionValidatingParser extends AbstractParser {
             final IPosition position = e.getPosition();
             final int line = position.getLine();
             final int offset = position.getPos() - 1;
-            final int length = position.getLength();
+            final int length = Integers.max(1, position.getLength());
             result.addNotice(new DefaultParserNotice(this, e.getOriginalMessage(), line, offset, length));
         } catch (final Throwable t) {
             result.addNotice(new DefaultParserNotice(this, t.toString(), 1, 0, 1));
