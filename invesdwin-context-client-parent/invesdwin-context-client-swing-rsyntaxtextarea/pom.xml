@@ -28,11 +28,45 @@
 		<dependency>
 			<groupId>com.fifesoft</groupId>
 			<artifactId>languagesupport</artifactId>
+			<scope>test</scope>
 		</dependency>
 		<dependency>
 			<groupId>com.fifesoft</groupId>
 			<artifactId>rstaui</artifactId>
+			<scope>test</scope>
 		</dependency>
 	</dependencies>
+
+	<profiles>
+		<profile>
+			<!-- call with: mvn -Pjflex generate-resources -->
+			<id>jflex</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>de.jflex</groupId>
+						<artifactId>maven-jflex-plugin</artifactId>
+						<version>1.4.3</version>
+						<executions>
+							<execution>
+								<goals>
+									<goal>generate</goal>
+								</goals>
+								<configuration>
+									<outputDirectory>src/main/java</outputDirectory>
+									<lexDefinitions>
+										<lexDefinition>
+											src/main/java
+										</lexDefinition>
+									</lexDefinitions>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+
+	</profiles>
 
 </project>

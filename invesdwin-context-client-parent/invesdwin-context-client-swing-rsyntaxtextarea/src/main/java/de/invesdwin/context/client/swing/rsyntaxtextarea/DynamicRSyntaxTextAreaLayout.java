@@ -8,7 +8,6 @@ import java.awt.event.ComponentEvent;
 import javax.annotation.concurrent.NotThreadSafe;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.event.DocumentEvent;
 
@@ -16,6 +15,7 @@ import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rtextarea.CaretStyle;
 import org.fife.ui.rtextarea.RTextScrollPane;
 
+import de.invesdwin.context.client.swing.rsyntaxtextarea.tokenmaker.ExpressionTokenMaker;
 import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.swing.listener.ComponentListenerSupport;
 import de.invesdwin.util.swing.listener.DocumentListenerSupport;
@@ -38,9 +38,10 @@ public class DynamicRSyntaxTextAreaLayout extends JPanel {
         textArea.setColumns(MIN_COLUMNS);
         textArea.setBorder(new JTextField().getBorder());
         textArea.setHighlightCurrentLine(false);
-        textArea.setFont(new JTextArea().getFont());
+        //        textArea.setFont(new JTextArea().getFont());
         textArea.setCaretStyle(RSyntaxTextArea.INSERT_MODE, CaretStyle.VERTICAL_LINE_STYLE);
         textArea.setCaretStyle(RSyntaxTextArea.OVERWRITE_MODE, CaretStyle.BLOCK_STYLE);
+        textArea.setSyntaxEditingStyle(ExpressionTokenMaker.getSyntaxStyle());
         scrollPane = new RTextScrollPane();
         scrollPane.setViewportView(textArea);
         scrollPane.setLineNumbersEnabled(getMinRows() > 1);
