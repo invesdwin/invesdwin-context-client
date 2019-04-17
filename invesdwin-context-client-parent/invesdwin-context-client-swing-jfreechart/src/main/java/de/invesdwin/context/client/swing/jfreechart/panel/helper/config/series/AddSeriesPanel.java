@@ -181,7 +181,7 @@ public class AddSeriesPanel extends JPanel {
         }
 
         layout.tf_expression.textArea
-                .addParser(plotConfigurationHelper.getExpressionSeriesProvider().newValidatingParser());
+                .addParser(plotConfigurationHelper.getExpressionSeriesProvider().newExpressionValidatingParser());
     }
 
     private DefaultTableModel newTableModel(final String search) {

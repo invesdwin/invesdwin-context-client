@@ -21,7 +21,7 @@ public interface IExpressionSeriesProvider {
 
     void modifyDataset(InteractiveChartPanel chartPanel, IPlotSourceDataset dataset, String expression);
 
-    default Parser newValidatingParser() {
+    default Parser newExpressionValidatingParser() {
         return new ExpressionValidatingParser() {
             @Override
             protected void parseExpression(final String expression) throws ParseException {
