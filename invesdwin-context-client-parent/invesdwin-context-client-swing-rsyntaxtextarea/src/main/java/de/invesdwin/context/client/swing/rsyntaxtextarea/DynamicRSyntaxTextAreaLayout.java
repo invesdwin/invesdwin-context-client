@@ -42,6 +42,7 @@ public class DynamicRSyntaxTextAreaLayout extends JPanel {
         textArea.setCaretStyle(RSyntaxTextArea.INSERT_MODE, CaretStyle.VERTICAL_LINE_STYLE);
         textArea.setCaretStyle(RSyntaxTextArea.OVERWRITE_MODE, CaretStyle.BLOCK_STYLE);
         textArea.setSyntaxEditingStyle(getSyntaxEditingStyle());
+        textArea.setParserDelay(250);
         scrollPane = new RTextScrollPane();
         scrollPane.setViewportView(textArea);
         scrollPane.setLineNumbersEnabled(getMinRows() > 1);

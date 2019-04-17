@@ -11,6 +11,7 @@ import org.fife.ui.rsyntaxtextarea.parser.DefaultParseResult;
 import org.fife.ui.rsyntaxtextarea.parser.DefaultParserNotice;
 import org.fife.ui.rsyntaxtextarea.parser.ParseResult;
 
+import de.invesdwin.util.lang.Strings;
 import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.math.expression.tokenizer.IPosition;
 import de.invesdwin.util.math.expression.tokenizer.ParseException;
@@ -39,6 +40,9 @@ public class ExpressionValidatingParser extends AbstractParser {
                     expression.append(scanner.nextLine()).append("\n");
                 }
             }
+        }
+        if (Strings.isBlank(expression)) {
+            return result;
         }
 
         try {
