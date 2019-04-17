@@ -1,4 +1,4 @@
-package de.invesdwin.context.client.swing.rsyntaxtextarea.tokenmaker;
+package de.invesdwin.context.client.swing.rsyntaxtextarea.expression.internal;
 
 import java.io.*;
 import javax.swing.text.Segment;

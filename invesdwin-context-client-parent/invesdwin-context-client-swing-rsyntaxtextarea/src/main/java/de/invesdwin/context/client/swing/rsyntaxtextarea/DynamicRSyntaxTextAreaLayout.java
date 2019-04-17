@@ -15,7 +15,7 @@ import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rtextarea.CaretStyle;
 import org.fife.ui.rtextarea.RTextScrollPane;
 
-import de.invesdwin.context.client.swing.rsyntaxtextarea.tokenmaker.ExpressionTokenMaker;
+import de.invesdwin.context.client.swing.rsyntaxtextarea.expression.ExpressionTokenMaker;
 import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.swing.listener.ComponentListenerSupport;
 import de.invesdwin.util.swing.listener.DocumentListenerSupport;
@@ -41,7 +41,7 @@ public class DynamicRSyntaxTextAreaLayout extends JPanel {
         //        textArea.setFont(new JTextArea().getFont());
         textArea.setCaretStyle(RSyntaxTextArea.INSERT_MODE, CaretStyle.VERTICAL_LINE_STYLE);
         textArea.setCaretStyle(RSyntaxTextArea.OVERWRITE_MODE, CaretStyle.BLOCK_STYLE);
-        textArea.setSyntaxEditingStyle(ExpressionTokenMaker.getSyntaxStyle());
+        textArea.setSyntaxEditingStyle(getSyntaxEditingStyle());
         scrollPane = new RTextScrollPane();
         scrollPane.setViewportView(textArea);
         scrollPane.setLineNumbersEnabled(getMinRows() > 1);
@@ -84,6 +84,10 @@ public class DynamicRSyntaxTextAreaLayout extends JPanel {
             }
 
         });
+    }
+
+    protected String getSyntaxEditingStyle() {
+        return ExpressionTokenMaker.getSyntaxStyle();
     }
 
     private void pack() {

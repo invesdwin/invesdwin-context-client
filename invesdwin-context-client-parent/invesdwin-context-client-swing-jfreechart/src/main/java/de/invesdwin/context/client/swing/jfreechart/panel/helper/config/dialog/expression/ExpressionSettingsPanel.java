@@ -81,6 +81,9 @@ public class ExpressionSettingsPanel extends JPanel implements ISettingsPanelAct
         //set tooltip but use default icon
         validateExpression(null, getExpressionValue());
         layout.lbl_expression.setIcon(ICON_EXPRESSION);
+
+        layout.tf_expression.textArea
+                .addParser(plotConfigurationHelper.getExpressionSeriesProvider().newValidatingParser());
     }
 
     private void validateExpression(final String fromExpression, final String toExpression) {

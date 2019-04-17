@@ -1,9 +1,11 @@
-package de.invesdwin.context.client.swing.rsyntaxtextarea.tokenmaker;
+package de.invesdwin.context.client.swing.rsyntaxtextarea.expression;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
 import org.fife.ui.rsyntaxtextarea.AbstractTokenMakerFactory;
 import org.fife.ui.rsyntaxtextarea.TokenMakerFactory;
+
+import de.invesdwin.context.client.swing.rsyntaxtextarea.expression.internal.AExpressionTokenMaker;
 
 /**
  * https://github.com/bobbylight/RSyntaxTextArea/wiki/Adding-Syntax-Highlighting-for-a-new-Language#JFlexBased

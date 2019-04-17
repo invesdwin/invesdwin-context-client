@@ -179,6 +179,9 @@ public class AddSeriesPanel extends JPanel {
         if (plotConfigurationHelper.getIndicatorSeriesProviders().isEmpty()) {
             layout.pnl_indicator.setVisible(false);
         }
+
+        layout.tf_expression.textArea
+                .addParser(plotConfigurationHelper.getExpressionSeriesProvider().newValidatingParser());
     }
 
     private DefaultTableModel newTableModel(final String search) {
