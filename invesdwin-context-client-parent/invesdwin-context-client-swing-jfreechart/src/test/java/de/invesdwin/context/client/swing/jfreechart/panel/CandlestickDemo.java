@@ -17,6 +17,11 @@ import javax.swing.JFrame;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
+import org.fife.ui.autocomplete.CompletionProvider;
+import org.fife.ui.autocomplete.DefaultCompletionProvider;
+import org.fife.ui.autocomplete.FunctionCompletion;
+import org.fife.ui.autocomplete.ParameterizedCompletion.Parameter;
+import org.fife.ui.autocomplete.VariableCompletion;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYItemRenderer;
 import org.jfree.data.xy.OHLCDataItem;
@@ -212,6 +217,20 @@ public class CandlestickDemo extends JFrame {
         public String getPlotPaneId() {
             return "Expression";
         }
+
+        @Override
+        public CompletionProvider newCompletionProvider() {
+            final DefaultCompletionProvider provider = new DefaultCompletionProvider();
+            final VariableCompletion variable = new VariableCompletion(provider, "variable", "variableType");
+            provider.addCompletion(variable);
+            final FunctionCompletion function = new FunctionCompletion(provider, "function", "functionReturnType");
+            final List<Parameter> params = new ArrayList<>();
+            params.add(new Parameter("parameterType", "parameter"));
+            function.setParams(params);
+            provider.addCompletion(function);
+            return provider;
+        }
+
     }
 
     private final class ThrowExceptionIndicatorSeriesProvider implements IIndicatorSeriesProvider {

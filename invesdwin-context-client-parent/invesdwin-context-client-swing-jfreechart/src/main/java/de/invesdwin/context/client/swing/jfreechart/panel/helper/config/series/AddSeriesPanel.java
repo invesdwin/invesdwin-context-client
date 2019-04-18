@@ -180,8 +180,7 @@ public class AddSeriesPanel extends JPanel {
             layout.pnl_indicator.setVisible(false);
         }
 
-        layout.tf_expression.textArea
-                .addParser(plotConfigurationHelper.getExpressionSeriesProvider().newExpressionValidatingParser());
+        plotConfigurationHelper.getExpressionSeriesProvider().configureEditor(layout.tf_expression.textArea);
     }
 
     private DefaultTableModel newTableModel(final String search) {

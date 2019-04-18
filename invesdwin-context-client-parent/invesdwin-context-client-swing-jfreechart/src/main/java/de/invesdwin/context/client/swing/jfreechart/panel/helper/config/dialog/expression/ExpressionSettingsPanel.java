@@ -82,8 +82,7 @@ public class ExpressionSettingsPanel extends JPanel implements ISettingsPanelAct
         validateExpression(null, getExpressionValue());
         layout.lbl_expression.setIcon(ICON_EXPRESSION);
 
-        layout.tf_expression.textArea
-                .addParser(plotConfigurationHelper.getExpressionSeriesProvider().newExpressionValidatingParser());
+        plotConfigurationHelper.getExpressionSeriesProvider().configureEditor(layout.tf_expression.textArea);
     }
 
     private void validateExpression(final String fromExpression, final String toExpression) {

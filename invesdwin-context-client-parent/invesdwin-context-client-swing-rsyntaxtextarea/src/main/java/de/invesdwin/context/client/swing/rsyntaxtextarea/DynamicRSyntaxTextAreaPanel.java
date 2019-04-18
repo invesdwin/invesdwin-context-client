@@ -21,7 +21,7 @@ import de.invesdwin.util.swing.listener.ComponentListenerSupport;
 import de.invesdwin.util.swing.listener.DocumentListenerSupport;
 
 @NotThreadSafe
-public class DynamicRSyntaxTextAreaLayout extends JPanel {
+public class DynamicRSyntaxTextAreaPanel extends JPanel {
 
     private static final int MIN_COLUMNS = 1;
     //CHECKSTYLE:OFF
@@ -30,7 +30,7 @@ public class DynamicRSyntaxTextAreaLayout extends JPanel {
     //CHECKSTYLE:OFF
     private final Window window;
 
-    public DynamicRSyntaxTextAreaLayout(final Window window) {
+    public DynamicRSyntaxTextAreaPanel(final Window window) {
         this.window = window;
         setLayout(new BorderLayout());
         textArea = new RSyntaxTextArea();
