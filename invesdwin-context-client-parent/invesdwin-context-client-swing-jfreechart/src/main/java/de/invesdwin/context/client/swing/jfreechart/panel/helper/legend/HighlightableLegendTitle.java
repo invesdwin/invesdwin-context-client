@@ -60,28 +60,37 @@ public class HighlightableLegendTitle extends CustomLegendTitle {
             }
             final NumberAxis rangeAxis = (NumberAxis) plot.getRangeAxisForDataset(item.getDatasetIndex());
             final NumberFormat rangeAxisFormat = rangeAxis.getNumberFormatOverride();
-            if (dataset instanceof OHLCDataset) {
-                final OHLCDataset ohlc = (OHLCDataset) dataset;
-                final StringBuilder sb = new StringBuilder(label);
-                sb.append(" O:");
-                sb.append(rangeAxisFormat.format(ohlc.getOpen(series, domainMarkerItem)));
-                sb.append(" H:");
-                sb.append(rangeAxisFormat.format(ohlc.getHigh(series, domainMarkerItem)));
-                sb.append(" L:");
-                sb.append(rangeAxisFormat.format(ohlc.getLow(series, domainMarkerItem)));
-                sb.append(" C:");
-                sb.append(rangeAxisFormat.format(ohlc.getClose(series, domainMarkerItem)));
-                sb.append(" T:");
-                sb.append(chartPanel.getDomainAxisFormat().format(domainMarkerItem));
-                return sb.toString();
-            } else {
-                final StringBuilder sb = new StringBuilder(label);
-                sb.append(" ");
-                sb.append(rangeAxisFormat.format(dataset.getYValue(series, domainMarkerItem)));
-                return sb.toString();
-            }
+            return newLabelString(domainMarkerItem, dataset, label, series, rangeAxisFormat);
         } else {
             return super.newLabel(item);
+        }
+    }
+
+    private String newLabelString(final int domainMarkerItem, final IPlotSourceDataset dataset, final String label,
+            final int series, final NumberFormat rangeAxisFormat) {
+        if (dataset instanceof OHLCDataset && dataset == chartPanel.getDataset()) {
+            final OHLCDataset ohlc = dataset;
+            final StringBuilder sb = new StringBuilder(label);
+            final double open = ohlc.getOpenValue(series, domainMarkerItem);
+            sb.append(" O:");
+            sb.append(rangeAxisFormat.format(open));
+            final double high = ohlc.getHighValue(series, domainMarkerItem);
+            sb.append(" H:");
+            sb.append(rangeAxisFormat.format(high));
+            final double low = ohlc.getLowValue(series, domainMarkerItem);
+            sb.append(" L:");
+            sb.append(rangeAxisFormat.format(low));
+            final double close = ohlc.getCloseValue(series, domainMarkerItem);
+            sb.append(" C:");
+            sb.append(rangeAxisFormat.format(close));
+            sb.append(" T:");
+            sb.append(chartPanel.getDomainAxisFormat().format(domainMarkerItem));
+            return sb.toString();
+        } else {
+            final StringBuilder sb = new StringBuilder(label);
+            sb.append(" ");
+            sb.append(rangeAxisFormat.format(dataset.getYValue(series, domainMarkerItem)));
+            return sb.toString();
         }
     }
 

@@ -3,13 +3,14 @@ package de.invesdwin.context.client.swing.jfreechart.plot.dataset;
 import java.io.Closeable;
 
 import org.jfree.chart.plot.XYPlot;
+import org.jfree.data.xy.OHLCDataset;
 import org.jfree.data.xy.XYDataset;
 
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.series.expression.IExpressionSeriesProvider;
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.series.indicator.IIndicatorSeriesProvider;
 import de.invesdwin.util.math.expression.IExpression;
 
-public interface IPlotSourceDataset extends XYDataset, Closeable {
+public interface IPlotSourceDataset extends XYDataset, OHLCDataset, Closeable {
 
     XYPlot getPlot();
 

@@ -2,6 +2,7 @@ package de.invesdwin.context.client.swing.jfreechart.panel.helper.config.series.
 
 import de.invesdwin.context.client.swing.jfreechart.panel.InteractiveChartPanel;
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.IPlotSourceDataset;
+import de.invesdwin.util.lang.Strings;
 import de.invesdwin.util.math.expression.IExpression;
 
 public interface IIndicatorSeriesProvider {
@@ -15,7 +16,11 @@ public interface IIndicatorSeriesProvider {
     String getExpressionName();
 
     default String getExpressionString(final IExpression[] args) {
-        final StringBuilder sb = new StringBuilder(getExpressionName());
+        final String expressionName = getExpressionName();
+        if (Strings.isBlank(expressionName)) {
+            return null;
+        }
+        final StringBuilder sb = new StringBuilder(expressionName);
         if (args.length > 0) {
             sb.append("(");
             for (int i = 0; i < args.length; i++) {

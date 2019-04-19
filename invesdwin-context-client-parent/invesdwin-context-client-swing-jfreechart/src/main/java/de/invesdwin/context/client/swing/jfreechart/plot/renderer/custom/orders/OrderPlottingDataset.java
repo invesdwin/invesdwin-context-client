@@ -226,4 +226,54 @@ public class OrderPlottingDataset extends AbstractXYDataset implements IPlotSour
         this.expressionSeriesArguments = expressionSeriesArguments;
     }
 
+    @Override
+    public Number getHigh(final int series, final int item) {
+        return ohlcDataset.getHigh(series, item);
+    }
+
+    @Override
+    public double getHighValue(final int series, final int item) {
+        return ohlcDataset.getHighValue(series, item);
+    }
+
+    @Override
+    public Number getLow(final int series, final int item) {
+        return ohlcDataset.getLow(series, item);
+    }
+
+    @Override
+    public double getLowValue(final int series, final int item) {
+        return ohlcDataset.getLowValue(series, item);
+    }
+
+    @Override
+    public Number getOpen(final int series, final int item) {
+        return ohlcDataset.getOpen(series, item);
+    }
+
+    @Override
+    public double getOpenValue(final int series, final int item) {
+        return ohlcDataset.getOpenValue(series, item);
+    }
+
+    @Override
+    public Number getClose(final int series, final int item) {
+        return ohlcDataset.getClose(series, item);
+    }
+
+    @Override
+    public double getCloseValue(final int series, final int item) {
+        return ohlcDataset.getCloseValue(series, item);
+    }
+
+    @Override
+    public Number getVolume(final int series, final int item) {
+        return ohlcDataset.getVolume(series, item);
+    }
+
+    @Override
+    public double getVolumeValue(final int series, final int item) {
+        return ohlcDataset.getVolumeValue(series, item);
+    }
+
 }

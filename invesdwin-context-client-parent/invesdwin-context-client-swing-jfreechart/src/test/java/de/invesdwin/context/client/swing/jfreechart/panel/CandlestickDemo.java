@@ -41,8 +41,10 @@ import de.invesdwin.context.client.swing.jfreechart.plot.dataset.PlotSourceXYSer
 import de.invesdwin.context.client.swing.rsyntaxtextarea.expression.ExpressionCompletionProviders;
 import de.invesdwin.context.jfreechart.dataset.XYDataItemOHLC;
 import de.invesdwin.context.log.error.Err;
+import de.invesdwin.context.system.properties.SystemProperties;
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.error.UnknownArgumentException;
+import de.invesdwin.util.lang.Reflections;
 import de.invesdwin.util.lang.UniqueNameGenerator;
 import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.math.expression.ExpressionParser;
@@ -124,7 +126,10 @@ public class CandlestickDemo extends JFrame {
 
     //CHECKSTYLE:OFF
     public static void main(final String[] args) {
-        System.setProperty("jdk.gtk.version", "2");
+        if (Reflections.JAVA_VERSION < 12) {
+            //gtk3 looks wrong in a lot of places in openjdk-11, fix is supposed to arrive with java 13 https://bugs.openjdk.java.net/browse/JDK-8203627?attachmentOrder=desc
+            new SystemProperties().setInteger("jdk.gtk.version", 2);
+        }
         //CHECKSTYLE:ON
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());

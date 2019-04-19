@@ -37,6 +37,7 @@ import org.jfree.chart.util.Args;
 import org.jfree.chart.util.PublicCloneable;
 import org.jfree.chart.util.SerialUtils;
 import org.jfree.chart.util.ShapeUtils;
+import org.jfree.data.Range;
 import org.jfree.data.xy.OHLCDataItem;
 import org.jfree.data.xy.XYDataset;
 
@@ -336,7 +337,7 @@ public abstract class ACustomProfitLossRenderer extends AbstractXYItemRenderer
 
         //profit to profit
         drawProfitLoss(g2, dataArea, plot, domainAxis, rangeAxis, series, item1, areaState.profit, x0,
-                convert(cItem0.getClose()), x1, convert(cItem1.getClose()), dataset, state, upColor,
+                convert(cItem0.getHigh()), x1, convert(cItem1.getHigh()), dataset, state, upColor,
                 state.getFirstItemIndex());
         drawProfitLoss(g2, dataArea, plot, domainAxis, rangeAxis, series, item1, areaState.loss, x0,
                 convert(cItem0.getLow()), x1, convert(cItem1.getLow()), dataset, state, upColor,
@@ -517,6 +518,12 @@ public abstract class ACustomProfitLossRenderer extends AbstractXYItemRenderer
     private void writeObject(final ObjectOutputStream stream) throws IOException {
         stream.defaultWriteObject();
         SerialUtils.writeShape(this.legendArea, stream);
+    }
+
+    @Override
+    public Range findRangeBounds(final XYDataset dataset) {
+        //include interval per default
+        return super.findRangeBounds(dataset, true);
     }
 
     @Override

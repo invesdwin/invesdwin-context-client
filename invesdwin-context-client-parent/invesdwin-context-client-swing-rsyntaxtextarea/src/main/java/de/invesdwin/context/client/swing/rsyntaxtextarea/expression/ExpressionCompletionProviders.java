@@ -11,6 +11,7 @@ import org.fife.ui.autocomplete.FunctionCompletion;
 import org.fife.ui.autocomplete.ParameterizedCompletion.Parameter;
 import org.fife.ui.autocomplete.VariableCompletion;
 
+import de.invesdwin.util.lang.Strings;
 import de.invesdwin.util.math.expression.ExpressionParser;
 import de.invesdwin.util.math.expression.IFunction;
 import de.invesdwin.util.math.expression.IFunctionParameterInfo;
@@ -41,30 +42,46 @@ public final class ExpressionCompletionProviders {
         for (final IFunction f : ExpressionParser.getDefaultFunctions()) {
             final String expressionName = f.getExpressionName();
             if (duplicateExpressionFilter.add(expressionName)) {
-                final FunctionCompletion c = new FunctionCompletion(provider, expressionName,
-                        f.getReturnType().toString());
-                c.setShortDescription(newNamedDescription(f.getName(), f.getDescription()));
-                c.setRelevance(RELEVANCE_FUNCTION);
-
-                final List<Parameter> params = new ArrayList<>();
                 final IFunctionParameterInfo[] parameters = f.getParameterInfos();
-                for (int i = 0; i < parameters.length; i++) {
-                    final IFunctionParameterInfo parameter = parameters[i];
-                    final Parameter p = new Parameter(parameter.getType().toString(), parameter.getName(),
-                            i == parameters.length - 1);
-                    p.setDescription(parameter.getDescription());
-                    params.add(p);
-                }
-                c.setParams(params);
 
-                provider.addCompletion(c);
-                duplicateExpressionFilter.add(c.getReplacementText());
+                if (parameters.length > 0) {
+                    final FunctionCompletion c = new FunctionCompletion(provider, expressionName,
+                            f.getReturnType().toString());
+                    c.setShortDescription(newNamedDescription(f.getName(), f.getDescription()));
+                    c.setRelevance(RELEVANCE_FUNCTION);
+
+                    final List<Parameter> params = new ArrayList<>();
+                    for (int i = 0; i < parameters.length; i++) {
+                        final IFunctionParameterInfo parameter = parameters[i];
+                        final Parameter p = new Parameter(parameter.getType().toString(), parameter.getExpressionName(),
+                                i == parameters.length - 1);
+                        p.setDescription(parameter.getDescription());
+                        params.add(p);
+                    }
+                    c.setParams(params);
+
+                    provider.addCompletion(c);
+                } else {
+                    final VariableCompletion c = new VariableCompletion(provider, expressionName,
+                            f.getReturnType().toString());
+                    c.setShortDescription(newNamedDescription(f.getName(), f.getDescription()));
+                    c.setRelevance(RELEVANCE_VARIABLE);
+                    provider.addCompletion(c);
+                }
             }
         }
     }
 
     public static String newNamedDescription(final String name, final String description) {
-        return "<h2>" + name + "</h2>" + description;
+        final StringBuilder sb = new StringBuilder();
+        sb.append("<b style='font-size: large'>");
+        sb.append(name);
+        sb.append("</b>");
+        if (Strings.isNotBlank(description)) {
+            sb.append("<br><br>");
+            sb.append(description);
+        }
+        return sb.toString();
     }
 
 }

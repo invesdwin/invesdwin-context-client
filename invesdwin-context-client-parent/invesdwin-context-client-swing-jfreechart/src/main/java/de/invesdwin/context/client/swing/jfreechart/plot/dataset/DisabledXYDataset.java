@@ -155,4 +155,54 @@ public class DisabledXYDataset extends AbstractXYDataset implements IPlotSourceD
         enabledDataset.setExpressionSeriesArguments(expressionSeriesArguments);
     }
 
+    @Override
+    public Number getHigh(final int series, final int item) {
+        return enabledDataset.getHigh(series, item);
+    }
+
+    @Override
+    public double getHighValue(final int series, final int item) {
+        return enabledDataset.getHighValue(series, item);
+    }
+
+    @Override
+    public Number getLow(final int series, final int item) {
+        return enabledDataset.getLow(series, item);
+    }
+
+    @Override
+    public double getLowValue(final int series, final int item) {
+        return enabledDataset.getLowValue(series, item);
+    }
+
+    @Override
+    public Number getOpen(final int series, final int item) {
+        return enabledDataset.getOpen(series, item);
+    }
+
+    @Override
+    public double getOpenValue(final int series, final int item) {
+        return enabledDataset.getOpenValue(series, item);
+    }
+
+    @Override
+    public Number getClose(final int series, final int item) {
+        return enabledDataset.getClose(series, item);
+    }
+
+    @Override
+    public double getCloseValue(final int series, final int item) {
+        return enabledDataset.getCloseValue(series, item);
+    }
+
+    @Override
+    public Number getVolume(final int series, final int item) {
+        return enabledDataset.getVolume(series, item);
+    }
+
+    @Override
+    public double getVolumeValue(final int series, final int item) {
+        return enabledDataset.getVolumeValue(series, item);
+    }
+
 }

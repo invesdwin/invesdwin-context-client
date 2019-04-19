@@ -189,4 +189,54 @@ public class PlotSourceXYSeriesCollection extends XYSeriesCollection implements 
         this.expressionSeriesArguments = expressionSeriesArguments;
     }
 
+    @Override
+    public Number getHigh(final int series, final int item) {
+        return getSeries(series).getData().get(item).asOHLC().getHigh();
+    }
+
+    @Override
+    public double getHighValue(final int series, final int item) {
+        return getHigh(series, item).doubleValue();
+    }
+
+    @Override
+    public Number getLow(final int series, final int item) {
+        return getSeries(series).getData().get(item).asOHLC().getLow();
+    }
+
+    @Override
+    public double getLowValue(final int series, final int item) {
+        return getLow(series, item).doubleValue();
+    }
+
+    @Override
+    public Number getOpen(final int series, final int item) {
+        return getSeries(series).getData().get(item).asOHLC().getOpen();
+    }
+
+    @Override
+    public double getOpenValue(final int series, final int item) {
+        return getOpen(series, item).doubleValue();
+    }
+
+    @Override
+    public Number getClose(final int series, final int item) {
+        return getSeries(series).getData().get(item).asOHLC().getClose();
+    }
+
+    @Override
+    public double getCloseValue(final int series, final int item) {
+        return getClose(series, item).doubleValue();
+    }
+
+    @Override
+    public Number getVolume(final int series, final int item) {
+        return getSeries(series).getData().get(item).asOHLC().getVolume();
+    }
+
+    @Override
+    public double getVolumeValue(final int series, final int item) {
+        return getVolume(series, item).doubleValue();
+    }
+
 }

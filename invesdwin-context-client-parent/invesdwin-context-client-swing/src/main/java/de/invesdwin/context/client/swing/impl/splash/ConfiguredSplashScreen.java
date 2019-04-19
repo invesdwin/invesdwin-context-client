@@ -23,6 +23,7 @@ import de.invesdwin.context.beans.init.PreMergedContext;
 import de.invesdwin.context.client.swing.api.IRichApplication;
 import de.invesdwin.context.client.swing.impl.app.DelegateRichApplication;
 import de.invesdwin.context.log.error.Err;
+import de.invesdwin.context.system.properties.SystemProperties;
 import de.invesdwin.util.lang.Reflections;
 
 @NotThreadSafe
@@ -31,6 +32,13 @@ public final class ConfiguredSplashScreen implements SplashScreen, FactoryBean<C
     public static final ConfiguredSplashScreen INSTANCE = new ConfiguredSplashScreen();
     private static final String GTK_LAF = "com.sun.java.swing.plaf.gtk.GTKLookAndFeel";
     private static final String WIN_LAF = "com.sun.java.swing.plaf.windows.WindowsLookAndFeel";
+
+    static {
+        if (Reflections.JAVA_VERSION < 12) {
+            //gtk3 looks wrong in a lot of places in openjdk-11, fix is supposed to arrive with java 13 https://bugs.openjdk.java.net/browse/JDK-8203627?attachmentOrder=desc
+            new SystemProperties().setInteger("jdk.gtk.version", 2);
+        }
+    }
 
     @GuardedBy("ConfiguredSplashScreen.class")
     private static ProgressSplashScreen splashScreen;
