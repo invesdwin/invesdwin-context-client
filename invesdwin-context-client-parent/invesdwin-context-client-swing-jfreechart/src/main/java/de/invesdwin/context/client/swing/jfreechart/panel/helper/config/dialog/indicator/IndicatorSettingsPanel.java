@@ -21,7 +21,6 @@ import de.invesdwin.context.client.swing.jfreechart.panel.helper.legend.Highligh
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.IPlotSourceDataset;
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.error.Throwables;
-import de.invesdwin.util.lang.Strings;
 import de.invesdwin.util.math.expression.IExpression;
 import de.invesdwin.util.swing.Dialogs;
 
@@ -114,11 +113,7 @@ public class IndicatorSettingsPanel extends JPanel implements ISettingsPanelActi
         try {
             indicatorSeriesProvider.modifyDataset(plotConfigurationHelper.getChartPanel(), dataset, arguments);
             dataset.setIndicatorSeriesArguments(arguments);
-            if (Strings.isNotBlank(toExpression)) {
-                dataset.setSeriesTitle(toExpression);
-            } else {
-                dataset.setSeriesTitle(indicatorSeriesProvider.getName());
-            }
+            dataset.setSeriesTitle(indicatorSeriesProvider.getTitle(toExpression));
         } catch (final Throwable t) {
             final String fromExpression = dataset.getSeriesTitle();
             LOG.warn("Error modifying series [" + indicatorSeriesProvider.getName() + "] expression from ["
