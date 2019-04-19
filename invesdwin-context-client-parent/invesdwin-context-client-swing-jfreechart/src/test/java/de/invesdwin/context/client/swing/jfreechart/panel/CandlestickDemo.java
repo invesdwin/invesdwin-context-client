@@ -9,7 +9,9 @@ import java.io.FileReader;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.StringTokenizer;
 
 import javax.annotation.concurrent.NotThreadSafe;
@@ -19,9 +21,6 @@ import javax.swing.UnsupportedLookAndFeelException;
 
 import org.fife.ui.autocomplete.CompletionProvider;
 import org.fife.ui.autocomplete.DefaultCompletionProvider;
-import org.fife.ui.autocomplete.FunctionCompletion;
-import org.fife.ui.autocomplete.ParameterizedCompletion.Parameter;
-import org.fife.ui.autocomplete.VariableCompletion;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYItemRenderer;
 import org.jfree.data.xy.OHLCDataItem;
@@ -39,6 +38,7 @@ import de.invesdwin.context.client.swing.jfreechart.plot.dataset.IPlotSourceData
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.IndexedDateTimeOHLCDataset;
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.IndexedDateTimeXYSeries;
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.PlotSourceXYSeriesCollection;
+import de.invesdwin.context.client.swing.rsyntaxtextarea.expression.ExpressionCompletionProviders;
 import de.invesdwin.context.jfreechart.dataset.XYDataItemOHLC;
 import de.invesdwin.context.log.error.Err;
 import de.invesdwin.util.assertions.Assertions;
@@ -220,14 +220,11 @@ public class CandlestickDemo extends JFrame {
 
         @Override
         public CompletionProvider newCompletionProvider() {
+
+            final Set<String> duplicateExpressionFilter = new HashSet<>();
+
             final DefaultCompletionProvider provider = new DefaultCompletionProvider();
-            final VariableCompletion variable = new VariableCompletion(provider, "variable", "variableType");
-            provider.addCompletion(variable);
-            final FunctionCompletion function = new FunctionCompletion(provider, "function", "functionReturnType");
-            final List<Parameter> params = new ArrayList<>();
-            params.add(new Parameter("parameterType", "parameter"));
-            function.setParams(params);
-            provider.addCompletion(function);
+            ExpressionCompletionProviders.registerDefaultCompletions(provider, duplicateExpressionFilter);
             return provider;
         }
 

@@ -233,12 +233,12 @@ FloatLiteral3				= ({Digit}+{FloatHelper2})
 FloatLiteral				= ({FloatLiteral1}|{FloatLiteral2}|{FloatLiteral3}|({Digit}+[fFdD]))
 
 ErrorNumberFormat			= (({IntegerLiteral}|{HexLiteral}|{FloatLiteral}){NonSeparator}+)
-BooleanLiteral				= ("true"|"false")
+BooleanLiteral				= ([tT][rR][uU][eE]|[fF][aA][lL][sS][eE])
 
 Separator					= ([\(\)\{\}\[\]])
 Separator2				= ([\;,.])
 
-NonAssignmentOperator		= ("+"|"-"|"<="|"^"|"++"|"<"|"*"|">="|"%"|"--"|">"|"/"|"!="|"?"|">>"|"!"|"&"|"=="|":"|">>"|"~"|"|"|"&&"|">>>")
+NonAssignmentOperator		= ("+"|"-"|"<="|"^"|"++"|"<"|"*"|">="|"%"|"--"|">"|"/"|"!="|"<>"|"><"|"?"|">>"|"!"|"&"|"=="|":"|">>"|"~"|"|"|"&&"|">>>")
 AssignmentOperator			= ("="|"-="|"*="|"/="|"|="|"&="|"^="|"+="|"%="|"<<="|">>="|">>>=")
 Operator					= ({NonAssignmentOperator}|{AssignmentOperator})
 

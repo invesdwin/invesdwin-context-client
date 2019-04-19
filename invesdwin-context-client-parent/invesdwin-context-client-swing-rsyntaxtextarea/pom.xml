@@ -59,6 +59,7 @@
 											src/main/java
 										</lexDefinition>
 									</lexDefinitions>
+									<backup>false</backup>
 								</configuration>
 							</execution>
 						</executions>
