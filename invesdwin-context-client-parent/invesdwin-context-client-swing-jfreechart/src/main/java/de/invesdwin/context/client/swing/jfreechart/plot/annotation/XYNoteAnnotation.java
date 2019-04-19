@@ -98,7 +98,7 @@ public class XYNoteAnnotation extends AbstractXYAnnotation {
             yy = j2DY;
         }
 
-        final double maxW = dataArea.getWidth();
+        final double maxW = dataArea.getWidth() * 0.99;
         final double maxH = dataArea.getHeight();
         final RectangleConstraint rc = new RectangleConstraint(new Range(0, maxW), new Range(0, maxH));
 

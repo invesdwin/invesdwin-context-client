@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import javax.annotation.concurrent.Immutable;
+import javax.annotation.concurrent.NotThreadSafe;
 
 import org.fife.ui.autocomplete.DefaultCompletionProvider;
 import org.fife.ui.autocomplete.FunctionCompletion;
@@ -18,24 +18,25 @@ import de.invesdwin.util.math.expression.IFunctionParameterInfo;
 import de.invesdwin.util.math.expression.eval.VariableReference;
 import de.invesdwin.util.math.expression.variable.IVariable;
 
-@Immutable
-public final class ExpressionCompletionProviders {
+@NotThreadSafe
+public class ExpressionCompletionProvider extends DefaultCompletionProvider {
 
     public static final int RELEVANCE_FUNCTION = 1;
     public static final int RELEVANCE_VARIABLE = 2;
 
-    private ExpressionCompletionProviders() {}
+    @Override
+    protected boolean isValidChar(final char ch) {
+        return super.isValidChar(ch) || ch == '#';
+    }
 
-    public static void registerDefaultCompletions(final DefaultCompletionProvider provider,
-            final Set<String> duplicateExpressionFilter) {
+    public void registerDefaultCompletions(final Set<String> duplicateExpressionFilter) {
         for (final VariableReference variableReference : ExpressionParser.getDefaultVariables()) {
             final IVariable v = variableReference.getVariable();
             final String expressionName = v.getExpressionName();
             if (duplicateExpressionFilter.add(expressionName)) {
-                final VariableCompletion c = new VariableCompletion(provider, expressionName, v.getType().toString());
-                c.setShortDescription(newNamedDescription(v.getName(), v.getDescription()));
-                c.setRelevance(RELEVANCE_VARIABLE);
-                provider.addCompletion(c);
+                final VariableCompletion c = newVariable(expressionName, v.getName(), v.getDescription(),
+                        v.getType().toString());
+                addCompletion(c);
             }
         }
 
@@ -45,31 +46,48 @@ public final class ExpressionCompletionProviders {
                 final IFunctionParameterInfo[] parameters = f.getParameterInfos();
 
                 if (parameters.length > 0) {
-                    final FunctionCompletion c = new FunctionCompletion(provider, expressionName,
+                    final FunctionCompletion c = newFunction(expressionName, f.getName(), f.getDescription(),
                             f.getReturnType().toString());
-                    c.setShortDescription(newNamedDescription(f.getName(), f.getDescription()));
-                    c.setRelevance(RELEVANCE_FUNCTION);
 
                     final List<Parameter> params = new ArrayList<>();
                     for (int i = 0; i < parameters.length; i++) {
                         final IFunctionParameterInfo parameter = parameters[i];
-                        final Parameter p = new Parameter(parameter.getType().toString(), parameter.getExpressionName(),
-                                i == parameters.length - 1);
-                        p.setDescription(parameter.getDescription());
+                        final Parameter p = newParameter(parameter.getExpressionName(), parameter.getDescription(),
+                                parameter.getType().toString());
                         params.add(p);
                     }
                     c.setParams(params);
 
-                    provider.addCompletion(c);
+                    addCompletion(c);
                 } else {
-                    final VariableCompletion c = new VariableCompletion(provider, expressionName,
+                    final VariableCompletion c = newVariable(expressionName, f.getName(), f.getDescription(),
                             f.getReturnType().toString());
-                    c.setShortDescription(newNamedDescription(f.getName(), f.getDescription()));
-                    c.setRelevance(RELEVANCE_VARIABLE);
-                    provider.addCompletion(c);
+                    addCompletion(c);
                 }
             }
         }
+    }
+
+    public Parameter newParameter(final String expressionName, final String description, final String type) {
+        final Parameter p = new Parameter(type, expressionName);
+        p.setDescription(description);
+        return p;
+    }
+
+    public VariableCompletion newVariable(final String expressionName, final String name, final String description,
+            final String type) {
+        final VariableCompletion c = new VariableCompletion(this, expressionName, type);
+        c.setShortDescription(newNamedDescription(name, description));
+        c.setRelevance(RELEVANCE_VARIABLE);
+        return c;
+    }
+
+    public FunctionCompletion newFunction(final String expressionName, final String name, final String description,
+            final String returnType) {
+        final FunctionCompletion c = new FunctionCompletion(this, expressionName, returnType);
+        c.setShortDescription(newNamedDescription(name, description));
+        c.setRelevance(RELEVANCE_FUNCTION);
+        return c;
     }
 
     public static String newNamedDescription(final String name, final String description) {
