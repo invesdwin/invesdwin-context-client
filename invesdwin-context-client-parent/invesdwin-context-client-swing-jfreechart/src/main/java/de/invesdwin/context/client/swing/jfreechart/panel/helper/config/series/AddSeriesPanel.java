@@ -116,31 +116,15 @@ public class AddSeriesPanel extends JPanel {
         layout.btn_addExpression.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(final ActionEvent e) {
-                final String expression = layout.tf_expression.textArea.getText();
-                if (Strings.isBlank(expression)) {
-                    Dialogs.showMessageDialog(layout, "Expression should not be blank.", "Error",
-                            Dialogs.ERROR_MESSAGE);
-                } else {
-                    final IExpressionSeriesProvider provider = plotConfigurationHelper.getExpressionSeriesProvider();
-                    try {
-                        final IPlotSourceDataset dataset = provider.newInstance(plotConfigurationHelper.getChartPanel(),
-                                expression);
-                        dataset.setExpressionSeriesProvider(provider);
-                        dataset.setExpressionSeriesArguments(expression);
-                        dataset.setSeriesTitle(expression);
+                addExpression();
+            }
+        });
+        layout.btn_addExpression_popup_debug.addActionListener(new ActionListener() {
 
-                        layout.lbl_expression.setIcon(ICON_EXPRESSION);
-                    } catch (final Throwable t) {
-                        LOG.warn("Error adding series with expression [" + expression + "]\n"
-                                + Throwables.getFullStackTrace(t));
-
-                        Dialogs.showMessageDialog(layout,
-                                "<html><b>Expression:</b><br><pre>  " + expression
-                                        + "</pre><br><b>Error:</b><br><pre>  "
-                                        + HtmlUtils.htmlEscape(Throwables.concatMessagesShort(t).replace("\n", "\n  "))
-                                        + "</pre>",
-                                "Error", Dialogs.ERROR_MESSAGE);
-                    }
+            @Override
+            public void actionPerformed(final ActionEvent e) {
+                if (addExpression()) {
+                    //TODO add details
                 }
             }
         });
@@ -181,6 +165,36 @@ public class AddSeriesPanel extends JPanel {
         }
 
         plotConfigurationHelper.getExpressionSeriesProvider().configureEditor(layout.tf_expression.textArea);
+    }
+
+    private boolean addExpression() {
+        final String expression = layout.tf_expression.textArea.getText();
+        if (Strings.isBlank(expression)) {
+            Dialogs.showMessageDialog(layout, "Expression should not be blank.", "Error", Dialogs.ERROR_MESSAGE);
+            return false;
+        } else {
+            final IExpressionSeriesProvider provider = plotConfigurationHelper.getExpressionSeriesProvider();
+            try {
+                final IPlotSourceDataset dataset = provider.newInstance(plotConfigurationHelper.getChartPanel(),
+                        expression);
+                dataset.setExpressionSeriesProvider(provider);
+                dataset.setExpressionSeriesArguments(expression);
+                dataset.setSeriesTitle(expression);
+
+                layout.lbl_expression.setIcon(ICON_EXPRESSION);
+                return true;
+            } catch (final Throwable t) {
+                LOG.warn(
+                        "Error adding series with expression [" + expression + "]\n" + Throwables.getFullStackTrace(t));
+
+                Dialogs.showMessageDialog(layout,
+                        "<html><b>Expression:</b><br><pre>  " + expression + "</pre><br><b>Error:</b><br><pre>  "
+                                + HtmlUtils.htmlEscape(Throwables.concatMessagesShort(t).replace("\n", "\n  "))
+                                + "</pre>",
+                        "Error", Dialogs.ERROR_MESSAGE);
+                return false;
+            }
+        }
     }
 
     private DefaultTableModel newTableModel(final String search) {

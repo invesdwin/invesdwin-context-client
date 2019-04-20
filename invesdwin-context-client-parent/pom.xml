@@ -323,7 +323,6 @@
 				</exclusions>
 			</dependency>
 
-
 			<dependency>
 				<groupId>org.swingexplorer</groupId>
 				<artifactId>swingexplorer-core</artifactId>

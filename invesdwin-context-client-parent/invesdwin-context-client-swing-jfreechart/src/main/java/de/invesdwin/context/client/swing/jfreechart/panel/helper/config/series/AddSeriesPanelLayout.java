@@ -8,7 +8,9 @@ import javax.annotation.concurrent.NotThreadSafe;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
@@ -20,6 +22,7 @@ import javax.swing.table.DefaultTableModel;
 
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.icons.PlotIcons;
 import de.invesdwin.context.client.swing.rsyntaxtextarea.DynamicRSyntaxTextAreaPanel;
+import de.invesdwin.util.swing.button.JSplitButton;
 
 @NotThreadSafe
 public class AddSeriesPanelLayout extends JPanel {
@@ -29,7 +32,9 @@ public class AddSeriesPanelLayout extends JPanel {
     //CHECKSTYLE:OFF
     public final JPanel pnl_expression;
     public final DynamicRSyntaxTextAreaPanel tf_expression;
-    public final JButton btn_addExpression;
+    public final JSplitButton btn_addExpression;
+    public final JPopupMenu btn_addExpression_popup;
+    public final JMenuItem btn_addExpression_popup_debug;
     public final JTextField tf_search;
     public final JPanel pnl_indicator;
     public final JTable tbl_indicator;
@@ -48,8 +53,13 @@ public class AddSeriesPanelLayout extends JPanel {
                 new EmptyBorder(0, 5, 5, 5)));
         add(pnl_expression, BorderLayout.NORTH);
 
-        btn_addExpression = new JButton("Add");
+        btn_addExpression = new JSplitButton("Add");
         pnl_expression.add(btn_addExpression, BorderLayout.EAST);
+
+        btn_addExpression_popup = new JPopupMenu();
+        btn_addExpression_popup_debug = new JMenuItem("Debug");
+        btn_addExpression_popup.add(btn_addExpression_popup_debug);
+        btn_addExpression.setPopupMenu(btn_addExpression_popup);
 
         tf_expression = new DynamicRSyntaxTextAreaPanel(window);
         pnl_expression.add(tf_expression, BorderLayout.CENTER);
