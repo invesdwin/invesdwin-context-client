@@ -10,19 +10,18 @@ import de.invesdwin.context.client.swing.jfreechart.panel.InteractiveChartPanel;
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.IPlotSourceDataset;
 import de.invesdwin.context.client.swing.rsyntaxtextarea.expression.ExpressionCompletionCellRenderer;
 import de.invesdwin.context.client.swing.rsyntaxtextarea.expression.ExpressionValidatingParser;
+import de.invesdwin.util.lang.Strings;
 import de.invesdwin.util.math.expression.IExpression;
 import de.invesdwin.util.math.expression.tokenizer.ParseException;
 
 public interface IExpressionSeriesProvider {
-
-    String getPlotPaneId();
 
     /**
      * This method will be called to validate the expression. Thus eager exceptions should be thrown here.
      */
     IExpression parseExpression(String expression);
 
-    IPlotSourceDataset newInstance(InteractiveChartPanel chartPanel, String expression);
+    IPlotSourceDataset newInstance(InteractiveChartPanel chartPanel, String expression, String plotPaneId);
 
     void modifyDataset(InteractiveChartPanel chartPanel, IPlotSourceDataset dataset, String expression);
 
@@ -50,6 +49,14 @@ public interface IExpressionSeriesProvider {
     default void configureEditor(final RSyntaxTextArea editor) {
         editor.addParser(newValidatingParser());
         newAutoCompletion().install(editor);
+    }
+
+    default String getPlotPaneId(final IExpression expression) {
+        return "Expression: " + getTitle(expression.toString());
+    }
+
+    default String getTitle(final String expression) {
+        return Strings.eventuallyAddPrefix(Strings.eventuallyAddSuffix(expression.toString(), ")"), "(");
     }
 
 }

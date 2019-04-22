@@ -24,6 +24,7 @@ public class PlotSourceXYSeriesCollection extends XYSeriesCollection implements 
 
     private XYPlot plot;
     private Integer precision;
+    private String initialPlotPaneId;
     private String rangeAxisId;
     private String seriesTitle;
     private IIndicatorSeriesProvider indicatorSeriesProvider;
@@ -237,6 +238,16 @@ public class PlotSourceXYSeriesCollection extends XYSeriesCollection implements 
     @Override
     public double getVolumeValue(final int series, final int item) {
         return getVolume(series, item).doubleValue();
+    }
+
+    @Override
+    public String getInitialPlotPaneId() {
+        return initialPlotPaneId;
+    }
+
+    @Override
+    public void setInitialPlotPaneId(final String initialPlotPaneId) {
+        this.initialPlotPaneId = initialPlotPaneId;
     }
 
 }

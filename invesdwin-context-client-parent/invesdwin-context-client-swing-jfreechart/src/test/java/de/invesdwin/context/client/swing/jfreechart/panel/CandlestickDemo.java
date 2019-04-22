@@ -141,7 +141,8 @@ public class CandlestickDemo extends JFrame {
 
     private final class CustomExpressionSeriesProvider implements IExpressionSeriesProvider {
         @Override
-        public IPlotSourceDataset newInstance(final InteractiveChartPanel chartPanel, final String expression) {
+        public IPlotSourceDataset newInstance(final InteractiveChartPanel chartPanel, final String expression,
+                final String plotPaneId) {
             final Stroke stroke = chartPanel.getPlotConfigurationHelper().getPriceInitialSettings().getSeriesStroke();
             final LineStyleType lineStyleType = LineStyleType.valueOf(stroke);
             final LineWidthType lineWidthType = LineWidthType.valueOf(stroke);
@@ -149,13 +150,14 @@ public class CandlestickDemo extends JFrame {
             final boolean priceLineVisible = false;
             final boolean priceLabelVisible = false;
 
-            final String seriesId = SERIES_ID_GENERATOR.get(getPlotPaneId());
+            final String seriesId = SERIES_ID_GENERATOR.get(plotPaneId);
             final PlotSourceXYSeriesCollection dataset = new PlotSourceXYSeriesCollection(seriesId);
             dataset.setSeriesTitle(expression);
             final XYPlot plot = chartPanel.getOhlcPlot();
             dataset.setPlot(plot);
             dataset.setPrecision(4);
-            dataset.setRangeAxisId(getPlotPaneId());
+            dataset.setInitialPlotPaneId(plotPaneId);
+            dataset.setRangeAxisId(plotPaneId);
             final IndexedDateTimeXYSeries series = newSeriesPrefilled(chartPanel, expression, seriesId);
             final int datasetIndex = plot.getDatasetCount();
             dataset.addSeries(series);
@@ -215,11 +217,6 @@ public class CandlestickDemo extends JFrame {
         @Override
         public IExpression parseExpression(final String expression) {
             return new ExpressionParser(expression).parse();
-        }
-
-        @Override
-        public String getPlotPaneId() {
-            return "Expression";
         }
 
         @Override
@@ -284,6 +281,7 @@ public class CandlestickDemo extends JFrame {
             final XYPlot plot = chartPanel.getOhlcPlot();
             dataset.setPlot(plot);
             dataset.setPrecision(4);
+            dataset.setInitialPlotPaneId(getPlotPaneId());
             dataset.setRangeAxisId(getPlotPaneId());
             final String seriesId = SERIES_ID_GENERATOR.get(getPlotPaneId());
             final IndexedDateTimeXYSeries series = newSeriesPrefilled(chartPanel, args, seriesId);

@@ -25,9 +25,11 @@ public class AddSeriesDialog extends JDialog {
     public AddSeriesDialog(final PlotConfigurationHelper plotConfigurationHelper) {
         super(Dialogs.getFrameForComponent(plotConfigurationHelper.getChartPanel()), true);
         System.out.println("TODO: "//
-                + "\ndocument this feature in help;"//
-                + "\nallow to plot expression components individually (only API or also via popup?);"//
-                + "\nmaybe make expression column click in add series add to expression builder? maybe make this dynamic when focus is on expression?"//
+                + "\ndocument this feature in help;" //
+                + "\nallow to plot expression components individually (API needs to be implemented);" //
+                + "add more options for date expressions so that string modifications are not needed" //
+                + "fix sma indicator" //
+                + "fix !5 expression" //
         );
         final Container contentPane = getContentPane();
         contentPane.setLayout(new BorderLayout());

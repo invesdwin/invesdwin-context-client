@@ -25,6 +25,10 @@ public interface IPlotSourceDataset extends XYDataset, OHLCDataset, Closeable {
 
     void setPrecision(Integer precision);
 
+    String getInitialPlotPaneId();
+
+    void setInitialPlotPaneId(String initialPlotPaneId);
+
     String getRangeAxisId();
 
     void setRangeAxisId(String rangeAxisId);

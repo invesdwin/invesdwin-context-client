@@ -34,6 +34,7 @@ public class OrderPlottingDataset extends AbstractXYDataset implements IPlotSour
     private Integer precision;
     private XYPlot plot;
     private DatasetGroup group;
+    private String initialPlotPaneId;
     private String rangeAxisId;
     private final Map<String, OrderPlottingDataItem> orderId_item = new LinkedHashMap<>();
     private boolean lastTradeProfit = true;
@@ -274,6 +275,16 @@ public class OrderPlottingDataset extends AbstractXYDataset implements IPlotSour
     @Override
     public double getVolumeValue(final int series, final int item) {
         return ohlcDataset.getVolumeValue(series, item);
+    }
+
+    @Override
+    public String getInitialPlotPaneId() {
+        return initialPlotPaneId;
+    }
+
+    @Override
+    public void setInitialPlotPaneId(final String initialPlotPaneId) {
+        this.initialPlotPaneId = initialPlotPaneId;
     }
 
 }

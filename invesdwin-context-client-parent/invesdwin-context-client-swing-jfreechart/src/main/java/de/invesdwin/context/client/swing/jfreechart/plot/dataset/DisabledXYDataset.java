@@ -205,4 +205,14 @@ public class DisabledXYDataset extends AbstractXYDataset implements IPlotSourceD
         return enabledDataset.getVolumeValue(series, item);
     }
 
+    @Override
+    public String getInitialPlotPaneId() {
+        return enabledDataset.getInitialPlotPaneId();
+    }
+
+    @Override
+    public void setInitialPlotPaneId(final String plotPaneId) {
+        enabledDataset.setInitialPlotPaneId(plotPaneId);
+    }
+
 }

@@ -23,6 +23,7 @@ public class IndexedDateTimeOHLCDataset extends ListOHLCDataset
     private XYPlot plot;
     private Integer precision;
     private String rangeAxisId;
+    private String initialPlotPaneId;
     private String seriesTitle;
     private IIndicatorSeriesProvider indicatorSeriesProvider;
     private IExpression[] indicatorSeriesArguments;
@@ -178,6 +179,16 @@ public class IndexedDateTimeOHLCDataset extends ListOHLCDataset
     @Override
     public void setExpressionSeriesArguments(final String expressionSeriesArguments) {
         this.expressionSeriesArguments = expressionSeriesArguments;
+    }
+
+    @Override
+    public String getInitialPlotPaneId() {
+        return initialPlotPaneId;
+    }
+
+    @Override
+    public void setInitialPlotPaneId(final String initialPlotPaneId) {
+        this.initialPlotPaneId = initialPlotPaneId;
     }
 
 }

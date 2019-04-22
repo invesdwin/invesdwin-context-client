@@ -7,6 +7,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 import javax.annotation.concurrent.NotThreadSafe;
@@ -23,7 +25,9 @@ import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.series.i
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.IPlotSourceDataset;
 import de.invesdwin.util.error.Throwables;
 import de.invesdwin.util.lang.Strings;
+import de.invesdwin.util.math.expression.AExpressionVisitor;
 import de.invesdwin.util.math.expression.IExpression;
+import de.invesdwin.util.math.expression.eval.operation.BinaryOperation;
 import de.invesdwin.util.swing.Dialogs;
 import de.invesdwin.util.swing.icon.ChangeColorImageFilter;
 import de.invesdwin.util.swing.listener.DocumentListenerSupport;
@@ -123,8 +127,64 @@ public class AddSeriesPanel extends JPanel {
 
             @Override
             public void actionPerformed(final ActionEvent e) {
-                if (addExpression()) {
-                    //TODO add details
+                final IPlotSourceDataset originalDataset = addExpression();
+                if (originalDataset != null) {
+                    final IExpressionSeriesProvider provider = plotConfigurationHelper.getExpressionSeriesProvider();
+                    final IExpression originalExpression = provider
+                            .parseExpression(layout.tf_expression.textArea.getText());
+                    final Set<String> duplicateExpressionFilter = new HashSet<>();
+                    duplicateExpressionFilter.add(originalExpression.toString());
+                    final AExpressionVisitor visitor = new AExpressionVisitor() {
+
+                        @Override
+                        protected void visitOther(final IExpression expression) {
+                            final String plotPaneId = provider.getPlotPaneId(expression);
+                            prefixRangeAxisId("Other Part: ",
+                                    addExpressionPart(expression, plotPaneId, duplicateExpressionFilter));
+                        }
+
+                        @Override
+                        protected boolean visitMath(final BinaryOperation expression) {
+                            final String plotPaneId = provider.getPlotPaneId(expression);
+                            prefixRangeAxisId("Math Part: ",
+                                    addExpressionPart(expression, plotPaneId, duplicateExpressionFilter));
+                            return false;
+                        }
+
+                        @Override
+                        protected boolean visitComparison(final BinaryOperation expression) {
+                            final String plotPaneId = provider.getPlotPaneId(expression);
+                            final IPlotSourceDataset dataset = addExpressionPart(expression, plotPaneId,
+                                    duplicateExpressionFilter);
+                            if (dataset != null) {
+                                prefixRangeAxisId("Comparison Result: ", dataset);
+                                prefixRangeAxisId("Comparison Parts: ",
+                                        addExpressionPart(expression.getLeft(), plotPaneId, duplicateExpressionFilter));
+                                prefixRangeAxisId("Comparison Parts: ", addExpressionPart(expression.getRight(),
+                                        plotPaneId, duplicateExpressionFilter));
+                            } else if (originalExpression.toString().equals(expression.toString())) {
+                                prefixRangeAxisId("Comparison Result: ", originalDataset);
+                                prefixRangeAxisId("Comparison Parts: ", addExpressionPart(expression.getLeft(),
+                                        originalDataset.getInitialPlotPaneId(), duplicateExpressionFilter));
+                                prefixRangeAxisId("Comparison Parts: ", addExpressionPart(expression.getRight(),
+                                        originalDataset.getInitialPlotPaneId(), duplicateExpressionFilter));
+                            }
+                            return false;
+                        }
+
+                        private void prefixRangeAxisId(final String prefix, final IPlotSourceDataset dataset) {
+                            if (dataset != null) {
+                                dataset.setRangeAxisId(prefix + dataset.getSeriesTitle());
+                            }
+                        }
+
+                        @Override
+                        protected boolean visitLogicalCombination(final BinaryOperation expression) {
+                            return true;
+                        }
+
+                    };
+                    visitor.process(originalExpression);
                 }
             }
         });
@@ -167,32 +227,58 @@ public class AddSeriesPanel extends JPanel {
         plotConfigurationHelper.getExpressionSeriesProvider().configureEditor(layout.tf_expression.textArea);
     }
 
-    private boolean addExpression() {
+    private IPlotSourceDataset addExpressionPart(final IExpression expression, final String plotPaneId,
+            final Set<String> duplicateExpressionFilter) {
+        final String expressionStr = expression.toString();
+        try {
+            if (!duplicateExpressionFilter.add(expressionStr)) {
+                return null;
+            }
+            final IExpressionSeriesProvider provider = plotConfigurationHelper.getExpressionSeriesProvider();
+            final IPlotSourceDataset dataset = provider.newInstance(plotConfigurationHelper.getChartPanel(),
+                    expressionStr, plotPaneId);
+            dataset.setExpressionSeriesProvider(provider);
+            dataset.setExpressionSeriesArguments(expressionStr);
+            dataset.setSeriesTitle(provider.getTitle(expressionStr));
+            return dataset;
+        } catch (final Throwable t) {
+            LOG.warn("Error adding series for expression part [" + expressionStr + "]\n"
+                    + Throwables.getFullStackTrace(t));
+
+            Dialogs.showMessageDialog(layout,
+                    "<html><b>Expression:</b><br><pre>  " + expressionStr + "</pre><br><b>Error:</b><br><pre>  "
+                            + HtmlUtils.htmlEscape(Throwables.concatMessagesShort(t).replace("\n", "\n  ")) + "</pre>",
+                    "Error", Dialogs.ERROR_MESSAGE);
+            return null;
+        }
+    }
+
+    private IPlotSourceDataset addExpression() {
         final String expression = layout.tf_expression.textArea.getText();
         if (Strings.isBlank(expression)) {
             Dialogs.showMessageDialog(layout, "Expression should not be blank.", "Error", Dialogs.ERROR_MESSAGE);
-            return false;
+            return null;
         } else {
             final IExpressionSeriesProvider provider = plotConfigurationHelper.getExpressionSeriesProvider();
             try {
+                final String plotPaneId = provider.getPlotPaneId(provider.parseExpression(expression));
                 final IPlotSourceDataset dataset = provider.newInstance(plotConfigurationHelper.getChartPanel(),
-                        expression);
+                        expression, plotPaneId);
                 dataset.setExpressionSeriesProvider(provider);
                 dataset.setExpressionSeriesArguments(expression);
-                dataset.setSeriesTitle(expression);
+                dataset.setSeriesTitle(provider.getTitle(expression));
 
                 layout.lbl_expression.setIcon(ICON_EXPRESSION);
-                return true;
+                return dataset;
             } catch (final Throwable t) {
-                LOG.warn(
-                        "Error adding series with expression [" + expression + "]\n" + Throwables.getFullStackTrace(t));
+                LOG.warn("Error adding series for expression [" + expression + "]\n" + Throwables.getFullStackTrace(t));
 
                 Dialogs.showMessageDialog(layout,
                         "<html><b>Expression:</b><br><pre>  " + expression + "</pre><br><b>Error:</b><br><pre>  "
                                 + HtmlUtils.htmlEscape(Throwables.concatMessagesShort(t).replace("\n", "\n  "))
                                 + "</pre>",
                         "Error", Dialogs.ERROR_MESSAGE);
-                return false;
+                return null;
             }
         }
     }
