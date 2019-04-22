@@ -26,10 +26,11 @@ public class AddSeriesDialog extends JDialog {
         super(Dialogs.getFrameForComponent(plotConfigurationHelper.getChartPanel()), true);
         System.out.println("TODO: "//
                 + "\ndocument this feature in help;" //
-                + "\nallow to plot expression components individually (API needs to be implemented);" //
-                + "add more options for date expressions so that string modifications are not needed" //
+                + "add more arguments for date expressions so that string modifications are not needed" //
                 + "fix sma indicator" //
                 + "fix !5 expression" //
+                + "disable interactive listeners during initialization (otherwise panning will cause arrayindexoutofbounds)" //
+                + "fix nullpointer with expression debug on website plotting" //
         );
         final Container contentPane = getContentPane();
         contentPane.setLayout(new BorderLayout());

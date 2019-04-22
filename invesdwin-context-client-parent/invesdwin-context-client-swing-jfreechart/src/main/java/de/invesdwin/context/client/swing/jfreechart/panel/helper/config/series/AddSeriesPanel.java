@@ -139,34 +139,34 @@ public class AddSeriesPanel extends JPanel {
                         @Override
                         protected void visitOther(final IExpression expression) {
                             final String plotPaneId = provider.getPlotPaneId(expression);
-                            prefixRangeAxisId("Other Part: ",
-                                    addExpressionPart(expression, plotPaneId, duplicateExpressionFilter));
+                            prefixRangeAxisId("DEBUG Other: ",
+                                    addExpressionDebug(expression, plotPaneId, duplicateExpressionFilter));
                         }
 
                         @Override
                         protected boolean visitMath(final BinaryOperation expression) {
                             final String plotPaneId = provider.getPlotPaneId(expression);
-                            prefixRangeAxisId("Math Part: ",
-                                    addExpressionPart(expression, plotPaneId, duplicateExpressionFilter));
+                            prefixRangeAxisId("DEBUG Math: ",
+                                    addExpressionDebug(expression, plotPaneId, duplicateExpressionFilter));
                             return false;
                         }
 
                         @Override
                         protected boolean visitComparison(final BinaryOperation expression) {
                             final String plotPaneId = provider.getPlotPaneId(expression);
-                            final IPlotSourceDataset dataset = addExpressionPart(expression, plotPaneId,
+                            final IPlotSourceDataset dataset = addExpressionDebug(expression, plotPaneId,
                                     duplicateExpressionFilter);
                             if (dataset != null) {
-                                prefixRangeAxisId("Comparison Result: ", dataset);
-                                prefixRangeAxisId("Comparison Parts: ",
-                                        addExpressionPart(expression.getLeft(), plotPaneId, duplicateExpressionFilter));
-                                prefixRangeAxisId("Comparison Parts: ", addExpressionPart(expression.getRight(),
+                                prefixRangeAxisId("DEBUG CompResult: ", dataset);
+                                prefixRangeAxisId("DEBUG Comparison: ",
+                                        addExpressionDebug(expression.getLeft(), plotPaneId, duplicateExpressionFilter));
+                                prefixRangeAxisId("DEBUG Comparison: ", addExpressionDebug(expression.getRight(),
                                         plotPaneId, duplicateExpressionFilter));
                             } else if (originalExpression.toString().equals(expression.toString())) {
-                                prefixRangeAxisId("Comparison Result: ", originalDataset);
-                                prefixRangeAxisId("Comparison Parts: ", addExpressionPart(expression.getLeft(),
+                                prefixRangeAxisId("DEBUG CompResult: ", originalDataset);
+                                prefixRangeAxisId("DEBUG Comparison: ", addExpressionDebug(expression.getLeft(),
                                         originalDataset.getInitialPlotPaneId(), duplicateExpressionFilter));
-                                prefixRangeAxisId("Comparison Parts: ", addExpressionPart(expression.getRight(),
+                                prefixRangeAxisId("DEBUG Comparison: ", addExpressionDebug(expression.getRight(),
                                         originalDataset.getInitialPlotPaneId(), duplicateExpressionFilter));
                             }
                             return false;
@@ -227,7 +227,7 @@ public class AddSeriesPanel extends JPanel {
         plotConfigurationHelper.getExpressionSeriesProvider().configureEditor(layout.tf_expression.textArea);
     }
 
-    private IPlotSourceDataset addExpressionPart(final IExpression expression, final String plotPaneId,
+    private IPlotSourceDataset addExpressionDebug(final IExpression expression, final String plotPaneId,
             final Set<String> duplicateExpressionFilter) {
         final String expressionStr = expression.toString();
         try {
