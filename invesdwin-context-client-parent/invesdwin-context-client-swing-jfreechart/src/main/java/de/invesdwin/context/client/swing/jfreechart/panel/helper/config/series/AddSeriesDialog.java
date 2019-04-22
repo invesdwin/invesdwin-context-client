@@ -31,6 +31,7 @@ public class AddSeriesDialog extends JDialog {
                 + "fix !5 expression" //
                 + "disable interactive listeners during initialization (otherwise panning will cause arrayindexoutofbounds)" //
                 + "fix nullpointer with expression debug on website plotting" //
+                + "add original expression last during debug (to be consistent with API)" //
         );
         final Container contentPane = getContentPane();
         contentPane.setLayout(new BorderLayout());
