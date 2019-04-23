@@ -127,68 +127,74 @@ public class AddSeriesPanel extends JPanel {
 
             @Override
             public void actionPerformed(final ActionEvent e) {
-                final IPlotSourceDataset originalDataset = addExpression();
-                if (originalDataset != null) {
-                    final IExpressionSeriesProvider provider = plotConfigurationHelper.getExpressionSeriesProvider();
-                    final IExpression originalExpression = provider
-                            .parseExpression(layout.tf_expression.textArea.getText());
-                    final Set<String> duplicateExpressionFilter = new HashSet<>();
-                    duplicateExpressionFilter.add(originalExpression.toString());
-                    final AExpressionVisitor visitor = new AExpressionVisitor() {
-
-                        @Override
-                        protected void visitOther(final IExpression expression) {
-                            final String plotPaneId = provider.getPlotPaneId(expression);
-                            prefixRangeAxisId("DEBUG Other: ",
-                                    addExpressionDebug(expression, plotPaneId, duplicateExpressionFilter));
-                        }
-
-                        @Override
-                        protected boolean visitMath(final BinaryOperation expression) {
-                            final String plotPaneId = provider.getPlotPaneId(expression);
-                            prefixRangeAxisId("DEBUG Math: ",
-                                    addExpressionDebug(expression, plotPaneId, duplicateExpressionFilter));
-                            return false;
-                        }
-
-                        @Override
-                        protected boolean visitComparison(final BinaryOperation expression) {
-                            final String plotPaneId = provider.getPlotPaneId(expression);
-                            final IPlotSourceDataset dataset = addExpressionDebug(expression, plotPaneId,
-                                    duplicateExpressionFilter);
-                            if (dataset != null) {
-                                prefixRangeAxisId("DEBUG CompResult: ", dataset);
-                                prefixRangeAxisId("DEBUG Comparison: ",
-                                        addExpressionDebug(expression.getLeft(), plotPaneId, duplicateExpressionFilter));
-                                prefixRangeAxisId("DEBUG Comparison: ", addExpressionDebug(expression.getRight(),
-                                        plotPaneId, duplicateExpressionFilter));
-                            } else if (originalExpression.toString().equals(expression.toString())) {
-                                prefixRangeAxisId("DEBUG CompResult: ", originalDataset);
-                                prefixRangeAxisId("DEBUG Comparison: ", addExpressionDebug(expression.getLeft(),
-                                        originalDataset.getInitialPlotPaneId(), duplicateExpressionFilter));
-                                prefixRangeAxisId("DEBUG Comparison: ", addExpressionDebug(expression.getRight(),
-                                        originalDataset.getInitialPlotPaneId(), duplicateExpressionFilter));
-                            }
-                            return false;
-                        }
-
-                        private void prefixRangeAxisId(final String prefix, final IPlotSourceDataset dataset) {
-                            if (dataset != null) {
-                                dataset.setRangeAxisId(prefix + dataset.getSeriesTitle());
-                            }
-                        }
-
-                        @Override
-                        protected boolean visitLogicalCombination(final BinaryOperation expression) {
-                            return true;
-                        }
-
-                    };
-                    visitor.process(originalExpression);
+                final IExpressionSeriesProvider provider = plotConfigurationHelper.getExpressionSeriesProvider();
+                final String originalExpressionStr = layout.tf_expression.textArea.getText();
+                if (Strings.isBlank(originalExpressionStr)) {
+                    logExpressionBlank();
+                } else {
+                    final IExpression originalExpression;
+                    try {
+                        originalExpression = provider.parseExpression(originalExpressionStr);
+                    } catch (final Throwable t) {
+                        logExpressionException(originalExpressionStr, t);
+                        return;
+                    }
+                    addExpressionDebugViaVisitor(provider, originalExpression);
                 }
+            }
+
+            private void addExpressionDebugViaVisitor(final IExpressionSeriesProvider provider,
+                    final IExpression originalExpression) {
+                final Set<String> duplicateExpressionFilter = new HashSet<>();
+                duplicateExpressionFilter.add(originalExpression.toString());
+                final AExpressionVisitor visitor = new AExpressionVisitor() {
+
+                    @Override
+                    protected void visitOther(final IExpression expression) {
+                        final String plotPaneId = provider.getPlotPaneId(expression);
+                        prefixRangeAxisId("DEBUG Other: ",
+                                addExpressionDebug(expression, plotPaneId, duplicateExpressionFilter));
+                    }
+
+                    @Override
+                    protected boolean visitMath(final BinaryOperation expression) {
+                        final String plotPaneId = provider.getPlotPaneId(expression);
+                        prefixRangeAxisId("DEBUG Math: ",
+                                addExpressionDebug(expression, plotPaneId, duplicateExpressionFilter));
+                        return false;
+                    }
+
+                    @Override
+                    protected boolean visitComparison(final BinaryOperation expression) {
+                        final String plotPaneId = provider.getPlotPaneId(expression);
+                        prefixRangeAxisId("DEBUG CompResult: ",
+                                addExpressionDebug(expression, plotPaneId, duplicateExpressionFilter));
+                        prefixRangeAxisId("DEBUG Comparison: ",
+                                addExpressionDebug(expression.getLeft(), plotPaneId, duplicateExpressionFilter));
+                        prefixRangeAxisId("DEBUG Comparison: ",
+                                addExpressionDebug(expression.getRight(), plotPaneId, duplicateExpressionFilter));
+                        return false;
+                    }
+
+                    private void prefixRangeAxisId(final String prefix, final IPlotSourceDataset dataset) {
+                        if (dataset != null) {
+                            dataset.setRangeAxisId(prefix + dataset.getSeriesTitle());
+                        }
+                    }
+
+                    @Override
+                    protected boolean visitLogicalCombination(final BinaryOperation expression) {
+                        return true;
+                    }
+
+                };
+                visitor.process(originalExpression);
+                final String plotPaneId = provider.getPlotPaneId(originalExpression);
+                addExpressionDebug(originalExpression, plotPaneId, duplicateExpressionFilter);
             }
         });
         layout.tf_expression.textArea.getDocument().addDocumentListener(new DocumentListenerSupport() {
+
             @Override
             protected void update(final DocumentEvent e) {
                 final String expression = layout.tf_expression.textArea.getText();
@@ -211,6 +217,7 @@ public class AddSeriesPanel extends JPanel {
                     layout.lbl_expression.setToolTipText(null);
                 }
             }
+
         });
 
         if (dialog != null) {
@@ -225,6 +232,19 @@ public class AddSeriesPanel extends JPanel {
         }
 
         plotConfigurationHelper.getExpressionSeriesProvider().configureEditor(layout.tf_expression.textArea);
+    }
+
+    private void logExpressionException(final String expressionStr, final Throwable t) {
+        LOG.warn("Error adding series for expression [" + expressionStr + "]\n" + Throwables.getFullStackTrace(t));
+
+        Dialogs.showMessageDialog(layout,
+                "<html><b>Expression:</b><br><pre>  " + expressionStr + "</pre><br><b>Error:</b><br><pre>  "
+                        + HtmlUtils.htmlEscape(Throwables.concatMessagesShort(t).replace("\n", "\n  ")) + "</pre>",
+                "Error", Dialogs.ERROR_MESSAGE);
+    }
+
+    private void logExpressionBlank() {
+        Dialogs.showMessageDialog(layout, "Expression should not be blank.", "Error", Dialogs.ERROR_MESSAGE);
     }
 
     private IPlotSourceDataset addExpressionDebug(final IExpression expression, final String plotPaneId,
@@ -242,22 +262,15 @@ public class AddSeriesPanel extends JPanel {
             dataset.setSeriesTitle(provider.getTitle(expressionStr));
             return dataset;
         } catch (final Throwable t) {
-            LOG.warn("Error adding series for expression part [" + expressionStr + "]\n"
-                    + Throwables.getFullStackTrace(t));
-
-            Dialogs.showMessageDialog(layout,
-                    "<html><b>Expression:</b><br><pre>  " + expressionStr + "</pre><br><b>Error:</b><br><pre>  "
-                            + HtmlUtils.htmlEscape(Throwables.concatMessagesShort(t).replace("\n", "\n  ")) + "</pre>",
-                    "Error", Dialogs.ERROR_MESSAGE);
+            logExpressionException(expressionStr, t);
             return null;
         }
     }
 
-    private IPlotSourceDataset addExpression() {
+    private void addExpression() {
         final String expression = layout.tf_expression.textArea.getText();
         if (Strings.isBlank(expression)) {
-            Dialogs.showMessageDialog(layout, "Expression should not be blank.", "Error", Dialogs.ERROR_MESSAGE);
-            return null;
+            logExpressionBlank();
         } else {
             final IExpressionSeriesProvider provider = plotConfigurationHelper.getExpressionSeriesProvider();
             try {
@@ -269,16 +282,8 @@ public class AddSeriesPanel extends JPanel {
                 dataset.setSeriesTitle(provider.getTitle(expression));
 
                 layout.lbl_expression.setIcon(ICON_EXPRESSION);
-                return dataset;
             } catch (final Throwable t) {
-                LOG.warn("Error adding series for expression [" + expression + "]\n" + Throwables.getFullStackTrace(t));
-
-                Dialogs.showMessageDialog(layout,
-                        "<html><b>Expression:</b><br><pre>  " + expression + "</pre><br><b>Error:</b><br><pre>  "
-                                + HtmlUtils.htmlEscape(Throwables.concatMessagesShort(t).replace("\n", "\n  "))
-                                + "</pre>",
-                        "Error", Dialogs.ERROR_MESSAGE);
-                return null;
+                logExpressionException(expression, t);
             }
         }
     }

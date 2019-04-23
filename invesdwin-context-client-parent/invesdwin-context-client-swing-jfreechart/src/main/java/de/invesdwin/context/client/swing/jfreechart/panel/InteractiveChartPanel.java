@@ -105,18 +105,22 @@ public class InteractiveChartPanel extends JPanel {
         };
 
         chartPanel.setAllowedRangeGap(2);
+
+        new JFreeChartLocaleChanger().process(chart);
+
+        setLayout(new GridLayout());
+        add(chartPanel);
+        resetRange();
+    }
+
+    public void initialize() {
+        chartPanel.initialize();
         chartPanel.addMouseWheelListener(new MouseWheelListenerImpl());
         chartPanel.addMouseMotionListener(new MouseMotionListenerImpl());
         chartPanel.addKeyListener(new KeyListenerImpl());
         chartPanel.setFocusable(true); //key listener only works on focusable panels
-
-        new JFreeChartLocaleChanger().process(chart);
-
         chartPanel.addMouseListener(new MouseListenerImpl());
         chartPanel.addMouseWheelListener(new MouseWheelListenerImpl());
-        setLayout(new GridLayout());
-        add(chartPanel);
-        resetRange();
     }
 
     public PlotCrosshairHelper getPlotCrosshairHelper() {

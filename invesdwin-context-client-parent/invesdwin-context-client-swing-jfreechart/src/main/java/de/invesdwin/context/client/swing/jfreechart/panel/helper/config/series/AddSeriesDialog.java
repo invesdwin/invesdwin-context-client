@@ -27,11 +27,8 @@ public class AddSeriesDialog extends JDialog {
         System.out.println("TODO: "//
                 + "\ndocument this feature in help;" //
                 + "add more arguments for date expressions so that string modifications are not needed" //
-                + "fix !5 expression" //
                 + "make sma(Close, 5) appliedPrice an optional parameter (also for other indicators)"
-                + "disable interactive listeners during initialization (otherwise panning will cause arrayindexoutofbounds)" //
                 + "fix nullpointer with expression debug on website plotting" //
-                + "add original expression last during debug (to be consistent with API)" //
         );
         final Container contentPane = getContentPane();
         contentPane.setLayout(new BorderLayout());

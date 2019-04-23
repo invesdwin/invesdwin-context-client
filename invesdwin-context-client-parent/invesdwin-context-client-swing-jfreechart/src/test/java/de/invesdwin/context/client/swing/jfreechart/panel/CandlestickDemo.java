@@ -71,6 +71,8 @@ public class CandlestickDemo extends JFrame {
 
         chartPanel.getPlotConfigurationHelper().setExpressionSeriesProvider(new CustomExpressionSeriesProvider());
         this.pack();
+
+        chartPanel.initialize();
     }
 
     protected IndexedDateTimeOHLCDataset getDataSet() {

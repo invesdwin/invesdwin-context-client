@@ -15,8 +15,6 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.Transparency;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionListener;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
@@ -45,6 +43,9 @@ import org.jfree.chart.plot.Zoomable;
 import org.jfree.chart.util.ResourceBundleWrapper;
 import org.jfree.data.Range;
 
+import de.invesdwin.util.swing.listener.MouseListenerSupport;
+import de.invesdwin.util.swing.listener.MouseMotionListenerSupport;
+
 /**
  * A Swing GUI component for displaying a {@link JFreeChart} object.
  * <P>
@@ -53,8 +54,7 @@ import org.jfree.data.Range;
  */
 //CHECKSTYLE:OFF
 @NotThreadSafe
-public class CustomChartPanel extends JPanel
-        implements ChartChangeListener, ChartProgressListener, MouseListener, MouseMotionListener {
+public class CustomChartPanel extends JPanel implements ChartChangeListener, ChartProgressListener {
 
     public static final Cursor DEFAULT_CURSOR = Cursor.getDefaultCursor();
     public static final Cursor MOVE_CURSOR = Cursor.getPredefinedCursor(Cursor.MOVE_CURSOR);
@@ -242,8 +242,11 @@ public class CustomChartPanel extends JPanel
 
         enableEvents(AWTEvent.MOUSE_EVENT_MASK);
         enableEvents(AWTEvent.MOUSE_MOTION_EVENT_MASK);
-        addMouseListener(this);
-        addMouseMotionListener(this);
+    }
+
+    public void initialize() {
+        addMouseListener(new MouseListenerImpl());
+        addMouseMotionListener(new MouseMotionListenerImpl());
     }
 
     /**
@@ -745,143 +748,12 @@ public class CustomChartPanel extends JPanel
         // does nothing - override if necessary
     }
 
-    /**
-     * Handles a 'mouse pressed' event.
-     * <P>
-     * This event is the popup trigger on Unix/Linux. For Windows, the popup trigger is the 'mouse released' event.
-     *
-     * @param e
-     *            The mouse event.
-     */
-    @Override
-    public void mousePressed(final MouseEvent e) {
-        if (this.chart == null) {
-            return;
-        }
-        final Plot plot = this.chart.getPlot();
-        // can we pan this plot?
-        if (plot instanceof Pannable && isPanAllowed() && e.getButton() == MouseEvent.BUTTON1) {
-            final Pannable pannable = (Pannable) plot;
-            if (pannable.isDomainPannable() || pannable.isRangePannable()) {
-                final Rectangle2D screenDataArea = getScreenDataArea(e.getX(), e.getY());
-                if (screenDataArea != null && screenDataArea.contains(e.getPoint())) {
-                    this.panW = screenDataArea.getWidth();
-                    this.panH = screenDataArea.getHeight();
-                    this.panLast = e.getPoint();
-                    setCursor(MOVE_CURSOR);
-                }
-            }
-            // the actual panning occurs later in the mouseDragged()
-            // method
-        }
-    }
-
     protected boolean isPanAllowed() {
         return true;
     }
 
-    /**
-     * Handles a 'mouse dragged' event.
-     *
-     * @param e
-     *            the mouse event.
-     */
-    @Override
-    public void mouseDragged(final MouseEvent e) {
-        // handle panning if we have a start point
-        if (this.panLast != null) {
-            final double dx = e.getX() - this.panLast.getX();
-            final double dy = e.getY() - this.panLast.getY();
-            if (dx == 0.0 && dy == 0.0) {
-                return;
-            }
-            final double wPercent = -dx / this.panW;
-            final double hPercent = dy / this.panH;
-            final XYPlot plot = chart.getXYPlot();
-            final ValueAxis domainAxis = plot.getDomainAxis();
-            final Range range = domainAxis.getRange();
-            if (wPercent > 0 && range.getUpperBound() >= plot.getDataset().getItemCount(0) + allowedRangeGap) {
-                return;
-            }
-            if (wPercent < 0 && range.getLowerBound() <= 0 - allowedRangeGap) {
-                return;
-            }
-            final boolean old = this.chart.getPlot().isNotify();
-            this.chart.getPlot().setNotify(false);
-            final Pannable p = (Pannable) this.chart.getPlot();
-            if (p.getOrientation() == PlotOrientation.VERTICAL) {
-                p.panDomainAxes(wPercent, this.info.getPlotInfo(), this.panLast);
-                p.panRangeAxes(hPercent, this.info.getPlotInfo(), this.panLast);
-            } else {
-                p.panDomainAxes(hPercent, this.info.getPlotInfo(), this.panLast);
-                p.panRangeAxes(wPercent, this.info.getPlotInfo(), this.panLast);
-            }
-            this.panLast = e.getPoint();
-            this.chart.getPlot().setNotify(old);
-            return;
-        }
-    }
-
     public boolean isPanning() {
         return panLast != null;
-    }
-
-    /**
-     * Handles a 'mouse released' event. On Windows, we need to check if this is a popup trigger, but only if we haven't
-     * already been tracking a zoom rectangle.
-     *
-     * @param e
-     *            information about the event.
-     */
-    @Override
-    public void mouseReleased(final MouseEvent e) {
-
-        // if we've been panning, we need to reset now that the mouse is
-        // released...
-        if (this.panLast != null) {
-            this.panLast = null;
-            setCursor(DEFAULT_CURSOR);
-        }
-
-    }
-
-    /**
-     * Receives notification of mouse clicks on the panel. These are translated and passed on to any registered
-     * {@link ChartMouseListener}s.
-     *
-     * @param event
-     *            Information about the mouse event.
-     */
-    @Override
-    public void mouseClicked(final MouseEvent event) {
-
-        final Insets insets = getInsets();
-        final int x = (int) ((event.getX() - insets.left) / this.scaleX);
-        final int y = (int) ((event.getY() - insets.top) / this.scaleY);
-
-        this.anchor = new Point2D.Double(x, y);
-        if (this.chart == null) {
-            return;
-        }
-        this.chart.setNotify(true); // force a redraw
-    }
-
-    /**
-     * Implementation of the MouseMotionListener's method.
-     *
-     * @param e
-     *            the event.
-     */
-    @Override
-    public void mouseMoved(final MouseEvent e) {
-        final Graphics2D g2 = (Graphics2D) getGraphics();
-        if (this.horizontalAxisTrace) {
-            drawHorizontalAxisTrace(g2, e.getX());
-        }
-        if (this.verticalAxisTrace) {
-            drawVerticalAxisTrace(g2, e.getY());
-        }
-        g2.dispose();
     }
 
     /**
@@ -1040,14 +912,134 @@ public class CustomChartPanel extends JPanel
         g2.setPaintMode();
     }
 
-    @Override
-    public void mouseEntered(final MouseEvent e) {
-        //noop
+    private class MouseListenerImpl extends MouseListenerSupport {
+
+        /**
+         * Handles a 'mouse released' event. On Windows, we need to check if this is a popup trigger, but only if we
+         * haven't already been tracking a zoom rectangle.
+         *
+         * @param e
+         *            information about the event.
+         */
+        @Override
+        public void mouseReleased(final MouseEvent e) {
+
+            // if we've been panning, we need to reset now that the mouse is
+            // released...
+            if (panLast != null) {
+                panLast = null;
+                setCursor(DEFAULT_CURSOR);
+            }
+
+        }
+
+        /**
+         * Receives notification of mouse clicks on the panel. These are translated and passed on to any registered
+         * {@link ChartMouseListener}s.
+         *
+         * @param event
+         *            Information about the mouse event.
+         */
+        @Override
+        public void mouseClicked(final MouseEvent event) {
+
+            final Insets insets = getInsets();
+            final int x = (int) ((event.getX() - insets.left) / scaleX);
+            final int y = (int) ((event.getY() - insets.top) / scaleY);
+
+            anchor = new Point2D.Double(x, y);
+            if (chart == null) {
+                return;
+            }
+            chart.setNotify(true); // force a redraw
+        }
+
+        /**
+         * Handles a 'mouse pressed' event.
+         * <P>
+         * This event is the popup trigger on Unix/Linux. For Windows, the popup trigger is the 'mouse released' event.
+         *
+         * @param e
+         *            The mouse event.
+         */
+        @Override
+        public void mousePressed(final MouseEvent e) {
+            if (chart == null) {
+                return;
+            }
+            final Plot plot = chart.getPlot();
+            // can we pan this plot?
+            if (plot instanceof Pannable && isPanAllowed() && e.getButton() == MouseEvent.BUTTON1) {
+                final Pannable pannable = (Pannable) plot;
+                if (pannable.isDomainPannable() || pannable.isRangePannable()) {
+                    final Rectangle2D screenDataArea = getScreenDataArea(e.getX(), e.getY());
+                    if (screenDataArea != null && screenDataArea.contains(e.getPoint())) {
+                        panW = screenDataArea.getWidth();
+                        panH = screenDataArea.getHeight();
+                        panLast = e.getPoint();
+                        setCursor(MOVE_CURSOR);
+                    }
+                }
+                // the actual panning occurs later in the mouseDragged()
+                // method
+            }
+        }
     }
 
-    @Override
-    public void mouseExited(final MouseEvent e) {
-        //noop
+    private class MouseMotionListenerImpl extends MouseMotionListenerSupport {
+        @Override
+        public void mouseMoved(final MouseEvent e) {
+            final Graphics2D g2 = (Graphics2D) getGraphics();
+            if (horizontalAxisTrace) {
+                drawHorizontalAxisTrace(g2, e.getX());
+            }
+            if (verticalAxisTrace) {
+                drawVerticalAxisTrace(g2, e.getY());
+            }
+            g2.dispose();
+        }
+
+        /**
+         * Handles a 'mouse dragged' event.
+         *
+         * @param e
+         *            the mouse event.
+         */
+        @Override
+        public void mouseDragged(final MouseEvent e) {
+            // handle panning if we have a start point
+            if (panLast != null) {
+                final double dx = e.getX() - panLast.getX();
+                final double dy = e.getY() - panLast.getY();
+                if (dx == 0.0 && dy == 0.0) {
+                    return;
+                }
+                final double wPercent = -dx / panW;
+                final double hPercent = dy / panH;
+                final XYPlot plot = chart.getXYPlot();
+                final ValueAxis domainAxis = plot.getDomainAxis();
+                final Range range = domainAxis.getRange();
+                if (wPercent > 0 && range.getUpperBound() >= plot.getDataset().getItemCount(0) + allowedRangeGap) {
+                    return;
+                }
+                if (wPercent < 0 && range.getLowerBound() <= 0 - allowedRangeGap) {
+                    return;
+                }
+                final boolean old = chart.getPlot().isNotify();
+                chart.getPlot().setNotify(false);
+                final Pannable p = (Pannable) chart.getPlot();
+                if (p.getOrientation() == PlotOrientation.VERTICAL) {
+                    p.panDomainAxes(wPercent, info.getPlotInfo(), panLast);
+                    p.panRangeAxes(hPercent, info.getPlotInfo(), panLast);
+                } else {
+                    p.panDomainAxes(hPercent, info.getPlotInfo(), panLast);
+                    p.panRangeAxes(wPercent, info.getPlotInfo(), panLast);
+                }
+                panLast = e.getPoint();
+                chart.getPlot().setNotify(old);
+                return;
+            }
+        }
     }
 
 }
