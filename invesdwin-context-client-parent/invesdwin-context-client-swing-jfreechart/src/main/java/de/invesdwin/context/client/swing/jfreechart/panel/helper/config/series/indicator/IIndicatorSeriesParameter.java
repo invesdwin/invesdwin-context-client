@@ -6,6 +6,8 @@ import de.invesdwin.util.math.expression.IExpression;
 
 public interface IIndicatorSeriesParameter {
 
+    String getExpressionName();
+
     String getName();
 
     String getDescription();

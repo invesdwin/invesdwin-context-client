@@ -365,6 +365,11 @@ public class CandlestickDemo extends JFrame {
                 }
 
                 @Override
+                public String getExpressionName() {
+                    return "invertAddition";
+                }
+
+                @Override
                 public String getName() {
                     return "Invert Addition";
                 }
@@ -388,6 +393,11 @@ public class CandlestickDemo extends JFrame {
                 @Override
                 public SeriesParameterType getType() {
                     return SeriesParameterType.Integer;
+                }
+
+                @Override
+                public String getExpressionName() {
+                    return "lagBars";
                 }
 
                 @Override
@@ -417,6 +427,11 @@ public class CandlestickDemo extends JFrame {
                 }
 
                 @Override
+                public String getExpressionName() {
+                    return "addition";
+                }
+
+                @Override
                 public String getName() {
                     return "Addition";
                 }
@@ -440,6 +455,11 @@ public class CandlestickDemo extends JFrame {
                 @Override
                 public SeriesParameterType getType() {
                     return SeriesParameterType.Enumeration;
+                }
+
+                @Override
+                public String getExpressionName() {
+                    return "ohlcValue";
                 }
 
                 @Override

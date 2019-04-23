@@ -10,7 +10,6 @@ import de.invesdwin.context.client.swing.jfreechart.panel.InteractiveChartPanel;
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.IPlotSourceDataset;
 import de.invesdwin.context.client.swing.rsyntaxtextarea.expression.ExpressionCompletionCellRenderer;
 import de.invesdwin.context.client.swing.rsyntaxtextarea.expression.ExpressionValidatingParser;
-import de.invesdwin.util.lang.Strings;
 import de.invesdwin.util.math.expression.IExpression;
 import de.invesdwin.util.math.expression.tokenizer.ParseException;
 
@@ -56,7 +55,7 @@ public interface IExpressionSeriesProvider {
     }
 
     default String getTitle(final String expression) {
-        return Strings.eventuallyAddPrefix(Strings.eventuallyAddSuffix(expression.toString(), ")"), "(");
+        return expression.toString();
     }
 
 }
