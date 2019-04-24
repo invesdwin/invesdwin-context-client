@@ -28,7 +28,6 @@ public class AddSeriesDialog extends JDialog {
                 + "\ndocument this feature in help;" //
                 + "add more arguments for date expressions so that string modifications are not needed" //
                 + "fix nullpointer with expression debug on website plotting" //
-                + "fix nullpointer when modifying macd price" //
         );
         final Container contentPane = getContentPane();
         contentPane.setLayout(new BorderLayout());
