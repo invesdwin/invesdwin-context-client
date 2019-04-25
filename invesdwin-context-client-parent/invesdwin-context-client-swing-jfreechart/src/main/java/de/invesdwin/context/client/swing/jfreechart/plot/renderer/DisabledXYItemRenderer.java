@@ -19,15 +19,16 @@ import org.jfree.chart.renderer.xy.XYItemRenderer;
 import org.jfree.chart.renderer.xy.XYItemRendererState;
 import org.jfree.data.xy.XYDataset;
 
+import de.invesdwin.context.client.swing.jfreechart.plot.dataset.IPlotSourceDataset;
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.lang.Colors;
 
 @NotThreadSafe
-public class DisabledXYItemRenderer extends AbstractXYItemRenderer {
+public class DisabledXYItemRenderer extends AbstractXYItemRenderer implements IDatasetSourceXYItemRenderer {
 
-    private final XYItemRenderer enabledRenderer;
+    private final IDatasetSourceXYItemRenderer enabledRenderer;
 
-    public DisabledXYItemRenderer(final XYItemRenderer enabledRenderer) {
+    public DisabledXYItemRenderer(final IDatasetSourceXYItemRenderer enabledRenderer) {
         Assertions.checkNotNull(enabledRenderer);
         if (enabledRenderer instanceof DisabledXYItemRenderer) {
             throw new IllegalArgumentException(
@@ -117,6 +118,11 @@ public class DisabledXYItemRenderer extends AbstractXYItemRenderer {
     protected void addEntity(final EntityCollection entities, final Shape hotspot, final XYDataset dataset,
             final int series, final int item, final double entityX, final double entityY) {
         //noop
+    }
+
+    @Override
+    public IPlotSourceDataset getDataset() {
+        return enabledRenderer.getDataset();
     }
 
 }

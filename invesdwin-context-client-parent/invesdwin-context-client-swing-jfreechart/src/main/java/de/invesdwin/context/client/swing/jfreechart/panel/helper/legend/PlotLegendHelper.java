@@ -31,6 +31,7 @@ import de.invesdwin.context.client.swing.jfreechart.plot.annotation.XYIconAnnota
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.DisabledXYDataset;
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.IPlotSourceDataset;
 import de.invesdwin.context.client.swing.jfreechart.plot.renderer.DisabledXYItemRenderer;
+import de.invesdwin.context.client.swing.jfreechart.plot.renderer.IDatasetSourceXYItemRenderer;
 import de.invesdwin.util.lang.Colors;
 
 @NotThreadSafe
@@ -206,7 +207,7 @@ public class PlotLegendHelper {
 
     public void setDatasetVisible(final XYPlot plot, final int datasetIndex, final boolean visible) {
         final IPlotSourceDataset dataset = (IPlotSourceDataset) plot.getDataset(datasetIndex);
-        final XYItemRenderer renderer = plot.getRenderer(datasetIndex);
+        final IDatasetSourceXYItemRenderer renderer = (IDatasetSourceXYItemRenderer) plot.getRenderer(datasetIndex);
         if (visible) {
             final DisabledXYDataset cDataset = (DisabledXYDataset) dataset;
             plot.setDataset(datasetIndex, cDataset.getEnabledDataset());

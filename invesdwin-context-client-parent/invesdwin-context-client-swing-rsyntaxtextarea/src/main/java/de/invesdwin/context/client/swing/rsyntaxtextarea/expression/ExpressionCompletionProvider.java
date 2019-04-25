@@ -13,7 +13,7 @@ import org.fife.ui.autocomplete.VariableCompletion;
 
 import de.invesdwin.util.lang.Strings;
 import de.invesdwin.util.math.expression.ExpressionParser;
-import de.invesdwin.util.math.expression.IFunction;
+import de.invesdwin.util.math.expression.AFunction;
 import de.invesdwin.util.math.expression.IFunctionParameterInfo;
 import de.invesdwin.util.math.expression.eval.VariableReference;
 import de.invesdwin.util.math.expression.variable.IVariable;
@@ -40,7 +40,7 @@ public class ExpressionCompletionProvider extends DefaultCompletionProvider {
             }
         }
 
-        for (final IFunction f : ExpressionParser.getDefaultFunctions()) {
+        for (final AFunction f : ExpressionParser.getDefaultFunctions()) {
             final String expressionName = f.getExpressionName();
             if (duplicateExpressionFilter.add(expressionName)) {
                 final IFunctionParameterInfo[] parameters = f.getParameterInfos();
