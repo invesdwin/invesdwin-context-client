@@ -57,6 +57,7 @@
 		<version.jgoodies-forms>1.9.0</version.jgoodies-forms>
 		<version.jgoodies-looks>2.7.0</version.jgoodies-looks>
 		<version.miglayout>5.2</version.miglayout>
+		<version.designgridlayout>1.11</version.designgridlayout>
 
 		<version.vaadin>8.1.1</version.vaadin>
 		<version.vaadstrap>0.2.1</version.vaadstrap>
@@ -321,6 +322,11 @@
 						<artifactId>org.eclipse.swt</artifactId>
 					</exclusion>
 				</exclusions>
+			</dependency>
+			<dependency>
+				<groupId>net.java.dev.designgridlayout</groupId>
+				<artifactId>designgridlayout</artifactId>
+				<version>${version.designgridlayout}</version>
 			</dependency>
 
 			<dependency>

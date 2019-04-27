@@ -68,6 +68,10 @@
 			<groupId>com.miglayout</groupId>
 			<artifactId>miglayout-swing</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>net.java.dev.designgridlayout</groupId>
+			<artifactId>designgridlayout</artifactId>
+		</dependency>
 
 		<!-- these icon packs are mandatory because they are used by the framework -->
 		<dependency>
