@@ -144,7 +144,7 @@ public class CandlestickDemo extends JFrame {
     private final class CustomExpressionSeriesProvider implements IExpressionSeriesProvider {
         @Override
         public IPlotSourceDataset newInstance(final InteractiveChartPanel chartPanel, final String expression,
-                final String plotPaneId) {
+                final String plotPaneId, final SeriesRendererType rendererType) {
             final Stroke stroke = chartPanel.getPlotConfigurationHelper().getPriceInitialSettings().getSeriesStroke();
             final LineStyleType lineStyleType = LineStyleType.valueOf(stroke);
             final LineWidthType lineWidthType = LineWidthType.valueOf(stroke);
@@ -163,8 +163,7 @@ public class CandlestickDemo extends JFrame {
             final IndexedDateTimeXYSeries series = newSeriesPrefilled(chartPanel, expression, seriesId);
             final int datasetIndex = plot.getDatasetCount();
             dataset.addSeries(series);
-            final SeriesRendererType seriesRendererType = SeriesRendererType.Line;
-            final XYItemRenderer renderer = seriesRendererType.newRenderer(dataset, lineStyleType, lineWidthType, color,
+            final XYItemRenderer renderer = rendererType.newRenderer(dataset, lineStyleType, lineWidthType, color,
                     priceLineVisible, priceLabelVisible);
             plot.setDataset(datasetIndex, dataset);
             plot.setRenderer(datasetIndex, renderer);

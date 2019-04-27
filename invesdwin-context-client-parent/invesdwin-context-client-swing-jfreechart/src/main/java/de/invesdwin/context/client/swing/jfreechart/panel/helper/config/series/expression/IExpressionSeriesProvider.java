@@ -7,6 +7,7 @@ import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rsyntaxtextarea.parser.Parser;
 
 import de.invesdwin.context.client.swing.jfreechart.panel.InteractiveChartPanel;
+import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.SeriesRendererType;
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.IPlotSourceDataset;
 import de.invesdwin.context.client.swing.rsyntaxtextarea.expression.ExpressionCompletionCellRenderer;
 import de.invesdwin.context.client.swing.rsyntaxtextarea.expression.ExpressionValidatingParser;
@@ -20,7 +21,8 @@ public interface IExpressionSeriesProvider {
      */
     IExpression parseExpression(String expression);
 
-    IPlotSourceDataset newInstance(InteractiveChartPanel chartPanel, String expression, String plotPaneId);
+    IPlotSourceDataset newInstance(InteractiveChartPanel chartPanel, String expression, String plotPaneId,
+            SeriesRendererType rendererType);
 
     void modifyDataset(InteractiveChartPanel chartPanel, IPlotSourceDataset dataset, String expression);
 

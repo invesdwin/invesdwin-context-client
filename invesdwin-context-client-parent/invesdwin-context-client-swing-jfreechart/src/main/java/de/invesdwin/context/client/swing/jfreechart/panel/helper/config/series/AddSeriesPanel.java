@@ -20,12 +20,15 @@ import javax.swing.table.DefaultTableModel;
 import org.springframework.web.util.HtmlUtils;
 
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.PlotConfigurationHelper;
+import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.SeriesRendererType;
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.series.expression.IExpressionSeriesProvider;
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.series.indicator.IIndicatorSeriesProvider;
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.IPlotSourceDataset;
+import de.invesdwin.util.concurrent.MutableReference;
 import de.invesdwin.util.error.Throwables;
 import de.invesdwin.util.lang.Strings;
 import de.invesdwin.util.math.expression.AExpressionVisitor;
+import de.invesdwin.util.math.expression.ExpressionVisitorSupport;
 import de.invesdwin.util.math.expression.IExpression;
 import de.invesdwin.util.math.expression.eval.operation.BinaryOperation;
 import de.invesdwin.util.swing.Dialogs;
@@ -146,32 +149,32 @@ public class AddSeriesPanel extends JPanel {
             private void addExpressionDebugViaVisitor(final IExpressionSeriesProvider provider,
                     final IExpression originalExpression) {
                 final Set<String> duplicateExpressionFilter = new HashSet<>();
-                duplicateExpressionFilter.add(originalExpression.toString());
+                final MutableReference<SeriesRendererType> originalRendererType = new MutableReference<SeriesRendererType>(
+                        SeriesRendererType.Line);
                 final AExpressionVisitor visitor = new AExpressionVisitor() {
 
                     @Override
                     protected void visitOther(final IExpression expression) {
                         final String plotPaneId = provider.getPlotPaneId(expression);
-
-                        addExpressionDebug(expression, plotPaneId, duplicateExpressionFilter);
+                        addExpressionDebug(expression, plotPaneId, duplicateExpressionFilter, SeriesRendererType.Line);
                     }
 
                     @Override
                     protected boolean visitMath(final BinaryOperation expression) {
                         final String plotPaneId = provider.getPlotPaneId(expression);
-                        addExpressionDebug(expression, plotPaneId, duplicateExpressionFilter);
+                        addExpressionDebug(expression, plotPaneId, duplicateExpressionFilter, SeriesRendererType.Line);
                         return false;
                     }
 
                     @Override
                     protected boolean visitComparison(final BinaryOperation expression) {
                         final String plotPaneId = provider.getPlotPaneId(expression);
-                        addExpressionDebug(expression, plotPaneId, duplicateExpressionFilter);
                         final String rangeAxisIdPrefixLeftRight = "X: ";
-                        prefixRangeAxisId(rangeAxisIdPrefixLeftRight,
-                                addExpressionDebug(expression.getLeft(), plotPaneId, duplicateExpressionFilter));
-                        prefixRangeAxisId(rangeAxisIdPrefixLeftRight,
-                                addExpressionDebug(expression.getRight(), plotPaneId, duplicateExpressionFilter));
+                        prefixRangeAxisId(rangeAxisIdPrefixLeftRight, addExpressionDebug(expression.getLeft(),
+                                plotPaneId, duplicateExpressionFilter, SeriesRendererType.Line));
+                        prefixRangeAxisId(rangeAxisIdPrefixLeftRight, addExpressionDebug(expression.getRight(),
+                                plotPaneId, duplicateExpressionFilter, SeriesRendererType.Line));
+                        addExpressionDebug(expression, plotPaneId, duplicateExpressionFilter, SeriesRendererType.Step);
                         return false;
                     }
 
@@ -183,13 +186,15 @@ public class AddSeriesPanel extends JPanel {
 
                     @Override
                     protected boolean visitLogicalCombination(final BinaryOperation expression) {
+                        originalRendererType.set(SeriesRendererType.Step);
                         return true;
                     }
 
                 };
                 visitor.process(originalExpression);
                 final String plotPaneId = provider.getPlotPaneId(originalExpression);
-                addExpressionDebug(originalExpression, plotPaneId, duplicateExpressionFilter);
+                addExpressionDebug(originalExpression, plotPaneId, duplicateExpressionFilter,
+                        originalRendererType.get());
             }
         });
         layout.tf_expression.textArea.getDocument().addDocumentListener(new DocumentListenerSupport() {
@@ -247,7 +252,7 @@ public class AddSeriesPanel extends JPanel {
     }
 
     private IPlotSourceDataset addExpressionDebug(final IExpression expression, final String plotPaneId,
-            final Set<String> duplicateExpressionFilter) {
+            final Set<String> duplicateExpressionFilter, final SeriesRendererType rendererType) {
         final String expressionStr = expression.toString();
         try {
             if (!duplicateExpressionFilter.add(expressionStr)) {
@@ -255,7 +260,7 @@ public class AddSeriesPanel extends JPanel {
             }
             final IExpressionSeriesProvider provider = plotConfigurationHelper.getExpressionSeriesProvider();
             final IPlotSourceDataset dataset = provider.newInstance(plotConfigurationHelper.getChartPanel(),
-                    expressionStr, plotPaneId);
+                    expressionStr, plotPaneId, rendererType);
             dataset.setExpressionSeriesProvider(provider);
             dataset.setExpressionSeriesArguments(expressionStr);
             dataset.setSeriesTitle(provider.getTitle(expressionStr));
@@ -267,22 +272,33 @@ public class AddSeriesPanel extends JPanel {
     }
 
     private void addExpression() {
-        final String expression = layout.tf_expression.textArea.getText();
-        if (Strings.isBlank(expression)) {
+        final String expressionStr = layout.tf_expression.textArea.getText();
+        if (Strings.isBlank(expressionStr)) {
             logExpressionBlank();
         } else {
             final IExpressionSeriesProvider provider = plotConfigurationHelper.getExpressionSeriesProvider();
             try {
-                final String plotPaneId = provider.getPlotPaneId(provider.parseExpression(expression));
+                final IExpression expression = provider.parseExpression(expressionStr);
+                final MutableReference<SeriesRendererType> rendererType = new MutableReference<SeriesRendererType>(
+                        SeriesRendererType.Line);
+                final AExpressionVisitor visitor = new ExpressionVisitorSupport() {
+                    @Override
+                    protected boolean visitLogicalCombination(final BinaryOperation expression) {
+                        rendererType.set(SeriesRendererType.Step);
+                        return false;
+                    }
+                };
+                visitor.process(expression);
+                final String plotPaneId = provider.getPlotPaneId(expression);
                 final IPlotSourceDataset dataset = provider.newInstance(plotConfigurationHelper.getChartPanel(),
-                        expression, plotPaneId);
+                        expressionStr, plotPaneId, rendererType.get());
                 dataset.setExpressionSeriesProvider(provider);
-                dataset.setExpressionSeriesArguments(expression);
-                dataset.setSeriesTitle(provider.getTitle(expression));
+                dataset.setExpressionSeriesArguments(expressionStr);
+                dataset.setSeriesTitle(provider.getTitle(expressionStr));
 
                 layout.lbl_expression.setIcon(ICON_EXPRESSION);
             } catch (final Throwable t) {
-                logExpressionException(expression, t);
+                logExpressionException(expressionStr, t);
             }
         }
     }
