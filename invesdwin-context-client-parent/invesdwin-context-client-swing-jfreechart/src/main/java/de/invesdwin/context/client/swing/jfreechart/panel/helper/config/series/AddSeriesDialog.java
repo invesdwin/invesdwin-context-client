@@ -27,7 +27,6 @@ public class AddSeriesDialog extends JDialog {
         System.out.println("TODO: "//
                 + "\ndocument this feature in help;" //
                 + "add more arguments for date expressions so that string modifications are not needed" //
-                + "fix nullpointer with expression debug on website plotting" //
         );
         final Container contentPane = getContentPane();
         contentPane.setLayout(new BorderLayout());

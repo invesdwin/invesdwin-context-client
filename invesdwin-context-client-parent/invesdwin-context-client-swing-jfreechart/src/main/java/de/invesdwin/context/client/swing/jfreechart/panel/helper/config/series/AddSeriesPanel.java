@@ -152,26 +152,25 @@ public class AddSeriesPanel extends JPanel {
                     @Override
                     protected void visitOther(final IExpression expression) {
                         final String plotPaneId = provider.getPlotPaneId(expression);
-                        prefixRangeAxisId("DEBUG Other: ",
-                                addExpressionDebug(expression, plotPaneId, duplicateExpressionFilter));
+
+                        addExpressionDebug(expression, plotPaneId, duplicateExpressionFilter);
                     }
 
                     @Override
                     protected boolean visitMath(final BinaryOperation expression) {
                         final String plotPaneId = provider.getPlotPaneId(expression);
-                        prefixRangeAxisId("DEBUG Math: ",
-                                addExpressionDebug(expression, plotPaneId, duplicateExpressionFilter));
+                        addExpressionDebug(expression, plotPaneId, duplicateExpressionFilter);
                         return false;
                     }
 
                     @Override
                     protected boolean visitComparison(final BinaryOperation expression) {
                         final String plotPaneId = provider.getPlotPaneId(expression);
-                        prefixRangeAxisId("DEBUG CompResult: ",
-                                addExpressionDebug(expression, plotPaneId, duplicateExpressionFilter));
-                        prefixRangeAxisId("DEBUG Comparison: ",
+                        addExpressionDebug(expression, plotPaneId, duplicateExpressionFilter);
+                        final String rangeAxisIdPrefixLeftRight = "X: ";
+                        prefixRangeAxisId(rangeAxisIdPrefixLeftRight,
                                 addExpressionDebug(expression.getLeft(), plotPaneId, duplicateExpressionFilter));
-                        prefixRangeAxisId("DEBUG Comparison: ",
+                        prefixRangeAxisId(rangeAxisIdPrefixLeftRight,
                                 addExpressionDebug(expression.getRight(), plotPaneId, duplicateExpressionFilter));
                         return false;
                     }

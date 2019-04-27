@@ -51,7 +51,7 @@ public interface IExpressionSeriesProvider {
     }
 
     default String getPlotPaneId(final IExpression expression) {
-        return "Expression: " + getTitle(expression.toString());
+        return getTitle(expression.toString());
     }
 
     default String getTitle(final String expression) {
