@@ -24,10 +24,6 @@ public class AddSeriesDialog extends JDialog {
 
     public AddSeriesDialog(final PlotConfigurationHelper plotConfigurationHelper) {
         super(Dialogs.getFrameForComponent(plotConfigurationHelper.getChartPanel()), true);
-        System.out.println("TODO: "//
-                + "\ndocument this feature in help;" //
-                + "add more arguments for date expressions so that string modifications are not needed" //
-        );
         final Container contentPane = getContentPane();
         contentPane.setLayout(new BorderLayout());
         panel = new AddSeriesPanel(plotConfigurationHelper, this);

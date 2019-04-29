@@ -266,8 +266,15 @@ public class PlotConfigurationHelper {
                         "<li><b>Zooming</b>: Use your scroll wheel or +/- keys to zoom. When using the mouse to scroll, the mouse pointer will be used as an anchor.</li>");
                 sb.append("</ul></li>");
                 sb.append(
-                        "<li><b>Exporting</b>: Right click anywhere on the chart to get a context menu that allows you export the chart image to clipboard or to a file."
+                        "<li><b>Exporting</b>: Right click anywhere on the chart to get a context menu that allows you to export the chart image to clipboard or to a file."
                                 + "<br>Right click multiple times to remove the crosshair or just use the settings navigation button on the bottom of the chart.</li>");
+
+                if (!getIndicatorSeriesProviders().isEmpty() || getExpressionSeriesProvider() != null) {
+                    sb.append(
+                            "<li><b>Add Series</b>: Right clicking anywhere also allows you to add indicators or expressions as new series to the chart. "
+                                    + "<br>The series settings context menu will also allow you to modify its calculation settings.</li>");
+                }
+
                 sb.append("</ul>");
                 sb.append("</html>");
                 Dialogs.showMessageDialog(chartPanel, sb.toString(), "Help", Dialogs.PLAIN_MESSAGE);
