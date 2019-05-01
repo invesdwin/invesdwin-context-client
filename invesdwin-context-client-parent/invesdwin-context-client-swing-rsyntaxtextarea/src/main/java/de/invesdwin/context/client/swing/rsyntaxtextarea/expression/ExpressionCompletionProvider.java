@@ -1,19 +1,23 @@
 package de.invesdwin.context.client.swing.rsyntaxtextarea.expression;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
+import org.fife.ui.autocomplete.Completion;
 import org.fife.ui.autocomplete.DefaultCompletionProvider;
-import org.fife.ui.autocomplete.FunctionCompletion;
 import org.fife.ui.autocomplete.ParameterizedCompletion.Parameter;
-import org.fife.ui.autocomplete.VariableCompletion;
 
+import de.invesdwin.context.client.swing.rsyntaxtextarea.expression.completion.AliasedFunctionCompletion;
+import de.invesdwin.context.client.swing.rsyntaxtextarea.expression.completion.AliasedVariableCompletion;
+import de.invesdwin.context.client.swing.rsyntaxtextarea.expression.completion.IAliasedCompletion;
 import de.invesdwin.util.lang.Strings;
-import de.invesdwin.util.math.expression.ExpressionParser;
 import de.invesdwin.util.math.expression.AFunction;
+import de.invesdwin.util.math.expression.ExpressionParser;
 import de.invesdwin.util.math.expression.IFunctionParameterInfo;
 import de.invesdwin.util.math.expression.eval.VariableReference;
 import de.invesdwin.util.math.expression.variable.IVariable;
@@ -29,42 +33,62 @@ public class ExpressionCompletionProvider extends DefaultCompletionProvider {
         return super.isValidChar(ch) || ch == '#';
     }
 
-    public void registerDefaultCompletions(final Set<String> duplicateExpressionFilter) {
+    public void addDefaultCompletions(final Set<String> duplicateExpressionFilter,
+            final Map<String, IAliasedCompletion> name_completion) {
         for (final VariableReference variableReference : ExpressionParser.getDefaultVariables()) {
             final IVariable v = variableReference.getVariable();
             final String expressionName = v.getExpressionName();
+            final String name = v.getName();
             if (duplicateExpressionFilter.add(expressionName)) {
-                final VariableCompletion c = newVariable(expressionName, v.getName(), v.getDescription(),
-                        v.getType().toString());
-                addCompletion(c);
+                final IAliasedCompletion existing = name_completion.get(name);
+                if (existing == null) {
+                    final AliasedVariableCompletion c = newVariable(expressionName, name, v.getDescription(),
+                            v.getType().toString());
+                    name_completion.put(name, c);
+                } else {
+                    existing.getAliases().add(expressionName);
+                }
             }
         }
 
         for (final AFunction f : ExpressionParser.getDefaultFunctions()) {
             final String expressionName = f.getExpressionName();
+            final String name = f.getName();
             if (duplicateExpressionFilter.add(expressionName)) {
-                final IFunctionParameterInfo[] parameters = f.getParameterInfos();
+                final IAliasedCompletion existing = name_completion.get(name);
+                if (existing == null) {
+                    final IFunctionParameterInfo[] parameters = f.getParameterInfos();
+                    if (parameters.length > 0) {
+                        final AliasedFunctionCompletion c = newFunction(expressionName, name, f.getDescription(),
+                                f.getReturnType().toString());
 
-                if (parameters.length > 0) {
-                    final FunctionCompletion c = newFunction(expressionName, f.getName(), f.getDescription(),
-                            f.getReturnType().toString());
+                        final List<Parameter> params = new ArrayList<>();
+                        for (int i = 0; i < parameters.length; i++) {
+                            final IFunctionParameterInfo parameter = parameters[i];
+                            final Parameter p = newParameter(parameter.getExpressionName(), parameter.getDescription(),
+                                    parameter.getType().toString());
+                            params.add(p);
+                        }
+                        c.setParams(params);
 
-                    final List<Parameter> params = new ArrayList<>();
-                    for (int i = 0; i < parameters.length; i++) {
-                        final IFunctionParameterInfo parameter = parameters[i];
-                        final Parameter p = newParameter(parameter.getExpressionName(), parameter.getDescription(),
-                                parameter.getType().toString());
-                        params.add(p);
+                        name_completion.put(name, c);
+                    } else {
+                        final AliasedVariableCompletion c = newVariable(expressionName, name, f.getDescription(),
+                                f.getReturnType().toString());
+                        name_completion.put(name, c);
                     }
-                    c.setParams(params);
-
-                    addCompletion(c);
                 } else {
-                    final VariableCompletion c = newVariable(expressionName, f.getName(), f.getDescription(),
-                            f.getReturnType().toString());
-                    addCompletion(c);
+                    final String alias = f.getExpressionString(f.getDefaultValues());
+                    existing.getAliases().add(alias);
                 }
             }
+        }
+        addCompletions(name_completion.values());
+    }
+
+    public void addCompletions(final Collection<? extends Completion> completions) {
+        for (final Completion completion : completions) {
+            addCompletion(completion);
         }
     }
 
@@ -74,17 +98,17 @@ public class ExpressionCompletionProvider extends DefaultCompletionProvider {
         return p;
     }
 
-    public VariableCompletion newVariable(final String expressionName, final String name, final String description,
-            final String type) {
-        final VariableCompletion c = new VariableCompletion(this, expressionName, type);
+    public AliasedVariableCompletion newVariable(final String expressionName, final String name,
+            final String description, final String type) {
+        final AliasedVariableCompletion c = new AliasedVariableCompletion(this, expressionName, type);
         c.setShortDescription(newNamedDescription(name, description));
         c.setRelevance(RELEVANCE_VARIABLE);
         return c;
     }
 
-    public FunctionCompletion newFunction(final String expressionName, final String name, final String description,
-            final String returnType) {
-        final FunctionCompletion c = new FunctionCompletion(this, expressionName, returnType);
+    public AliasedFunctionCompletion newFunction(final String expressionName, final String name,
+            final String description, final String returnType) {
+        final AliasedFunctionCompletion c = new AliasedFunctionCompletion(this, expressionName, returnType);
         c.setShortDescription(newNamedDescription(name, description));
         c.setRelevance(RELEVANCE_FUNCTION);
         return c;

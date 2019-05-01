@@ -9,8 +9,10 @@ import java.io.FileReader;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
 
@@ -38,6 +40,7 @@ import de.invesdwin.context.client.swing.jfreechart.plot.dataset.IndexedDateTime
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.IndexedDateTimeXYSeries;
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.PlotSourceXYSeriesCollection;
 import de.invesdwin.context.client.swing.rsyntaxtextarea.expression.ExpressionCompletionProvider;
+import de.invesdwin.context.client.swing.rsyntaxtextarea.expression.completion.IAliasedCompletion;
 import de.invesdwin.context.jfreechart.dataset.XYDataItemOHLC;
 import de.invesdwin.context.log.error.Err;
 import de.invesdwin.context.system.properties.SystemProperties;
@@ -223,8 +226,9 @@ public class CandlestickDemo extends JFrame {
         @Override
         public CompletionProvider newCompletionProvider() {
             final Set<String> duplicateExpressionFilter = new HashSet<>();
+            final Map<String, IAliasedCompletion> name_completion = new HashMap<>();
             final ExpressionCompletionProvider provider = new ExpressionCompletionProvider();
-            provider.registerDefaultCompletions(duplicateExpressionFilter);
+            provider.addDefaultCompletions(duplicateExpressionFilter, name_completion);
             return provider;
         }
 
