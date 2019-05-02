@@ -154,7 +154,7 @@ public class ExpressionSettingsPanel extends JPanel implements ISettingsPanelAct
             Dialogs.showMessageDialog(this,
                     "<html><b>Valid Before:</b><br><pre>  " + fromExpression + "</pre><b>Invalid After:</b><br><pre>  "
                             + toExpression + "</pre><br><b>Error:</b><br><pre>  "
-                            + HtmlUtils.htmlEscape(Throwables.concatMessagesShort(t).replace("\n", "\n  ")) + "</pre>",
+                            + AddSeriesPanel.prepareErrorMessageForTooltip(t) + "</pre>",
                     "Invalid Expression", Dialogs.ERROR_MESSAGE);
         }
     }

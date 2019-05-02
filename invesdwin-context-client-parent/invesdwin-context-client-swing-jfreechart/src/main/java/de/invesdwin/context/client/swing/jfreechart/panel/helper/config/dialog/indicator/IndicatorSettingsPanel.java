@@ -9,8 +9,6 @@ import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 
-import org.springframework.web.util.HtmlUtils;
-
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.PlotConfigurationHelper;
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.dialog.ISettingsPanelActions;
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.dialog.indicator.modifier.IParameterSettingsModifier;
@@ -118,10 +116,11 @@ public class IndicatorSettingsPanel extends JPanel implements ISettingsPanelActi
             final String fromExpression = dataset.getSeriesTitle();
             LOG.warn("Error modifying series [" + indicatorSeriesProvider.getName() + "] expression from ["
                     + fromExpression + "] to [" + toExpression + "]:\n" + Throwables.getFullStackTrace(t));
-            Dialogs.showMessageDialog(this, "<html><b>Name:</b><br><pre>  " + indicatorSeriesProvider.getName()
-                    + "</pre><b>Valid Before:</b><br><pre>  " + fromExpression
-                    + "</pre><b>Invalid After:</b><br><pre>  " + toExpression + "</pre><br><b>Error:</b><br><pre>  "
-                    + HtmlUtils.htmlEscape(Throwables.concatMessagesShort(t).replace("\n", "\n  ")) + "</pre>",
+            Dialogs.showMessageDialog(this,
+                    "<html><b>Name:</b><br><pre>  " + indicatorSeriesProvider.getName()
+                            + "</pre><b>Valid Before:</b><br><pre>  " + fromExpression
+                            + "</pre><b>Invalid After:</b><br><pre>  " + toExpression
+                            + "</pre><br><b>Error:</b><br><pre>  " + AddSeriesPanel.prepareErrorMessageForTooltip(t) + "</pre>",
                     "Invalid Expression", Dialogs.ERROR_MESSAGE);
 
             final IExpression[] seriesArgumentsValid = dataset.getIndicatorSeriesArguments();

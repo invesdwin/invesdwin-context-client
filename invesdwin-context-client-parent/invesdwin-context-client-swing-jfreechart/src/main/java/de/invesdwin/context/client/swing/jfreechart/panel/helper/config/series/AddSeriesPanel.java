@@ -96,16 +96,14 @@ public class AddSeriesPanel extends JPanel {
                         LOG.warn("Error adding series [" + selectedValue.getName() + "] with expression ["
                                 + expressionString + "]\n" + Throwables.getFullStackTrace(t));
 
-                        Dialogs.showMessageDialog(layout,
-                                "<html><b>Name:</b><br><pre>  " + selectedValue.getName()
-                                        + "</pre><b>Expression:</b><br><pre>  " + expressionString
-                                        + "</pre><br><b>Error:</b><br><pre>  "
-                                        + HtmlUtils.htmlEscape(Throwables.concatMessagesShort(t).replace("\n", "\n  "))
-                                        + "</pre>",
+                        Dialogs.showMessageDialog(layout, "<html><b>Name:</b><br><pre>  " + selectedValue.getName()
+                                + "</pre><b>Expression:</b><br><pre>  " + expressionString
+                                + "</pre><br><b>Error:</b><br><pre>  " + prepareErrorMessageForTooltip(t) + "</pre>",
                                 "Error", Dialogs.ERROR_MESSAGE);
                     }
                 }
             }
+
         });
 
         layout.btn_close.addActionListener(new ActionListener() {
@@ -238,13 +236,16 @@ public class AddSeriesPanel extends JPanel {
         plotConfigurationHelper.getExpressionSeriesProvider().configureEditor(layout.tf_expression.textArea);
     }
 
+    public static String prepareErrorMessageForTooltip(final Throwable t) {
+        return HtmlUtils.htmlEscape(Throwables.concatMessagesShort(t).replace("\n", "\n  "));
+    }
+
     private void logExpressionException(final String expressionStr, final Throwable t) {
         LOG.warn("Error adding series for expression [" + expressionStr + "]\n" + Throwables.getFullStackTrace(t));
 
-        Dialogs.showMessageDialog(layout,
-                "<html><b>Expression:</b><br><pre>  " + expressionStr + "</pre><br><b>Error:</b><br><pre>  "
-                        + HtmlUtils.htmlEscape(Throwables.concatMessagesShort(t).replace("\n", "\n  ")) + "</pre>",
-                "Error", Dialogs.ERROR_MESSAGE);
+        Dialogs.showMessageDialog(layout, "<html><b>Expression:</b><br><pre>  " + expressionStr
+                + "</pre><br><b>Error:</b><br><pre>  " + prepareErrorMessageForTooltip(t) + "</pre>", "Error",
+                Dialogs.ERROR_MESSAGE);
     }
 
     private void logExpressionBlank() {
