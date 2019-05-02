@@ -35,7 +35,8 @@ public final class ConfiguredSplashScreen implements SplashScreen, FactoryBean<C
 
     static {
         if (Reflections.JAVA_VERSION < 13) {
-            //gtk3 looks wrong in a lot of places in openjdk-11, fix is supposed to arrive with java 13 https://bugs.openjdk.java.net/browse/JDK-8203627?attachmentOrder=desc
+            //gtk3 looks wrong in a lot of places in openjdk-11, fix is supposed to arrive with java 13 
+            //https://bugs.openjdk.java.net/browse/JDK-8203627?attachmentOrder=desc
             new SystemProperties().setInteger("jdk.gtk.version", 2);
         }
     }
