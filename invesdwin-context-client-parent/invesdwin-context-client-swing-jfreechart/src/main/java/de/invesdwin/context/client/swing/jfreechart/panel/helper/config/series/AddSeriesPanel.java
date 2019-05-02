@@ -178,7 +178,7 @@ public class AddSeriesPanel extends JPanel {
 
                     private void prefixRangeAxisId(final String prefix, final IPlotSourceDataset dataset) {
                         if (dataset != null) {
-                            dataset.setRangeAxisId(prefix + dataset.getSeriesTitle());
+                            dataset.setRangeAxisId(prefix + dataset.getRangeAxisId());
                         }
                     }
 
