@@ -19,7 +19,6 @@ import de.invesdwin.util.lang.Strings;
 import de.invesdwin.util.math.expression.AFunction;
 import de.invesdwin.util.math.expression.ExpressionParser;
 import de.invesdwin.util.math.expression.IFunctionParameterInfo;
-import de.invesdwin.util.math.expression.eval.VariableReference;
 import de.invesdwin.util.math.expression.variable.IVariable;
 
 @NotThreadSafe
@@ -35,8 +34,7 @@ public class ExpressionCompletionProvider extends DefaultCompletionProvider {
 
     public void addDefaultCompletions(final Set<String> duplicateExpressionFilter,
             final Map<String, IAliasedCompletion> name_completion) {
-        for (final VariableReference variableReference : ExpressionParser.getDefaultVariables()) {
-            final IVariable v = variableReference.getVariable();
+        for (final IVariable v : ExpressionParser.getDefaultVariables()) {
             final String expressionName = v.getExpressionName();
             final String name = v.getName();
             if (duplicateExpressionFilter.add(expressionName)) {
