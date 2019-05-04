@@ -21,7 +21,7 @@ import de.invesdwin.util.math.Doubles;
 @NotThreadSafe
 public class PlotZoomHelper {
 
-    public static final int MAX_ZOOM_ITEM_COUNT = 10000;
+    public static final int MAX_ZOOM_ITEM_COUNT = 10_000;
     private static final int MIN_ZOOM_ITEM_COUNT = 10;
 
     private static final double ZOOM_FACTOR = 0.1D;
@@ -109,6 +109,12 @@ public class PlotZoomHelper {
             rangeChanged.setTrue();
         }
         range = limitRangeZoom(range, rangeChanged, minLowerBound, maxUpperBound);
+        if (!limitRangeListeners.isEmpty()) {
+            final ILimitRangeListener[] array = limitRangeListeners.asArray(ILimitRangeListener.class);
+            for (int i = 0; i < array.length; i++) {
+                range = array[i].afterLimitRange(range, rangeChanged);
+            }
+        }
         if (rangeChanged.booleanValue()) {
             domainAxis.setRange(range);
         }

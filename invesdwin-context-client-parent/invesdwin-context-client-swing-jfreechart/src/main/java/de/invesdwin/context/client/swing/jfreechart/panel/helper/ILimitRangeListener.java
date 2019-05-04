@@ -7,4 +7,6 @@ public interface ILimitRangeListener {
 
     Range beforeLimitRange(Range range, MutableBoolean rangeChanged);
 
+    Range afterLimitRange(Range range, MutableBoolean rangeChanged);
+
 }

@@ -22,14 +22,6 @@ public class SlaveLazyDatasetList extends ALazyDatasetList<XYDataItemOHLC> {
         return provider;
     }
 
-    public int getOffset() {
-        return offset;
-    }
-
-    public void setOffset(final int offset) {
-        this.offset = offset;
-    }
-
     public List<XYDataItemOHLC> getList() {
         return list;
     }

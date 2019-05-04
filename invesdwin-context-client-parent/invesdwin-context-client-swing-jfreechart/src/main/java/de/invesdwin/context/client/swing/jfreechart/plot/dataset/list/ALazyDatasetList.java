@@ -12,7 +12,6 @@ import javax.annotation.concurrent.NotThreadSafe;
 public abstract class ALazyDatasetList<E> implements List<E> {
 
     protected final List<E> list = new ArrayList<>();
-    protected int offset = 0;
 
     @Override
     public int size() {
@@ -101,7 +100,7 @@ public abstract class ALazyDatasetList<E> implements List<E> {
 
     @Override
     public E get(final int index) {
-        return list.get(offset + index);
+        return list.get(index);
     }
 
     @Deprecated
