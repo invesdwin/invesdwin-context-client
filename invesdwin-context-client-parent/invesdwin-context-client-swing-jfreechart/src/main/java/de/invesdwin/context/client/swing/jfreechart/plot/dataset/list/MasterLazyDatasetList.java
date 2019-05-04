@@ -61,7 +61,7 @@ public class MasterLazyDatasetList extends ALazyDatasetList<OHLCDataItem> implem
     }
 
     @Override
-    public void resetRange() {
+    public synchronized void resetRange() {
         if (data.isEmpty() || getLastLoadedKey().isBefore(provider.getLastAvailableKey())) {
             data = new ArrayList<>(data.size());
             loadInitialDataMaster();
