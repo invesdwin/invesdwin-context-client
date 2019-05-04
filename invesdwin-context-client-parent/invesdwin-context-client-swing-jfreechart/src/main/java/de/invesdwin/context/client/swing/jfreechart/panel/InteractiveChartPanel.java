@@ -32,6 +32,7 @@ import de.invesdwin.context.client.swing.jfreechart.panel.helper.legend.PlotLege
 import de.invesdwin.context.client.swing.jfreechart.plot.IndexedDateTimeNumberFormat;
 import de.invesdwin.context.client.swing.jfreechart.plot.XYPlots;
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.IndexedDateTimeOHLCDataset;
+import de.invesdwin.context.client.swing.jfreechart.plot.dataset.list.IChartPanelAwareDatasetList;
 import de.invesdwin.context.jfreechart.visitor.JFreeChartLocaleChanger;
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.math.Doubles;
@@ -80,6 +81,11 @@ public class InteractiveChartPanel extends JPanel {
         this.plotZoomHelper = new PlotZoomHelper(this);
         this.plotPanHelper = new PlotPanHelper(this);
 
+        if (dataset.getData() instanceof IChartPanelAwareDatasetList) {
+            final IChartPanelAwareDatasetList cData = (IChartPanelAwareDatasetList) dataset.getData();
+            cData.setChartPanel(this);
+        }
+
         domainAxis = new NumberAxis();
         domainAxis.setAutoRange(false);
         domainAxis.setLabelFont(XYPlots.DEFAULT_FONT);
@@ -110,6 +116,7 @@ public class InteractiveChartPanel extends JPanel {
 
         setLayout(new GridLayout());
         add(chartPanel);
+
         resetRange();
     }
 

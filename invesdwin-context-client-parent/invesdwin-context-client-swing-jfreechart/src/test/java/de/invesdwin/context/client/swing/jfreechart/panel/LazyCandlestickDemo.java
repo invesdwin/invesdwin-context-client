@@ -39,16 +39,22 @@ import de.invesdwin.context.client.swing.jfreechart.plot.dataset.IPlotSourceData
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.IndexedDateTimeOHLCDataset;
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.IndexedDateTimeXYSeries;
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.PlotSourceXYSeriesCollection;
+import de.invesdwin.context.client.swing.jfreechart.plot.dataset.list.IMasterLazyDatasetProvider;
+import de.invesdwin.context.client.swing.jfreechart.plot.dataset.list.ISlaveLazyDatasetProvider;
+import de.invesdwin.context.client.swing.jfreechart.plot.dataset.list.MasterLazyDatasetList;
+import de.invesdwin.context.client.swing.jfreechart.plot.dataset.list.SlaveLazyDatasetList;
 import de.invesdwin.context.client.swing.rsyntaxtextarea.expression.ExpressionCompletionProvider;
 import de.invesdwin.context.client.swing.rsyntaxtextarea.expression.completion.IAliasedCompletion;
 import de.invesdwin.context.jfreechart.dataset.XYDataItemOHLC;
 import de.invesdwin.context.log.error.Err;
 import de.invesdwin.context.system.properties.SystemProperties;
 import de.invesdwin.util.assertions.Assertions;
+import de.invesdwin.util.collections.loadingcache.historical.AHistoricalCache;
+import de.invesdwin.util.collections.loadingcache.historical.AIterableGapHistoricalCache;
+import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQuery;
 import de.invesdwin.util.error.UnknownArgumentException;
 import de.invesdwin.util.lang.Reflections;
 import de.invesdwin.util.lang.UniqueNameGenerator;
-import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.math.expression.ExpressionParser;
 import de.invesdwin.util.math.expression.IExpression;
 import de.invesdwin.util.math.expression.eval.BooleanExpression;
@@ -57,14 +63,30 @@ import de.invesdwin.util.math.expression.eval.EnumerationExpression;
 import de.invesdwin.util.time.fdate.FDate;
 
 @NotThreadSafe
-public class CandlestickDemo extends JFrame {
+public class LazyCandlestickDemo extends JFrame {
 
     private static final String PRICE_PLOT_PANE_ID = "Price";
     private static final UniqueNameGenerator SERIES_ID_GENERATOR = new UniqueNameGenerator();
+    private final List<OHLCDataItem> dataItems;
+    private final AHistoricalCache<OHLCDataItem> dataItemsCache;
 
-    public CandlestickDemo() {
+    public LazyCandlestickDemo() {
         super("CandlestickDemo");
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        dataItems = loadDataItems();
+        dataItemsCache = new AIterableGapHistoricalCache<OHLCDataItem>() {
+
+            @Override
+            protected FDate innerExtractKey(final FDate key, final OHLCDataItem value) {
+                return FDate.valueOf(value.getDate());
+            }
+
+            @Override
+            protected Iterable<OHLCDataItem> createDelegate() {
+                return dataItems;
+            }
+        };
 
         final InteractiveChartPanel chartPanel = new InteractiveChartPanel(getDataSet());
         chartPanel.setPreferredSize(new Dimension(1280, 800));
@@ -76,6 +98,43 @@ public class CandlestickDemo extends JFrame {
         this.pack();
 
         chartPanel.initialize();
+    }
+
+    private static List<OHLCDataItem> loadDataItems() {
+        final List<OHLCDataItem> dataItems = new ArrayList<OHLCDataItem>();
+        try {
+            /*
+             * String strUrl=
+             * "https://query1.finance.yahoo.com/v7/finance/download/MSFT?period1=1493801037&period2=1496479437&interval=1d&events=history&crumb=y/oR8szwo.9";
+             */
+            final File f = new File("src/test/java/"
+                    + LazyCandlestickDemo.class.getPackage().getName().replace(".", "/") + "/MSFTlong.csv");
+            final BufferedReader in = new BufferedReader(new FileReader(f));
+
+            final DateFormat df = new java.text.SimpleDateFormat("y-M-d");
+
+            String inputLine;
+            in.readLine();
+            while ((inputLine = in.readLine()) != null) {
+                final StringTokenizer st = new StringTokenizer(inputLine, ",");
+
+                final Date date = df.parse(st.nextToken());
+                final double open = Double.parseDouble(st.nextToken());
+                final double high = Double.parseDouble(st.nextToken());
+                final double low = Double.parseDouble(st.nextToken());
+                @SuppressWarnings("unused")
+                final double close = Double.parseDouble(st.nextToken());
+                final double adjClose = Double.parseDouble(st.nextToken());
+                final double volume = Double.parseDouble(st.nextToken());
+
+                final OHLCDataItem item = new OHLCDataItem(date, open, high, low, adjClose, volume);
+                dataItems.add(item);
+            }
+            in.close();
+        } catch (final Exception e) {
+            throw Err.process(e);
+        }
+        return dataItems;
     }
 
     protected IndexedDateTimeOHLCDataset getDataSet() {
@@ -93,39 +152,24 @@ public class CandlestickDemo extends JFrame {
 
     //This method uses yahoo finance to get the OHLC data
     protected List<OHLCDataItem> getData() {
-        final List<OHLCDataItem> dataItems = new ArrayList<OHLCDataItem>();
-        try {
-            /*
-             * String strUrl=
-             * "https://query1.finance.yahoo.com/v7/finance/download/MSFT?period1=1493801037&period2=1496479437&interval=1d&events=history&crumb=y/oR8szwo.9";
-             */
-            final File f = new File("src/test/java/" + CandlestickDemo.class.getPackage().getName().replace(".", "/")
-                    + "/MSFTlong.csv");
-            final BufferedReader in = new BufferedReader(new FileReader(f));
-
-            final DateFormat df = new java.text.SimpleDateFormat("y-M-d");
-
-            String inputLine;
-            in.readLine();
-            while ((inputLine = in.readLine()) != null) {
-                final StringTokenizer st = new StringTokenizer(inputLine, ",");
-
-                final Date date = df.parse(st.nextToken());
-                final double open = Double.parseDouble(st.nextToken());
-                final double high = Double.parseDouble(st.nextToken());
-                final double low = Double.parseDouble(st.nextToken());
-                final double close = Double.parseDouble(st.nextToken());
-                final double adjClose = Double.parseDouble(st.nextToken());
-                final double volume = Double.parseDouble(st.nextToken());
-
-                final OHLCDataItem item = new OHLCDataItem(date, open, high, low, adjClose, volume);
-                dataItems.add(item);
+        final IHistoricalCacheQuery<OHLCDataItem> query = dataItemsCache.query();
+        final IMasterLazyDatasetProvider provider = new IMasterLazyDatasetProvider() {
+            @Override
+            public FDate getFirstAvailableKey() {
+                return FDate.valueOf(dataItems.get(0).getDate());
             }
-            in.close();
-        } catch (final Exception e) {
-            throw Err.process(e);
-        }
-        return dataItems;
+
+            @Override
+            public FDate getLastAvailableKey() {
+                return FDate.valueOf(dataItems.get(dataItems.size() - 1).getDate());
+            }
+
+            @Override
+            public IHistoricalCacheQuery<OHLCDataItem> query() {
+                return query;
+            }
+        };
+        return new MasterLazyDatasetList(provider);
     }
 
     //CHECKSTYLE:OFF
@@ -140,7 +184,7 @@ public class CandlestickDemo extends JFrame {
                 | UnsupportedLookAndFeelException e) {
             throw new RuntimeException(e);
         }
-        new CandlestickDemo().setVisible(true);
+        new LazyCandlestickDemo().setVisible(true);
     }
 
     private final class CustomExpressionSeriesProvider implements IExpressionSeriesProvider {
@@ -162,7 +206,7 @@ public class CandlestickDemo extends JFrame {
             dataset.setPrecision(4);
             dataset.setInitialPlotPaneId(plotPaneId);
             dataset.setRangeAxisId(plotPaneId);
-            final IndexedDateTimeXYSeries series = newSeriesPrefilled(chartPanel, expression, seriesId);
+            final IndexedDateTimeXYSeries series = newSeriesMaster(chartPanel, expression, seriesId);
             final int datasetIndex = plot.getDatasetCount();
             dataset.addSeries(series);
             final XYItemRenderer renderer = rendererType.newRenderer(dataset, lineStyleType, lineWidthType, color,
@@ -184,36 +228,33 @@ public class CandlestickDemo extends JFrame {
                 final String expression) {
             final PlotSourceXYSeriesCollection cDataset = (PlotSourceXYSeriesCollection) dataset;
             final String seriesId = dataset.getSeriesId();
-            final IndexedDateTimeXYSeries newSeriesPrefilled = newSeriesPrefilled(chartPanel, expression, seriesId);
+            final IndexedDateTimeXYSeries series = newSeriesMaster(chartPanel, expression, seriesId);
             cDataset.setSeriesTitle(expression);
             cDataset.setNotify(false);
             cDataset.removeAllSeries();
-            cDataset.addSeries(newSeriesPrefilled);
+            cDataset.addSeries(series);
             cDataset.setNotify(true);
         }
 
-        private IndexedDateTimeXYSeries newSeriesPrefilled(final InteractiveChartPanel chartPanel,
+        private IndexedDateTimeXYSeries newSeriesMaster(final InteractiveChartPanel chartPanel,
                 final String expressionStr, final String seriesId) {
-            final IndexedDateTimeXYSeries series = new IndexedDateTimeXYSeries(seriesId, new ArrayList<>());
-
             final IExpression expression = parseExpression(expressionStr);
-            final List<XYDataItemOHLC> list = series.getData();
-            final List<OHLCDataItem> ohlc = chartPanel.getDataset().getData();
-            for (int i = 0; i < ohlc.size(); i++) {
-                final FDate time = new FDate(ohlc.get(i).getDate());
-                final double value = expression.evaluateDouble(time);
-                final XYDataItemOHLC item = new XYDataItemOHLC(
-                        new OHLCDataItem(time.dateValue(), Double.NaN, Double.NaN, Double.NaN, value, Double.NaN));
-                final int index = list.size();
-                final double xValueAsDateTime = chartPanel.getDataset().getXValueAsDateTime(0, index);
-                if (xValueAsDateTime != item.getXValue()) {
-                    throw new IllegalStateException(
-                            "Async at index [" + index + "]: ohlc[" + new FDate((long) xValueAsDateTime)
-                                    + "] != series[" + new FDate((long) item.getXValue()) + "]");
+            final IHistoricalCacheQuery<OHLCDataItem> sourceQuery = dataItemsCache.query();
+            final ISlaveLazyDatasetProvider provider = new ISlaveLazyDatasetProvider() {
+
+                @Override
+                public XYDataItemOHLC getValue(final FDate key) {
+                    final OHLCDataItem ohlc = sourceQuery.getValue(key);
+                    final FDate time = new FDate(ohlc.getDate());
+                    final double value = expression.evaluateDouble(time);
+                    final XYDataItemOHLC item = new XYDataItemOHLC(
+                            new OHLCDataItem(time.dateValue(), Double.NaN, Double.NaN, Double.NaN, value, Double.NaN));
+                    return item;
                 }
-                list.add(item);
-                series.updateBoundsForAddedItem(item);
-            }
+
+            };
+            final IndexedDateTimeXYSeries series = new IndexedDateTimeXYSeries(seriesId,
+                    new SlaveLazyDatasetList(chartPanel, provider));
             return series;
         }
 
@@ -288,7 +329,7 @@ public class CandlestickDemo extends JFrame {
             dataset.setInitialPlotPaneId(getPlotPaneId());
             dataset.setRangeAxisId(getPlotPaneId());
             final String seriesId = SERIES_ID_GENERATOR.get(getPlotPaneId());
-            final IndexedDateTimeXYSeries series = newSeriesPrefilled(chartPanel, args, seriesId);
+            final IndexedDateTimeXYSeries series = newSeriesSlave(chartPanel, args, seriesId);
             final int datasetIndex = plot.getDatasetCount();
             dataset.addSeries(series);
             final SeriesRendererType seriesRendererType = SeriesRendererType.Line;
@@ -306,7 +347,7 @@ public class CandlestickDemo extends JFrame {
             return dataset;
         }
 
-        private IndexedDateTimeXYSeries newSeriesPrefilled(final InteractiveChartPanel chartPanel,
+        private IndexedDateTimeXYSeries newSeriesSlave(final InteractiveChartPanel chartPanel,
                 final IExpression[] args, final String seriesId) {
             Assertions.checkEquals(4, args.length);
             final boolean invertAddition = args[0].evaluateBoolean();
@@ -316,29 +357,23 @@ public class CandlestickDemo extends JFrame {
             if (invertAddition) {
                 addition = -addition;
             }
+            final double finalAdditon = addition;
             final OhlcValueType ohlcValueType = OhlcValueType.parseString(args[3].toString());
 
-            final IndexedDateTimeXYSeries series = new IndexedDateTimeXYSeries(getExpressionName(), new ArrayList<>());
-
-            final List<XYDataItemOHLC> list = series.getData();
-            final List<OHLCDataItem> ohlc = chartPanel.getDataset().getData();
-            for (int i = 0; i < ohlc.size(); i++) {
-                final FDate time = new FDate(ohlc.get(i).getDate());
-                final int lagIndex = Integers.max(i - lagBars, 0);
-                final OHLCDataItem ohlcItem = ohlc.get(lagIndex);
-                final double value = ohlcValueType.getValue(ohlcItem) + addition;
-                final XYDataItemOHLC item = new XYDataItemOHLC(
-                        new OHLCDataItem(time.dateValue(), Double.NaN, Double.NaN, Double.NaN, value, Double.NaN));
-                final int index = list.size();
-                final double xValueAsDateTime = chartPanel.getDataset().getXValueAsDateTime(0, index);
-                if (xValueAsDateTime != item.getXValue()) {
-                    throw new IllegalStateException(
-                            "Async at index [" + index + "]: ohlc[" + new FDate((long) xValueAsDateTime)
-                                    + "] != series[" + new FDate((long) item.getXValue()) + "]");
+            final IHistoricalCacheQuery<OHLCDataItem> sourceQuery = dataItemsCache.query();
+            final ISlaveLazyDatasetProvider provider = new ISlaveLazyDatasetProvider() {
+                @Override
+                public XYDataItemOHLC getValue(final FDate key) {
+                    final OHLCDataItem ohlcItem = sourceQuery.getPreviousValue(key, lagBars);
+                    final FDate time = new FDate(ohlcItem.getDate());
+                    final double value = ohlcValueType.getValue(ohlcItem) + finalAdditon;
+                    final XYDataItemOHLC item = new XYDataItemOHLC(
+                            new OHLCDataItem(time.dateValue(), Double.NaN, Double.NaN, Double.NaN, value, Double.NaN));
+                    return item;
                 }
-                list.add(item);
-                series.updateBoundsForAddedItem(item);
-            }
+            };
+            final IndexedDateTimeXYSeries series = new IndexedDateTimeXYSeries(getExpressionName(),
+                    new SlaveLazyDatasetList(chartPanel, provider));
             return series;
         }
 
@@ -347,10 +382,10 @@ public class CandlestickDemo extends JFrame {
                 final IExpression[] args) {
             final PlotSourceXYSeriesCollection cDataset = (PlotSourceXYSeriesCollection) dataset;
             final String seriesId = dataset.getSeriesId();
-            final IndexedDateTimeXYSeries newSeriesPrefilled = newSeriesPrefilled(chartPanel, args, seriesId);
+            final IndexedDateTimeXYSeries series = newSeriesSlave(chartPanel, args, seriesId);
             cDataset.setNotify(false);
             cDataset.removeAllSeries();
-            cDataset.addSeries(newSeriesPrefilled);
+            cDataset.addSeries(series);
             cDataset.setNotify(true);
         }
 

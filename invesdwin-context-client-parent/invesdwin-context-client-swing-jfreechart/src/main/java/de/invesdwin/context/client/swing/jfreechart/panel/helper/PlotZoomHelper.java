@@ -2,16 +2,20 @@ package de.invesdwin.context.client.swing.jfreechart.panel.helper;
 
 import java.awt.event.MouseWheelEvent;
 import java.awt.geom.Point2D;
+import java.util.Set;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
 import org.apache.commons.lang3.mutable.MutableBoolean;
 import org.jfree.chart.ChartRenderingInfo;
+import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.plot.PlotRenderingInfo;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.data.Range;
 
 import de.invesdwin.context.client.swing.jfreechart.panel.InteractiveChartPanel;
+import de.invesdwin.util.collections.factory.ILockCollectionFactory;
+import de.invesdwin.util.collections.fast.IFastIterableSet;
 import de.invesdwin.util.math.Doubles;
 
 @NotThreadSafe
@@ -25,6 +29,9 @@ public class PlotZoomHelper {
     private static final double ZOOM_IN_FACTOR = 1 / ZOOM_OUT_FACTOR;
 
     private final InteractiveChartPanel chartPanel;
+
+    private final IFastIterableSet<ILimitRangeListener> limitRangeListeners = ILockCollectionFactory.getInstance(false)
+            .newFastIterableLinkedSet();
 
     public PlotZoomHelper(final InteractiveChartPanel chartPanel) {
         this.chartPanel = chartPanel;
@@ -75,9 +82,20 @@ public class PlotZoomHelper {
                 ZOOM_IN_FACTOR);
     }
 
+    public Set<ILimitRangeListener> getLimitRangeListeners() {
+        return limitRangeListeners;
+    }
+
     public void limitRange() {
-        Range range = chartPanel.getDomainAxis().getRange();
+        final NumberAxis domainAxis = chartPanel.getDomainAxis();
+        Range range = domainAxis.getRange();
         final MutableBoolean rangeChanged = new MutableBoolean(false);
+        if (!limitRangeListeners.isEmpty()) {
+            final ILimitRangeListener[] array = limitRangeListeners.asArray(ILimitRangeListener.class);
+            for (int i = 0; i < array.length; i++) {
+                range = array[i].beforeLimitRange(range, rangeChanged);
+            }
+        }
         final double minLowerBound = 0D - chartPanel.getAllowedRangeGap();
         final int maxUpperBound = chartPanel.getDataset().getItemCount(0) + chartPanel.getAllowedRangeGap();
         if (range.getLowerBound() < minLowerBound) {
@@ -92,7 +110,7 @@ public class PlotZoomHelper {
         }
         range = limitRangeZoom(range, rangeChanged, minLowerBound, maxUpperBound);
         if (rangeChanged.booleanValue()) {
-            chartPanel.getDomainAxis().setRange(range);
+            domainAxis.setRange(range);
         }
     }
 
