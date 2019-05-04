@@ -30,6 +30,10 @@ import de.invesdwin.util.time.fdate.FDate;
 public class MasterLazyDatasetList extends ALazyDatasetList<OHLCDataItem> implements IChartPanelAwareDatasetList {
 
     private static final int PRELOAD_RANGE_MULTIPLIER = 2;
+    /*
+     * keep a few more items because we need to keep some buffer to the left and right and we don't want to load data on
+     * all the smaller panning actions
+     */
     private static final int MAX_ITEM_COUNT = PlotZoomHelper.MAX_ZOOM_ITEM_COUNT * 5;
     private final IMasterLazyDatasetProvider provider;
     private final IHistoricalCacheQuery<OHLCDataItem> providerQuery;
