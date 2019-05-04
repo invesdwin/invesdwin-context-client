@@ -81,7 +81,7 @@ public class InteractiveChartPanel extends JPanel {
         this.plotPanHelper = new PlotPanHelper(this);
 
         domainAxis = new NumberAxis();
-        domainAxis.setAutoRange(true);
+        domainAxis.setAutoRange(false);
         domainAxis.setLabelFont(XYPlots.DEFAULT_FONT);
         domainAxis.setTickLabelFont(XYPlots.DEFAULT_FONT);
         domainAxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
