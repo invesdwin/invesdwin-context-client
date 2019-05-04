@@ -81,11 +81,6 @@ public class InteractiveChartPanel extends JPanel {
         this.plotZoomHelper = new PlotZoomHelper(this);
         this.plotPanHelper = new PlotPanHelper(this);
 
-        if (dataset.getData() instanceof IChartPanelAwareDatasetList) {
-            final IChartPanelAwareDatasetList cData = (IChartPanelAwareDatasetList) dataset.getData();
-            cData.setChartPanel(this);
-        }
-
         domainAxis = new NumberAxis();
         domainAxis.setAutoRange(false);
         domainAxis.setLabelFont(XYPlots.DEFAULT_FONT);
@@ -117,6 +112,10 @@ public class InteractiveChartPanel extends JPanel {
         setLayout(new GridLayout());
         add(chartPanel);
 
+        if (dataset.getData() instanceof IChartPanelAwareDatasetList) {
+            final IChartPanelAwareDatasetList cData = (IChartPanelAwareDatasetList) dataset.getData();
+            cData.setChartPanel(this);
+        }
         resetRange();
     }
 
@@ -187,6 +186,11 @@ public class InteractiveChartPanel extends JPanel {
     }
 
     public void resetRange() {
+        if (dataset.getData() instanceof IChartPanelAwareDatasetList) {
+            final IChartPanelAwareDatasetList cData = (IChartPanelAwareDatasetList) dataset.getData();
+            cData.resetRange();
+        }
+
         final int minLowerBound = -chartPanel.getAllowedRangeGap();
         final int lowerBound = dataset.getItemCount(0) - getInitialVisibleItemCount();
         final int upperBound = dataset.getItemCount(0) + chartPanel.getAllowedRangeGap();

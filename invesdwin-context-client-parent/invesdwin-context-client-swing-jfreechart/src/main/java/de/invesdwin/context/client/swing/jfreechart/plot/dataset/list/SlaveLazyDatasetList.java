@@ -22,8 +22,12 @@ public class SlaveLazyDatasetList extends ALazyDatasetList<XYDataItemOHLC> {
         return provider;
     }
 
-    public List<XYDataItemOHLC> getList() {
-        return list;
+    public List<XYDataItemOHLC> getData() {
+        return data;
+    }
+
+    public void setData(final List<XYDataItemOHLC> data) {
+        this.data = data;
     }
 
 }

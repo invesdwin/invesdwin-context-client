@@ -11,16 +11,16 @@ import javax.annotation.concurrent.NotThreadSafe;
 @NotThreadSafe
 public abstract class ALazyDatasetList<E> implements List<E> {
 
-    protected final List<E> list = new ArrayList<>();
+    protected List<E> data = new ArrayList<>();
 
     @Override
     public int size() {
-        return list.size();
+        return data.size();
     }
 
     @Override
     public boolean isEmpty() {
-        return list.isEmpty();
+        return data.isEmpty();
     }
 
     @Override
@@ -92,7 +92,6 @@ public abstract class ALazyDatasetList<E> implements List<E> {
         throw newNotNeededException();
     }
 
-    @Deprecated
     @Override
     public void clear() {
         throw newNotNeededException();
@@ -100,7 +99,7 @@ public abstract class ALazyDatasetList<E> implements List<E> {
 
     @Override
     public E get(final int index) {
-        return list.get(index);
+        return data.get(index);
     }
 
     @Deprecated

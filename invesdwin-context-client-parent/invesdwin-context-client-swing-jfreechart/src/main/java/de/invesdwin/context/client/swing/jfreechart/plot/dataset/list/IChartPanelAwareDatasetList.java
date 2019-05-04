@@ -6,4 +6,6 @@ public interface IChartPanelAwareDatasetList {
 
     void setChartPanel(InteractiveChartPanel chartPanel);
 
+    void resetRange();
+
 }
