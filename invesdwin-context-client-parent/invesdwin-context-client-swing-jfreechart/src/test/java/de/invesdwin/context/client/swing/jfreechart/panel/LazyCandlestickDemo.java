@@ -49,9 +49,11 @@ import de.invesdwin.context.jfreechart.dataset.XYDataItemOHLC;
 import de.invesdwin.context.log.error.Err;
 import de.invesdwin.context.system.properties.SystemProperties;
 import de.invesdwin.util.assertions.Assertions;
+import de.invesdwin.util.collections.iterable.ICloseableIterable;
 import de.invesdwin.util.collections.loadingcache.historical.AHistoricalCache;
 import de.invesdwin.util.collections.loadingcache.historical.AIterableGapHistoricalCache;
 import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQuery;
+import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQueryWithFuture;
 import de.invesdwin.util.error.UnknownArgumentException;
 import de.invesdwin.util.lang.Reflections;
 import de.invesdwin.util.lang.UniqueNameGenerator;
@@ -152,8 +154,9 @@ public class LazyCandlestickDemo extends JFrame {
 
     //This method uses yahoo finance to get the OHLC data
     protected List<OHLCDataItem> getData() {
-        final IHistoricalCacheQuery<OHLCDataItem> query = dataItemsCache.query();
         final IMasterLazyDatasetProvider provider = new IMasterLazyDatasetProvider() {
+            private final IHistoricalCacheQueryWithFuture<OHLCDataItem> query = dataItemsCache.query().withFuture();
+
             @Override
             public FDate getFirstAvailableKey() {
                 return FDate.valueOf(dataItems.get(0).getDate());
@@ -165,9 +168,15 @@ public class LazyCandlestickDemo extends JFrame {
             }
 
             @Override
-            public IHistoricalCacheQuery<OHLCDataItem> query() {
-                return query;
+            public ICloseableIterable<OHLCDataItem> getPreviousValues(final FDate key, final int count) {
+                return query.getPreviousValues(key, count);
             }
+
+            @Override
+            public ICloseableIterable<OHLCDataItem> getNextValues(final FDate key, final int count) {
+                return query.getNextValues(key, count);
+            }
+
         };
         return new MasterLazyDatasetList(provider);
     }
@@ -347,8 +356,8 @@ public class LazyCandlestickDemo extends JFrame {
             return dataset;
         }
 
-        private IndexedDateTimeXYSeries newSeriesSlave(final InteractiveChartPanel chartPanel,
-                final IExpression[] args, final String seriesId) {
+        private IndexedDateTimeXYSeries newSeriesSlave(final InteractiveChartPanel chartPanel, final IExpression[] args,
+                final String seriesId) {
             Assertions.checkEquals(4, args.length);
             final boolean invertAddition = args[0].evaluateBoolean();
             final int lagBars = args[1].evaluateInteger();

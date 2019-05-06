@@ -22,7 +22,6 @@ import de.invesdwin.context.jfreechart.dataset.XYDataItemOHLC;
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.collections.iterable.ICloseableIterable;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
-import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQuery;
 import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.time.fdate.FDate;
 
@@ -36,14 +35,12 @@ public class MasterLazyDatasetList extends ALazyDatasetList<OHLCDataItem> implem
      */
     private static final int MAX_ITEM_COUNT = PlotZoomHelper.MAX_ZOOM_ITEM_COUNT * 5;
     private final IMasterLazyDatasetProvider provider;
-    private final IHistoricalCacheQuery<OHLCDataItem> providerQuery;
     private final Set<SlaveLazyDatasetList> slaves;
     private final FDate firstAvailableKey;
     private InteractiveChartPanel chartPanel;
 
     public MasterLazyDatasetList(final IMasterLazyDatasetProvider provider) {
         this.provider = provider;
-        this.providerQuery = provider.query();
 
         final ConcurrentMap<SlaveLazyDatasetList, Boolean> map = Caffeine.newBuilder()
                 .weakKeys()
@@ -74,7 +71,7 @@ public class MasterLazyDatasetList extends ALazyDatasetList<OHLCDataItem> implem
 
     private void loadInitialDataMaster() {
         final int initialVisibleItemCount = chartPanel.getInitialVisibleItemCount() * PRELOAD_RANGE_MULTIPLIER;
-        final ICloseableIterable<OHLCDataItem> initialValues = providerQuery
+        final ICloseableIterable<OHLCDataItem> initialValues = provider
                 .getPreviousValues(provider.getLastAvailableKey(), initialVisibleItemCount);
         try (ICloseableIterator<OHLCDataItem> it = initialValues.iterator()) {
             while (true) {
@@ -171,7 +168,7 @@ public class MasterLazyDatasetList extends ALazyDatasetList<OHLCDataItem> implem
     private int appendMaster(final int appendCount) {
         data.remove(data.size() - 1);
         final OHLCDataItem lastItemRemoved = data.remove(data.size() - 1);
-        final ICloseableIterable<OHLCDataItem> masterPrependValues = providerQuery.withFuture()
+        final ICloseableIterable<OHLCDataItem> masterPrependValues = provider
                 .getNextValues(FDate.valueOf(lastItemRemoved.getDate()), appendCount + 2);
         //remove last two values to replace them
         int countAdded = 0;
@@ -219,7 +216,7 @@ public class MasterLazyDatasetList extends ALazyDatasetList<OHLCDataItem> implem
 
     private int prependMaster(final int prependCount, final FDate firstLoadedKey) {
         final List<OHLCDataItem> prependItems = new ArrayList<>(prependCount);
-        final ICloseableIterable<OHLCDataItem> masterPrependValues = providerQuery
+        final ICloseableIterable<OHLCDataItem> masterPrependValues = provider
                 .getPreviousValues(firstLoadedKey.addMilliseconds(-1), prependCount);
         try (ICloseableIterator<OHLCDataItem> it = masterPrependValues.iterator()) {
             while (true) {
