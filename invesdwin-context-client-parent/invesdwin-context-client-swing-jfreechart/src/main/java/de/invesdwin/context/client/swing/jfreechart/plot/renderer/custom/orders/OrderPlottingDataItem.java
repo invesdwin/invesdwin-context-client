@@ -17,9 +17,9 @@ public class OrderPlottingDataItem {
     private final String orderId;
     private final String label;
     private final String note;
-    private boolean visible;
-    private int openTimeIndex = Integer.MIN_VALUE;
-    private int closeTimeIndex = Integer.MIN_VALUE;
+    private boolean itemLoaded;
+    private int openTimeLoadedIndex = Integer.MIN_VALUE;
+    private int closeTimeLoadedIndex = Integer.MIN_VALUE;
 
     //CHECKSTYLE:OFF
     public OrderPlottingDataItem(final double openPrice, final FDate openTime, final FDate closeTime,
@@ -78,44 +78,44 @@ public class OrderPlottingDataItem {
         return note;
     }
 
-    public boolean isVisible() {
-        return visible;
+    public boolean isItemLoaded() {
+        return itemLoaded;
     }
 
-    public void updateVisibility(final long firstLoadedKeyMillis, final long lastLoadedKeyMillis,
+    public void updateItemLoaded(final long firstLoadedKeyMillis, final long lastLoadedKeyMillis,
             final OrderPlottingDataset dataset) {
         if (getOpenTime().millisValue() > lastLoadedKeyMillis
                 || getCloseTime() != null && getCloseTime().millisValue() < firstLoadedKeyMillis) {
-            if (visible) {
-                visible = false;
-                openTimeIndex = Integer.MIN_VALUE;
-                closeTimeIndex = Integer.MIN_VALUE;
+            if (itemLoaded) {
+                itemLoaded = false;
+                openTimeLoadedIndex = Integer.MIN_VALUE;
+                closeTimeLoadedIndex = Integer.MIN_VALUE;
             }
         } else {
-            this.openTimeIndex = dataset.getDateTimeAsItemIndex(0, openTime);
+            this.openTimeLoadedIndex = dataset.getDateTimeAsItemIndex(0, openTime);
             if (closeTime != null) {
-                this.closeTimeIndex = dataset.getDateTimeAsItemIndex(0, closeTime);
+                this.closeTimeLoadedIndex = dataset.getDateTimeAsItemIndex(0, closeTime);
             } else {
-                this.closeTimeIndex = dataset.getItemCount(0) - 1;
+                this.closeTimeLoadedIndex = dataset.getItemCount(0) - 1;
             }
-            visible = true;
+            itemLoaded = true;
         }
     }
 
-    public int getVisibleOpenTimeIndex() {
-        assertVisible();
-        return openTimeIndex;
+    public int getOpenTimeLoadedIndex() {
+        assertItemLoaded();
+        return openTimeLoadedIndex;
     }
 
-    private void assertVisible() {
-        if (!visible) {
-            throw new IllegalStateException("not visible");
+    private void assertItemLoaded() {
+        if (!itemLoaded) {
+            throw new IllegalStateException("not loaded");
         }
     }
 
-    public int getVisibleCloseTimeIndex() {
-        assertVisible();
-        return closeTimeIndex;
+    public int getCloseTimeLoadedIndex() {
+        assertItemLoaded();
+        return closeTimeLoadedIndex;
     }
 
 }

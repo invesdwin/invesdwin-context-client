@@ -275,7 +275,7 @@ public class CustomOrderPlottingRenderer extends AbstractXYItemRenderer
                         rangeEdge, lineWidth, next);
                 final String note = next.getNote();
                 if (Strings.isNotBlank(note)) {
-                    final int noteIndex = next.getVisibleOpenTimeIndex();
+                    final int noteIndex = next.getOpenTimeLoadedIndex();
                     List<String> notes = index_notes.get(noteIndex);
                     if (notes == null) {
                         notes = new ArrayList<String>();
@@ -313,10 +313,10 @@ public class CustomOrderPlottingRenderer extends AbstractXYItemRenderer
         final Stroke stroke = lineStyle.getStroke(lineWidth);
 
         final boolean closed = next.isClosed();
-        final double x1 = domainAxis.valueToJava2D(next.getVisibleOpenTimeIndex(), dataArea, domainEdge);
+        final double x1 = domainAxis.valueToJava2D(next.getOpenTimeLoadedIndex(), dataArea, domainEdge);
         final double x2;
         if (closed) {
-            x2 = domainAxis.valueToJava2D(next.getVisibleCloseTimeIndex(), dataArea, domainEdge);
+            x2 = domainAxis.valueToJava2D(next.getCloseTimeLoadedIndex(), dataArea, domainEdge);
         } else {
             x2 = dataArea.getMaxX();
         }

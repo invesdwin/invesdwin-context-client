@@ -240,7 +240,7 @@ public class InteractiveChartPanel extends JPanel {
     private final class DomainAxisImpl extends NumberAxis {
         @Override
         public void setRange(final Range range, final boolean turnOffAutoRange, final boolean notify) {
-            final boolean changed = range.equals(getRange());
+            final boolean changed = !range.equals(getRange());
             super.setRange(range, turnOffAutoRange, notify);
             if (changed) {
                 final Set<IRangeListener> rangeListeners = plotZoomHelper.getRangeListeners();
