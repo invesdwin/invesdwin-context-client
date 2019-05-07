@@ -321,11 +321,11 @@ public class OrderPlottingDataset extends AbstractXYDataset implements IPlotSour
 
         @Override
         public void onRangeChanged(final Range range) {
-            updateItemLoaded();
+            updateItemsLoaded();
         }
     }
 
-    private void updateItemLoaded() {
+    private void updateItemsLoaded() {
         final long firstLoadedKeyMillis = (long) getXValueAsDateTime(0, 0);
         final long lastLoadedKeyMillis = (long) getXValueAsDateTime(0, getItemCount(0) - 1);
         if (prevFirstLoadedKeyMillis != firstLoadedKeyMillis || prevLastLoadedKeyMillis != lastLoadedKeyMillis) {
