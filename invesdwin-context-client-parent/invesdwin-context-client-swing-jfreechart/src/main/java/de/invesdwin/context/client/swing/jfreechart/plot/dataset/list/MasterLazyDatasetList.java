@@ -291,6 +291,10 @@ public class MasterLazyDatasetList extends ALazyDatasetList<OHLCDataItem> implem
             // end reached
         }
         if (appendCount > 0) {
+            /*
+             * we need to replace at least the last two elements, otherwise if the slave does not draw incomplete bars,
+             * the NaN bar will always be appended without the real value appearing
+             */
             appendSlaves(appendCount);
             return true;
         } else {

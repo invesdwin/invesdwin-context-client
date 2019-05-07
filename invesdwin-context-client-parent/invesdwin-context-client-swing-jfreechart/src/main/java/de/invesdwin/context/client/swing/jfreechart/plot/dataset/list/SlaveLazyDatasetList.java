@@ -26,12 +26,14 @@ public class SlaveLazyDatasetList extends ALazyDatasetList<XYDataItemOHLC> imple
     public void append(final int appendCount) {
         final int masterSizeAfter = master.size();
         final int masterSizeBefore = masterSizeAfter - appendCount;
-        final int fromIndex = masterSizeBefore;
-        final int toIndex = masterSizeAfter - 1;
-        while (data.size() > masterSizeBefore) {
+        int countRemoved = 0;
+        //remove at least two elements
+        while (data.size() > masterSizeBefore || countRemoved < 2) {
             data.remove(data.size() - 1);
+            countRemoved++;
         }
-        int countAdded = 0;
+        final int fromIndex = data.size();
+        final int toIndex = masterSizeAfter - 1;
         for (int i = fromIndex; i <= toIndex; i++) {
             final FDate key = FDate.valueOf(master.get(i).getDate());
             final XYDataItemOHLC next = provider.getValue(key);
@@ -41,9 +43,7 @@ public class SlaveLazyDatasetList extends ALazyDatasetList<XYDataItemOHLC> imple
                 //verify that skipping incomplete bars only happens for the last element
                 Assertions.checkEquals(i, toIndex);
             }
-            countAdded++;
         }
-        Assertions.checkEquals(countAdded, appendCount);
         assertSameSizeAsMaster();
     }
 
