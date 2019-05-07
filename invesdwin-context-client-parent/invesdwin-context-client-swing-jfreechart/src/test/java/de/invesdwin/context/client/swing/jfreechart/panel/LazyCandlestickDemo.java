@@ -53,7 +53,6 @@ import de.invesdwin.util.collections.iterable.ICloseableIterable;
 import de.invesdwin.util.collections.loadingcache.historical.AHistoricalCache;
 import de.invesdwin.util.collections.loadingcache.historical.AIterableGapHistoricalCache;
 import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQuery;
-import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQueryWithFuture;
 import de.invesdwin.util.error.UnknownArgumentException;
 import de.invesdwin.util.lang.Reflections;
 import de.invesdwin.util.lang.UniqueNameGenerator;
@@ -155,7 +154,7 @@ public class LazyCandlestickDemo extends JFrame {
     //This method uses yahoo finance to get the OHLC data
     protected List<OHLCDataItem> getData() {
         final IMasterLazyDatasetProvider provider = new IMasterLazyDatasetProvider() {
-            private final IHistoricalCacheQueryWithFuture<OHLCDataItem> query = dataItemsCache.query().withFuture();
+            private final IHistoricalCacheQuery<OHLCDataItem> query = dataItemsCache.query();
 
             @Override
             public FDate getFirstAvailableKey() {
@@ -173,8 +172,8 @@ public class LazyCandlestickDemo extends JFrame {
             }
 
             @Override
-            public ICloseableIterable<OHLCDataItem> getNextValues(final FDate key, final int count) {
-                return query.getNextValues(key, count);
+            public ICloseableIterable<? extends OHLCDataItem> getValues(final FDate from, final FDate to) {
+                return query.getValues(from, to);
             }
 
         };

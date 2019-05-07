@@ -186,17 +186,24 @@ public class InteractiveChartPanel extends JPanel {
     }
 
     public void resetRange() {
-        if (dataset.getData() instanceof IChartPanelAwareDatasetList) {
-            final IChartPanelAwareDatasetList cData = (IChartPanelAwareDatasetList) dataset.getData();
-            cData.resetRange();
-        }
+        beforeResetRange();
+        doResetRange();
+        update();
+    }
 
+    protected void doResetRange() {
         final int minLowerBound = -chartPanel.getAllowedRangeGap();
         final int lowerBound = dataset.getItemCount(0) - getInitialVisibleItemCount();
         final int upperBound = dataset.getItemCount(0) + chartPanel.getAllowedRangeGap();
         final Range range = new Range(Doubles.max(minLowerBound, lowerBound), upperBound);
         domainAxis.setRange(range);
-        update();
+    }
+
+    protected void beforeResetRange() {
+        if (dataset.getData() instanceof IChartPanelAwareDatasetList) {
+            final IChartPanelAwareDatasetList cData = (IChartPanelAwareDatasetList) dataset.getData();
+            cData.resetRange();
+        }
     }
 
     public int getInitialVisibleItemCount() {

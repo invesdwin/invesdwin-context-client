@@ -203,9 +203,9 @@ public class MasterLazyDatasetList extends ALazyDatasetList<OHLCDataItem> implem
             for (int i = fromIndex; i <= toIndex; i++) {
                 final FDate key = FDate.valueOf(data.get(i).getDate());
                 final XYDataItemOHLC next = slaveProvider.getValue(key);
-                if (countAdded == 0) {
-                    Assertions.checkEquals(lastItemRemoved.asOHLC().getDate(), next.asOHLC().getDate());
-                }
+                //                if (countAdded == 0) {
+                //                    Assertions.checkEquals(lastItemRemoved.asOHLC().getDate(), next.asOHLC().getDate());
+                //                }
                 slaveList.add(next);
                 countAdded++;
             }
@@ -271,6 +271,40 @@ public class MasterLazyDatasetList extends ALazyDatasetList<OHLCDataItem> implem
 
         //sync slave data with master
         loadInitialDataSlave(slave);
+    }
+
+    public boolean update(final FDate lastTickTime) {
+        int lastItemIndex = data.size() - 2;
+        OHLCDataItem lastItem = data.get(lastItemIndex);
+        final ICloseableIterable<? extends OHLCDataItem> history = provider.getValues(new FDate(lastItem.getDate()),
+                lastTickTime);
+        int appendCount = 0;
+        try (ICloseableIterator<? extends OHLCDataItem> it = history.iterator()) {
+            while (true) {
+                final OHLCDataItem item = it.next();
+                if (lastItemIndex < data.size()) {
+                    lastItem = data.get(lastItemIndex);
+                    if (!item.equals(lastItem)) {
+                        data.set(lastItemIndex, item);
+                        lastItem = item;
+                        appendCount++;
+                    }
+                } else if (item.getDate().after(lastItem.getDate())) {
+                    data.add(item);
+                    appendCount++;
+                    lastItem = item;
+                }
+                lastItemIndex++;
+            }
+        } catch (final NoSuchElementException ex) {
+            // end reached
+        }
+        if (appendCount > 0) {
+            appendSlaves(appendCount);
+            return true;
+        } else {
+            return false;
+        }
     }
 
 }

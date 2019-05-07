@@ -346,8 +346,9 @@ public abstract class ACustomProfitLossRenderer extends AbstractXYItemRenderer
         // Check if the item is the last item for the series.
         // and number of items > 0.  We can't draw an area for a single point.
         if (getPlotArea() && item1 > 0 && item1 == state.getLastItemIndex()) {
-            closeArea(g2, dataArea, plot, domainAxis, rangeAxis, upColor, x1, areaState.profit);
-            closeArea(g2, dataArea, plot, domainAxis, rangeAxis, downColor, x1, areaState.loss);
+            //this should never be invisible color
+            closeArea(g2, dataArea, plot, domainAxis, rangeAxis, getUpColor(), x1, areaState.profit);
+            closeArea(g2, dataArea, plot, domainAxis, rangeAxis, getDownColor(), x1, areaState.loss);
         }
     }
 

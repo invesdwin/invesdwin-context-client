@@ -3,6 +3,7 @@ package de.invesdwin.context.client.swing.jfreechart.plot.dataset.list;
 import org.jfree.data.xy.OHLCDataItem;
 
 import de.invesdwin.util.collections.iterable.ICloseableIterable;
+import de.invesdwin.util.collections.iterable.LimitingIterable;
 import de.invesdwin.util.time.fdate.FDate;
 
 public interface IMasterLazyDatasetProvider {
@@ -13,6 +14,10 @@ public interface IMasterLazyDatasetProvider {
 
     ICloseableIterable<OHLCDataItem> getPreviousValues(FDate key, int count);
 
-    ICloseableIterable<OHLCDataItem> getNextValues(FDate key, int count);
+    default ICloseableIterable<OHLCDataItem> getNextValues(final FDate key, final int count) {
+        return new LimitingIterable<>(getValues(key, getLastAvailableKey()), count);
+    }
+
+    ICloseableIterable<? extends OHLCDataItem> getValues(FDate from, FDate to);
 
 }
