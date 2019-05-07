@@ -89,7 +89,7 @@ public class MasterLazyDatasetList extends ALazyDatasetList<OHLCDataItem> implem
         }
     }
 
-    public Range maybeTrimDataRange(final Range range, final MutableBoolean rangeChanged) {
+    private Range maybeTrimDataRange(final Range range, final MutableBoolean rangeChanged) {
         Range updatedRange = range;
         if (data.size() > MAX_ITEM_COUNT) {
             //trim both ends based on center
@@ -212,11 +212,11 @@ public class MasterLazyDatasetList extends ALazyDatasetList<OHLCDataItem> implem
         }
     }
 
-    public FDate getFirstLoadedKey() {
+    public synchronized FDate getFirstLoadedKey() {
         return FDate.valueOf(data.get(0).getDate());
     }
 
-    public FDate getLastLoadedKey() {
+    public synchronized FDate getLastLoadedKey() {
         return FDate.valueOf(data.get(data.size() - 1).getDate());
     }
 
@@ -264,7 +264,7 @@ public class MasterLazyDatasetList extends ALazyDatasetList<OHLCDataItem> implem
         rangeListeners.add(rangeListener);
     }
 
-    public boolean update(final FDate lastTickTime) {
+    public synchronized boolean update(final FDate lastTickTime) {
         int lastItemIndex = data.size() - 2;
         OHLCDataItem lastItem = data.get(lastItemIndex);
         final ICloseableIterable<? extends OHLCDataItem> history = provider.getValues(new FDate(lastItem.getDate()),
@@ -291,11 +291,7 @@ public class MasterLazyDatasetList extends ALazyDatasetList<OHLCDataItem> implem
             // end reached
         }
         if (appendCount > 0) {
-            /*
-             * we need to replace at least the last two elements, otherwise if the slave does not draw incomplete bars,
-             * the NaN bar will always be appended without the real value appearning
-             */
-            appendSlaves(Integers.max(2, appendCount));
+            appendSlaves(appendCount);
             return true;
         } else {
             return false;

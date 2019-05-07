@@ -35,11 +35,16 @@ public class SlaveLazyDatasetList extends ALazyDatasetList<XYDataItemOHLC> imple
         for (int i = fromIndex; i <= toIndex; i++) {
             final FDate key = FDate.valueOf(master.get(i).getDate());
             final XYDataItemOHLC next = provider.getValue(key);
-            data.add(next);
+            if (next != null) {
+                data.add(next);
+            } else {
+                //verify that skipping incomplete bars only happens for the last element
+                Assertions.checkEquals(i, toIndex);
+            }
             countAdded++;
         }
         Assertions.checkEquals(countAdded, appendCount);
-        Assertions.checkEquals(masterSizeAfter, data.size());
+        assertSameSizeAsMaster();
     }
 
     @Override
@@ -48,10 +53,18 @@ public class SlaveLazyDatasetList extends ALazyDatasetList<XYDataItemOHLC> imple
         for (int i = 0; i < prependCount; i++) {
             final FDate key = FDate.valueOf(master.get(i).getDate());
             final XYDataItemOHLC value = provider.getValue(key);
+            Assertions.checkNotNull(value);
             prependItems.add(value);
         }
         data.addAll(0, prependItems);
-        Assertions.checkEquals(master.size(), data.size());
+        assertSameSizeAsMaster();
+    }
+
+    private void assertSameSizeAsMaster() {
+        if (data.size() != master.size() && data.size() != master.size() - 1) {
+            throw new IllegalStateException("data.size [" + data.size() + "] should be between master.size ["
+                    + master.size() + "] and master.size-1 [" + (master.size() - 1) + "]");
+        }
     }
 
     @Override
@@ -60,7 +73,11 @@ public class SlaveLazyDatasetList extends ALazyDatasetList<XYDataItemOHLC> imple
         for (int i = 0; i < master.size(); i++) {
             final FDate key = FDate.valueOf(master.get(i).getDate());
             final XYDataItemOHLC value = provider.getValue(key);
-            data.add(value);
+            if (value != null) {
+                data.add(value);
+            } else {
+                Assertions.checkEquals(i, master.size() - 1);
+            }
         }
     }
 
@@ -69,7 +86,7 @@ public class SlaveLazyDatasetList extends ALazyDatasetList<XYDataItemOHLC> imple
         for (int i = 0; i < tooManyBefore; i++) {
             data.remove(0);
         }
-        Assertions.checkEquals(master.size(), data.size());
+        assertSameSizeAsMaster();
     }
 
     @Override
@@ -77,7 +94,7 @@ public class SlaveLazyDatasetList extends ALazyDatasetList<XYDataItemOHLC> imple
         for (int i = 0; i < tooManyAfter; i++) {
             data.remove(data.size() - 1);
         }
-        Assertions.checkEquals(master.size(), data.size());
+        assertSameSizeAsMaster();
     }
 
 }

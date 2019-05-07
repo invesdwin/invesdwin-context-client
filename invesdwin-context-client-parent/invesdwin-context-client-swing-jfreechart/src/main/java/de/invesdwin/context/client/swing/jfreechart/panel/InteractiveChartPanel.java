@@ -249,6 +249,7 @@ public class InteractiveChartPanel extends JPanel {
                         l.onRangeChanged(range);
                     }
                 }
+                configureRangeAxis();
             }
         }
     }

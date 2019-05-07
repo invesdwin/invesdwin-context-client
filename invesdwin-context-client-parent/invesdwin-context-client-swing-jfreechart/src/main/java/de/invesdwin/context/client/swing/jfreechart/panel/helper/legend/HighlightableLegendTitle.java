@@ -11,7 +11,6 @@ import org.jfree.chart.LegendItemSource;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYItemRenderer;
-import org.jfree.data.general.Dataset;
 import org.jfree.data.xy.OHLCDataset;
 import org.jfree.data.xy.XYDataset;
 
@@ -113,20 +112,19 @@ public class HighlightableLegendTitle extends CustomLegendTitle {
             domainMarkerItem = chartPanel.getDataset().getData().size() - 1;
         }
         if (domainMarkerItem >= 0) {
-            final Dataset dataset = item.getDataset();
-            final IPlotSourceDataset plotSource = (IPlotSourceDataset) dataset;
+            final IPlotSourceDataset dataset = (IPlotSourceDataset) item.getDataset();
             final int datasetIndex = item.getDatasetIndex();
-            final XYItemRenderer renderer = plotSource.getPlot().getRenderer(datasetIndex);
+            final XYItemRenderer renderer = dataset.getPlot().getRenderer(datasetIndex);
             if (renderer == null) {
                 return super.newFillPaint(item);
             } else if (dataset instanceof OHLCDataset) {
-                final OHLCDataset ohlc = (OHLCDataset) dataset;
+                final OHLCDataset ohlc = dataset;
                 if (domainMarkerItem >= ohlc.getItemCount(0)) {
                     domainMarkerItem = ohlc.getItemCount(0) - 1;
                 }
                 return renderer.getItemPaint(0, domainMarkerItem);
             } else if (dataset instanceof XYDataset) {
-                final XYDataset xy = (XYDataset) dataset;
+                final XYDataset xy = dataset;
                 if (domainMarkerItem >= xy.getItemCount(0)) {
                     domainMarkerItem = xy.getItemCount(0) - 1;
                 }
