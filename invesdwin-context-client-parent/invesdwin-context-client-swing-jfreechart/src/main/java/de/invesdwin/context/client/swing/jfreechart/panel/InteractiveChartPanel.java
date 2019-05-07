@@ -7,6 +7,7 @@ import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
 import java.util.List;
+import java.util.Set;
 
 import javax.annotation.concurrent.NotThreadSafe;
 import javax.swing.JPanel;
@@ -22,6 +23,7 @@ import org.jfree.data.general.DatasetChangeListener;
 
 import de.invesdwin.context.client.swing.jfreechart.panel.basis.CustomChartPanel;
 import de.invesdwin.context.client.swing.jfreechart.panel.basis.CustomCombinedDomainXYPlot;
+import de.invesdwin.context.client.swing.jfreechart.panel.helper.IRangeListener;
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.PlotCrosshairHelper;
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.PlotNavigationHelper;
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.PlotPanHelper;
@@ -81,7 +83,7 @@ public class InteractiveChartPanel extends JPanel {
         this.plotZoomHelper = new PlotZoomHelper(this);
         this.plotPanHelper = new PlotPanHelper(this);
 
-        domainAxis = new NumberAxis();
+        domainAxis = new DomainAxisImpl();
         domainAxis.setAutoRange(false);
         domainAxis.setLabelFont(XYPlots.DEFAULT_FONT);
         domainAxis.setTickLabelFont(XYPlots.DEFAULT_FONT);
@@ -232,6 +234,22 @@ public class InteractiveChartPanel extends JPanel {
         final List<XYPlot> plots = combinedPlot.getSubplots();
         for (final XYPlot plot : plots) {
             XYPlots.configureRangeAxes(plot);
+        }
+    }
+
+    private final class DomainAxisImpl extends NumberAxis {
+        @Override
+        public void setRange(final Range range, final boolean turnOffAutoRange, final boolean notify) {
+            final boolean changed = range.equals(getRange());
+            super.setRange(range, turnOffAutoRange, notify);
+            if (changed) {
+                final Set<IRangeListener> rangeListeners = plotZoomHelper.getRangeListeners();
+                if (!rangeListeners.isEmpty()) {
+                    for (final IRangeListener l : rangeListeners) {
+                        l.onRangeChanged(range);
+                    }
+                }
+            }
         }
     }
 

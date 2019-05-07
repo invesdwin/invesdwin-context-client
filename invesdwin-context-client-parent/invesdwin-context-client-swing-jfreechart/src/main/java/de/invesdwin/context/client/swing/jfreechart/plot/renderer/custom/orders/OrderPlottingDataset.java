@@ -1,5 +1,6 @@
 package de.invesdwin.context.client.swing.jfreechart.plot.renderer.custom.orders;
 
+import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -8,16 +9,21 @@ import java.util.Set;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
+import org.apache.commons.lang3.mutable.MutableBoolean;
 import org.jfree.chart.plot.XYPlot;
+import org.jfree.data.Range;
 import org.jfree.data.general.DatasetChangeListener;
 import org.jfree.data.general.DatasetGroup;
 import org.jfree.data.xy.AbstractXYDataset;
 
+import de.invesdwin.context.client.swing.jfreechart.panel.helper.IRangeListener;
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.series.expression.IExpressionSeriesProvider;
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.series.indicator.IIndicatorSeriesProvider;
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.IIndexedDateTimeXYDataset;
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.IPlotSourceDataset;
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.IndexedDateTimeOHLCDataset;
+import de.invesdwin.context.client.swing.jfreechart.plot.dataset.list.ISlaveLazyDatasetListener;
+import de.invesdwin.context.client.swing.jfreechart.plot.dataset.list.MasterLazyDatasetList;
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.collections.iterable.ASkippingIterable;
 import de.invesdwin.util.collections.iterable.ICloseableIterable;
@@ -36,18 +42,34 @@ public class OrderPlottingDataset extends AbstractXYDataset implements IPlotSour
     private DatasetGroup group;
     private String initialPlotPaneId;
     private String rangeAxisId;
-    private final Map<String, OrderPlottingDataItem> orderId_item = new LinkedHashMap<>();
+    private final Map<String, OrderPlottingDataItem> orderId_item = Collections.synchronizedMap(new LinkedHashMap<>());
     private boolean lastTradeProfit = true;
     private IIndicatorSeriesProvider indicatorSeriesProvider;
     private IExpression[] indicatorSeriesArguments;
     private IExpressionSeriesProvider expressionSeriesProvider;
     private String expressionSeriesArguments;
+    private final SlaveLazyDatasetListenerImpl slaveDatasetListener;
+    private final RangeListenerImpl rangeListener;
+
+    private long prevFirstLoadedKeyMillis;
+    private long prevLastLoadedKeyMillis;
 
     public OrderPlottingDataset(final String seriesKey, final IndexedDateTimeOHLCDataset ohlcDataset) {
         Assertions.checkNotNull(seriesKey);
         this.seriesKey = seriesKey;
         this.seriesTitle = seriesKey;
         this.ohlcDataset = ohlcDataset;
+        if (ohlcDataset.getData() instanceof MasterLazyDatasetList) {
+            final MasterLazyDatasetList master = (MasterLazyDatasetList) ohlcDataset.getData();
+            //keep references to the listeners so they don't get garbage collected due to the weak refrences inside master
+            this.slaveDatasetListener = new SlaveLazyDatasetListenerImpl();
+            this.rangeListener = new RangeListenerImpl();
+            master.registerSlaveDatasetListener(slaveDatasetListener);
+            master.registerRangeListener(rangeListener);
+        } else {
+            this.slaveDatasetListener = null;
+            this.rangeListener = null;
+        }
     }
 
     @Override
@@ -147,6 +169,9 @@ public class OrderPlottingDataset extends AbstractXYDataset implements IPlotSour
     }
 
     public void addOrUpdate(final OrderPlottingDataItem item) {
+        final long firstLoadedKeyMillis = (long) getXValueAsDateTime(0, 0);
+        final long lastLoadedKeyMillis = (long) getXValueAsDateTime(0, getItemCount(0) - 1);
+        item.updateVisibility(firstLoadedKeyMillis, lastLoadedKeyMillis, this);
         orderId_item.put(item.getOrderId(), item);
         lastTradeProfit = item.isProfit();
     }
@@ -164,7 +189,8 @@ public class OrderPlottingDataset extends AbstractXYDataset implements IPlotSour
         return new ASkippingIterable<OrderPlottingDataItem>(WrapperCloseableIterable.maybeWrap(orderId_item.values())) {
             @Override
             protected boolean skip(final OrderPlottingDataItem element) {
-                return element.getOpenTimeIndex() > lastItem || element.getCloseTimeIndex() < firstItem;
+                return !element.isVisible() || element.getVisibleOpenTimeIndex() > lastItem
+                        || element.getVisibleCloseTimeIndex() < firstItem;
             }
         };
     }
@@ -285,6 +311,64 @@ public class OrderPlottingDataset extends AbstractXYDataset implements IPlotSour
     @Override
     public void setInitialPlotPaneId(final String initialPlotPaneId) {
         this.initialPlotPaneId = initialPlotPaneId;
+    }
+
+    private final class RangeListenerImpl implements IRangeListener {
+        @Override
+        public Range beforeLimitRange(final Range range, final MutableBoolean rangeChanged) {
+            return range;
+        }
+
+        @Override
+        public Range afterLimitRange(final Range range, final MutableBoolean rangeChanged) {
+            updateItemVisibility();
+            return range;
+        }
+
+        @Override
+        public void onRangeChanged(final Range range) {
+            updateItemVisibility();
+        }
+    }
+
+    private final class SlaveLazyDatasetListenerImpl implements ISlaveLazyDatasetListener {
+        @Override
+        public void loadInitial() {
+            updateItemVisibility();
+        }
+
+        @Override
+        public void removeStart(final int tooManyBefore) {
+            updateItemVisibility();
+        }
+
+        @Override
+        public void removeEnd(final int tooManyAfter) {
+            updateItemVisibility();
+        }
+
+        @Override
+        public void prepend(final int prependCount) {
+            updateItemVisibility();
+        }
+
+        @Override
+        public void append(final int appendCount) {
+            updateItemVisibility();
+        }
+
+    }
+
+    private void updateItemVisibility() {
+        final long firstLoadedKeyMillis = (long) getXValueAsDateTime(0, 0);
+        final long lastLoadedKeyMillis = (long) getXValueAsDateTime(0, getItemCount(0) - 1);
+        if (prevFirstLoadedKeyMillis != firstLoadedKeyMillis || prevLastLoadedKeyMillis != lastLoadedKeyMillis) {
+            for (final OrderPlottingDataItem dataItem : orderId_item.values()) {
+                dataItem.updateVisibility(firstLoadedKeyMillis, lastLoadedKeyMillis, OrderPlottingDataset.this);
+            }
+            prevFirstLoadedKeyMillis = firstLoadedKeyMillis;
+            prevLastLoadedKeyMillis = lastLoadedKeyMillis;
+        }
     }
 
 }

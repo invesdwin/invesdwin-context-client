@@ -30,7 +30,7 @@ public class PlotZoomHelper {
 
     private final InteractiveChartPanel chartPanel;
 
-    private final IFastIterableSet<ILimitRangeListener> limitRangeListeners = ILockCollectionFactory.getInstance(false)
+    private final IFastIterableSet<IRangeListener> rangeListeners = ILockCollectionFactory.getInstance(false)
             .newFastIterableLinkedSet();
 
     public PlotZoomHelper(final InteractiveChartPanel chartPanel) {
@@ -82,16 +82,16 @@ public class PlotZoomHelper {
                 ZOOM_IN_FACTOR);
     }
 
-    public Set<ILimitRangeListener> getLimitRangeListeners() {
-        return limitRangeListeners;
+    public Set<IRangeListener> getRangeListeners() {
+        return rangeListeners;
     }
 
     public void limitRange() {
         final NumberAxis domainAxis = chartPanel.getDomainAxis();
         Range range = domainAxis.getRange();
         final MutableBoolean rangeChanged = new MutableBoolean(false);
-        if (!limitRangeListeners.isEmpty()) {
-            final ILimitRangeListener[] array = limitRangeListeners.asArray(ILimitRangeListener.class);
+        if (!rangeListeners.isEmpty()) {
+            final IRangeListener[] array = rangeListeners.asArray(IRangeListener.class);
             for (int i = 0; i < array.length; i++) {
                 range = array[i].beforeLimitRange(range, rangeChanged);
             }
@@ -109,8 +109,8 @@ public class PlotZoomHelper {
             rangeChanged.setTrue();
         }
         range = limitRangeZoom(range, rangeChanged, minLowerBound, maxUpperBound);
-        if (!limitRangeListeners.isEmpty()) {
-            final ILimitRangeListener[] array = limitRangeListeners.asArray(ILimitRangeListener.class);
+        if (!rangeListeners.isEmpty()) {
+            final IRangeListener[] array = rangeListeners.asArray(IRangeListener.class);
             for (int i = 0; i < array.length; i++) {
                 range = array[i].afterLimitRange(range, rangeChanged);
             }
