@@ -6,20 +6,20 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 
-import javax.annotation.concurrent.NotThreadSafe;
+import javax.annotation.concurrent.ThreadSafe;
 
-@NotThreadSafe
+@ThreadSafe
 public abstract class ALazyDatasetList<E> implements List<E> {
 
     protected List<E> data = new ArrayList<>();
 
     @Override
-    public int size() {
+    public synchronized int size() {
         return data.size();
     }
 
     @Override
-    public boolean isEmpty() {
+    public synchronized boolean isEmpty() {
         return data.isEmpty();
     }
 
@@ -98,7 +98,7 @@ public abstract class ALazyDatasetList<E> implements List<E> {
     }
 
     @Override
-    public E get(final int index) {
+    public synchronized E get(final int index) {
         return data.get(index);
     }
 

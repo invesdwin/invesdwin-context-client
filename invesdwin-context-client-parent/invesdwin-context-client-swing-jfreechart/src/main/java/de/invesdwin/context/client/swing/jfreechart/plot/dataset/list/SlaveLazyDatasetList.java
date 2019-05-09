@@ -3,14 +3,14 @@ package de.invesdwin.context.client.swing.jfreechart.plot.dataset.list;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.annotation.concurrent.NotThreadSafe;
+import javax.annotation.concurrent.ThreadSafe;
 
 import de.invesdwin.context.client.swing.jfreechart.panel.InteractiveChartPanel;
 import de.invesdwin.context.jfreechart.dataset.XYDataItemOHLC;
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.time.fdate.FDate;
 
-@NotThreadSafe
+@ThreadSafe
 public class SlaveLazyDatasetList extends ALazyDatasetList<XYDataItemOHLC> implements ISlaveLazyDatasetListener {
 
     private final ISlaveLazyDatasetProvider provider;
@@ -23,7 +23,7 @@ public class SlaveLazyDatasetList extends ALazyDatasetList<XYDataItemOHLC> imple
     }
 
     @Override
-    public void append(final int appendCount) {
+    public synchronized void append(final int appendCount) {
         final int masterSizeAfter = master.size();
         final int masterSizeBefore = masterSizeAfter - appendCount;
         int countRemoved = 0;
@@ -48,7 +48,7 @@ public class SlaveLazyDatasetList extends ALazyDatasetList<XYDataItemOHLC> imple
     }
 
     @Override
-    public void prepend(final int prependCount) {
+    public synchronized void prepend(final int prependCount) {
         final List<XYDataItemOHLC> prependItems = new ArrayList<>(prependCount);
         for (int i = 0; i < prependCount; i++) {
             final FDate key = FDate.valueOf(master.get(i).getDate());
@@ -68,7 +68,7 @@ public class SlaveLazyDatasetList extends ALazyDatasetList<XYDataItemOHLC> imple
     }
 
     @Override
-    public void loadInitial() {
+    public synchronized void loadInitial() {
         data = new ArrayList<>(data.size());
         for (int i = 0; i < master.size(); i++) {
             final FDate key = FDate.valueOf(master.get(i).getDate());
@@ -82,7 +82,7 @@ public class SlaveLazyDatasetList extends ALazyDatasetList<XYDataItemOHLC> imple
     }
 
     @Override
-    public void removeStart(final int tooManyBefore) {
+    public synchronized void removeStart(final int tooManyBefore) {
         for (int i = 0; i < tooManyBefore; i++) {
             data.remove(0);
         }
@@ -90,7 +90,7 @@ public class SlaveLazyDatasetList extends ALazyDatasetList<XYDataItemOHLC> imple
     }
 
     @Override
-    public void removeEnd(final int tooManyAfter) {
+    public synchronized void removeEnd(final int tooManyAfter) {
         for (int i = 0; i < tooManyAfter; i++) {
             data.remove(data.size() - 1);
         }
