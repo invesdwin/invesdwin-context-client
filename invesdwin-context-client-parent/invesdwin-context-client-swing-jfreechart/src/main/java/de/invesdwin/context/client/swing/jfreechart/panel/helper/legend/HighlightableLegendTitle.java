@@ -58,8 +58,12 @@ public class HighlightableLegendTitle extends CustomLegendTitle {
                 return label;
             }
             final NumberAxis rangeAxis = (NumberAxis) plot.getRangeAxisForDataset(item.getDatasetIndex());
-            final NumberFormat rangeAxisFormat = rangeAxis.getNumberFormatOverride();
-            return newLabelString(domainMarkerItem, dataset, label, series, rangeAxisFormat);
+            if (rangeAxis != null) {
+                final NumberFormat rangeAxisFormat = rangeAxis.getNumberFormatOverride();
+                return newLabelString(domainMarkerItem, dataset, label, series, rangeAxisFormat);
+            } else {
+                return super.newLabel(item);
+            }
         } else {
             return super.newLabel(item);
         }
