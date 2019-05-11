@@ -6,6 +6,7 @@ import java.awt.event.WindowListener;
 
 import javax.annotation.concurrent.NotThreadSafe;
 import javax.swing.JFrame;
+import javax.swing.ToolTipManager;
 
 import org.jdesktop.application.FrameView;
 import org.jdesktop.application.ProxyActions;
@@ -28,6 +29,8 @@ import de.invesdwin.util.error.UnknownArgumentException;
 import de.invesdwin.util.lang.Reflections;
 import de.invesdwin.util.swing.Dialogs;
 import de.invesdwin.util.swing.listener.WindowListenerSupport;
+import de.invesdwin.util.time.duration.Duration;
+import de.invesdwin.util.time.fdate.FTimeUnit;
 
 /**
  * This class initialized only rudimentary things, so that the EDT is not blocked for too long.
@@ -51,6 +54,8 @@ public class DelegateRichApplication extends SingleFrameApplication {
     public DelegateRichApplication() {
         super();
         Assertions.assertThat(GuiExceptionHandler.INSTANCE).isNotNull();
+        ToolTipManager.sharedInstance()
+                .setDismissDelay(new Duration(10, FTimeUnit.MINUTES).intValue(FTimeUnit.MILLISECONDS));
         DelegateResourceManager.inject(getContext());
     }
 

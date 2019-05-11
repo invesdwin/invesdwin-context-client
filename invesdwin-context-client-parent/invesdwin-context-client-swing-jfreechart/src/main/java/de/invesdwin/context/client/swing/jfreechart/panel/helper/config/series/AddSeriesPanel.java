@@ -49,6 +49,7 @@ public class AddSeriesPanel extends JPanel {
             .apply(AddSeriesPanelLayout.ICON_EXPRESSION, COLOR_EXPRESSION_PENDING_INVALID);
     public static final Icon ICON_EXPRESSION_PENDING_VALID = ChangeColorImageFilter
             .apply(AddSeriesPanelLayout.ICON_EXPRESSION, COLOR_EXPRESSION_PENDING_VALID);
+    public static final int TOOLTIP_WORD_WRAP_LIMIT = 120;
 
     private static final org.slf4j.ext.XLogger LOG = org.slf4j.ext.XLoggerFactory.getXLogger(AddSeriesPanel.class);
     private static final Cursor HAND_CURSOR = Cursor.getPredefinedCursor(Cursor.HAND_CURSOR);
@@ -238,7 +239,7 @@ public class AddSeriesPanel extends JPanel {
 
     public static String prepareErrorMessageForTooltip(final Throwable t) {
         String message = Throwables.concatMessagesShort(t);
-        message = WordUtils.wrap(message, 120);
+        message = WordUtils.wrap(message, TOOLTIP_WORD_WRAP_LIMIT);
         message = message.replace("\n", "\n  ");
         message = HtmlUtils.htmlEscape(message);
         return message;
