@@ -28,17 +28,6 @@ import org.fife.ui.rsyntaxtextarea.*;
 	}
 
 
-	/**
-	 * Adds the token specified to the current linked list of tokens.
-	 *
-	 * @param tokenType The token's type.
-	 * @see #addToken(int, int, int)
-	 */
-	private void addHyperlinkToken(int start, int end, int tokenType) {
-		int so = start + offsetShift;
-		addToken(zzBuffer, start,end, tokenType, so, true);
-	}
-
 
 	/**
 	 * Adds the token specified to the current linked list of tokens.
@@ -190,7 +179,7 @@ AnyCharacterButApostropheOrBackSlash	= ([^\\'])
 AnyCharacterButDoubleQuoteOrBackSlash	= ([^\\\"\n])
 EscapedSourceCharacter				= ("u"{HexDigit}{HexDigit}{HexDigit}{HexDigit})
 Escape							= ("\\"(([btnfr\"'\\])|([0123]{OctalDigit}?{OctalDigit}?)|({OctalDigit}{OctalDigit}?)|{EscapedSourceCharacter}))
-NonSeparator						= ([^\t\f\r\n\ \(\)\{\}\[\]\;\,\.\=\>\<\!\~\?\:\+\-\*\/\&\|\^\%\"\']|"\\")
+NonSeparator						= ([^\t\f\r\n\ \(\)\{\}\[\]\;\,\.\=\>\<\!\~\?\:@\+\-\*\/\&\|\^\%\"\']|"\\")
 IdentifierStart					= ({LetterOrUnderscore}|"$"|"#")
 IdentifierPart						= ({IdentifierStart}|{Digit}|("\\"{EscapedSourceCharacter}))
 
@@ -236,7 +225,7 @@ ErrorNumberFormat			= (({IntegerLiteral}|{HexLiteral}|{FloatLiteral}){NonSeparat
 BooleanLiteral				= ([tT][rR][uU][eE]|[fF][aA][lL][sS][eE])
 
 Separator					= ([\(\)\{\}\[\]])
-Separator2				= ([\;,.])
+Separator2				= ([\;,.@\:])
 
 NonAssignmentOperator		= ("+"|"-"|"<="|"^"|"++"|"<"|"*"|">="|"%"|"--"|">"|"/"|"!="|"<>"|"><"|"?"|">>"|"!"|"&"|"=="|":"|">>"|"~"|"|"|"&&"|">>>")
 AssignmentOperator			= ("="|"-="|"*="|"/="|"|="|"&="|"^="|"+="|"%="|"<<="|">>="|">>>=")
@@ -244,8 +233,6 @@ Operator					= ({NonAssignmentOperator}|{AssignmentOperator})
 
 Identifier				= ({IdentifierStart}{IdentifierPart}*)
 ErrorIdentifier			= ({NonSeparator}+)
-
-Annotation				= ("@"{Identifier}?)
 
 %state MLC
 %state DOCCOMMENT
@@ -281,9 +268,6 @@ Annotation				= ("@"{Identifier}?)
 	{MLCBegin}					{ start = zzMarkedPos-2; yybegin(MLC); }
 	{DocCommentBegin}				{ start = zzMarkedPos-3; yybegin(DOCCOMMENT); }
 	{LineCommentBegin}			{ start = zzMarkedPos-2; yybegin(EOL_COMMENT); }
-
-	/* Annotations. */
-	{Annotation}					{ addToken(Token.ANNOTATION); }
 
 	/* Separators. */
 	{Separator}					{ addToken(Token.SEPARATOR); }
