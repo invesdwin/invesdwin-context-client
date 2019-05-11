@@ -17,6 +17,7 @@ import javax.swing.JPanel;
 import javax.swing.event.DocumentEvent;
 import javax.swing.table.DefaultTableModel;
 
+import org.apache.commons.text.WordUtils;
 import org.springframework.web.util.HtmlUtils;
 
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.PlotConfigurationHelper;
@@ -210,9 +211,8 @@ public class AddSeriesPanel extends JPanel {
                                 + HtmlUtils.htmlEscape(parsedExpression.toString().replace("\n", "\n  ")) + "</pre>");
                     } catch (final Throwable t) {
                         layout.lbl_expression.setIcon(ICON_EXPRESSION_PENDING_INVALID);
-                        layout.lbl_expression.setToolTipText("<html><b>Error:</b><br><pre>  "
-                                + HtmlUtils.htmlEscape(Throwables.concatMessagesShort(t).replace("\n", "\n  "))
-                                + "</pre>");
+                        layout.lbl_expression.setToolTipText(
+                                "<html><b>Error:</b><br><pre>  " + prepareErrorMessageForTooltip(t) + "</pre>");
                     }
                 } else {
                     layout.lbl_expression.setIcon(ICON_EXPRESSION);
@@ -237,7 +237,11 @@ public class AddSeriesPanel extends JPanel {
     }
 
     public static String prepareErrorMessageForTooltip(final Throwable t) {
-        return HtmlUtils.htmlEscape(Throwables.concatMessagesShort(t).replace("\n", "\n  "));
+        String message = Throwables.concatMessagesShort(t);
+        message = WordUtils.wrap(message, 120);
+        message = message.replace("\n", "\n  ");
+        message = HtmlUtils.htmlEscape(message);
+        return message;
     }
 
     private void logExpressionException(final String expressionStr, final Throwable t) {
