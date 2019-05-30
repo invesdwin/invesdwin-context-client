@@ -2,6 +2,7 @@ package de.invesdwin.context.client.swing.impl.app;
 
 import java.awt.Dimension;
 import java.awt.event.WindowListener;
+import java.util.Arrays;
 
 import javax.annotation.concurrent.NotThreadSafe;
 import javax.swing.JFrame;
@@ -119,7 +120,8 @@ public class DelegateRichApplication extends SingleFrameApplication {
     public static Class<?> getDelegateClass() {
         final String[] beanNames = PreMergedContext.getInstance().getBeanNamesForType(IRichApplication.class);
         Assertions.assertThat(beanNames.length)
-                .as("Exactly one bean of type [%s] must exist.", IRichApplication.class.getSimpleName())
+                .as("Exactly one bean of type [%s] must exist: %s", IRichApplication.class.getSimpleName(),
+                        Arrays.toString(beanNames))
                 .isEqualTo(1);
         final BeanDefinition beanDefinition = PreMergedContext.getInstance().getBeanDefinition(beanNames[0]);
         return Reflections.classForName(beanDefinition.getBeanClassName());

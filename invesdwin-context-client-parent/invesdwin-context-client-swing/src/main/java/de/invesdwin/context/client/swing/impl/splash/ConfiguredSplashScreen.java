@@ -25,6 +25,7 @@ import de.invesdwin.context.client.swing.impl.app.DelegateRichApplication;
 import de.invesdwin.context.log.error.Err;
 import de.invesdwin.context.system.properties.SystemProperties;
 import de.invesdwin.util.lang.Reflections;
+import de.invesdwin.util.swing.Dialogs;
 
 @NotThreadSafe
 public final class ConfiguredSplashScreen implements SplashScreen, FactoryBean<ConfiguredSplashScreen> {
@@ -35,7 +36,7 @@ public final class ConfiguredSplashScreen implements SplashScreen, FactoryBean<C
 
     static {
         if (Reflections.JAVA_VERSION < 13) {
-            //gtk3 looks wrong in a lot of places in openjdk-11, fix is supposed to arrive with java 13 
+            //gtk3 looks wrong in a lot of places in openjdk-11, fix is supposed to arrive with java 13
             //https://bugs.openjdk.java.net/browse/JDK-8203627?attachmentOrder=desc
             new SystemProperties().setInteger("jdk.gtk.version", 2);
         }
@@ -91,6 +92,7 @@ public final class ConfiguredSplashScreen implements SplashScreen, FactoryBean<C
         final Locale localeOverride = richApplication.getLocaleOverride();
         if (localeOverride != null) {
             Locale.setDefault(localeOverride);
+            Dialogs.setDefaultLocale(localeOverride);
             LocaleContextHolder.setDefaultLocale(localeOverride);
         }
     }
