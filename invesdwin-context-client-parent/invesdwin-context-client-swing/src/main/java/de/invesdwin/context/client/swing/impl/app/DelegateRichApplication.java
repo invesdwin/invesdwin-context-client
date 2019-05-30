@@ -49,6 +49,10 @@ public class DelegateRichApplication extends SingleFrameApplication {
 
     private static volatile String[] initializationArgs;
 
+    /**
+     * Use getInstance() instead!
+     */
+    @Deprecated
     public DelegateRichApplication() {
         super();
         Assertions.assertThat(GuiExceptionHandler.INSTANCE).isNotNull();

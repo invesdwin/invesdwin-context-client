@@ -14,7 +14,7 @@ public class ConfirmExitListener extends ExitListenerSupport {
 
     @Override
     public boolean canExit(final EventObject event) {
-        final DelegateRichApplication application = new DelegateRichApplication();
+        final DelegateRichApplication application = DelegateRichApplication.getInstance();
         final ResourceMap resourceMap = application.getContext().getResourceMap();
         final int result = Dialogs.showConfirmDialog(application.getMainFrame(),
                 resourceMap.getString("exit.confirm.message"), resourceMap.getString("exit.text"),
