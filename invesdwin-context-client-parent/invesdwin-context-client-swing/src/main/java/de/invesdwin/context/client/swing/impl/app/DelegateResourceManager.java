@@ -10,6 +10,7 @@ import org.jdesktop.application.ApplicationContext;
 import org.jdesktop.application.ResourceManager;
 import org.jdesktop.application.ResourceMap;
 
+import de.invesdwin.context.client.swing.impl.RichApplicationProperties;
 import de.invesdwin.util.lang.Reflections;
 
 /**
@@ -42,7 +43,7 @@ public class DelegateResourceManager extends ResourceManager {
                 }
 
                 //Use the interface implementation properties first in chain
-                applicationBundleNames.add(0, DelegateRichApplication.getDelegateClass().getName());
+                applicationBundleNames.add(0, RichApplicationProperties.getDelegateClass().getName());
                 getContext().getResourceManager().setApplicationBundleNames(applicationBundleNames);
 
                 initialized = true;

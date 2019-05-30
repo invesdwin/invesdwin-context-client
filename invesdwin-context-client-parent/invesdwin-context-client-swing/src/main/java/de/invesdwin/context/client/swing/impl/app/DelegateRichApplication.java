@@ -2,16 +2,20 @@ package de.invesdwin.context.client.swing.impl.app;
 
 import java.awt.Dimension;
 import java.awt.event.WindowListener;
-import java.util.Arrays;
+import java.util.Locale;
 
+import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.NotThreadSafe;
 import javax.swing.JFrame;
 import javax.swing.ToolTipManager;
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
 
+import org.jdesktop.application.Application;
 import org.jdesktop.application.FrameView;
 import org.jdesktop.application.ProxyActions;
 import org.jdesktop.application.SingleFrameApplication;
-import org.springframework.beans.factory.config.BeanDefinition;
+import org.springframework.context.i18n.LocaleContextHolder;
 
 import de.invesdwin.aspects.EventDispatchThreadUtil;
 import de.invesdwin.aspects.annotation.EventDispatchThread;
@@ -22,8 +26,10 @@ import de.invesdwin.context.beans.init.PreMergedContext;
 import de.invesdwin.context.client.swing.api.IRichApplication;
 import de.invesdwin.context.client.swing.api.exit.AMainFrameCloseOperation;
 import de.invesdwin.context.client.swing.error.GuiExceptionHandler;
+import de.invesdwin.context.client.swing.impl.RichApplicationProperties;
 import de.invesdwin.context.client.swing.impl.splash.ConfiguredSplashScreen;
 import de.invesdwin.context.client.swing.util.ComponentStandardizer;
+import de.invesdwin.context.log.error.Err;
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.lang.Reflections;
 import de.invesdwin.util.swing.Dialogs;
@@ -40,14 +46,20 @@ import de.invesdwin.util.time.fdate.FTimeUnit;
 @ProxyActions({ "select-all", "undo", "redo" })
 public class DelegateRichApplication extends SingleFrameApplication {
 
+    public static final String KEY_APPLICATION_SPLASH = "Application.splash";
+    public static final boolean INITIALIZED;
+
+    private static final String GTK_LAF = "com.sun.java.swing.plaf.gtk.GTKLookAndFeel";
+    private static final String WIN_LAF = "com.sun.java.swing.plaf.windows.WindowsLookAndFeel";
+    @GuardedBy("ConfiguredSplashScreen.class")
+    private static boolean lookAndFeelConfigured = false;
+
     static {
         Assertions.checkNull(Dialogs.getDialogVisitor());
         Dialogs.setDialogVisitor(new ComponentStandardizer());
+        ConfiguredSplashScreen.INSTANCE.splash();
+        INITIALIZED = true;
     }
-
-    public static final String KEY_APPLICATION_SPLASH = "Application.splash";
-
-    private static volatile String[] initializationArgs;
 
     /**
      * Use getInstance() instead!
@@ -69,16 +81,7 @@ public class DelegateRichApplication extends SingleFrameApplication {
     @Override
     protected void initialize(final String[] args) {
         super.initialize(args);
-        setInitializationArgs(args);
-
-        //Show splash in invokeLater so that short gray area is prevented
-        EventDispatchThreadUtil.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                final ConfiguredSplashScreen splashScreen = ConfiguredSplashScreen.INSTANCE;
-                splashScreen.splash();
-            }
-        });
+        RichApplicationProperties.setInitializationArgs(args);
 
         //Do Lazy-Init earlier so that UndoRedoActions work correctly
         Assertions.assertThat(getContext().getActionMap()).isNotNull();
@@ -87,6 +90,10 @@ public class DelegateRichApplication extends SingleFrameApplication {
         getContext().removeTaskService(getContext().getTaskService());
         getContext().addTaskService(new DefaultTaskService());
         Assertions.assertThat(getContext().getTaskService()).isInstanceOf(DefaultTaskService.class);
+
+        final IRichApplication richApplication = PreMergedContext.getInstance().getBean(IRichApplication.class);
+        configureLookAndFeel(richApplication);
+        configureLocale(richApplication);
     }
 
     @Override
@@ -111,24 +118,6 @@ public class DelegateRichApplication extends SingleFrameApplication {
                 }.start();
             }
         });
-    }
-
-    public static String[] getInitializationArgs() {
-        return initializationArgs.clone();
-    }
-
-    private static void setInitializationArgs(final String[] initializationArgs) {
-        DelegateRichApplication.initializationArgs = initializationArgs;
-    }
-
-    public static Class<?> getDelegateClass() {
-        final String[] beanNames = PreMergedContext.getInstance().getBeanNamesForType(IRichApplication.class);
-        Assertions.assertThat(beanNames.length)
-                .as("Exactly one bean of type [%s] must exist: %s", IRichApplication.class.getSimpleName(),
-                        Arrays.toString(beanNames))
-                .isEqualTo(1);
-        final BeanDefinition beanDefinition = PreMergedContext.getInstance().getBeanDefinition(beanNames[0]);
-        return Reflections.classForName(beanDefinition.getBeanClassName());
     }
 
     @EventDispatchThread(InvocationType.INVOKE_LATER_IF_NOT_IN_EDT)
@@ -164,6 +153,55 @@ public class DelegateRichApplication extends SingleFrameApplication {
 
     public static DelegateRichApplication getInstance() {
         return SingleFrameApplication.getInstance(DelegateRichApplication.class);
+    }
+
+    private void configureLocale(final IRichApplication richApplication) {
+        final Locale localeOverride = richApplication.getLocaleOverride();
+        if (localeOverride != null) {
+            Locale.setDefault(localeOverride);
+            Dialogs.setDefaultLocale(localeOverride);
+            LocaleContextHolder.setDefaultLocale(localeOverride);
+        }
+    }
+
+    private void configureLookAndFeel(final IRichApplication richApplication) {
+        if (lookAndFeelConfigured) {
+            return;
+        }
+        String lookAndFeel = richApplication.getLookAndFeelOverride();
+        if (lookAndFeel == null) {
+            lookAndFeel = UIManager.getSystemLookAndFeelClassName();
+        }
+        if (lookAndFeel.equals(UIManager.getCrossPlatformLookAndFeelClassName()) && Reflections.classExists(GTK_LAF)) {
+            //use GTK in XFCE
+            lookAndFeel = GTK_LAF;
+        }
+        if (lookAndFeel.equals(WIN_LAF)) {
+            //use a better windows L&F
+            lookAndFeel = com.jgoodies.looks.windows.WindowsLookAndFeel.class.getCanonicalName();
+        }
+        try {
+            UIManager.setLookAndFeel(lookAndFeel);
+        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException
+                | UnsupportedLookAndFeelException e) {
+            Err.process(e);
+        }
+
+        lookAndFeelConfigured = true;
+    }
+
+    public static synchronized <T extends Application> void launch() {
+        launch(new String[0]);
+    }
+
+    public static synchronized <T extends Application> void launch(final String[] args) {
+        launch(DelegateRichApplication.class, args);
+    }
+
+    @Deprecated
+    public static synchronized <T extends Application> void launch(final Class<T> applicationClass,
+            final String[] args) {
+        Application.launch(applicationClass, args);
     }
 
 }

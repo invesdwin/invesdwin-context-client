@@ -10,6 +10,8 @@ import org.jdesktop.application.SingleFrameApplication;
 import de.invesdwin.context.client.swing.api.guiservice.ContentPane;
 import de.invesdwin.context.client.swing.api.guiservice.GuiService;
 import de.invesdwin.context.client.swing.api.guiservice.StatusBar;
+import de.invesdwin.context.client.swing.impl.RichApplicationProperties;
+import de.invesdwin.context.client.swing.impl.app.DelegateRichApplication;
 import de.invesdwin.context.test.ATest;
 import de.invesdwin.context.test.TestContext;
 import de.invesdwin.context.test.stub.StubSupport;
@@ -42,12 +44,12 @@ public class RichApplicationStub extends StubSupport {
         statusBar.reset();
         contentPane.reset();
         GuiService.get().getTaskService().shutdownNow();
+        RichApplicationProperties.reset();
     }
 
     public static void maybeLaunch() {
         if (!launched) {
-            Application.launch(de.invesdwin.context.client.swing.impl.app.DelegateRichApplication.class,
-                    new String[] {});
+            DelegateRichApplication.launch();
             launched = true;
         }
     }

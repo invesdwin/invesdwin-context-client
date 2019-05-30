@@ -2,7 +2,6 @@ package de.invesdwin.context.client.swing;
 
 import javax.annotation.concurrent.Immutable;
 
-import org.jdesktop.application.Application;
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
 
@@ -18,7 +17,7 @@ public class Main extends AMain {
 
     @Override
     protected void startApplication(final CmdLineParser parser) throws CmdLineException {
-        Application.launch(DelegateRichApplication.class, args);
+        DelegateRichApplication.launch(args);
     }
 
     @Override

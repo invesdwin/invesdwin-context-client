@@ -14,8 +14,6 @@ public interface IRichApplication {
 
     boolean isHideMainFrameOnStartup();
 
-    boolean isHideSplashOnStartup();
-
     AMainFrameCloseOperation getMainFrameCloseOperation();
 
     boolean isKeepSplashVisible();

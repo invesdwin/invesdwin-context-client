@@ -12,10 +12,6 @@ import de.invesdwin.context.beans.init.locations.AConditionalContextLocation;
 import de.invesdwin.context.beans.init.locations.PositionedResource;
 import de.invesdwin.context.beans.init.locations.position.ResourcePosition;
 
-/**
- * Webserver should only be started explicitly.
- * 
- */
 @ThreadSafe
 @Named
 public class RichApplicationContextLocation extends AConditionalContextLocation {

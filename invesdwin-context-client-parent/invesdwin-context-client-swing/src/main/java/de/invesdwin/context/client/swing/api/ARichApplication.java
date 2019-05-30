@@ -30,11 +30,6 @@ public abstract class ARichApplication implements IRichApplication {
     }
 
     @Override
-    public boolean isHideSplashOnStartup() {
-        return false;
-    }
-
-    @Override
     public AMainFrameCloseOperation getMainFrameCloseOperation() {
         return AMainFrameCloseOperation.EXIT;
     }
