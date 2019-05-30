@@ -1,7 +1,6 @@
 package de.invesdwin.context.client.swing.impl.app;
 
 import java.awt.Dimension;
-import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 
 import javax.annotation.concurrent.NotThreadSafe;
@@ -20,15 +19,13 @@ import de.invesdwin.context.beans.hook.StartupHookManager;
 import de.invesdwin.context.beans.init.MergedContext;
 import de.invesdwin.context.beans.init.PreMergedContext;
 import de.invesdwin.context.client.swing.api.IRichApplication;
-import de.invesdwin.context.client.swing.api.MainFrameCloseOperation;
+import de.invesdwin.context.client.swing.api.exit.AMainFrameCloseOperation;
 import de.invesdwin.context.client.swing.error.GuiExceptionHandler;
 import de.invesdwin.context.client.swing.impl.splash.ConfiguredSplashScreen;
 import de.invesdwin.context.client.swing.util.ComponentStandardizer;
 import de.invesdwin.util.assertions.Assertions;
-import de.invesdwin.util.error.UnknownArgumentException;
 import de.invesdwin.util.lang.Reflections;
 import de.invesdwin.util.swing.Dialogs;
-import de.invesdwin.util.swing.listener.WindowListenerSupport;
 import de.invesdwin.util.time.duration.Duration;
 import de.invesdwin.util.time.fdate.FTimeUnit;
 
@@ -137,29 +134,8 @@ public class DelegateRichApplication extends SingleFrameApplication {
         frame.repaint(); //to be safe we call a repaint so that the temporary grey area on the top is less likely to occur
         show(frameView);
         final IRichApplication application = MergedContext.getInstance().getBean(IRichApplication.class);
-        final MainFrameCloseOperation closeOperation = application.getMainFrameCloseOperation();
-        switch (closeOperation) {
-        case HideFrame:
-            frame.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
-            break;
-        case MinimizeFrame:
-            frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-            frame.addWindowListener(new WindowListenerSupport() {
-                @Override
-                public void windowClosing(final WindowEvent e) {
-                    frame.setState(JFrame.ICONIFIED);
-                }
-            });
-            break;
-        case Nothing:
-            frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-            break;
-        case SystemExit:
-            frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-            break;
-        default:
-            throw UnknownArgumentException.newInstance(MainFrameCloseOperation.class, closeOperation);
-        }
+        final AMainFrameCloseOperation closeOperation = application.getMainFrameCloseOperation();
+        closeOperation.configureFrame(this, frame);
         final WindowListener[] listeners = frame.getWindowListeners();
         for (final WindowListener l : listeners) {
             final String name = l.getClass().getName();
@@ -168,6 +144,17 @@ public class DelegateRichApplication extends SingleFrameApplication {
                 break;
             }
         }
+        addExitListener(application);
+    }
+
+    @Override
+    public void shutdown() {
+        super.shutdown();
+    }
+
+    @Override
+    public void end() {
+        super.end();
     }
 
 }

@@ -36,7 +36,7 @@ public interface IMenuBarConfig {
         return true;
     }
 
-    default boolean isAddQuitInFileMenu() {
+    default boolean isAddExitInFileMenu() {
         return true;
     }
 

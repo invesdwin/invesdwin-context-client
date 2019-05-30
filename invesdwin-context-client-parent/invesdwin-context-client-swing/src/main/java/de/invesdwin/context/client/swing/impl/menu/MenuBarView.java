@@ -19,7 +19,6 @@ import org.jdesktop.application.SingleFrameApplication;
 
 import de.invesdwin.context.client.swing.api.AView;
 import de.invesdwin.context.client.swing.api.IRichApplication;
-import de.invesdwin.context.client.swing.api.MainFrameCloseOperation;
 import de.invesdwin.context.client.swing.api.menu.IMenuBarConfig;
 import de.invesdwin.context.client.swing.api.menu.MenuBarConfigSupport;
 import de.invesdwin.context.client.swing.api.menu.OpenViewMenuItem;
@@ -68,10 +67,9 @@ public class MenuBarView extends AView<MenuBarView, JMenuBar> {
             mnFile.add(new JSeparator());
         }
 
-        if (richApplication.getMainFrameCloseOperation() == MainFrameCloseOperation.SystemExit
-                && menuBarConfig.isAddQuitInFileMenu()) {
+        if (menuBarConfig.isAddExitInFileMenu()) {
             final JMenuItem mntmExit = new JMenuItem();
-            mntmExit.setName("quit");
+            mntmExit.setName("exit");
             mnFile.add(mntmExit);
         }
 
@@ -156,12 +154,8 @@ public class MenuBarView extends AView<MenuBarView, JMenuBar> {
      * Must be named quit because of the app properties.
      */
     @Action
-    public void quit() {
-        final int result = Dialogs.showConfirmDialog(getComponent(), getResourceMap().getString("quit.confirm.message"),
-                getResourceMap().getString("quit.text"), Dialogs.YES_NO_OPTION);
-        if (result == Dialogs.YES_OPTION) {
-            Application.getInstance().exit();
-        }
+    public void exit() {
+        richApplication.getMainFrameCloseOperation().close(null);
     }
 
     @Action

@@ -1,10 +1,12 @@
 package de.invesdwin.context.client.swing.api;
 
 import java.awt.Dimension;
+import java.util.EventObject;
 import java.util.Locale;
 
 import javax.annotation.concurrent.Immutable;
 
+import de.invesdwin.context.client.swing.api.exit.AMainFrameCloseOperation;
 import de.invesdwin.context.client.swing.api.menu.IMenuBarConfig;
 
 @Immutable
@@ -34,8 +36,8 @@ public abstract class ARichApplication implements IRichApplication {
     }
 
     @Override
-    public MainFrameCloseOperation getMainFrameCloseOperation() {
-        return MainFrameCloseOperation.SystemExit;
+    public AMainFrameCloseOperation getMainFrameCloseOperation() {
+        return AMainFrameCloseOperation.EXIT;
     }
 
     @Override
@@ -60,5 +62,13 @@ public abstract class ARichApplication implements IRichApplication {
 
     @Override
     public void startupDone(final String[] args) {}
+
+    @Override
+    public boolean canExit(final EventObject event) {
+        return true;
+    }
+
+    @Override
+    public void willExit(final EventObject event) {}
 
 }
