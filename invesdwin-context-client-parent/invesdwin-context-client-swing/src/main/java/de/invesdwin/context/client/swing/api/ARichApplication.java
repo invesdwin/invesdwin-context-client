@@ -1,7 +1,6 @@
 package de.invesdwin.context.client.swing.api;
 
 import java.awt.Dimension;
-import java.util.EventObject;
 import java.util.Locale;
 
 import javax.annotation.concurrent.Immutable;
@@ -61,14 +60,6 @@ public abstract class ARichApplication implements IRichApplication {
     }
 
     @Override
-    public void startupDone(final String[] args) {}
-
-    @Override
-    public boolean canExit(final EventObject event) {
-        return true;
-    }
-
-    @Override
-    public void willExit(final EventObject event) {}
+    public void startupDone() {}
 
 }

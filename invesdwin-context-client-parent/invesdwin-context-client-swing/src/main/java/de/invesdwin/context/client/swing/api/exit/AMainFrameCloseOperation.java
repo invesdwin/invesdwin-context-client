@@ -8,9 +8,11 @@ import javax.swing.JFrame;
 
 import org.jdesktop.application.Application.ExitListener;
 
-import de.invesdwin.aspects.EventDispatchThreadUtil;
+import de.invesdwin.aspects.annotation.EventDispatchThread;
+import de.invesdwin.aspects.annotation.EventDispatchThread.InvocationType;
 import de.invesdwin.context.client.swing.impl.app.DelegateRichApplication;
 import de.invesdwin.context.log.Log;
+import de.invesdwin.context.log.error.Err;
 import de.invesdwin.util.swing.listener.WindowListenerSupport;
 
 @Immutable
@@ -26,37 +28,34 @@ public abstract class AMainFrameCloseOperation {
 
         @Override
         public void end(final EventObject e) {
-            frame.dispose();
+            DelegateRichApplication.getInstance().getMainFrame().dispose();
         }
     };
     public static final AMainFrameCloseOperation HIDE = new AMainFrameCloseOperation() {
 
         @Override
         public void end(final EventObject e) {
-            frame.setVisible(false);
+            DelegateRichApplication.getInstance().getMainFrame().setVisible(false);
         }
     };
     public static final AMainFrameCloseOperation MINIMIZE = new AMainFrameCloseOperation() {
 
         @Override
         public void end(final EventObject e) {
-            frame.setState(JFrame.ICONIFIED);
+            DelegateRichApplication.getInstance().getMainFrame().setState(JFrame.ICONIFIED);
         }
     };
     public static final AMainFrameCloseOperation EXIT = new AMainFrameCloseOperation() {
         @Override
         public void end(final EventObject e) {
-            application.end();
+            DelegateRichApplication.getInstance().end();
         }
     };
-    protected DelegateRichApplication application;
-    protected JFrame frame;
 
     private final Log log = new Log(this);
 
-    public void configureFrame(final DelegateRichApplication application, final JFrame frame) {
-        this.application = application;
-        this.frame = frame;
+    public void configureFrame() {
+        final JFrame frame = DelegateRichApplication.getInstance().getMainFrame();
         frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
         frame.addWindowListener(new WindowListenerSupport() {
             @Override
@@ -66,42 +65,32 @@ public abstract class AMainFrameCloseOperation {
         });
     }
 
+    @EventDispatchThread(InvocationType.INVOKE_AND_WAIT)
     public final void close(final EventObject event) {
-        final Runnable runnable = new Runnable() {
-            @Override
-            public void run() {
-                for (final ExitListener listener : application.getExitListeners()) {
-                    if (!listener.canExit(event)) {
-                        return;
-                    }
-                }
+        final DelegateRichApplication application = DelegateRichApplication.getInstance();
+        for (final ExitListener listener : application.getExitListeners()) {
+            if (!listener.canExit(event)) {
+                return;
+            }
+        }
+        try {
+            for (final ExitListener listener : application.getExitListeners()) {
                 try {
-                    for (final ExitListener listener : application.getExitListeners()) {
-                        try {
-                            listener.willExit(event);
-                        } catch (final Exception e) {
-                            log.warn("ExitListener.willExit() failed", e);
-                        }
-                    }
-                    shutdown();
-                } catch (final Exception e) {
-                    log.warn("unexpected error in Application.shutdown()", e);
-                } finally {
-                    end(event);
+                    listener.willExit(event);
+                } catch (final Throwable e) {
+                    Err.process(e);
                 }
             }
-
-        };
-
-        try {
-            EventDispatchThreadUtil.invokeAndWait(runnable);
-        } catch (final InterruptedException e) {
-            //ignore
+            shutdown();
+        } catch (final Throwable e) {
+            Err.process(e);
+        } finally {
+            end(event);
         }
     }
 
     public void shutdown() {
-        application.shutdown();
+        DelegateRichApplication.getInstance().shutdown();
     }
 
     public abstract void end(EventObject event);

@@ -69,7 +69,7 @@ public class RichApplicationStartupHook implements IStartupHook {
                 new Thread() {
                     @Override
                     public void run() {
-                        delegate.startupDone(DelegateRichApplication.getInitializationArgs());
+                        delegate.startupDone();
                     }
                 }.start();
             }

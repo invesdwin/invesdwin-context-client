@@ -135,7 +135,7 @@ public class DelegateRichApplication extends SingleFrameApplication {
         show(frameView);
         final IRichApplication application = MergedContext.getInstance().getBean(IRichApplication.class);
         final AMainFrameCloseOperation closeOperation = application.getMainFrameCloseOperation();
-        closeOperation.configureFrame(this, frame);
+        closeOperation.configureFrame();
         final WindowListener[] listeners = frame.getWindowListeners();
         for (final WindowListener l : listeners) {
             final String name = l.getClass().getName();
@@ -144,7 +144,6 @@ public class DelegateRichApplication extends SingleFrameApplication {
                 break;
             }
         }
-        addExitListener(application);
     }
 
     @Override
@@ -155,6 +154,10 @@ public class DelegateRichApplication extends SingleFrameApplication {
     @Override
     public void end() {
         super.end();
+    }
+
+    public static DelegateRichApplication getInstance() {
+        return SingleFrameApplication.getInstance(DelegateRichApplication.class);
     }
 
 }

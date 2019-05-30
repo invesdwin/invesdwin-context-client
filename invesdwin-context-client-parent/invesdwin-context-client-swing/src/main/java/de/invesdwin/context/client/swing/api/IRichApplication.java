@@ -3,12 +3,10 @@ package de.invesdwin.context.client.swing.api;
 import java.awt.Dimension;
 import java.util.Locale;
 
-import org.jdesktop.application.Application.ExitListener;
-
 import de.invesdwin.context.client.swing.api.exit.AMainFrameCloseOperation;
 import de.invesdwin.context.client.swing.api.menu.IMenuBarConfig;
 
-public interface IRichApplication extends ExitListener {
+public interface IRichApplication {
 
     Locale getLocaleOverride();
 
@@ -28,6 +26,6 @@ public interface IRichApplication extends ExitListener {
 
     IMenuBarConfig getMenuBarConfig();
 
-    void startupDone(String[] args);
+    void startupDone();
 
 }
