@@ -18,34 +18,34 @@ public abstract class AMainFrameCloseOperation {
 
     public static final AMainFrameCloseOperation NOTHING = new AMainFrameCloseOperation() {
         @Override
-        protected void invoke(final EventObject e) {
+        public void end(final EventObject e) {
             //noop
         }
     };
     public static final AMainFrameCloseOperation DISPOSE = new AMainFrameCloseOperation() {
 
         @Override
-        protected void invoke(final EventObject e) {
+        public void end(final EventObject e) {
             frame.dispose();
         }
     };
     public static final AMainFrameCloseOperation HIDE = new AMainFrameCloseOperation() {
 
         @Override
-        protected void invoke(final EventObject e) {
+        public void end(final EventObject e) {
             frame.setVisible(false);
         }
     };
     public static final AMainFrameCloseOperation MINIMIZE = new AMainFrameCloseOperation() {
 
         @Override
-        public void invoke(final EventObject e) {
+        public void end(final EventObject e) {
             frame.setState(JFrame.ICONIFIED);
         }
     };
     public static final AMainFrameCloseOperation EXIT = new AMainFrameCloseOperation() {
         @Override
-        public void invoke(final EventObject e) {
+        public void end(final EventObject e) {
             application.end();
         }
     };
@@ -61,7 +61,7 @@ public abstract class AMainFrameCloseOperation {
         frame.addWindowListener(new WindowListenerSupport() {
             @Override
             public void windowClosing(final WindowEvent e) {
-                invoke(e);
+                end(e);
             }
         });
     }
@@ -83,13 +83,14 @@ public abstract class AMainFrameCloseOperation {
                             log.warn("ExitListener.willExit() failed", e);
                         }
                     }
-                    application.shutdown();
+                    shutdown();
                 } catch (final Exception e) {
                     log.warn("unexpected error in Application.shutdown()", e);
                 } finally {
-                    invoke(event);
+                    end(event);
                 }
             }
+
         };
 
         try {
@@ -99,6 +100,10 @@ public abstract class AMainFrameCloseOperation {
         }
     }
 
-    protected abstract void invoke(EventObject event);
+    public void shutdown() {
+        application.shutdown();
+    }
+
+    public abstract void end(EventObject event);
 
 }
