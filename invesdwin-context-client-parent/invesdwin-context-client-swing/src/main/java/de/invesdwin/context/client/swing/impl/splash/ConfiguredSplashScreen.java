@@ -45,29 +45,31 @@ public final class ConfiguredSplashScreen implements SplashScreen, FactoryBean<C
             if (splashScreen == null || force) {
                 dispose();
 
-                splashScreen = new ProgressSplashScreen();
-                final ApplicationMessageSource messageSource = new ApplicationMessageSource();
-                splashScreen.setMessageSource(messageSource);
+                if (RichApplicationProperties.hasDelegateClass()) {
+                    final ApplicationMessageSource messageSource = new ApplicationMessageSource();
+                    splashScreen = new ProgressSplashScreen();
+                    splashScreen.setMessageSource(messageSource);
 
-                splashScreen.setImageResourcePath(new ClassPathResource(splashScreen.getMessageSource()
-                        .getMessage(DelegateRichApplication.KEY_APPLICATION_SPLASH, null, null)));
-                splashScreen.setIconResourcePath(
-                        splashScreen.getMessageSource().getMessage(Application.KEY_APPLICATION_ICON, null, null));
+                    splashScreen.setImageResourcePath(new ClassPathResource(splashScreen.getMessageSource()
+                            .getMessage(DelegateRichApplication.KEY_APPLICATION_SPLASH, null, null)));
+                    splashScreen.setIconResourcePath(
+                            splashScreen.getMessageSource().getMessage(Application.KEY_APPLICATION_ICON, null, null));
 
-                if (!RichApplicationProperties.isHideSplashOnStartup()) {
-                    try {
-                        EventDispatchThreadUtil.invokeAndWait(new Runnable() {
-                            @Override
-                            public void run() {
-                                showing = true;
-                                splashScreen.splash();
-                            }
-                        });
-                    } catch (final Exception e) {
-                        throw new RuntimeException("EDT threading issue while showing splash screen", e);
+                    if (!RichApplicationProperties.isHideSplashOnStartup()) {
+                        try {
+                            EventDispatchThreadUtil.invokeAndWait(new Runnable() {
+                                @Override
+                                public void run() {
+                                    showing = true;
+                                    splashScreen.splash();
+                                }
+                            });
+                        } catch (final Exception e) {
+                            throw new RuntimeException("EDT threading issue while showing splash screen", e);
+                        }
+                        final ProgressMonitor tracker = ((MonitoringSplashScreen) splashScreen).getProgressMonitor();
+                        MergedContext.autowire(new ProgressMonitoringBeanFactoryPostProcessor(tracker, messageSource));
                     }
-                    final ProgressMonitor tracker = ((MonitoringSplashScreen) splashScreen).getProgressMonitor();
-                    MergedContext.autowire(new ProgressMonitoringBeanFactoryPostProcessor(tracker, messageSource));
                 }
             }
         }

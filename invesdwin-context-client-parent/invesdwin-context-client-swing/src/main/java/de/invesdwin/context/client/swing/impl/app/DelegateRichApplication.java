@@ -22,7 +22,6 @@ import de.invesdwin.aspects.annotation.EventDispatchThread;
 import de.invesdwin.aspects.annotation.EventDispatchThread.InvocationType;
 import de.invesdwin.context.beans.hook.StartupHookManager;
 import de.invesdwin.context.beans.init.MergedContext;
-import de.invesdwin.context.beans.init.PreMergedContext;
 import de.invesdwin.context.client.swing.api.IRichApplication;
 import de.invesdwin.context.client.swing.api.exit.AMainFrameCloseOperation;
 import de.invesdwin.context.client.swing.error.GuiExceptionHandler;
@@ -91,7 +90,7 @@ public class DelegateRichApplication extends SingleFrameApplication {
         getContext().addTaskService(new DefaultTaskService());
         Assertions.assertThat(getContext().getTaskService()).isInstanceOf(DefaultTaskService.class);
 
-        final IRichApplication richApplication = PreMergedContext.getInstance().getBean(IRichApplication.class);
+        final IRichApplication richApplication = RichApplicationProperties.getDelegate();
         configureLookAndFeel(richApplication);
         configureLocale(richApplication);
     }
@@ -128,7 +127,8 @@ public class DelegateRichApplication extends SingleFrameApplication {
         frame.setVisible(true);
         frame.repaint(); //to be safe we call a repaint so that the temporary grey area on the top is less likely to occur
         show(frameView);
-        final IRichApplication application = MergedContext.getInstance().getBean(IRichApplication.class);
+        final IRichApplication application = MergedContext.getInstance()
+                .getBean(RichApplicationProperties.getDelegateClass());
         final AMainFrameCloseOperation closeOperation = application.getMainFrameCloseOperation();
         closeOperation.configureFrame();
         final WindowListener[] listeners = frame.getWindowListeners();

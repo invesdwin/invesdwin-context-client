@@ -6,7 +6,7 @@ import javax.annotation.concurrent.ThreadSafe;
 
 import org.springframework.beans.factory.config.BeanDefinition;
 
-import de.invesdwin.context.beans.init.PreMergedContext;
+import de.invesdwin.context.beans.init.MergedContext;
 import de.invesdwin.context.client.swing.api.IRichApplication;
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.lang.Reflections;
@@ -30,15 +30,33 @@ public final class RichApplicationProperties {
 
     public static Class<? extends IRichApplication> getDelegateClass() {
         if (delegateClass == null) {
-            final String[] beanNames = PreMergedContext.getInstance().getBeanNamesForType(IRichApplication.class);
+            if (MergedContext.getInstance() == null) {
+                MergedContext.autowire(null);
+            }
+            final String[] beanNames = MergedContext.getInstance().getBeanNamesForType(IRichApplication.class);
             Assertions.assertThat(beanNames.length)
                     .as("Exactly one bean of type [%s] must exist: %s", IRichApplication.class.getSimpleName(),
                             Arrays.toString(beanNames))
                     .isEqualTo(1);
-            final BeanDefinition beanDefinition = PreMergedContext.getInstance().getBeanDefinition(beanNames[0]);
+            final BeanDefinition beanDefinition = MergedContext.getInstance().getBeanDefinition(beanNames[0]);
             delegateClass = Reflections.classForName(beanDefinition.getBeanClassName());
         }
         return delegateClass;
+    }
+
+    public static boolean hasDelegateClass() {
+        try {
+            return getDelegateClass() != null;
+        } catch (final Throwable t) {
+            return false;
+        }
+    }
+
+    public static IRichApplication getDelegate() {
+        if (MergedContext.getInstance() == null) {
+            MergedContext.autowire(null);
+        }
+        return MergedContext.getInstance().getBean(RichApplicationProperties.getDelegateClass());
     }
 
     public static void setDelegateClass(final Class<? extends IRichApplication> delegateClass) {

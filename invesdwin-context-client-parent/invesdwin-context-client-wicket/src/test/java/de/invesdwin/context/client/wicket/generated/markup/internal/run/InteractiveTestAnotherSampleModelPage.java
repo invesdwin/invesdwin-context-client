@@ -23,7 +23,7 @@ public class InteractiveTestAnotherSampleModelPage extends ATest {
     @Override
     public void setUpContext(final TestContext ctx) throws Exception {
         super.setUpContext(ctx);
-        ctx.activate(AnotherSampleModelPageTestApplication.class);
+        ctx.activateBean(AnotherSampleModelPageTestApplication.class);
     }
 
     @Test

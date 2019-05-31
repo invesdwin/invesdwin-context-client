@@ -16,7 +16,7 @@ public class SimpleHomePageTest extends ATest {
     @Override
     public void setUpContext(final TestContext ctx) throws Exception {
         super.setUpContext(ctx);
-        ctx.deactivate(WebApplicationStub.class);
+        ctx.deactivateBean(WebApplicationStub.class);
     }
 
     @SuppressWarnings("JUnit4SetUpNotRun")

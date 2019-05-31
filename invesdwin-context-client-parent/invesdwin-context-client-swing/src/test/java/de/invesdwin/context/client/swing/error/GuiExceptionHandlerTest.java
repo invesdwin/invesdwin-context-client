@@ -18,8 +18,8 @@ public class GuiExceptionHandlerTest extends ATest {
     @Override
     public void setUpContext(final TestContext ctx) throws Exception {
         super.setUpContext(ctx);
-        ctx.activate(TestModelView.class);
-        ctx.activate(TestRichApplication.class);
+        ctx.activateBean(TestModelView.class);
+        ctx.activateBean(TestRichApplication.class);
     }
 
     @Test

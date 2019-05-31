@@ -18,7 +18,7 @@ public class SimpleHomePageWebServerTest extends ATest {
     @Override
     public void setUpContext(final TestContext ctx) throws Exception {
         super.setUpContext(ctx);
-        ctx.activate(SimpleHomePageTestApplication.class);
+        ctx.activateBean(SimpleHomePageTestApplication.class);
     }
 
     @Test

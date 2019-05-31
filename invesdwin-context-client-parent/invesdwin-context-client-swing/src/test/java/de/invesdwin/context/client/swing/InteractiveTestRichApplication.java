@@ -20,7 +20,7 @@ public class InteractiveTestRichApplication extends ATest {
     @Override
     public void setUpContext(final TestContext ctx) throws Exception {
         super.setUpContext(ctx);
-        ctx.activate(TestRichApplication.class);
+        ctx.activateBean(TestRichApplication.class);
     }
 
     @Override

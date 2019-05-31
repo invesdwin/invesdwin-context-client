@@ -17,7 +17,7 @@ public class FileUploadRequiredPageTestWebServer extends ATest {
     @Override
     public void setUpContext(final TestContext ctx) throws Exception {
         super.setUpContext(ctx);
-        ctx.activate(FileUploadRequiredPageTestApplication.class);
+        ctx.activateBean(FileUploadRequiredPageTestApplication.class);
     }
 
     @Test
