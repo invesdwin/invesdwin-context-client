@@ -24,6 +24,10 @@ public class FrameFixtureStub extends StubSupport {
     @Override
     public void setUpContext(final ATest test, final TestContext ctx) {
         FailOnThreadViolationRepaintManager.install();
+    }
+
+    @Override
+    public void setUpOnce(final ATest test, final TestContext ctx) throws Exception {
         initFrameFixture(); //so that views can be added in setupOnce already without there being problems with ProxyActions
     }
 
