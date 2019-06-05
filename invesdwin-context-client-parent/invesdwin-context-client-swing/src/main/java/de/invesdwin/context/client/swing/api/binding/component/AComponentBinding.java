@@ -133,7 +133,7 @@ public abstract class AComponentBinding<C extends JComponent, V> implements ICom
                     return;
                 }
             }
-            getModifier().setValueFromRoot(model, newModelValue);
+            setValueFromRoot(model, newModelValue);
             setInvalidMessage(null);
             submitted = true;
         } catch (final Throwable t) {
@@ -201,10 +201,14 @@ public abstract class AComponentBinding<C extends JComponent, V> implements ICom
             return;
         }
         final AModel model = bindingGroup.getModel();
-        getModifier().setValueFromRoot(model, prevModelValue.orElse(null));
+        setValueFromRoot(model, prevModelValue.orElse(null));
         submitted = false;
         showingInvalidMessage = invalidMessage;
         invalidMessage = null;
+    }
+
+    protected void setValueFromRoot(final AModel root, final V value) {
+        getModifier().setValueFromRoot(root, value);
     }
 
     @Override

@@ -23,7 +23,7 @@ public class TableBinding extends AComponentBinding<JTable, List<?>> {
         super(component, element, bindingGroup);
         this.element = element;
         this.selectionModel = new TableSelectionModelBinding();
-        this.tableModel = new TableModelBinding(element, bindingGroup, selectionModel);
+        this.tableModel = new TableModelBinding(eagerSubmitRunnable, element, bindingGroup, selectionModel);
         component.setModel(tableModel);
         component.setSelectionModel(selectionModel);
         configureSelectionMode(component);
@@ -63,13 +63,13 @@ public class TableBinding extends AComponentBinding<JTable, List<?>> {
     }
 
     @Override
-    protected boolean isModifiable() {
-        return false;
+    protected IBeanPathPropertyModifier<List<?>> getModifier() {
+        return element.getChoiceModifier();
     }
 
     @Override
-    protected IBeanPathPropertyModifier<List<?>> getModifier() {
-        return element.getChoiceModifier();
+    protected void setValueFromRoot(final AModel root, final List<?> value) {
+        //noop
     }
 
     @Override
@@ -92,7 +92,7 @@ public class TableBinding extends AComponentBinding<JTable, List<?>> {
 
     @Override
     protected List<?> fromComponentToModel() {
-        throw new UnsupportedOperationException("not modifiable");
+        return getModifier().getValueFromRoot(getTarget());
     }
 
 }

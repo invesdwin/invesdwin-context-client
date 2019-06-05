@@ -26,6 +26,7 @@ import de.invesdwin.util.lang.Objects;
 @NotThreadSafe
 public class TableModelBinding extends AbstractTableModel implements ListSelectionListener {
 
+    private final Runnable eagerSubmitRunnable;
     private final ATableBeanPathElement element;
     private List<ITableColumnBeanPathElement> columns;
     private List<?> rows = new ArrayList<>();
@@ -34,8 +35,9 @@ public class TableModelBinding extends AbstractTableModel implements ListSelecti
     private List<Integer> selectedIndexesInModel;
     private boolean selectionUpdating = false;
 
-    public TableModelBinding(final ATableBeanPathElement element, final BindingGroup bindingGroup,
-            final TableSelectionModelBinding selectionModel) {
+    public TableModelBinding(final Runnable eagerSubmitRunnable, final ATableBeanPathElement element,
+            final BindingGroup bindingGroup, final TableSelectionModelBinding selectionModel) {
+        this.eagerSubmitRunnable = eagerSubmitRunnable;
         this.element = element;
         this.columns = element.getColumns();
         this.bindingGroup = bindingGroup;
@@ -167,6 +169,9 @@ public class TableModelBinding extends AbstractTableModel implements ListSelecti
         } else {
             throw UnknownArgumentException.newInstance(Class.class, column.getClass());
         }
+        if (eagerSubmitRunnable != null) {
+            eagerSubmitRunnable.run();
+        }
     }
 
     @Override
@@ -183,6 +188,10 @@ public class TableModelBinding extends AbstractTableModel implements ListSelecti
                     selectedValuesInTable.add(rows.get(selectedIndexesInTable.get(i)));
                 }
                 element.getSelectionModifier().setValueFromRoot(bindingGroup.getModel(), selectedValuesInTable);
+
+                if (eagerSubmitRunnable != null) {
+                    eagerSubmitRunnable.run();
+                }
             }
         } finally {
             selectionUpdating = false;

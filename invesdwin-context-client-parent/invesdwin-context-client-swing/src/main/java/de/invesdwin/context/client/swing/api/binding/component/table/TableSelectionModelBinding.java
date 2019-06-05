@@ -20,6 +20,8 @@ public class TableSelectionModelBinding implements ListSelectionModel {
     private boolean valueIsAdjusting = false;
     private boolean valueIsFrozen = false;;
     private final List<Integer> selectedIndexes = new SortedList<>(Integers.COMPARATOR);
+    private int anchorSelectionIndex;
+    private int leadSelectionIndex;
 
     public TableSelectionModelBinding() {}
 
@@ -28,15 +30,16 @@ public class TableSelectionModelBinding implements ListSelectionModel {
         if (valueIsFrozen) {
             return;
         }
-        internalClear();
+        if (selectionMode != SINGLE_SELECTION) {
+            selectedIndexes.clear();
+        }
         internalAdd(index0, index1);
         fireValueChanged();
     }
 
     protected void fireValueChanged() {
         if (!listeners.isEmpty()) {
-            final ListSelectionEvent e = new ListSelectionEvent(this, getMinSelectionIndex(), getMaxSelectionIndex(),
-                    getValueIsAdjusting());
+            final ListSelectionEvent e = new ListSelectionEvent(this, 0, Integer.MAX_VALUE, getValueIsAdjusting());
             for (final ListSelectionListener listener : listeners) {
                 listener.valueChanged(e);
             }
@@ -54,6 +57,7 @@ public class TableSelectionModelBinding implements ListSelectionModel {
 
     private void internalAdd(final int index0, final int index1) {
         if (selectionMode == SINGLE_SELECTION) {
+            selectedIndexes.clear();
             selectedIndexes.add(index1);
         } else {
             for (int i = index0; i <= index1; i++) {
@@ -96,31 +100,32 @@ public class TableSelectionModelBinding implements ListSelectionModel {
 
     @Override
     public int getAnchorSelectionIndex() {
-        return -1;
+        return anchorSelectionIndex;
     }
 
     @Override
-    public void setAnchorSelectionIndex(final int index) {}
+    public void setAnchorSelectionIndex(final int index) {
+        System.out.println("TODO: fix keyboard selection!");
+        this.anchorSelectionIndex = index;
+    }
 
     @Override
     public int getLeadSelectionIndex() {
-        return -1;
+        return leadSelectionIndex;
     }
 
     @Override
-    public void setLeadSelectionIndex(final int index) {}
+    public void setLeadSelectionIndex(final int index) {
+        this.leadSelectionIndex = index;
+    }
 
     @Override
     public void clearSelection() {
         if (valueIsFrozen) {
             return;
         }
-        internalClear();
-        fireValueChanged();
-    }
-
-    private void internalClear() {
         selectedIndexes.clear();
+        fireValueChanged();
     }
 
     @Override
@@ -140,7 +145,11 @@ public class TableSelectionModelBinding implements ListSelectionModel {
 
     @Override
     public void setValueIsAdjusting(final boolean valueIsAdjusting) {
+        final boolean prevValueIsAdjusting = this.valueIsAdjusting;
         this.valueIsAdjusting = true;
+        if (prevValueIsAdjusting != valueIsAdjusting) {
+            fireValueChanged();
+        }
     }
 
     @Override
