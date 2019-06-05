@@ -27,13 +27,35 @@ public class TableBinding extends AComponentBinding<JTable, List<?>> {
     }
 
     protected void configureSelectionMode(final JTable component) {
-        //model selection is handled via a special checkbox column
-        component.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         component.setCellSelectionEnabled(false);
-        component.setRowSelectionAllowed(false);
         component.setColumnSelectionAllowed(false);
         component.getTableHeader().setReorderingAllowed(false);
         component.setAutoCreateRowSorter(true);
+
+        //model selection is handled via a special checkbox column
+        if (element.getSelectionButtonColumn() != null) {
+            if (element.getColumns().contains(element.getSelectionButtonColumn())) {
+                //selection via button column
+                component.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+                component.setRowSelectionAllowed(false);
+            } else {
+                if (element.isMultiSelection()) {
+                    //multi select
+                    component.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+                    component.setRowSelectionAllowed(true);
+                    tableModel.enableSelectionListener(component.getSelectionModel());
+                } else {
+                    //single select
+                    component.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+                    component.setRowSelectionAllowed(true);
+                    tableModel.enableSelectionListener(component.getSelectionModel());
+                }
+            }
+        } else {
+            //no selection
+            component.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+            component.setRowSelectionAllowed(false);
+        }
     }
 
     @Override

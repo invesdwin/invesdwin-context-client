@@ -53,6 +53,10 @@ public abstract class AComponentBinding<C extends JComponent, V> implements ICom
         this.originalBorder = component.getBorder();
     }
 
+    protected BindingGroup getBindingGroup() {
+        return bindingGroup;
+    }
+
     private Runnable newEagerSubmitRunnable() {
         if (isEager()) {
             if (isForced()) {

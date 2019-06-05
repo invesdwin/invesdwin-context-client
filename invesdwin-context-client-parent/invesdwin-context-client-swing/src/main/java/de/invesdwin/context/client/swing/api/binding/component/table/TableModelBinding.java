@@ -4,28 +4,34 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.concurrent.NotThreadSafe;
+import javax.swing.ListSelectionModel;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import javax.swing.table.AbstractTableModel;
 
 import org.apache.commons.lang3.BooleanUtils;
 
 import de.invesdwin.context.client.swing.api.binding.BindingGroup;
 import de.invesdwin.norva.beanpath.impl.clazz.BeanClassType;
+import de.invesdwin.norva.beanpath.impl.object.BeanObjectContainer;
 import de.invesdwin.norva.beanpath.spi.element.APropertyBeanPathElement;
 import de.invesdwin.norva.beanpath.spi.element.ATableBeanPathElement;
 import de.invesdwin.norva.beanpath.spi.element.ITableColumnBeanPathElement;
 import de.invesdwin.norva.beanpath.spi.element.TableButtonColumnBeanPathElement;
 import de.invesdwin.norva.beanpath.spi.element.TableSelectionButtonColumnBeanPathElement;
+import de.invesdwin.norva.beanpath.spi.element.simple.modifier.IBeanPathPropertyModifier;
 import de.invesdwin.norva.beanpath.spi.element.simple.modifier.SelectionBeanPathPropertyModifier;
 import de.invesdwin.util.error.UnknownArgumentException;
 import de.invesdwin.util.lang.Objects;
 
 @NotThreadSafe
-public class TableModelBinding extends AbstractTableModel {
+public class TableModelBinding extends AbstractTableModel implements ListSelectionListener {
 
     private final ATableBeanPathElement element;
     private List<ITableColumnBeanPathElement> columns;
     private List<?> rows = new ArrayList<>();
     private final BindingGroup bindingGroup;
+    private ListSelectionModel selectionModel;
 
     public TableModelBinding(final ATableBeanPathElement element, final BindingGroup bindingGroup) {
         this.element = element;
@@ -33,16 +39,32 @@ public class TableModelBinding extends AbstractTableModel {
         this.bindingGroup = bindingGroup;
     }
 
-    public void update(final List<?> newValues) {
+    public synchronized void update(final List<?> newValues) {
         if (!Objects.equals(newValues, rows)) {
             this.rows = new ArrayList<>(newValues);
             fireTableDataChanged();
+        }
+        if (selectionModel != null) {
+            final IBeanPathPropertyModifier<List<?>> selectionModifier = element.getSelectionModifier();
+            final List<?> selection = selectionModifier.getValueFromRoot(bindingGroup.getModel());
+            selectionModel.clearSelection();
+            for (final Object sel : selection) {
+                final int indexOf = rows.indexOf(sel);
+                if (indexOf > 0) {
+                    selectionModel.addSelectionInterval(indexOf, indexOf);
+                }
+            }
         }
         final List<ITableColumnBeanPathElement> newColumns = element.getColumns();
         if (!Objects.equals(newColumns, columns)) {
             this.columns = new ArrayList<>(columns);
             fireTableStructureChanged();
         }
+    }
+
+    protected Object getTarget() {
+        final BeanObjectContainer container = (BeanObjectContainer) element.getContainer();
+        return container.getObject();
     }
 
     @Override
@@ -130,4 +152,30 @@ public class TableModelBinding extends AbstractTableModel {
             throw UnknownArgumentException.newInstance(Class.class, column.getClass());
         }
     }
+
+    @Override
+    public synchronized void valueChanged(final ListSelectionEvent e) {
+        final List<Object> selection = new ArrayList<>();
+        if (selectionModel.getMinSelectionIndex() >= 0 && selectionModel.getMaxSelectionIndex() >= 0) {
+            if (selectionModel.getSelectionMode() == ListSelectionModel.SINGLE_SELECTION) {
+                selection.add(rows.get(selectionModel.getMinSelectionIndex()));
+            } else if (selectionModel.getSelectionMode() == ListSelectionModel.SINGLE_INTERVAL_SELECTION) {
+                selection.addAll(
+                        rows.subList(selectionModel.getMinSelectionIndex(), selectionModel.getMaxSelectionIndex()));
+            } else {
+                for (int i = 0; i < rows.size(); i++) {
+                    if (selectionModel.isSelectedIndex(i)) {
+                        selection.add(rows.get(i));
+                    }
+                }
+            }
+        }
+        element.getSelectionModifier().setValueFromRoot(bindingGroup.getModel(), selection);
+    }
+
+    public void enableSelectionListener(final ListSelectionModel selectionModel) {
+        this.selectionModel = selectionModel;
+        selectionModel.addListSelectionListener(this);
+    }
+
 }
