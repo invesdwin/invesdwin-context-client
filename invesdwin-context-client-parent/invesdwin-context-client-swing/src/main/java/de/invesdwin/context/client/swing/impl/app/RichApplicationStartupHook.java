@@ -69,7 +69,16 @@ public class RichApplicationStartupHook implements IStartupHook {
                 new Thread() {
                     @Override
                     public void run() {
-                        delegate.startupDone();
+                        try {
+                            delegate.startupDone();
+                        } finally {
+                            if (!delegate.isKeepSplashVisible()) {
+                                ConfiguredSplashScreen.INSTANCE.dispose();
+                            }
+                            if (!delegate.isHideMainFrameOnStartup()) {
+                                application.showMainFrame();
+                            }
+                        }
                     }
                 }.start();
             }
@@ -89,13 +98,6 @@ public class RichApplicationStartupHook implements IStartupHook {
 
         frameView.getFrame().pack();
         setInitialFrameSize(frameView);
-        if (!delegate.isKeepSplashVisible()) {
-            ConfiguredSplashScreen.INSTANCE.dispose();
-        }
-
-        if (!delegate.isHideMainFrameOnStartup()) {
-            application.showMainFrame();
-        }
     }
 
     /**
