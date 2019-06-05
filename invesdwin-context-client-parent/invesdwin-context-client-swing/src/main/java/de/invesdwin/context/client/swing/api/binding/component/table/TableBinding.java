@@ -48,6 +48,13 @@ public class TableBinding extends AComponentBinding<JTable, List<?>> {
 
     @Override
     protected void fromModelToComponent(final List<?> modelValue) {
+        //filter null invalid choices
+        for (int i = 0; i < modelValue.size(); i++) {
+            if (modelValue.get(i) == null) {
+                modelValue.remove(i);
+                i--;
+            }
+        }
         tableModel.update(modelValue);
     }
 
