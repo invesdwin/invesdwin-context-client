@@ -40,10 +40,8 @@ public class TableModelBinding extends AbstractTableModel implements ListSelecti
     }
 
     public synchronized void update(final List<?> newValues) {
-        if (!Objects.equals(newValues, rows)) {
-            this.rows = new ArrayList<>(newValues);
-            fireTableDataChanged();
-        }
+        this.rows = new ArrayList<>(newValues);
+        fireTableDataChanged();
         if (selectionModel != null) {
             final IBeanPathPropertyModifier<List<?>> selectionModifier = element.getSelectionModifier();
             final List<?> selection = selectionModifier.getValueFromRoot(bindingGroup.getModel());
