@@ -11,7 +11,6 @@ import javax.swing.JComboBox;
 import de.invesdwin.context.client.swing.api.binding.BindingGroup;
 import de.invesdwin.norva.beanpath.spi.element.AChoiceBeanPathElement;
 import de.invesdwin.norva.beanpath.spi.element.simple.modifier.IBeanPathPropertyModifier;
-import de.invesdwin.util.lang.Objects;
 
 @NotThreadSafe
 @SuppressWarnings({ "unchecked", "rawtypes" })
@@ -42,13 +41,11 @@ public class ComboBoxBinding extends AComponentBinding<JComboBox, Object> {
     @Override
     protected void fromModelToComponent(final Object modelValue) {
         final List<?> choices = element.getChoiceModifier().getValueFromRoot(bindingGroup.getModel());
-        if (!Objects.equals(choices, prevChoices)) {
-            component.removeAllItems();
-            for (final Object choice : choices) {
-                component.addItem(renderChoice(choice));
-            }
-            prevChoices = new ArrayList<>(choices);
+        component.removeAllItems();
+        for (final Object choice : choices) {
+            component.addItem(renderChoice(choice));
         }
+        prevChoices = new ArrayList<>(choices);
         component.setSelectedItem(renderChoice(modelValue));
     }
 

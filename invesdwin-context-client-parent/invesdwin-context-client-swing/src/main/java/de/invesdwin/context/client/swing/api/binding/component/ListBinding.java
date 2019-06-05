@@ -1,6 +1,5 @@
 package de.invesdwin.context.client.swing.api.binding.component;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.concurrent.NotThreadSafe;
@@ -13,14 +12,12 @@ import javax.swing.event.ListSelectionListener;
 import de.invesdwin.context.client.swing.api.binding.BindingGroup;
 import de.invesdwin.norva.beanpath.spi.element.AChoiceBeanPathElement;
 import de.invesdwin.norva.beanpath.spi.element.simple.modifier.IBeanPathPropertyModifier;
-import de.invesdwin.util.lang.Objects;
 
 @NotThreadSafe
 @SuppressWarnings({ "unchecked", "rawtypes" })
 public class ListBinding extends AComponentBinding<JList, List<?>> {
 
     private final AChoiceBeanPathElement element;
-    private List<Object> prevChoices = new ArrayList<>();
 
     public ListBinding(final JList component, final AChoiceBeanPathElement element, final BindingGroup bindingGroup) {
         super(component, element, bindingGroup);
@@ -57,14 +54,11 @@ public class ListBinding extends AComponentBinding<JList, List<?>> {
             final int index = choices.indexOf(modelValue.get(i));
             indices[i] = index;
         }
-        if (!Objects.equals(choices, prevChoices)) {
-            final DefaultListModel<Object> model = new DefaultListModel<>();
-            for (final Object choice : choices) {
-                model.addElement(choice);
-            }
-            component.setModel(model);
-            prevChoices = new ArrayList<>(choices);
+        final DefaultListModel<Object> model = new DefaultListModel<>();
+        for (final Object choice : choices) {
+            model.addElement(choice);
         }
+        component.setModel(model);
         component.setSelectedIndices(indices);
     }
 

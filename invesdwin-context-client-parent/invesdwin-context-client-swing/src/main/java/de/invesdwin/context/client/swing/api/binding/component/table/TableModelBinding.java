@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.concurrent.NotThreadSafe;
-import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.AbstractTableModel;
@@ -31,32 +30,51 @@ public class TableModelBinding extends AbstractTableModel implements ListSelecti
     private List<ITableColumnBeanPathElement> columns;
     private List<?> rows = new ArrayList<>();
     private final BindingGroup bindingGroup;
-    private ListSelectionModel selectionModel;
+    private final TableSelectionModelBinding selectionModel;
+    private List<Integer> selectedIndexesInModel;
+    private boolean selectionUpdating = false;
 
-    public TableModelBinding(final ATableBeanPathElement element, final BindingGroup bindingGroup) {
+    public TableModelBinding(final ATableBeanPathElement element, final BindingGroup bindingGroup,
+            final TableSelectionModelBinding selectionModel) {
         this.element = element;
         this.columns = element.getColumns();
         this.bindingGroup = bindingGroup;
+        this.selectionModel = selectionModel;
     }
 
-    public synchronized void update(final List<?> newValues) {
+    public void update(final List<?> newValues) {
+        if (selectionUpdating) {
+            return;
+        }
         this.rows = new ArrayList<>(newValues);
-        fireTableDataChanged();
-        if (selectionModel != null) {
-            final IBeanPathPropertyModifier<List<?>> selectionModifier = element.getSelectionModifier();
-            final List<?> selection = selectionModifier.getValueFromRoot(bindingGroup.getModel());
-            selectionModel.clearSelection();
-            for (final Object sel : selection) {
-                final int indexOf = rows.indexOf(sel);
-                if (indexOf > 0) {
-                    selectionModel.addSelectionInterval(indexOf, indexOf);
+        if (element.getSelectionModifier() != null) {
+            final List<Integer> selectedIndexesInModel = getSelectedIndexesInModel(true);
+            if (!Objects.equals(selectedIndexesInModel, selectionModel.getSelectedIndexes())) {
+                selectionUpdating = true;
+                selectionModel.setValueIsAdjusting(true);
+                try {
+                    selectionModel.clearSelection();
+                    for (int i = 0; i < selectedIndexesInModel.size(); i++) {
+                        final int selectedIndexInModel = selectedIndexesInModel.get(i);
+                        selectionModel.addSelectionInterval(selectedIndexInModel, selectedIndexInModel);
+                    }
+                } finally {
+                    selectionModel.setValueIsAdjusting(false);
+                    selectionUpdating = false;
                 }
             }
         }
-        final List<ITableColumnBeanPathElement> newColumns = element.getColumns();
-        if (!Objects.equals(newColumns, columns)) {
-            this.columns = new ArrayList<>(columns);
-            fireTableStructureChanged();
+        selectionModel.setValueIsFrozen(true);
+        try {
+            final List<ITableColumnBeanPathElement> newColumns = element.getColumns();
+            if (!Objects.equals(newColumns, columns)) {
+                this.columns = new ArrayList<>(columns);
+                fireTableStructureChanged();
+            } else {
+                fireTableDataChanged();
+            }
+        } finally {
+            selectionModel.setValueIsFrozen(false);
         }
     }
 
@@ -152,28 +170,45 @@ public class TableModelBinding extends AbstractTableModel implements ListSelecti
     }
 
     @Override
-    public synchronized void valueChanged(final ListSelectionEvent e) {
-        final List<Object> selection = new ArrayList<>();
-        if (selectionModel.getMinSelectionIndex() >= 0 && selectionModel.getMaxSelectionIndex() >= 0) {
-            if (selectionModel.getSelectionMode() == ListSelectionModel.SINGLE_SELECTION) {
-                selection.add(rows.get(selectionModel.getMinSelectionIndex()));
-            } else if (selectionModel.getSelectionMode() == ListSelectionModel.SINGLE_INTERVAL_SELECTION) {
-                selection.addAll(
-                        rows.subList(selectionModel.getMinSelectionIndex(), selectionModel.getMaxSelectionIndex()));
-            } else {
-                for (int i = 0; i < rows.size(); i++) {
-                    if (selectionModel.isSelectedIndex(i)) {
-                        selection.add(rows.get(i));
-                    }
+    public void valueChanged(final ListSelectionEvent e) {
+        if (selectionUpdating) {
+            return;
+        }
+        selectionUpdating = true;
+        try {
+            final List<Integer> selectedIndexesInTable = selectionModel.getSelectedIndexes();
+            if (!Objects.equals(selectedIndexesInTable, getSelectedIndexesInModel(false))) {
+                final List<Object> selectedValuesInTable = new ArrayList<>(selectedIndexesInTable.size());
+                for (int i = 0; i < selectedIndexesInTable.size(); i++) {
+                    selectedValuesInTable.add(rows.get(selectedIndexesInTable.get(i)));
+                }
+                element.getSelectionModifier().setValueFromRoot(bindingGroup.getModel(), selectedValuesInTable);
+            }
+        } finally {
+            selectionUpdating = false;
+        }
+    }
+
+    private List<Integer> getSelectedIndexesInModel(final boolean forceUpdate) {
+        if (forceUpdate || selectedIndexesInModel == null) {
+            selectedIndexesInModel = newSelectedIndexesInModel();
+        }
+        return selectedIndexesInModel;
+    }
+
+    private List<Integer> newSelectedIndexesInModel() {
+        final IBeanPathPropertyModifier<List<?>> selectionModifier = element.getSelectionModifier();
+        final List<?> selectedValuesInModel = selectionModifier.getValueFromRoot(bindingGroup.getModel());
+        final List<Integer> selectedIndexesInModel = new ArrayList<>(selectedValuesInModel.size());
+        for (final Object selectedValueInModel : selectedValuesInModel) {
+            if (selectedValueInModel != null) {
+                final int indexOf = rows.indexOf(selectedValueInModel);
+                if (indexOf >= 0) {
+                    selectedIndexesInModel.add(indexOf);
                 }
             }
         }
-        element.getSelectionModifier().setValueFromRoot(bindingGroup.getModel(), selection);
-    }
-
-    public void enableSelectionListener(final ListSelectionModel selectionModel) {
-        this.selectionModel = selectionModel;
-        selectionModel.addListSelectionListener(this);
+        return selectedIndexesInModel;
     }
 
 }

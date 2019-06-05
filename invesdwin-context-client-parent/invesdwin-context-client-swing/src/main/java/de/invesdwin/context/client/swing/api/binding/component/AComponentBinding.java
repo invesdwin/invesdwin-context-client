@@ -19,7 +19,6 @@ import de.invesdwin.norva.beanpath.impl.object.BeanObjectContainer;
 import de.invesdwin.norva.beanpath.spi.element.APropertyBeanPathElement;
 import de.invesdwin.norva.beanpath.spi.element.simple.modifier.IBeanPathPropertyModifier;
 import de.invesdwin.norva.beanpath.spi.element.utility.ValidateBeanPathElement;
-import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.lang.Strings;
 
 @NotThreadSafe
@@ -125,22 +124,18 @@ public abstract class AComponentBinding<C extends JComponent, V> implements ICom
         }
         final AModel model = bindingGroup.getModel();
         try {
-            prevModelValue = Optional.ofNullable(getModifier().getValueFromRoot(model));
+            prevModelValue = Optional.ofNullable(getValueFromRoot(model));
             final V newModelValue = fromComponentToModel();
-            if (showingInvalidMessage != null || !Objects.equals(prevModelValue.orElse(null), newModelValue)) {
-                if (validateElement != null) {
-                    final String invalid = validateElement.validateFromRoot(model, newModelValue);
-                    if (Strings.isNotBlank(invalid)) {
-                        setInvalidMessage(invalid);
-                        return;
-                    }
+            if (validateElement != null) {
+                final String invalid = validateElement.validateFromRoot(model, newModelValue);
+                if (Strings.isNotBlank(invalid)) {
+                    setInvalidMessage(invalid);
+                    return;
                 }
-                getModifier().setValueFromRoot(model, newModelValue);
-                setInvalidMessage(null);
-                submitted = true;
-            } else {
-                submitted = false;
             }
+            getModifier().setValueFromRoot(model, newModelValue);
+            setInvalidMessage(null);
+            submitted = true;
         } catch (final Throwable t) {
             Err.process(t);
             setInvalidMessage(t.toString());
@@ -158,7 +153,7 @@ public abstract class AComponentBinding<C extends JComponent, V> implements ICom
         if (validateElement != null) {
             //validate using custom validator only once all properties have been synchronized
             final AModel model = bindingGroup.getModel();
-            final Object modelValue = getModifier().getValueFromRoot(model);
+            final Object modelValue = getValueFromRoot(model);
             final String invalid = validateElement.validateFromRoot(model, modelValue);
             if (Strings.isNotBlank(invalid)) {
                 setInvalidMessage(invalid);
@@ -217,11 +212,9 @@ public abstract class AComponentBinding<C extends JComponent, V> implements ICom
         updating = true;
         try {
             final AModel model = bindingGroup.getModel();
-            final V modelValue = getModifier().getValueFromRoot(model);
-            if (prevModelValue == null || !Objects.equals(prevModelValue.orElse(null), modelValue)) {
-                fromModelToComponent(modelValue);
-                prevModelValue = Optional.ofNullable(modelValue);
-            }
+            final V modelValue = getValueFromRoot(model);
+            fromModelToComponent(modelValue);
+            prevModelValue = Optional.ofNullable(modelValue);
 
             final Object target = getTarget();
             component.setEnabled(element.isEnabled(target));
@@ -243,6 +236,10 @@ public abstract class AComponentBinding<C extends JComponent, V> implements ICom
         } finally {
             updating = false;
         }
+    }
+
+    protected V getValueFromRoot(final AModel model) {
+        return getModifier().getValueFromRoot(model);
     }
 
     protected void setBorder(final Border border) {

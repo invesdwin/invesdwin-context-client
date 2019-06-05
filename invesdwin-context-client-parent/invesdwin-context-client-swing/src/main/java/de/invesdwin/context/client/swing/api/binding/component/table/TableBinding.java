@@ -6,6 +6,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 
+import de.invesdwin.context.client.swing.api.AModel;
 import de.invesdwin.context.client.swing.api.binding.BindingGroup;
 import de.invesdwin.context.client.swing.api.binding.component.AComponentBinding;
 import de.invesdwin.norva.beanpath.spi.element.ATableBeanPathElement;
@@ -16,12 +17,15 @@ public class TableBinding extends AComponentBinding<JTable, List<?>> {
 
     private final ATableBeanPathElement element;
     private final TableModelBinding tableModel;
+    private final TableSelectionModelBinding selectionModel;
 
     public TableBinding(final JTable component, final ATableBeanPathElement element, final BindingGroup bindingGroup) {
         super(component, element, bindingGroup);
         this.element = element;
-        this.tableModel = new TableModelBinding(element, bindingGroup);
+        this.selectionModel = new TableSelectionModelBinding();
+        this.tableModel = new TableModelBinding(element, bindingGroup, selectionModel);
         component.setModel(tableModel);
+        component.setSelectionModel(selectionModel);
         configureSelectionMode(component);
         component.setAutoCreateColumnsFromModel(true);
     }
@@ -43,12 +47,12 @@ public class TableBinding extends AComponentBinding<JTable, List<?>> {
                     //multi select
                     component.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
                     component.setRowSelectionAllowed(true);
-                    tableModel.enableSelectionListener(component.getSelectionModel());
+                    selectionModel.addListSelectionListener(tableModel);
                 } else {
                     //single select
                     component.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
                     component.setRowSelectionAllowed(true);
-                    tableModel.enableSelectionListener(component.getSelectionModel());
+                    selectionModel.addListSelectionListener(tableModel);
                 }
             }
         } else {
@@ -70,6 +74,12 @@ public class TableBinding extends AComponentBinding<JTable, List<?>> {
 
     @Override
     protected void fromModelToComponent(final List<?> modelValue) {
+        tableModel.update(modelValue);
+    }
+
+    @Override
+    protected List<?> getValueFromRoot(final AModel model) {
+        final List<?> modelValue = super.getValueFromRoot(model);
         //filter null invalid choices
         for (int i = 0; i < modelValue.size(); i++) {
             if (modelValue.get(i) == null) {
@@ -77,7 +87,7 @@ public class TableBinding extends AComponentBinding<JTable, List<?>> {
                 i--;
             }
         }
-        tableModel.update(modelValue);
+        return modelValue;
     }
 
     @Override
