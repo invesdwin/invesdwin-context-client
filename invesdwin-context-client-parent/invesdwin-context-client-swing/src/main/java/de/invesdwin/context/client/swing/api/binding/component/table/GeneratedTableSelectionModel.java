@@ -4,11 +4,11 @@ import javax.annotation.concurrent.NotThreadSafe;
 import javax.swing.DefaultListSelectionModel;
 
 @NotThreadSafe
-public class TableSelectionModelBinding extends DefaultListSelectionModel {
+public class GeneratedTableSelectionModel extends DefaultListSelectionModel {
 
-    private boolean valueIsFrozen = false;;
+    private boolean valueIsFrozen = false;
 
-    public TableSelectionModelBinding() {}
+    public GeneratedTableSelectionModel() {}
 
     @Override
     public void setSelectionInterval(final int index0, final int index1) {

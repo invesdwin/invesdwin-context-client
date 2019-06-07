@@ -13,24 +13,43 @@ import de.invesdwin.norva.beanpath.spi.element.ATableBeanPathElement;
 import de.invesdwin.norva.beanpath.spi.element.simple.modifier.IBeanPathPropertyModifier;
 
 @NotThreadSafe
-public class TableBinding extends AComponentBinding<JTable, List<?>> {
+public class TableChoiceBinding extends AComponentBinding<JTable, List<?>> {
 
     private final ATableBeanPathElement element;
-    private final TableModelBinding tableModel;
-    private final TableSelectionModelBinding selectionModel;
+    private final GeneratedTableModel tableModel;
+    private final GeneratedTableSelectionModel selectionModel;
+    private final TableSelectionBinding selectionBinding;
 
-    public TableBinding(final JTable component, final ATableBeanPathElement element, final BindingGroup bindingGroup) {
+    public TableChoiceBinding(final JTable component, final ATableBeanPathElement element,
+            final BindingGroup bindingGroup) {
         super(component, element, bindingGroup);
         this.element = element;
-        this.selectionModel = new TableSelectionModelBinding();
-        this.tableModel = new TableModelBinding(eagerSubmitRunnable, element, bindingGroup, selectionModel);
+        this.selectionModel = new GeneratedTableSelectionModel();
+        this.tableModel = new GeneratedTableModel(new Runnable() {
+            @Override
+            public void run() {
+                if (selectionBinding != null) {
+                    final Runnable runnable = selectionBinding.getEagerSubmitRunnable();
+                    if (runnable != null) {
+                        runnable.run();
+                    }
+                } else {
+                    if (eagerSubmitRunnable != null) {
+                        eagerSubmitRunnable.run();
+                    }
+                }
+            }
+        }, element, bindingGroup, selectionModel);
         component.setModel(tableModel);
         component.setSelectionModel(selectionModel);
-        configureSelectionMode(component);
         component.setAutoCreateColumnsFromModel(true);
+        selectionBinding = configureSelectionMode(component);
+        if (selectionBinding != null) {
+            bindingGroup.add(selectionBinding);
+        }
     }
 
-    protected void configureSelectionMode(final JTable component) {
+    protected TableSelectionBinding configureSelectionMode(final JTable component) {
         component.setCellSelectionEnabled(false);
         component.setColumnSelectionAllowed(false);
         component.getTableHeader().setReorderingAllowed(false);
@@ -42,24 +61,29 @@ public class TableBinding extends AComponentBinding<JTable, List<?>> {
                 //selection via button column
                 component.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
                 component.setRowSelectionAllowed(false);
+                return null;
             } else {
                 if (element.isMultiSelection()) {
                     //multi select
                     component.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-                    component.setRowSelectionAllowed(true);
-                    selectionModel.addListSelectionListener(tableModel);
                 } else {
                     //single select
                     component.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-                    component.setRowSelectionAllowed(true);
-                    selectionModel.addListSelectionListener(tableModel);
                 }
+                component.setRowSelectionAllowed(true);
+                return new TableSelectionBinding(component, element, bindingGroup, tableModel, selectionModel);
             }
         } else {
             //no selection
             component.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
             component.setRowSelectionAllowed(false);
+            return null;
         }
+    }
+
+    @Override
+    protected boolean isModifiable() {
+        return false;
     }
 
     @Override
@@ -68,13 +92,8 @@ public class TableBinding extends AComponentBinding<JTable, List<?>> {
     }
 
     @Override
-    protected void setValueFromRoot(final AModel root, final List<?> value) {
-        //noop
-    }
-
-    @Override
     protected void fromModelToComponent(final List<?> modelValue) {
-        tableModel.update(modelValue);
+        tableModel.fromModelToComponent(modelValue);
     }
 
     @Override

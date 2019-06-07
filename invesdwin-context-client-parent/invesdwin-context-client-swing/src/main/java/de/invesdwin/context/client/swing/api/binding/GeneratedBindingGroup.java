@@ -28,7 +28,7 @@ import de.invesdwin.context.client.swing.api.binding.component.button.DefaultSub
 import de.invesdwin.context.client.swing.api.binding.component.button.SubmitButtonBinding;
 import de.invesdwin.context.client.swing.api.binding.component.label.LabelBinding;
 import de.invesdwin.context.client.swing.api.binding.component.label.LabelTitleBinding;
-import de.invesdwin.context.client.swing.api.binding.component.table.TableBinding;
+import de.invesdwin.context.client.swing.api.binding.component.table.TableChoiceBinding;
 import de.invesdwin.context.client.swing.util.NamedModelComponentFinder;
 import de.invesdwin.context.client.swing.util.Views;
 import de.invesdwin.norva.beanpath.impl.object.BeanObjectContainer;
@@ -144,7 +144,7 @@ public final class GeneratedBindingGroup {
 
     protected IComponentBinding bindJTable(final JTable component) {
         final ATableBeanPathElement element = getElement(component);
-        return new TableBinding(component, element, bindingGroup);
+        return new TableChoiceBinding(component, element, bindingGroup);
     }
 
     protected IComponentBinding bindJList(final JList component) {

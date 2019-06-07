@@ -4,9 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.concurrent.NotThreadSafe;
-import javax.swing.ListSelectionModel;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 import javax.swing.table.AbstractTableModel;
 
 import org.apache.commons.lang3.BooleanUtils;
@@ -19,26 +16,22 @@ import de.invesdwin.norva.beanpath.spi.element.ATableBeanPathElement;
 import de.invesdwin.norva.beanpath.spi.element.ITableColumnBeanPathElement;
 import de.invesdwin.norva.beanpath.spi.element.TableButtonColumnBeanPathElement;
 import de.invesdwin.norva.beanpath.spi.element.TableSelectionButtonColumnBeanPathElement;
-import de.invesdwin.norva.beanpath.spi.element.simple.modifier.IBeanPathPropertyModifier;
 import de.invesdwin.norva.beanpath.spi.element.simple.modifier.SelectionBeanPathPropertyModifier;
 import de.invesdwin.util.error.UnknownArgumentException;
 import de.invesdwin.util.lang.Objects;
 
 @NotThreadSafe
-public class TableModelBinding extends AbstractTableModel implements ListSelectionListener {
+public class GeneratedTableModel extends AbstractTableModel {
 
     private final Runnable eagerSubmitRunnable;
     private final ATableBeanPathElement element;
     private List<ITableColumnBeanPathElement> columns;
     private List<?> rows = new ArrayList<>();
     private final BindingGroup bindingGroup;
-    private final TableSelectionModelBinding selectionModel;
-    private List<Integer> selectedIndexesInModel;
-    private List<Integer> selectedIndexesInTable;
-    private boolean selectionUpdating = false;
+    private final GeneratedTableSelectionModel selectionModel;
 
-    public TableModelBinding(final Runnable eagerSubmitRunnable, final ATableBeanPathElement element,
-            final BindingGroup bindingGroup, final TableSelectionModelBinding selectionModel) {
+    public GeneratedTableModel(final Runnable eagerSubmitRunnable, final ATableBeanPathElement element,
+            final BindingGroup bindingGroup, final GeneratedTableSelectionModel selectionModel) {
         this.eagerSubmitRunnable = eagerSubmitRunnable;
         this.element = element;
         this.columns = element.getColumns();
@@ -46,29 +39,8 @@ public class TableModelBinding extends AbstractTableModel implements ListSelecti
         this.selectionModel = selectionModel;
     }
 
-    public void update(final List<?> newValues) {
-        if (selectionUpdating) {
-            return;
-        }
+    public void fromModelToComponent(final List<?> newValues) {
         this.rows = new ArrayList<>(newValues);
-        if (element.getSelectionModifier() != null) {
-            final List<Integer> selectedIndexesInModelBefore = selectedIndexesInModel;
-            final List<Integer> selectedIndexesInModel = getSelectedIndexesInModel(true);
-            if (!Objects.equals(selectedIndexesInModel, selectedIndexesInModelBefore)) {
-                selectionUpdating = true;
-                selectionModel.setValueIsAdjusting(true);
-                try {
-                    selectionModel.clearSelection();
-                    for (int i = 0; i < selectedIndexesInModel.size(); i++) {
-                        final int selectedIndexInModel = selectedIndexesInModel.get(i);
-                        selectionModel.addSelectionInterval(selectedIndexInModel, selectedIndexInModel);
-                    }
-                } finally {
-                    selectionModel.setValueIsAdjusting(false);
-                    selectionUpdating = false;
-                }
-            }
-        }
         selectionModel.setValueIsFrozen(true);
         try {
             final List<ITableColumnBeanPathElement> newColumns = element.getColumns();
@@ -177,77 +149,8 @@ public class TableModelBinding extends AbstractTableModel implements ListSelecti
         }
     }
 
-    @Override
-    public void valueChanged(final ListSelectionEvent e) {
-        if (selectionUpdating) {
-            return;
-        }
-        selectionUpdating = true;
-        try {
-            final List<Integer> selectedIndexesInTable = getSelectedIndexesInTable(true);
-            if (!Objects.equals(selectedIndexesInTable, getSelectedIndexesInModel(false))) {
-                final List<Object> selectedValuesInTable = new ArrayList<>(selectedIndexesInTable.size());
-                for (int i = 0; i < selectedIndexesInTable.size(); i++) {
-                    selectedValuesInTable.add(rows.get(selectedIndexesInTable.get(i)));
-                }
-                element.getSelectionModifier().setValueFromRoot(bindingGroup.getModel(), selectedValuesInTable);
-
-                if (eagerSubmitRunnable != null) {
-                    eagerSubmitRunnable.run();
-                }
-            }
-        } finally {
-            selectionUpdating = false;
-        }
-    }
-
-    private List<Integer> getSelectedIndexesInModel(final boolean forceUpdate) {
-        if (forceUpdate || selectedIndexesInModel == null) {
-            selectedIndexesInModel = newSelectedIndexesInModel();
-        }
-        return selectedIndexesInModel;
-    }
-
-    private List<Integer> newSelectedIndexesInModel() {
-        final IBeanPathPropertyModifier<List<?>> selectionModifier = element.getSelectionModifier();
-        final List<?> selectedValuesInModel = selectionModifier.getValueFromRoot(bindingGroup.getModel());
-        final List<Integer> selectedIndexesInModel = new ArrayList<>(selectedValuesInModel.size());
-        for (final Object selectedValueInModel : selectedValuesInModel) {
-            if (selectedValueInModel != null) {
-                final int indexOf = rows.indexOf(selectedValueInModel);
-                if (indexOf >= 0) {
-                    selectedIndexesInModel.add(indexOf);
-                }
-            }
-        }
-        return selectedIndexesInModel;
-    }
-
-    private List<Integer> getSelectedIndexesInTable(final boolean forceUpdate) {
-        if (forceUpdate || selectedIndexesInTable == null) {
-            selectedIndexesInTable = newSelectedIndexesInTable();
-        }
-        return selectedIndexesInTable;
-    }
-
-    private List<Integer> newSelectedIndexesInTable() {
-        final List<Integer> selectedIndexes = new ArrayList<>();
-        if (selectionModel.getMinSelectionIndex() >= 0 && selectionModel.getMaxSelectionIndex() >= 0) {
-            if (selectionModel.getSelectionMode() == ListSelectionModel.SINGLE_SELECTION) {
-                selectedIndexes.add(selectionModel.getMinSelectionIndex());
-            } else if (selectionModel.getSelectionMode() == ListSelectionModel.SINGLE_INTERVAL_SELECTION) {
-                for (int i = selectionModel.getMinSelectionIndex(); i <= selectionModel.getMaxSelectionIndex(); i++) {
-                    selectedIndexes.add(i);
-                }
-            } else {
-                for (int i = 0; i < rows.size(); i++) {
-                    if (selectionModel.isSelectedIndex(i)) {
-                        selectedIndexes.add(i);
-                    }
-                }
-            }
-        }
-        return selectedIndexes;
+    public List<?> getRows() {
+        return rows;
     }
 
 }
