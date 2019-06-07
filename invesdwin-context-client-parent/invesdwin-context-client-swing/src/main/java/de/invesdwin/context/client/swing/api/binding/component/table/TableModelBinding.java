@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.concurrent.NotThreadSafe;
+import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.AbstractTableModel;
@@ -33,6 +34,7 @@ public class TableModelBinding extends AbstractTableModel implements ListSelecti
     private final BindingGroup bindingGroup;
     private final TableSelectionModelBinding selectionModel;
     private List<Integer> selectedIndexesInModel;
+    private List<Integer> selectedIndexesInTable;
     private boolean selectionUpdating = false;
 
     public TableModelBinding(final Runnable eagerSubmitRunnable, final ATableBeanPathElement element,
@@ -50,8 +52,9 @@ public class TableModelBinding extends AbstractTableModel implements ListSelecti
         }
         this.rows = new ArrayList<>(newValues);
         if (element.getSelectionModifier() != null) {
+            final List<Integer> selectedIndexesInModelBefore = selectedIndexesInModel;
             final List<Integer> selectedIndexesInModel = getSelectedIndexesInModel(true);
-            if (!Objects.equals(selectedIndexesInModel, selectionModel.getSelectedIndexes())) {
+            if (!Objects.equals(selectedIndexesInModel, selectedIndexesInModelBefore)) {
                 selectionUpdating = true;
                 selectionModel.setValueIsAdjusting(true);
                 try {
@@ -181,7 +184,7 @@ public class TableModelBinding extends AbstractTableModel implements ListSelecti
         }
         selectionUpdating = true;
         try {
-            final List<Integer> selectedIndexesInTable = selectionModel.getSelectedIndexes();
+            final List<Integer> selectedIndexesInTable = getSelectedIndexesInTable(true);
             if (!Objects.equals(selectedIndexesInTable, getSelectedIndexesInModel(false))) {
                 final List<Object> selectedValuesInTable = new ArrayList<>(selectedIndexesInTable.size());
                 for (int i = 0; i < selectedIndexesInTable.size(); i++) {
@@ -218,6 +221,33 @@ public class TableModelBinding extends AbstractTableModel implements ListSelecti
             }
         }
         return selectedIndexesInModel;
+    }
+
+    private List<Integer> getSelectedIndexesInTable(final boolean forceUpdate) {
+        if (forceUpdate || selectedIndexesInTable == null) {
+            selectedIndexesInTable = newSelectedIndexesInTable();
+        }
+        return selectedIndexesInTable;
+    }
+
+    private List<Integer> newSelectedIndexesInTable() {
+        final List<Integer> selectedIndexes = new ArrayList<>();
+        if (selectionModel.getMinSelectionIndex() >= 0 && selectionModel.getMaxSelectionIndex() >= 0) {
+            if (selectionModel.getSelectionMode() == ListSelectionModel.SINGLE_SELECTION) {
+                selectedIndexes.add(selectionModel.getMinSelectionIndex());
+            } else if (selectionModel.getSelectionMode() == ListSelectionModel.SINGLE_INTERVAL_SELECTION) {
+                for (int i = selectionModel.getMinSelectionIndex(); i <= selectionModel.getMaxSelectionIndex(); i++) {
+                    selectedIndexes.add(i);
+                }
+            } else {
+                for (int i = 0; i < rows.size(); i++) {
+                    if (selectionModel.isSelectedIndex(i)) {
+                        selectedIndexes.add(i);
+                    }
+                }
+            }
+        }
+        return selectedIndexes;
     }
 
 }
