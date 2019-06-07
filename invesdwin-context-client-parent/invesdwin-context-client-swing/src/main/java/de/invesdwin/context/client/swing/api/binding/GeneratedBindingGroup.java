@@ -90,7 +90,12 @@ public final class GeneratedBindingGroup {
             public Object getRootObject() {
                 return view.getModel();
             }
-        }));
+        })) {
+            @Override
+            public boolean getDefaultEager() {
+                return true;
+            }
+        };
         new BeanObjectProcessor(context).process();
 
         bindingGroup = new BindingGroup(view, context, newSubmitButtonExceptionHandler());

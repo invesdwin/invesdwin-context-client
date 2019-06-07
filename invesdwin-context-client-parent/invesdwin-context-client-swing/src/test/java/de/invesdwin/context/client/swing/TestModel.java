@@ -21,14 +21,12 @@ import de.invesdwin.context.client.swing.api.guiservice.dialog.ModalMessage;
 import de.invesdwin.context.client.swing.api.guiservice.dialog.ModalMessageView;
 import de.invesdwin.context.log.error.Err;
 import de.invesdwin.norva.beanpath.annotation.ColumnOrder;
-import de.invesdwin.norva.beanpath.annotation.Eager;
 import de.invesdwin.norva.beanpath.annotation.ModalOpener;
 import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.swing.Dialogs;
 
 @NotThreadSafe
 @Configurable
-@Eager
 public class TestModel extends AModel {
 
     @Inject
