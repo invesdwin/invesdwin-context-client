@@ -14,20 +14,21 @@ import javax.swing.JProgressBar;
 import javax.swing.SwingConstants;
 
 import org.jdesktop.application.Application;
+import org.jdesktop.application.ApplicationContext;
 import org.jdesktop.application.Task;
 import org.jdesktop.application.TaskMonitor;
-import org.springframework.beans.factory.InitializingBean;
 
 import de.invesdwin.aspects.annotation.EventDispatchThread;
 import de.invesdwin.aspects.annotation.EventDispatchThread.InvocationType;
 import de.invesdwin.context.client.swing.api.AView;
+import de.invesdwin.context.client.swing.api.hook.IRichApplicationHook;
 import de.invesdwin.context.client.swing.impl.status.StatusBarView;
 import de.invesdwin.util.lang.Strings;
 import de.invesdwin.util.swing.Components;
 
 @SuppressWarnings("serial")
 @ThreadSafe
-public class StatusBarTaskView extends AView<StatusBarTaskView, JPanel> implements InitializingBean {
+public class StatusBarTaskView extends AView<StatusBarTaskView, JPanel> implements IRichApplicationHook {
 
     private TaskMonitor taskMonitor;
     private JLabel lblForegroundTask;
@@ -149,8 +150,22 @@ public class StatusBarTaskView extends AView<StatusBarTaskView, JPanel> implemen
     }
 
     @Override
-    public void afterPropertiesSet() throws Exception {
-        this.taskMonitor = new TaskMonitor(Application.getInstance().getContext());
+    public void initializeDone() {
+        final ApplicationContext context = Application.getInstance().getContext();
+        context.addPropertyChangeListener("taskServices", new PropertyChangeListener() {
+            @Override
+            public void propertyChange(final PropertyChangeEvent evt) {
+                updateTaskMonitor(context);
+            }
+        });
+        updateTaskMonitor(context);
+    }
+
+    @Override
+    public void startupDone() {}
+
+    private void updateTaskMonitor(final ApplicationContext context) {
+        this.taskMonitor = new TaskMonitor(context);
 
         taskMonitor.addPropertyChangeListener(TaskMonitor.PROP_FOREGROUND_TASK, new PropertyChangeListener() {
             @SuppressWarnings({ "unchecked", "rawtypes" })

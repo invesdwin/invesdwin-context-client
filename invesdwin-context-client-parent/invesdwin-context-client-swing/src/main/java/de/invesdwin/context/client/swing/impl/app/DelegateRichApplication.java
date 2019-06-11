@@ -3,6 +3,7 @@ package de.invesdwin.context.client.swing.impl.app;
 import java.awt.Dimension;
 import java.awt.event.WindowListener;
 import java.util.Locale;
+import java.util.Map;
 
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.NotThreadSafe;
@@ -24,6 +25,7 @@ import de.invesdwin.context.beans.hook.StartupHookManager;
 import de.invesdwin.context.beans.init.MergedContext;
 import de.invesdwin.context.client.swing.api.IRichApplication;
 import de.invesdwin.context.client.swing.api.exit.AMainFrameCloseOperation;
+import de.invesdwin.context.client.swing.api.hook.IRichApplicationHook;
 import de.invesdwin.context.client.swing.error.GuiExceptionHandler;
 import de.invesdwin.context.client.swing.impl.RichApplicationProperties;
 import de.invesdwin.context.client.swing.impl.splash.ConfiguredSplashScreen;
@@ -87,12 +89,19 @@ public class DelegateRichApplication extends SingleFrameApplication {
 
         //Replace default TaskService our own
         getContext().removeTaskService(getContext().getTaskService());
-        getContext().addTaskService(new DefaultTaskService());
+        getContext().addTaskService(MergedContext.getInstance().getBean(DefaultTaskService.class));
         Assertions.assertThat(getContext().getTaskService()).isInstanceOf(DefaultTaskService.class);
 
-        final IRichApplication richApplication = RichApplicationProperties.getDelegate();
-        configureLookAndFeel(richApplication);
-        configureLocale(richApplication);
+        final IRichApplication delegate = RichApplicationProperties.getDelegate();
+        configureLookAndFeel(delegate);
+        configureLocale(delegate);
+
+        delegate.initializeDone();
+        final Map<String, IRichApplicationHook> hooks = MergedContext.getInstance()
+                .getBeansOfType(IRichApplicationHook.class);
+        for (final IRichApplicationHook hook : hooks.values()) {
+            hook.initializeDone();
+        }
     }
 
     @Override

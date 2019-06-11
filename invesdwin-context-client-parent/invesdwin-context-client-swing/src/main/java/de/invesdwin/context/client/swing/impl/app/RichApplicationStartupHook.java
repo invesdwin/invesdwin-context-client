@@ -4,6 +4,7 @@ import java.awt.Dimension;
 import java.awt.GraphicsConfiguration;
 import java.awt.Insets;
 import java.awt.Toolkit;
+import java.util.Map;
 
 import javax.annotation.concurrent.NotThreadSafe;
 import javax.inject.Inject;
@@ -20,6 +21,7 @@ import de.invesdwin.context.beans.init.MergedContext;
 import de.invesdwin.context.client.swing.api.AView;
 import de.invesdwin.context.client.swing.api.IRichApplication;
 import de.invesdwin.context.client.swing.api.guiservice.ContentPane;
+import de.invesdwin.context.client.swing.api.hook.IRichApplicationHook;
 import de.invesdwin.context.client.swing.impl.content.ContentPaneView;
 import de.invesdwin.context.client.swing.impl.menu.MenuBarView;
 import de.invesdwin.context.client.swing.impl.splash.ConfiguredSplashScreen;
@@ -71,6 +73,11 @@ public class RichApplicationStartupHook implements IStartupHook {
                     public void run() {
                         try {
                             delegate.startupDone();
+                            final Map<String, IRichApplicationHook> hooks = MergedContext.getInstance()
+                                    .getBeansOfType(IRichApplicationHook.class);
+                            for (final IRichApplicationHook hook : hooks.values()) {
+                                hook.startupDone();
+                            }
                         } finally {
                             if (!delegate.isKeepSplashVisible()) {
                                 ConfiguredSplashScreen.INSTANCE.dispose();

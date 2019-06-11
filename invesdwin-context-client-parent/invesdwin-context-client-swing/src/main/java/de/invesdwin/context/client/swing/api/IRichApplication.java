@@ -24,6 +24,8 @@ public interface IRichApplication {
 
     IMenuBarConfig getMenuBarConfig();
 
+    void initializeDone();
+
     void startupDone();
 
 }
