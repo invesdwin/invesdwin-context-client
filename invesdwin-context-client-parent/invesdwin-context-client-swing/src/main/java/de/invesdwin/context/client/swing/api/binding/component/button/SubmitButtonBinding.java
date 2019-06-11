@@ -19,6 +19,7 @@ import de.invesdwin.norva.beanpath.impl.object.BeanObjectContainer;
 import de.invesdwin.norva.beanpath.spi.element.AActionBeanPathElement;
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.lang.Strings;
+import de.invesdwin.util.swing.Components;
 
 @NotThreadSafe
 public class SubmitButtonBinding implements IComponentBinding {
@@ -188,7 +189,7 @@ public class SubmitButtonBinding implements IComponentBinding {
         }
         component.setEnabled(element.isEnabled(target));
         component.setVisible(element.isVisible(target));
-        component.setToolTipText(bindingGroup.i18n(element.getTooltip(target)));
+        Components.setTooltipText(component, bindingGroup.i18n(element.getTooltip(target)));
     }
 
     protected Object getTarget() {

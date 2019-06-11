@@ -26,6 +26,7 @@ import de.invesdwin.util.error.Throwables;
 import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.lang.Strings;
 import de.invesdwin.util.math.expression.IExpression;
+import de.invesdwin.util.swing.Components;
 import de.invesdwin.util.swing.Dialogs;
 import de.invesdwin.util.swing.listener.DocumentListenerSupport;
 
@@ -91,16 +92,16 @@ public class ExpressionSettingsPanel extends JPanel implements ISettingsPanelAct
                 final IExpression parsedExpression = dataset.getExpressionSeriesProvider()
                         .parseExpression(toExpression);
                 layout.lbl_expression.setIcon(ICON_EXPRESSION_PENDING_VALID);
-                layout.lbl_expression.setToolTipText("<html><b>Valid:</b><br><pre>  "
+                Components.setTooltipText(layout.lbl_expression, "<html><b>Valid:</b><br><pre>  "
                         + HtmlUtils.htmlEscape(parsedExpression.toString().replace("\n", "\n  ")) + "</pre>");
             } catch (final Throwable t) {
                 layout.lbl_expression.setIcon(ICON_EXPRESSION_PENDING_INVALID);
-                layout.lbl_expression.setToolTipText("<html><b>Error:</b><br><pre>  "
+                Components.setTooltipText(layout.lbl_expression, "<html><b>Error:</b><br><pre>  "
                         + HtmlUtils.htmlEscape(Throwables.concatMessagesShort(t).replace("\n", "\n  ")) + "</pre>");
             }
         } else {
             layout.lbl_expression.setIcon(ICON_EXPRESSION);
-            layout.lbl_expression.setToolTipText(null);
+            Components.setTooltipText(layout.lbl_expression, null);
         }
     }
 

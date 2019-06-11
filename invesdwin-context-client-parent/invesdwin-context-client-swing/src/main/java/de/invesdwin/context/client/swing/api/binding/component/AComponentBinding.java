@@ -20,6 +20,7 @@ import de.invesdwin.norva.beanpath.spi.element.APropertyBeanPathElement;
 import de.invesdwin.norva.beanpath.spi.element.simple.modifier.IBeanPathPropertyModifier;
 import de.invesdwin.norva.beanpath.spi.element.utility.ValidateBeanPathElement;
 import de.invesdwin.util.lang.Strings;
+import de.invesdwin.util.swing.Components;
 
 @NotThreadSafe
 public abstract class AComponentBinding<C extends JComponent, V> implements IComponentBinding {
@@ -232,10 +233,10 @@ public abstract class AComponentBinding<C extends JComponent, V> implements ICom
                 } else {
                     combinedTooltip = showingInvalidMessage;
                 }
-                component.setToolTipText(combinedTooltip);
+                Components.setTooltipText(component, combinedTooltip);
             } else {
                 setBorder(originalBorder);
-                component.setToolTipText(bindingGroup.i18n(element.getTooltip(target)));
+                Components.setTooltipText(component, bindingGroup.i18n(element.getTooltip(target)));
             }
         } finally {
             updating = false;

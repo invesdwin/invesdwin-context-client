@@ -23,6 +23,7 @@ import de.invesdwin.aspects.annotation.EventDispatchThread.InvocationType;
 import de.invesdwin.context.client.swing.api.AView;
 import de.invesdwin.context.client.swing.impl.status.StatusBarView;
 import de.invesdwin.util.lang.Strings;
+import de.invesdwin.util.swing.Components;
 
 @SuppressWarnings("serial")
 @ThreadSafe
@@ -84,7 +85,7 @@ public class StatusBarTaskView extends AView<StatusBarTaskView, JPanel> implemen
                 tooltip.append("<hr>");
                 tooltip.append(foregroundTask.getDescription());
             }
-            lblForegroundTask.setToolTipText(tooltip.toString());
+            Components.setTooltipText(lblForegroundTask, tooltip.toString());
 
             if (foregroundTask.isProgressPropertyValid()) {
                 pgbForegroundTask.setIndeterminate(false);
@@ -95,10 +96,10 @@ public class StatusBarTaskView extends AView<StatusBarTaskView, JPanel> implemen
             pnlProgress.setVisible(true);
         } else {
             lblForegroundTask.setText(null);
-            lblForegroundTask.setToolTipText(null);
+            Components.setTooltipText(lblForegroundTask, null);
             pnlProgress.setVisible(false);
         }
-        pgbForegroundTask.setToolTipText(lblForegroundTask.getToolTipText());
+        Components.setTooltipText(pgbForegroundTask, lblForegroundTask.getToolTipText());
     }
 
     @EventDispatchThread(InvocationType.INVOKE_AND_WAIT)
@@ -121,10 +122,10 @@ public class StatusBarTaskView extends AView<StatusBarTaskView, JPanel> implemen
                     tooltip.append("<br>");
                 }
             }
-            lblTasks.setToolTipText(tooltip.toString());
+            Components.setTooltipText(lblTasks, tooltip.toString());
         } else {
             lblTasks.setText(null);
-            lblTasks.setToolTipText(null);
+            Components.setTooltipText(lblTasks, null);
         }
     }
 

@@ -9,6 +9,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.dialog.indicator.modifier.IParameterSettingsModifier;
+import de.invesdwin.util.swing.Components;
 
 @NotThreadSafe
 public class IndicatorSettingsPanelLayout extends JPanel {
@@ -25,7 +26,7 @@ public class IndicatorSettingsPanelLayout extends JPanel {
         for (int i = 0; i < modifiers.length; i++) {
             final IParameterSettingsModifier modifier = modifiers[i];
             final JLabel label = new JLabel(modifier.getParameter().getName());
-            label.setToolTipText(modifier.getParameter().getDescription());
+            Components.setTooltipText(label, modifier.getParameter().getDescription());
             add(label);
             final JComponent modifierComponent = modifier.getComponent();
             add(modifierComponent);

@@ -16,6 +16,7 @@ import de.invesdwin.context.client.swing.api.guiservice.ContentPane;
 import de.invesdwin.context.client.swing.api.guiservice.GuiService;
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.lang.Reflections;
+import de.invesdwin.util.swing.Components;
 
 /**
  * First tries to find the view in the Spring ApplicationContext. If this fails, the View gets instantiated by the
@@ -46,7 +47,7 @@ public class OpenViewMenuItem<V extends AView<?, ?>> extends JMenuItem {
     private void initialize() {
         final ResourceMap resourceMap = GuiService.get().getResourceMap(viewClass);
         setText(resourceMap.getString(AView.KEY_VIEW_TITLE));
-        setToolTipText(resourceMap.getString(AView.KEY_VIEW_DESCRIPTION));
+        Components.setTooltipText(this, resourceMap.getString(AView.KEY_VIEW_DESCRIPTION));
         setIcon(resourceMap.getIcon(AView.KEY_VIEW_ICON));
         setAction(new AbstractAction() {
             @Override

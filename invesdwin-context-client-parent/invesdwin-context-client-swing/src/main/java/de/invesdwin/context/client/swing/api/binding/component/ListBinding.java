@@ -9,6 +9,7 @@ import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
+import de.invesdwin.context.client.swing.api.AModel;
 import de.invesdwin.context.client.swing.api.binding.BindingGroup;
 import de.invesdwin.norva.beanpath.spi.element.AChoiceBeanPathElement;
 import de.invesdwin.norva.beanpath.spi.element.simple.modifier.IBeanPathPropertyModifier;
@@ -65,6 +66,14 @@ public class ListBinding extends AComponentBinding<JList, List<?>> {
     @Override
     protected IBeanPathPropertyModifier<List<?>> getModifier() {
         return element.getSelectionModifier();
+    }
+
+    @Override
+    protected void setValueFromRoot(final AModel root, final List<?> value) {
+        if (element.isChoiceOnly()) {
+            return;
+        }
+        super.setValueFromRoot(root, value);
     }
 
 }

@@ -94,7 +94,9 @@ public class TableChoiceBinding extends AComponentBinding<JTable, List<?>> {
     @Override
     protected void fromModelToComponent(final List<?> modelValue) {
         tableModel.fromModelToComponent(modelValue);
-        selectionBinding.update();
+        if (selectionBinding != null) {
+            selectionBinding.update();
+        }
     }
 
     @Override

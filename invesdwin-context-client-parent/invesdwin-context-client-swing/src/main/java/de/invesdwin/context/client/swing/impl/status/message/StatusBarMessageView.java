@@ -13,6 +13,7 @@ import de.invesdwin.aspects.EventDispatchThreadUtil;
 import de.invesdwin.context.client.swing.api.AView;
 import de.invesdwin.context.client.swing.impl.status.StatusBarView;
 import de.invesdwin.util.lang.Strings;
+import de.invesdwin.util.swing.Components;
 import de.invesdwin.util.time.duration.Duration;
 
 @SuppressWarnings("serial")
@@ -65,12 +66,12 @@ public class StatusBarMessageView extends AView<StatusBarMessageView, JPanel> {
                         if (Strings.isNotBlank(text)) {
                             lblSpace.setText(StatusBarView.DISTANCE_TO_BORDER);
                             lblMessage.setText(text);
-                            lblMessage.setToolTipText(text);
+                            Components.setTooltipText(lblMessage, text);
                             StatusBarMessageTimeoutThread.startInstance(timeout);
                         } else {
                             lblSpace.setText(null);
                             lblMessage.setText(null);
-                            lblMessage.setToolTipText(null);
+                            Components.setTooltipText(lblMessage, null);
                             StatusBarMessageTimeoutThread.stopInstance();
                         }
                     }

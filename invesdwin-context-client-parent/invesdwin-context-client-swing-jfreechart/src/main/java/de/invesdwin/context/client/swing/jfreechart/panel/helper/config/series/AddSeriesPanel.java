@@ -32,6 +32,7 @@ import de.invesdwin.util.math.expression.AExpressionVisitor;
 import de.invesdwin.util.math.expression.ExpressionVisitorSupport;
 import de.invesdwin.util.math.expression.IExpression;
 import de.invesdwin.util.math.expression.eval.operation.BinaryOperation;
+import de.invesdwin.util.swing.Components;
 import de.invesdwin.util.swing.Dialogs;
 import de.invesdwin.util.swing.icon.ChangeColorImageFilter;
 import de.invesdwin.util.swing.listener.DocumentListenerSupport;
@@ -75,7 +76,7 @@ public class AddSeriesPanel extends JPanel {
                 final String selectedName = (String) layout.tbl_indicator.getModel().getValueAt(selectedRow, 0);
                 final IIndicatorSeriesProvider selectedValue = plotConfigurationHelper
                         .getIndicatorSeriesProvider(selectedName);
-                layout.tbl_indicator.setToolTipText(selectedValue.getDescription());
+                Components.setTooltipText(layout.tbl_indicator, selectedValue.getDescription());
             }
         });
         layout.tbl_indicator.addMouseListener(new MouseListenerSupport() {
@@ -208,16 +209,16 @@ public class AddSeriesPanel extends JPanel {
                                 .getExpressionSeriesProvider();
                         final IExpression parsedExpression = provider.parseExpression(expression);
                         layout.lbl_expression.setIcon(ICON_EXPRESSION_PENDING_VALID);
-                        layout.lbl_expression.setToolTipText("<html><b>Valid:</b><br><pre>  "
+                        Components.setTooltipText(layout.lbl_expression, "<html><b>Valid:</b><br><pre>  "
                                 + HtmlUtils.htmlEscape(parsedExpression.toString().replace("\n", "\n  ")) + "</pre>");
                     } catch (final Throwable t) {
                         layout.lbl_expression.setIcon(ICON_EXPRESSION_PENDING_INVALID);
-                        layout.lbl_expression.setToolTipText(
+                        Components.setTooltipText(layout.lbl_expression,
                                 "<html><b>Error:</b><br><pre>  " + prepareErrorMessageForTooltip(t) + "</pre>");
                     }
                 } else {
                     layout.lbl_expression.setIcon(ICON_EXPRESSION);
-                    layout.lbl_expression.setToolTipText(null);
+                    Components.setTooltipText(layout.lbl_expression, null);
                 }
             }
 
