@@ -48,6 +48,7 @@ public interface IExpressionSeriesProvider {
     }
 
     default void configureEditor(final RSyntaxTextArea editor) {
+        editor.clearParsers();
         editor.addParser(newValidatingParser());
         newAutoCompletion().install(editor);
     }
