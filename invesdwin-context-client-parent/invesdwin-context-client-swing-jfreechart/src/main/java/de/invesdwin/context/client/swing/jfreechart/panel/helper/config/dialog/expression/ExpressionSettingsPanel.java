@@ -7,6 +7,7 @@ import java.awt.event.ActionListener;
 import javax.annotation.concurrent.NotThreadSafe;
 import javax.swing.Icon;
 import javax.swing.JDialog;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
@@ -21,6 +22,7 @@ import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.series.A
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.series.expression.IExpressionSeriesProvider;
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.legend.HighlightedLegendInfo;
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.IPlotSourceDataset;
+import de.invesdwin.context.client.swing.rsyntaxtextarea.DynamicRSyntaxTextAreaPanel;
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.error.Throwables;
 import de.invesdwin.util.lang.Objects;
@@ -66,9 +68,8 @@ public class ExpressionSettingsPanel extends JPanel implements ISettingsPanelAct
         layout.tf_expression.textArea.getDocument().addDocumentListener(new DocumentListenerSupport() {
             @Override
             protected void update(final DocumentEvent e) {
-                final String fromExpression = dataset.getExpressionSeriesArguments();
-                final String toExpression = getExpressionValue();
-                validateExpression(fromExpression, toExpression);
+                final String originalExpression = dataset.getExpressionSeriesArguments();
+                validateExpressionEdit(originalExpression);
             }
 
         });
@@ -80,28 +81,34 @@ public class ExpressionSettingsPanel extends JPanel implements ISettingsPanelAct
             }
         });
         //set tooltip but use default icon
-        validateExpression(null, getExpressionValue());
+        validateExpressionEdit(null);
         layout.lbl_expression.setIcon(ICON_EXPRESSION);
 
         plotConfigurationHelper.getExpressionSeriesProvider().configureEditor(layout.tf_expression.textArea);
     }
 
-    private void validateExpression(final String fromExpression, final String toExpression) {
-        if (hasChanges(fromExpression, toExpression) && Strings.isNotBlank(toExpression)) {
+    private void validateExpressionEdit(final String originalExpression) {
+        validateExpressionEdit(layout.lbl_expression, layout.tf_expression, dataset.getExpressionSeriesProvider(),
+                originalExpression);
+    }
+
+    public static void validateExpressionEdit(final JLabel lbl_expression, final DynamicRSyntaxTextAreaPanel tf_expression,
+            final IExpressionSeriesProvider provider, final String originalExpression) {
+        final String newExpression = getExpressionValue(tf_expression);
+        if (provider != null && hasChanges(originalExpression, newExpression) && Strings.isNotBlank(newExpression)) {
             try {
-                final IExpression parsedExpression = dataset.getExpressionSeriesProvider()
-                        .parseExpression(toExpression);
-                layout.lbl_expression.setIcon(ICON_EXPRESSION_PENDING_VALID);
-                Components.setTooltipText(layout.lbl_expression, "<html><b>Valid:</b><br><pre>  "
+                final IExpression parsedExpression = provider.parseExpression(newExpression);
+                lbl_expression.setIcon(ICON_EXPRESSION_PENDING_VALID);
+                Components.setTooltipText(lbl_expression, "<html><b>Valid:</b><br><pre>  "
                         + HtmlUtils.htmlEscape(parsedExpression.toString().replace("\n", "\n  ")) + "</pre>");
             } catch (final Throwable t) {
-                layout.lbl_expression.setIcon(ICON_EXPRESSION_PENDING_INVALID);
-                Components.setTooltipText(layout.lbl_expression, "<html><b>Error:</b><br><pre>  "
+                lbl_expression.setIcon(ICON_EXPRESSION_PENDING_INVALID);
+                Components.setTooltipText(lbl_expression, "<html><b>Error:</b><br><pre>  "
                         + HtmlUtils.htmlEscape(Throwables.concatMessagesShort(t).replace("\n", "\n  ")) + "</pre>");
             }
         } else {
-            layout.lbl_expression.setIcon(ICON_EXPRESSION);
-            Components.setTooltipText(layout.lbl_expression, null);
+            lbl_expression.setIcon(ICON_EXPRESSION);
+            Components.setTooltipText(lbl_expression, null);
         }
     }
 
@@ -138,7 +145,11 @@ public class ExpressionSettingsPanel extends JPanel implements ISettingsPanelAct
     }
 
     private String getExpressionValue() {
-        return layout.tf_expression.textArea.getText();
+        return getExpressionValue(layout.tf_expression);
+    }
+
+    private static String getExpressionValue(final DynamicRSyntaxTextAreaPanel tf_expression) {
+        return tf_expression.textArea.getText();
     }
 
     public void apply(final String toExpression) {
@@ -160,7 +171,7 @@ public class ExpressionSettingsPanel extends JPanel implements ISettingsPanelAct
         }
     }
 
-    private boolean hasChanges(final String arguments1, final String arguments2) {
+    private static boolean hasChanges(final String arguments1, final String arguments2) {
         return !Objects.equals(arguments1, arguments2);
     }
 

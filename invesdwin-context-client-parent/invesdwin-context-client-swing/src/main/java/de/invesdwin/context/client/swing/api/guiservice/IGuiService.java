@@ -2,6 +2,7 @@ package de.invesdwin.context.client.swing.api.guiservice;
 
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.Window;
 
 import org.jdesktop.application.ResourceMap;
 import org.jdesktop.application.TaskService;
@@ -53,5 +54,10 @@ public interface IGuiService {
      * again accordingly.
      */
     void submitAllViews(Component component);
+
+    /**
+     * Gets the current modal window or main frame otherwise.
+     */
+    Window getWindow();
 
 }

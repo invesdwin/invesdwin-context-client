@@ -13,6 +13,7 @@ import java.util.regex.Pattern;
 
 import javax.annotation.concurrent.NotThreadSafe;
 import javax.swing.Icon;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.event.DocumentEvent;
 import javax.swing.table.DefaultTableModel;
@@ -25,6 +26,7 @@ import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.SeriesRe
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.series.expression.IExpressionSeriesProvider;
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.series.indicator.IIndicatorSeriesProvider;
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.IPlotSourceDataset;
+import de.invesdwin.context.client.swing.rsyntaxtextarea.DynamicRSyntaxTextAreaPanel;
 import de.invesdwin.util.concurrent.MutableReference;
 import de.invesdwin.util.error.Throwables;
 import de.invesdwin.util.lang.Strings;
@@ -199,27 +201,9 @@ public class AddSeriesPanel extends JPanel {
             }
         });
         layout.tf_expression.textArea.getDocument().addDocumentListener(new DocumentListenerSupport() {
-
             @Override
             protected void update(final DocumentEvent e) {
-                final String expression = layout.tf_expression.textArea.getText();
-                if (Strings.isNotBlank(expression)) {
-                    try {
-                        final IExpressionSeriesProvider provider = plotConfigurationHelper
-                                .getExpressionSeriesProvider();
-                        final IExpression parsedExpression = provider.parseExpression(expression);
-                        layout.lbl_expression.setIcon(ICON_EXPRESSION_PENDING_VALID);
-                        Components.setTooltipText(layout.lbl_expression, "<html><b>Valid:</b><br><pre>  "
-                                + HtmlUtils.htmlEscape(parsedExpression.toString().replace("\n", "\n  ")) + "</pre>");
-                    } catch (final Throwable t) {
-                        layout.lbl_expression.setIcon(ICON_EXPRESSION_PENDING_INVALID);
-                        Components.setTooltipText(layout.lbl_expression,
-                                "<html><b>Error:</b><br><pre>  " + prepareErrorMessageForTooltip(t) + "</pre>");
-                    }
-                } else {
-                    layout.lbl_expression.setIcon(ICON_EXPRESSION);
-                    Components.setTooltipText(layout.lbl_expression, null);
-                }
+                validateExpressionAdd(plotConfigurationHelper);
             }
 
         });
@@ -236,6 +220,36 @@ public class AddSeriesPanel extends JPanel {
         }
 
         plotConfigurationHelper.getExpressionSeriesProvider().configureEditor(layout.tf_expression.textArea);
+    }
+
+    private void validateExpressionAdd(final PlotConfigurationHelper plotConfigurationHelper) {
+        validateExpressionAdd(layout.lbl_expression, layout.tf_expression,
+                plotConfigurationHelper.getExpressionSeriesProvider());
+    }
+
+    public static void validateExpressionAdd(final JLabel lbl_expression,
+            final DynamicRSyntaxTextAreaPanel tf_expression, final IExpressionSeriesProvider provider) {
+        final String expression = tf_expression.textArea.getText();
+        if (Strings.isNotBlank(expression)) {
+            try {
+                final IExpression parsedExpression = provider.parseExpression(expression);
+                if (parsedExpression == null) {
+                    lbl_expression.setIcon(AddSeriesPanel.ICON_EXPRESSION);
+                    Components.setTooltipText(lbl_expression, null);
+                    return;
+                }
+                lbl_expression.setIcon(AddSeriesPanel.ICON_EXPRESSION_PENDING_VALID);
+                Components.setTooltipText(lbl_expression, "<html><b>Valid:</b><br><pre>  "
+                        + HtmlUtils.htmlEscape(parsedExpression.toString().replace("\n", "\n  ")) + "</pre>");
+            } catch (final Throwable t) {
+                lbl_expression.setIcon(AddSeriesPanel.ICON_EXPRESSION_PENDING_INVALID);
+                Components.setTooltipText(lbl_expression,
+                        "<html><b>Error:</b><br><pre>  " + AddSeriesPanel.prepareErrorMessageForTooltip(t) + "</pre>");
+            }
+        } else {
+            lbl_expression.setIcon(AddSeriesPanel.ICON_EXPRESSION);
+            Components.setTooltipText(lbl_expression, null);
+        }
     }
 
     public static String prepareErrorMessageForTooltip(final Throwable t) {

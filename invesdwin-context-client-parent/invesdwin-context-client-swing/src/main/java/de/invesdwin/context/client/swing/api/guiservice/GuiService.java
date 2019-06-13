@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.Window;
 import java.util.Stack;
 
 import javax.annotation.concurrent.GuardedBy;
@@ -76,12 +77,12 @@ public class GuiService implements IGuiService {
     @Override
     public void showModalView(final AView<?, ?> view, final Dimension dimension) {
         final JDialog dialog = new JDialog(Dialogs.getRootFrame(), true);
+        dialogs.push(dialog);
         final Container contentPane = dialog.getContentPane();
         contentPane.setLayout(new BorderLayout());
         contentPane.add(view.getComponent());
         dialog.setTitle(view.getTitle());
         dialog.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
-        dialogs.push(dialog);
         dialog.pack();
         if (dimension != null) {
             dialog.setSize(dimension);
@@ -96,6 +97,15 @@ public class GuiService implements IGuiService {
     @Override
     public boolean isModalViewShowing() {
         return !dialogs.isEmpty();
+    }
+
+    @Override
+    public Window getWindow() {
+        if (dialogs.isEmpty()) {
+            return Dialogs.getRootFrame();
+        } else {
+            return dialogs.peek();
+        }
     }
 
     @Override
