@@ -2,6 +2,7 @@ package de.invesdwin.context.client.swing.api.binding.component;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Optional;
 
 import javax.annotation.concurrent.Immutable;
 import javax.swing.JCheckBox;
@@ -9,6 +10,7 @@ import javax.swing.JCheckBox;
 import de.invesdwin.context.client.swing.api.binding.BindingGroup;
 import de.invesdwin.norva.beanpath.spi.element.APropertyBeanPathElement;
 import de.invesdwin.norva.beanpath.spi.element.simple.modifier.IBeanPathPropertyModifier;
+import de.invesdwin.util.lang.Objects;
 
 @Immutable
 public class CheckBoxBinding extends AComponentBinding<JCheckBox, Boolean> {
@@ -33,8 +35,13 @@ public class CheckBoxBinding extends AComponentBinding<JCheckBox, Boolean> {
     }
 
     @Override
-    protected void fromModelToComponent(final Boolean modelValue) {
-        component.setSelected(modelValue);
+    protected Optional<Boolean> fromModelToComponent(final Boolean modelValue) {
+        if (prevModelValue == null || !Objects.equals(modelValue, prevModelValue.orElse(null))) {
+            component.setSelected(modelValue);
+            return Optional.ofNullable(modelValue);
+        } else {
+            return prevModelValue;
+        }
     }
 
     @Override

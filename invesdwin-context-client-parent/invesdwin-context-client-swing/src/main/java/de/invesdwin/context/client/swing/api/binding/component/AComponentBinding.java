@@ -87,6 +87,7 @@ public abstract class AComponentBinding<C extends JComponent, V> implements ICom
 
             } else {
                 return new Runnable() {
+
                     private final SubmitAllViewsHelper helper = new SubmitAllViewsHelper() {
                         @Override
                         public void process(final Component component) {
@@ -103,6 +104,7 @@ public abstract class AComponentBinding<C extends JComponent, V> implements ICom
                             helper.process(component);
                         }
                     }
+
                 };
             }
         } else {
@@ -218,8 +220,7 @@ public abstract class AComponentBinding<C extends JComponent, V> implements ICom
         try {
             final AModel model = bindingGroup.getModel();
             final V modelValue = getValueFromRoot(model);
-            fromModelToComponent(modelValue);
-            prevModelValue = Optional.ofNullable(modelValue);
+            prevModelValue = fromModelToComponent(modelValue);
 
             final Object target = getTarget();
             component.setEnabled(element.isEnabled(target));
@@ -260,7 +261,7 @@ public abstract class AComponentBinding<C extends JComponent, V> implements ICom
         return component.isVisible() && component.isEnabled();
     }
 
-    protected abstract void fromModelToComponent(V modelValue);
+    protected abstract Optional<V> fromModelToComponent(V modelValue);
 
     protected abstract V fromComponentToModel();
 
@@ -289,7 +290,7 @@ public abstract class AComponentBinding<C extends JComponent, V> implements ICom
         }
     }
 
-    protected Object renderChoice(final Object choice) {
+    protected String renderChoice(final Object choice) {
         if (choice == null) {
             return null;
         } else if (choice instanceof Enum) {

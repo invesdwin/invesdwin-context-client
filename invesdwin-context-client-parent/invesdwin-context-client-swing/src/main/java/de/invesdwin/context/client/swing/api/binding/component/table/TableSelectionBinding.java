@@ -2,6 +2,7 @@ package de.invesdwin.context.client.swing.api.binding.component.table;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import javax.annotation.concurrent.NotThreadSafe;
 import javax.swing.JTable;
@@ -52,7 +53,7 @@ public class TableSelectionBinding extends AComponentBinding<JTable, List<?>> {
     }
 
     @Override
-    protected void fromModelToComponent(final List<?> modelValue) {
+    protected Optional<List<?>> fromModelToComponent(final List<?> modelValue) {
         final List<Integer> selectedIndexesInModel = getSelectedIndexesInModel();
         selectionUpdating = true;
         selectionModel.setValueIsAdjusting(true);
@@ -66,6 +67,7 @@ public class TableSelectionBinding extends AComponentBinding<JTable, List<?>> {
             selectionModel.setValueIsAdjusting(false);
             selectionUpdating = false;
         }
+        return Optional.ofNullable(modelValue);
     }
 
     @Override

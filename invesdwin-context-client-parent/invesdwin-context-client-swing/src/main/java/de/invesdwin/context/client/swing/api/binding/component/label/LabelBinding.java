@@ -1,5 +1,7 @@
 package de.invesdwin.context.client.swing.api.binding.component.label;
 
+import java.util.Optional;
+
 import javax.annotation.concurrent.NotThreadSafe;
 import javax.swing.JLabel;
 
@@ -13,6 +15,7 @@ import de.invesdwin.context.client.swing.api.binding.converter.ObjectToStringCon
 import de.invesdwin.norva.beanpath.impl.clazz.BeanClassType;
 import de.invesdwin.norva.beanpath.spi.element.APropertyBeanPathElement;
 import de.invesdwin.norva.beanpath.spi.element.simple.modifier.IBeanPathPropertyModifier;
+import de.invesdwin.util.lang.Objects;
 
 @NotThreadSafe
 public class LabelBinding extends AComponentBinding<JLabel, Object> {
@@ -39,9 +42,15 @@ public class LabelBinding extends AComponentBinding<JLabel, Object> {
     }
 
     @Override
-    protected void fromModelToComponent(final Object modelValue) {
-        final String newComponentValue = converter.fromModelToComponent(modelValue);
-        component.setText(bindingGroup.i18n(newComponentValue));
+    protected Optional<Object> fromModelToComponent(final Object modelValue) {
+        final String convertedValue = converter.fromModelToComponent(modelValue);
+        final String i18nValue = bindingGroup.i18n(convertedValue);
+        if (!Objects.equals(i18nValue, component.getText())) {
+            component.setText(i18nValue);
+            return Optional.ofNullable(modelValue);
+        } else {
+            return prevModelValue;
+        }
     }
 
     @Override

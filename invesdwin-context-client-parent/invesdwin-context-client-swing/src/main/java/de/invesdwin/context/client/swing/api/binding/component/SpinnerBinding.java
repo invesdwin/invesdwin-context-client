@@ -1,5 +1,7 @@
 package de.invesdwin.context.client.swing.api.binding.component;
 
+import java.util.Optional;
+
 import javax.annotation.concurrent.NotThreadSafe;
 import javax.swing.JSpinner;
 import javax.swing.event.ChangeEvent;
@@ -12,6 +14,7 @@ import de.invesdwin.context.client.swing.api.binding.converter.IConverter;
 import de.invesdwin.context.client.swing.api.binding.converter.NumberToNumberConverter;
 import de.invesdwin.norva.beanpath.spi.element.APropertyBeanPathElement;
 import de.invesdwin.norva.beanpath.spi.element.simple.modifier.IBeanPathPropertyModifier;
+import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.swing.spinner.SpinnerDecimalEditor;
 import de.invesdwin.util.swing.spinner.SpinnerDecimalModel;
 
@@ -19,6 +22,7 @@ import de.invesdwin.util.swing.spinner.SpinnerDecimalModel;
 public class SpinnerBinding extends AComponentBinding<JSpinner, Object> {
 
     private final IConverter<Object, Number> converter;
+    private Optional<Number> prevComponentValue;
 
     public SpinnerBinding(final JSpinner component, final APropertyBeanPathElement element,
             final BindingGroup bindingGroup) {
@@ -57,9 +61,15 @@ public class SpinnerBinding extends AComponentBinding<JSpinner, Object> {
     }
 
     @Override
-    protected void fromModelToComponent(final Object modelValue) {
+    protected Optional<Object> fromModelToComponent(final Object modelValue) {
         final Number newComponentValue = converter.fromModelToComponent(modelValue);
-        component.setValue(newComponentValue);
+        if (prevComponentValue == null || !Objects.equals(newComponentValue, prevComponentValue.orElse(null))) {
+            component.setValue(newComponentValue);
+            prevComponentValue = Optional.ofNullable(newComponentValue);
+            return Optional.ofNullable(modelValue);
+        } else {
+            return prevModelValue;
+        }
     }
 
     @Override

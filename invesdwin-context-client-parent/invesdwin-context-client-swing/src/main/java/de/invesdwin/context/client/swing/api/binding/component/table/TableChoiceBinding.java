@@ -1,6 +1,7 @@
 package de.invesdwin.context.client.swing.api.binding.component.table;
 
 import java.util.List;
+import java.util.Optional;
 
 import javax.annotation.concurrent.NotThreadSafe;
 import javax.swing.JTable;
@@ -92,11 +93,12 @@ public class TableChoiceBinding extends AComponentBinding<JTable, List<?>> {
     }
 
     @Override
-    protected void fromModelToComponent(final List<?> modelValue) {
+    protected Optional<List<?>> fromModelToComponent(final List<?> modelValue) {
         tableModel.fromModelToComponent(modelValue);
         if (selectionBinding != null) {
             selectionBinding.update();
         }
+        return Optional.ofNullable(modelValue);
     }
 
     @Override

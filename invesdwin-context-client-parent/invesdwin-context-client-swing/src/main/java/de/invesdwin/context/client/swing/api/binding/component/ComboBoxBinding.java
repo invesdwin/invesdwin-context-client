@@ -4,6 +4,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import javax.annotation.concurrent.NotThreadSafe;
 import javax.swing.JComboBox;
@@ -11,6 +12,7 @@ import javax.swing.JComboBox;
 import de.invesdwin.context.client.swing.api.binding.BindingGroup;
 import de.invesdwin.norva.beanpath.spi.element.AChoiceBeanPathElement;
 import de.invesdwin.norva.beanpath.spi.element.simple.modifier.IBeanPathPropertyModifier;
+import de.invesdwin.util.lang.Objects;
 
 @NotThreadSafe
 @SuppressWarnings({ "unchecked", "rawtypes" })
@@ -18,6 +20,8 @@ public class ComboBoxBinding extends AComponentBinding<JComboBox, Object> {
 
     private final AChoiceBeanPathElement element;
     private List<Object> prevChoices = new ArrayList<>();
+    private String[] prevRenderedChoices;
+    private Optional<String> prevRenderedModelValue;
 
     public ComboBoxBinding(final JComboBox component, final AChoiceBeanPathElement element,
             final BindingGroup bindingGroup) {
@@ -39,14 +43,31 @@ public class ComboBoxBinding extends AComponentBinding<JComboBox, Object> {
     }
 
     @Override
-    protected void fromModelToComponent(final Object modelValue) {
+    protected Optional<Object> fromModelToComponent(final Object modelValue) {
         final List<?> choices = element.getChoiceModifier().getValueFromRoot(bindingGroup.getModel());
-        component.removeAllItems();
-        for (final Object choice : choices) {
-            component.addItem(renderChoice(choice));
+        final String[] renderedChoices = new String[choices.size()];
+        for (int i = 0; i < renderedChoices.length; i++) {
+            renderedChoices[i] = renderChoice(choices.get(i));
         }
-        prevChoices = new ArrayList<>(choices);
-        component.setSelectedItem(renderChoice(modelValue));
+        boolean choicesChanged = false;
+        if (!Objects.equals(renderedChoices, prevRenderedChoices)) {
+            component.removeAllItems();
+            for (final String renderedChoice : renderedChoices) {
+                component.addItem(renderedChoice);
+            }
+            prevChoices = new ArrayList<>(choices);
+            prevRenderedChoices = renderedChoices;
+            choicesChanged = true;
+        }
+        final String renderedModelValue = renderChoice(modelValue);
+        if (choicesChanged || prevRenderedModelValue == null
+                || !Objects.equals(renderedModelValue, prevRenderedModelValue.orElse(null))) {
+            component.setSelectedItem(renderedModelValue);
+            prevRenderedModelValue = Optional.ofNullable(renderedModelValue);
+            return Optional.ofNullable(modelValue);
+        } else {
+            return prevModelValue;
+        }
     }
 
     @Override
