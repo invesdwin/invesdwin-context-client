@@ -32,6 +32,14 @@ public final class ConfiguredSplashScreen implements SplashScreen, FactoryBean<C
             System.setProperty("jdk.gtk.version", "2");
             //CHECKSTYLE:ON
         }
+        if (Reflections.JAVA_DEBUG_MODE) {
+            //without this workaround swing debugging might hang on linux
+            //https://bugs.java.com/bugdatabase/view_bug.do?bug_id=6714678
+            //CHECKSTYLE:OFF
+            //don't use SystemProperties class to not invoke ContextProperties loading too early
+            System.setProperty("sun.awt.disablegrab", "true");
+            //CHECKSTYLE:ON
+        }
     }
 
     @GuardedBy("ConfiguredSplashScreen.class")
