@@ -21,6 +21,7 @@ import de.invesdwin.util.lang.Objects;
 public class LabelBinding extends AComponentBinding<JLabel, Object> {
 
     private final IConverter<Object, String> converter;
+    private Optional<String> prevComponentValue;
 
     public LabelBinding(final JLabel component, final APropertyBeanPathElement element,
             final BindingGroup bindingGroup) {
@@ -44,9 +45,10 @@ public class LabelBinding extends AComponentBinding<JLabel, Object> {
     @Override
     protected Optional<Object> fromModelToComponent(final Object modelValue) {
         final String convertedValue = converter.fromModelToComponent(modelValue);
-        final String i18nValue = bindingGroup.i18n(convertedValue);
-        if (!Objects.equals(i18nValue, component.getText())) {
-            component.setText(i18nValue);
+        final String newComponentValue = bindingGroup.i18n(convertedValue);
+        if (prevComponentValue == null || !Objects.equals(newComponentValue, prevComponentValue.orElse(null))) {
+            component.setText(newComponentValue);
+            prevComponentValue = Optional.ofNullable(newComponentValue);
             return Optional.ofNullable(modelValue);
         } else {
             return prevModelValue;

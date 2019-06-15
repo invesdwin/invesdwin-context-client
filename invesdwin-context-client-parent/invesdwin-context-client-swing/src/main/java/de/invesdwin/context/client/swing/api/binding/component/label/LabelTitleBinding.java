@@ -30,9 +30,9 @@ public class LabelTitleBinding extends LabelBinding {
 
     @Override
     protected Optional<Object> fromModelToComponent(final Object modelValue) {
-        final String title = (String) modelValue;
-        if (!Objects.equals(title, component.getText())) {
-            component.setText(title);
+        if (prevModelValue == null || !Objects.equals(modelValue, prevModelValue.orElse(null))) {
+            final String newComponentValue = (String) modelValue;
+            component.setText(newComponentValue);
             return Optional.ofNullable(modelValue);
         } else {
             return prevModelValue;
