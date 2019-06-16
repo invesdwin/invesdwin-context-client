@@ -29,12 +29,17 @@ public class UpdateAllViewsHelper {
         new AViewVisitor() {
             @Override
             protected void visit(final AView<?, ?> view) {
-                if (view.getBindingGroup() != null) {
+                if (shouldAddView(view)) {
                     views.add(view);
                 }
             }
+
         }.visitAll(getRootComponent(component));
         return views;
+    }
+
+    protected boolean shouldAddView(final AView<?, ?> view) {
+        return view.getBindingGroup() != null;
     }
 
     protected Component getRootComponent(final Component component) {

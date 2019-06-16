@@ -1,6 +1,7 @@
 package de.invesdwin.context.client.swing.util;
 
 import java.awt.Component;
+import java.awt.Window;
 
 import javax.annotation.concurrent.Immutable;
 import javax.swing.JComponent;
@@ -41,7 +42,8 @@ public final class Views {
 
     public static Component getRootComponentInDockable(final Component component) {
         Component parent = component;
-        while (parent.getParent() != null && !(parent.getParent() instanceof BackgroundPanel)) {
+        while (parent.getParent() != null && !(parent.getParent() instanceof BackgroundPanel)
+                && !(parent instanceof Window)) {
             parent = parent.getParent();
         }
         return parent;

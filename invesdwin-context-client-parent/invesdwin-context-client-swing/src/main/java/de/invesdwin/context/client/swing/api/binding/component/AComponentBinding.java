@@ -13,7 +13,6 @@ import javax.swing.border.Border;
 import de.invesdwin.context.client.swing.api.AModel;
 import de.invesdwin.context.client.swing.api.AView;
 import de.invesdwin.context.client.swing.api.binding.BindingGroup;
-import de.invesdwin.context.client.swing.util.SubmitAllViewsHelper;
 import de.invesdwin.context.log.error.Err;
 import de.invesdwin.norva.beanpath.impl.object.BeanObjectContainer;
 import de.invesdwin.norva.beanpath.spi.element.APropertyBeanPathElement;
@@ -42,6 +41,7 @@ public abstract class AComponentBinding<C extends JComponent, V> implements ICom
     protected String invalidMessage = null;
     protected String showingInvalidMessage = null;
     protected boolean updating = false;
+    private boolean frozen;
 
     public AComponentBinding(final C component, final APropertyBeanPathElement element,
             final BindingGroup bindingGroup) {
@@ -61,7 +61,8 @@ public abstract class AComponentBinding<C extends JComponent, V> implements ICom
         if (isEager()) {
             if (isForced()) {
                 return new Runnable() {
-                    private final SubmitAllViewsHelper helper = new SubmitAllViewsHelper() {
+                    private final BindingSubmitAllViewsHelper helper = new BindingSubmitAllViewsHelper(
+                            AComponentBinding.this) {
                         @Override
                         protected String validate(final List<AView<?, ?>> views) {
                             //only show conversion errors, ignore any other validation errors
@@ -75,6 +76,7 @@ public abstract class AComponentBinding<C extends JComponent, V> implements ICom
                             }
                             super.process(component);
                         }
+
                     };
 
                     @Override
@@ -88,7 +90,8 @@ public abstract class AComponentBinding<C extends JComponent, V> implements ICom
             } else {
                 return new Runnable() {
 
-                    private final SubmitAllViewsHelper helper = new SubmitAllViewsHelper() {
+                    private final BindingSubmitAllViewsHelper helper = new BindingSubmitAllViewsHelper(
+                            AComponentBinding.this) {
                         @Override
                         public void process(final Component component) {
                             if (!isModifiable()) {
@@ -122,6 +125,9 @@ public abstract class AComponentBinding<C extends JComponent, V> implements ICom
 
     @Override
     public void submit() {
+        if (isFrozen()) {
+            return;
+        }
         if (!isModifiable()) {
             return;
         }
@@ -150,6 +156,9 @@ public abstract class AComponentBinding<C extends JComponent, V> implements ICom
 
     @Override
     public String validate() {
+        if (isFrozen()) {
+            return invalidMessage;
+        }
         if (invalidMessage != null) {
             return invalidMessage;
         }
@@ -187,6 +196,9 @@ public abstract class AComponentBinding<C extends JComponent, V> implements ICom
 
     @Override
     public void commit() {
+        if (isFrozen()) {
+            return;
+        }
         if (invalidMessage != null) {
             rollback();
         }
@@ -200,6 +212,9 @@ public abstract class AComponentBinding<C extends JComponent, V> implements ICom
 
     @Override
     public void rollback() {
+        if (isFrozen()) {
+            return;
+        }
         if (!submitted && invalidMessage == null) {
             return;
         }
@@ -216,6 +231,9 @@ public abstract class AComponentBinding<C extends JComponent, V> implements ICom
 
     @Override
     public void update() {
+        if (isFrozen()) {
+            return;
+        }
         updating = true;
         try {
             final AModel model = bindingGroup.getModel();
@@ -302,6 +320,14 @@ public abstract class AComponentBinding<C extends JComponent, V> implements ICom
             final String choiceStr = bindingGroup.i18n(choice.toString());
             return choiceStr;
         }
+    }
+
+    public void setFrozen(final boolean frozen) {
+        this.frozen = frozen;
+    }
+
+    public boolean isFrozen() {
+        return frozen;
     }
 
 }
