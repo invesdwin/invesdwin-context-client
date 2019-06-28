@@ -62,8 +62,10 @@
 		<version.vaadin>8.1.1</version.vaadin>
 		<version.vaadstrap>0.2.1</version.vaadstrap>
 
-		<version.swt>3.110.0</version.swt>
-		<version.jface>3.15.100</version.jface>
+		<version.eclipse-swt>3.111.0</version.eclipse-swt>
+		<version.eclipse-jface>3.16.0</version.eclipse-jface>
+		<version.eclipse-commands>3.9.400</version.eclipse-commands>
+		<version.eclipse-common>3.10.400</version.eclipse-common>
 		<version.swingexplorer>1.7.0</version.swingexplorer>
 
 		<version.rsyntaxtextarea>3.0.3</version.rsyntaxtextarea>
@@ -315,13 +317,23 @@
 			<dependency>
 				<groupId>org.eclipse.platform</groupId>
 				<artifactId>org.eclipse.jface</artifactId>
-				<version>${version.jface}</version>
+				<version>${version.eclipse-jface}</version>
 				<exclusions>
 					<exclusion>
 						<groupId>org.eclipse.platform</groupId>
 						<artifactId>org.eclipse.swt</artifactId>
 					</exclusion>
 				</exclusions>
+			</dependency>
+			<dependency>
+				<groupId>org.eclipse.platform</groupId>
+				<artifactId>org.eclipse.core.commands</artifactId>
+				<version>${version.eclipse-commands}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.eclipse.platform</groupId>
+				<artifactId>org.eclipse.equinox.common</artifactId>
+				<version>${version.eclipse-common}</version>
 			</dependency>
 			<dependency>
 				<groupId>net.java.dev.designgridlayout</groupId>
@@ -418,7 +430,7 @@
 		<connection>scm:git:https://github.com/subes/invesdwin-context-client.git</connection>
 		<tag>HEAD</tag>
 	</scm>
-	
+
 	<ciManagement>
 		<system>jenkins</system>
 		<url>https://invesdwin.de/jenkins/job/dgr-deploy-invesdwin-context-client/</url>
