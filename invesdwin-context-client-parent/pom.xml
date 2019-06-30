@@ -43,7 +43,7 @@
 		<version.invesdwin-context-integration>1.0.0-SNAPSHOT</version.invesdwin-context-integration>
 		<version.invesdwin-context-persistence>1.0.0-SNAPSHOT</version.invesdwin-context-persistence>
 		<version.invesdwin-context-security>1.0.0-SNAPSHOT</version.invesdwin-context-security>
-		<version.invesdwin-context-client>${project.version}</version.invesdwin-context-client>
+		<version.invesdwin-context-client>1.0.0-SNAPSHOT</version.invesdwin-context-client>
 
 		<version.docking-frames>1.1.2-P20c</version.docking-frames>
 		<version.spring-richclient>1.1.0</version.spring-richclient>
