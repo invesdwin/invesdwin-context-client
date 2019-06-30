@@ -39,11 +39,11 @@
 	</modules>
 
 	<properties>
-		<version.invesdwin-context>1.0.0-SNAPSHOT</version.invesdwin-context>
-		<version.invesdwin-context-integration>1.0.0-SNAPSHOT</version.invesdwin-context-integration>
-		<version.invesdwin-context-persistence>1.0.0-SNAPSHOT</version.invesdwin-context-persistence>
-		<version.invesdwin-context-security>1.0.0-SNAPSHOT</version.invesdwin-context-security>
-		<version.invesdwin-context-client>${project.version}</version.invesdwin-context-client>
+		<project.version.invesdwin-context>1.0.0-SNAPSHOT</project.version.invesdwin-context>
+		<project.version.invesdwin-context-integration>1.0.0-SNAPSHOT</project.version.invesdwin-context-integration>
+		<project.version.invesdwin-context-persistence>1.0.0-SNAPSHOT</project.version.invesdwin-context-persistence>
+		<project.version.invesdwin-context-security>1.0.0-SNAPSHOT</project.version.invesdwin-context-security>
+		<project.version.invesdwin-context-client>${project.version}</project.version.invesdwin-context-client>
 
 		<version.docking-frames>1.1.2-P20c</version.docking-frames>
 		<version.spring-richclient>1.1.0</version.spring-richclient>
@@ -80,21 +80,21 @@
 			<dependency>
 				<groupId>de.invesdwin</groupId>
 				<artifactId>invesdwin-context-persistence-parent</artifactId>
-				<version>${version.invesdwin-context-persistence}</version>
+				<version>${project.version.invesdwin-context-persistence}</version>
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
 			<dependency>
 				<groupId>de.invesdwin</groupId>
 				<artifactId>invesdwin-context-security-parent</artifactId>
-				<version>${version.invesdwin-context-security}</version>
+				<version>${project.version.invesdwin-context-security}</version>
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
 			<dependency>
 				<groupId>de.invesdwin</groupId>
 				<artifactId>invesdwin-context-integration-parent</artifactId>
-				<version>${version.invesdwin-context-integration}</version>
+				<version>${project.version.invesdwin-context-integration}</version>
 				<type>pom</type>
 				<scope>import</scope>
 			</dependency>
@@ -102,68 +102,68 @@
 			<dependency>
 				<groupId>de.invesdwin</groupId>
 				<artifactId>invesdwin-context-client-wicket</artifactId>
-				<version>${version.invesdwin-context-client}</version>
+				<version>${project.version.invesdwin-context-client}</version>
 			</dependency>
 			<dependency>
 				<groupId>de.invesdwin</groupId>
 				<artifactId>invesdwin-context-client-wicket-saml</artifactId>
-				<version>${version.invesdwin-context-client}</version>
+				<version>${project.version.invesdwin-context-client}</version>
 			</dependency>
 			<dependency>
 				<groupId>de.invesdwin</groupId>
 				<artifactId>invesdwin-context-client-wicket-kerberos</artifactId>
-				<version>${version.invesdwin-context-client}</version>
+				<version>${project.version.invesdwin-context-client}</version>
 			</dependency>
 			<dependency>
 				<groupId>de.invesdwin</groupId>
 				<artifactId>invesdwin-context-client-wicket-cas</artifactId>
-				<version>${version.invesdwin-context-client}</version>
+				<version>${project.version.invesdwin-context-client}</version>
 			</dependency>
 			<dependency>
 				<groupId>de.invesdwin</groupId>
 				<artifactId>invesdwin-context-client-wicket-examples</artifactId>
-				<version>${version.invesdwin-context-client}</version>
+				<version>${project.version.invesdwin-context-client}</version>
 			</dependency>
 			<dependency>
 				<groupId>de.invesdwin</groupId>
 				<artifactId>invesdwin-context-client-swing</artifactId>
-				<version>${version.invesdwin-context-client}</version>
+				<version>${project.version.invesdwin-context-client}</version>
 			</dependency>
 			<dependency>
 				<groupId>de.invesdwin</groupId>
 				<artifactId>invesdwin-context-client-swing</artifactId>
-				<version>${version.invesdwin-context-client}</version>
+				<version>${project.version.invesdwin-context-client}</version>
 				<type>test-jar</type>
 			</dependency>
 			<dependency>
 				<groupId>de.invesdwin</groupId>
 				<artifactId>invesdwin-context-client-swing-jfreechart</artifactId>
-				<version>${version.invesdwin-context-client}</version>
+				<version>${project.version.invesdwin-context-client}</version>
 			</dependency>
 			<dependency>
 				<groupId>de.invesdwin</groupId>
 				<artifactId>invesdwin-context-client-swing-rsyntaxtextarea</artifactId>
-				<version>${version.invesdwin-context-client}</version>
+				<version>${project.version.invesdwin-context-client}</version>
 			</dependency>
 			<dependency>
 				<groupId>de.invesdwin</groupId>
 				<artifactId>invesdwin-context-client-swing-test</artifactId>
-				<version>${version.invesdwin-context-client}</version>
+				<version>${project.version.invesdwin-context-client}</version>
 			</dependency>
 			<dependency>
 				<groupId>de.invesdwin</groupId>
 				<artifactId>invesdwin-context-client-swt</artifactId>
-				<version>${version.invesdwin-context-client}</version>
+				<version>${project.version.invesdwin-context-client}</version>
 			</dependency>
 			<dependency>
 				<groupId>de.invesdwin</groupId>
 				<artifactId>invesdwin-context-client-swt-provided</artifactId>
-				<version>${version.invesdwin-context-client}</version>
+				<version>${project.version.invesdwin-context-client}</version>
 			</dependency>
 			<dependency>
 				<groupId>de.invesdwin</groupId>
 				<artifactId>invesdwin-context-client-wicket-maven-plugin</artifactId>
-				<version>${version.invesdwin-context-client}</version>
+				<version>${project.version.invesdwin-context-client}</version>
 			</dependency>
 
 			<dependency>
@@ -383,7 +383,7 @@
 				<plugin>
 					<groupId>de.invesdwin</groupId>
 					<artifactId>invesdwin-context-client-wicket-maven-plugin</artifactId>
-					<version>${version.invesdwin-context-client}</version>
+					<version>${project.version.invesdwin-context-client}</version>
 					<executions>
 						<execution>
 							<goals>
