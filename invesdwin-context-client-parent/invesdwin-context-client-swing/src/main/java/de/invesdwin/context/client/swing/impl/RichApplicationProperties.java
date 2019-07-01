@@ -15,6 +15,8 @@ import org.jdesktop.application.ResourceMap;
 import org.jdesktop.application.utils.PlatformType;
 import org.springframework.beans.factory.config.BeanDefinition;
 
+import com.jgoodies.common.base.Strings;
+
 import de.invesdwin.context.beans.init.MergedContext;
 import de.invesdwin.context.client.swing.api.IRichApplication;
 import de.invesdwin.context.client.swing.impl.app.DelegateRichApplication;
@@ -134,8 +136,14 @@ public final class RichApplicationProperties {
         }
         //https://locademiaz.wordpress.com/2011/08/30/turn-your-java-apps-gnome-shell-friendly/
         final String applicationName = appResourceMap.getString(DelegateRichApplication.KEY_APPLICATION_NAME);
-        final Toolkit toolkit = Toolkit.getDefaultToolkit();
-        Reflections.field("awtAppClassName").ofType(String.class).in(toolkit).set(applicationName);
+        if (Strings.isNotBlank(applicationName)) {
+            final Toolkit toolkit = Toolkit.getDefaultToolkit();
+            try {
+                Reflections.field("awtAppClassName").ofType(String.class).in(toolkit).set(applicationName);
+            } catch (final Throwable t) {
+                //ignore, might not be X-Windows
+            }
+        }
     }
 
 }
