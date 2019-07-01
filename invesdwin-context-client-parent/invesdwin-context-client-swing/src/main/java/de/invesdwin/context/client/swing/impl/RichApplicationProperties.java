@@ -137,6 +137,4 @@ public final class RichApplicationProperties {
         Reflections.field("awtAppClassName").ofType(String.class).in(toolkit).set(applicationName);
     }
 
-    public static void setApplicationName(final String title) {}
-
 }
