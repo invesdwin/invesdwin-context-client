@@ -5,12 +5,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
 import org.jdesktop.application.Application;
 import org.springframework.beans.factory.config.BeanDefinition;
-
-import com.google.errorprone.annotations.concurrent.GuardedBy;
 
 import de.invesdwin.context.beans.init.MergedContext;
 import de.invesdwin.context.client.swing.api.IRichApplication;
