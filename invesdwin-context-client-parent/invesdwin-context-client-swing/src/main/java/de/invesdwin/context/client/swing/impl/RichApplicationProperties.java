@@ -132,6 +132,7 @@ public final class RichApplicationProperties {
         if (prevPlatform != null) {
             appResourceMap.setPlatform(prevPlatform);
         }
+        //https://locademiaz.wordpress.com/2011/08/30/turn-your-java-apps-gnome-shell-friendly/
         final String applicationName = appResourceMap.getString(DelegateRichApplication.KEY_APPLICATION_NAME);
         final Toolkit toolkit = Toolkit.getDefaultToolkit();
         Reflections.field("awtAppClassName").ofType(String.class).in(toolkit).set(applicationName);
