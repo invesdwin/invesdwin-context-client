@@ -48,6 +48,7 @@ import de.invesdwin.util.time.fdate.FTimeUnit;
 @ProxyActions({ "select-all", "undo", "redo" })
 public class DelegateRichApplication extends SingleFrameApplication {
 
+    public static final String KEY_APPLICATION_NAME = "Application.name";
     public static final String KEY_APPLICATION_SPLASH = "Application.splash";
     public static final boolean INITIALIZED;
 

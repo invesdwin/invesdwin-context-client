@@ -1,5 +1,6 @@
 package de.invesdwin.context.client.swing.impl;
 
+import java.awt.Toolkit;
 import java.beans.Beans;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -127,9 +128,15 @@ public final class RichApplicationProperties {
         //reset app resource map
         final PlatformType prevPlatform = resourceManager.getResourceMap().getPlatform();
         Reflections.field("appResourceMap").ofType(ResourceMap.class).in(resourceManager).set(null);
+        final ResourceMap appResourceMap = resourceManager.getResourceMap();
         if (prevPlatform != null) {
-            resourceManager.getResourceMap().setPlatform(prevPlatform);
+            appResourceMap.setPlatform(prevPlatform);
         }
+        final String applicationName = appResourceMap.getString(DelegateRichApplication.KEY_APPLICATION_NAME);
+        final Toolkit toolkit = Toolkit.getDefaultToolkit();
+        Reflections.field("awtAppClassName").ofType(String.class).in(toolkit).set(applicationName);
     }
+
+    public static void setApplicationName(final String title) {}
 
 }
