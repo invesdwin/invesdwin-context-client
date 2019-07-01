@@ -72,7 +72,6 @@ public class DelegateRichApplication extends SingleFrameApplication {
         Assertions.assertThat(GuiExceptionHandler.INSTANCE).isNotNull();
         ToolTipManager.sharedInstance()
                 .setDismissDelay(new Duration(10, FTimeUnit.MINUTES).intValue(FTimeUnit.MILLISECONDS));
-        RichApplicationProperties.initApplicatonBundleNames(this);
     }
 
     /**
@@ -83,6 +82,7 @@ public class DelegateRichApplication extends SingleFrameApplication {
     @Override
     protected void initialize(final String[] args) {
         super.initialize(args);
+        RichApplicationProperties.initApplicatonBundleNames(this, true);
         RichApplicationProperties.setInitializationArgs(args);
 
         //Do Lazy-Init earlier so that UndoRedoActions work correctly

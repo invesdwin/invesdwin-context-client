@@ -37,8 +37,10 @@ public class RichApplicationStub extends StubSupport {
     @Override
     public void tearDown(final ATest test, final TestContext ctx) {
         launched = false;
-        final SingleFrameApplication application = (SingleFrameApplication) Application.getInstance();
-        application.getMainFrame().setVisible(false);
+        if (Application.getInstance() instanceof SingleFrameApplication) {
+            final SingleFrameApplication application = (SingleFrameApplication) Application.getInstance();
+            application.getMainFrame().setVisible(false);
+        }
         statusBar.reset();
         contentPane.reset();
         GuiService.get().getTaskService().shutdownNow();

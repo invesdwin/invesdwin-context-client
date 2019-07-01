@@ -9,6 +9,9 @@ import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
 import org.jdesktop.application.Application;
+import org.jdesktop.application.ResourceManager;
+import org.jdesktop.application.ResourceMap;
+import org.jdesktop.application.utils.PlatformType;
 import org.springframework.beans.factory.config.BeanDefinition;
 
 import de.invesdwin.context.beans.init.MergedContext;
@@ -32,10 +35,13 @@ public final class RichApplicationProperties {
         if (designTimeApplication == null) {
             final boolean prevDesignTime = Beans.isDesignTime();
             Beans.setDesignTime(true);
-            //maybe initialize DesignTimeApplication to grant access to resourcemap and other stuff when application itself is not needed actually here
-            designTimeApplication = Application.getInstance();
-            initApplicatonBundleNames(designTimeApplication);
-            Beans.setDesignTime(prevDesignTime);
+            try {
+                //maybe initialize DesignTimeApplication to grant access to resourcemap and other stuff when application itself is not needed actually here
+                designTimeApplication = Application.getInstance();
+                initApplicatonBundleNames(designTimeApplication, false);
+            } finally {
+                Beans.setDesignTime(prevDesignTime);
+            }
         }
         return designTimeApplication;
     }
@@ -60,6 +66,9 @@ public final class RichApplicationProperties {
                     .isEqualTo(1);
             final BeanDefinition beanDefinition = MergedContext.getInstance().getBeanDefinition(beanNames[0]);
             delegateClass = Reflections.classForName(beanDefinition.getBeanClassName());
+            if (designTimeApplication != null) {
+                initApplicatonBundleNames(designTimeApplication, true);
+            }
         }
         return delegateClass;
     }
@@ -97,9 +106,9 @@ public final class RichApplicationProperties {
         setInitializationArgs(null);
     }
 
-    public static void initApplicatonBundleNames(final Application application) {
-        final List<String> applicationBundleNames = new ArrayList<String>(
-                application.getContext().getResourceManager().getApplicationBundleNames());
+    public static void initApplicatonBundleNames(final Application application, final boolean forceDelegateClass) {
+        final ResourceManager resourceManager = application.getContext().getResourceManager();
+        final List<String> applicationBundleNames = new ArrayList<String>(resourceManager.getApplicationBundleNames());
 
         //DelegateRichApplication properties must be loaded in any case
         if (!applicationBundleNames.contains(DelegateRichApplication.class.getName())) {
@@ -107,8 +116,20 @@ public final class RichApplicationProperties {
         }
 
         //Use the interface implementation properties first in chain
-        applicationBundleNames.add(0, RichApplicationProperties.getDelegateClass().getName());
-        application.getContext().getResourceManager().setApplicationBundleNames(applicationBundleNames);
+        if (forceDelegateClass || delegateClass != null || MergedContext.isBootstrapRunning()
+                || MergedContext.isBootstrapFinished()) {
+            if (!applicationBundleNames.contains(getDelegateClass().getName())) {
+                applicationBundleNames.add(0, getDelegateClass().getName());
+            }
+        }
+        resourceManager.setApplicationBundleNames(applicationBundleNames);
+
+        //reset app resource map
+        final PlatformType prevPlatform = resourceManager.getResourceMap().getPlatform();
+        Reflections.field("appResourceMap").ofType(ResourceMap.class).in(resourceManager).set(null);
+        if (prevPlatform != null) {
+            resourceManager.getResourceMap().setPlatform(prevPlatform);
+        }
     }
 
 }
