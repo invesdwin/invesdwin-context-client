@@ -1,18 +1,16 @@
 package de.invesdwin.context.client.swing.impl.splash;
 
-import java.beans.Beans;
 import java.util.Locale;
 
 import javax.annotation.concurrent.Immutable;
 
 import org.jdesktop.application.Application;
-import org.jdesktop.application.ApplicationContext;
 import org.jdesktop.application.ResourceMap;
 import org.springframework.context.MessageSource;
 import org.springframework.context.MessageSourceResolvable;
 import org.springframework.richclient.application.splash.AbstractSplashScreen;
 
-import de.invesdwin.context.client.swing.impl.app.DelegateResourceManager;
+import de.invesdwin.context.client.swing.impl.RichApplicationProperties;
 
 /**
  * So that Spring-RCP is happy and the splash title can be set comfortably.
@@ -24,11 +22,7 @@ public class ApplicationMessageSource implements MessageSource {
     private final ResourceMap resourceMap;
 
     public ApplicationMessageSource() {
-        Beans.setDesignTime(true);
-        final ApplicationContext context = Application.getInstance().getContext();
-        Beans.setDesignTime(false);
-        DelegateResourceManager.inject(context);
-        resourceMap = context.getResourceMap();
+        resourceMap = RichApplicationProperties.getDesignTimeApplication().getContext().getResourceMap();
     }
 
     @Override

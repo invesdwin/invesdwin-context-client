@@ -13,6 +13,7 @@ import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
 import org.jdesktop.application.Application;
+import org.jdesktop.application.ApplicationContext;
 import org.jdesktop.application.FrameView;
 import org.jdesktop.application.ProxyActions;
 import org.jdesktop.application.SingleFrameApplication;
@@ -71,7 +72,7 @@ public class DelegateRichApplication extends SingleFrameApplication {
         Assertions.assertThat(GuiExceptionHandler.INSTANCE).isNotNull();
         ToolTipManager.sharedInstance()
                 .setDismissDelay(new Duration(10, FTimeUnit.MINUTES).intValue(FTimeUnit.MILLISECONDS));
-        DelegateResourceManager.inject(getContext());
+        RichApplicationProperties.initApplicatonBundleNames(this);
     }
 
     /**
@@ -85,12 +86,13 @@ public class DelegateRichApplication extends SingleFrameApplication {
         RichApplicationProperties.setInitializationArgs(args);
 
         //Do Lazy-Init earlier so that UndoRedoActions work correctly
-        Assertions.assertThat(getContext().getActionMap()).isNotNull();
+        final ApplicationContext ctx = getContext();
+        Assertions.assertThat(ctx.getActionMap()).isNotNull();
 
         //Replace default TaskService our own
-        getContext().removeTaskService(getContext().getTaskService());
-        getContext().addTaskService(MergedContext.getInstance().getBean(DefaultTaskService.class));
-        Assertions.assertThat(getContext().getTaskService()).isInstanceOf(DefaultTaskService.class);
+        ctx.removeTaskService(ctx.getTaskService());
+        ctx.addTaskService(MergedContext.getInstance().getBean(DefaultTaskService.class));
+        Assertions.assertThat(ctx.getTaskService()).isInstanceOf(DefaultTaskService.class);
 
         final IRichApplication delegate = RichApplicationProperties.getDelegate();
         configureLookAndFeel(delegate);
