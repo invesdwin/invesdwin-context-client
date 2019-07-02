@@ -215,6 +215,9 @@ public abstract class AComponentBinding<C extends JComponent, V> implements ICom
         if (isFrozen()) {
             return;
         }
+        if (!isModifiable()) {
+            return;
+        }
         if (!submitted && invalidMessage == null) {
             return;
         }
