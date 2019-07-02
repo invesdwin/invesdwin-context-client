@@ -76,6 +76,7 @@ public final class GuiExceptionHandler implements IErrHook {
                         final JXErrorPane pane = new JXErrorPane();
                         pane.setErrorInfo(info);
                         final JDialog dialog = JXErrorPane.createDialog(GuiService.get().getWindow(), pane);
+                        dialog.setTitle("Error");
                         dialog.setVisible(true);
                         dialog.addWindowListener(new WindowListenerSupport() {
                             @Override
