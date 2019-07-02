@@ -147,7 +147,7 @@ public abstract class AComponentBinding<C extends JComponent, V> implements ICom
             submitted = true;
         } catch (final Throwable t) {
             Err.process(t);
-            setInvalidMessage(t.toString());
+            setInvalidMessage(t.getLocalizedMessage());
             submitted = false;
         }
     }
@@ -226,7 +226,7 @@ public abstract class AComponentBinding<C extends JComponent, V> implements ICom
             setValueFromRoot(model, prevModelValue.orElse(null));
         } catch (final Throwable t) {
             Err.process(t);
-            setInvalidMessage(t.toString());
+            setInvalidMessage(t.getLocalizedMessage());
         }
         submitted = false;
         showingInvalidMessage = invalidMessage;
