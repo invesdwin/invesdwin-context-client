@@ -222,7 +222,12 @@ public abstract class AComponentBinding<C extends JComponent, V> implements ICom
             return;
         }
         final AModel model = bindingGroup.getModel();
-        setValueFromRoot(model, prevModelValue.orElse(null));
+        try {
+            setValueFromRoot(model, prevModelValue.orElse(null));
+        } catch (final Throwable t) {
+            Err.process(t);
+            setInvalidMessage(t.toString());
+        }
         submitted = false;
         showingInvalidMessage = invalidMessage;
         invalidMessage = null;
