@@ -76,7 +76,9 @@ public class GuiService implements IGuiService {
 
     @Override
     public void showModalView(final AView<?, ?> view, final Dimension dimension) {
-        final JDialog dialog = new JDialog(Dialogs.getRootFrame(), true);
+        final Window window = getWindow();
+        final JDialog dialog = new JDialog(window);
+        dialog.setModal(true);
         dialogs.push(dialog);
         final Container contentPane = dialog.getContentPane();
         contentPane.setLayout(new BorderLayout());
@@ -90,7 +92,7 @@ public class GuiService implements IGuiService {
             dialog.setSize(new Dimension(400, 200));
         }
         dialog.setMinimumSize(new Dimension(100, 100));
-        dialog.setLocationRelativeTo(Dialogs.getRootFrame());
+        dialog.setLocationRelativeTo(window);
         dialog.setVisible(true);
     }
 

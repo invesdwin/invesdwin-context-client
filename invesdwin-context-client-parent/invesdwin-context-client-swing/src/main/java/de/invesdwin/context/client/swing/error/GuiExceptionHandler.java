@@ -16,13 +16,13 @@ import org.jdesktop.swingx.JXErrorPane;
 import org.jdesktop.swingx.error.ErrorInfo;
 
 import de.invesdwin.aspects.EventDispatchThreadUtil;
+import de.invesdwin.context.client.swing.api.guiservice.GuiService;
 import de.invesdwin.context.log.error.Err;
 import de.invesdwin.context.log.error.LoggedRuntimeException;
 import de.invesdwin.context.log.error.hook.ErrHookManager;
 import de.invesdwin.context.log.error.hook.IErrHook;
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.shutdown.ShutdownHookManager;
-import de.invesdwin.util.swing.Dialogs;
 import de.invesdwin.util.swing.listener.WindowListenerSupport;
 
 @ThreadSafe
@@ -75,7 +75,7 @@ public final class GuiExceptionHandler implements IErrHook {
                                 null);
                         final JXErrorPane pane = new JXErrorPane();
                         pane.setErrorInfo(info);
-                        final JFrame frame = JXErrorPane.createFrame(Dialogs.getRootFrame(), pane);
+                        final JFrame frame = JXErrorPane.createFrame(GuiService.get().getWindow(), pane);
                         frame.setVisible(true);
                         frame.addWindowListener(new WindowListenerSupport() {
                             @Override
