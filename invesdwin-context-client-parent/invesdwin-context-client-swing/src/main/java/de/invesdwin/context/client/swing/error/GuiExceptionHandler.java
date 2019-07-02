@@ -1,5 +1,6 @@
 package de.invesdwin.context.client.swing.error;
 
+import java.awt.Dimension;
 import java.awt.event.WindowEvent;
 import java.util.Collections;
 import java.util.LinkedHashSet;
@@ -77,6 +78,8 @@ public final class GuiExceptionHandler implements IErrHook {
                         pane.setErrorInfo(info);
                         final JDialog dialog = JXErrorPane.createDialog(GuiService.get().getWindow(), pane);
                         dialog.setTitle("Error");
+                        dialog.setSize(new Dimension(800, dialog.getHeight()));
+                        dialog.setMinimumSize(new Dimension(100, 100));
                         dialog.setVisible(true);
                         dialog.addWindowListener(new WindowListenerSupport() {
                             @Override
