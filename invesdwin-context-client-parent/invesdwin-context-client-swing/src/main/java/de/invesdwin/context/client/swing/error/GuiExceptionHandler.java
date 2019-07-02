@@ -7,7 +7,7 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.annotation.concurrent.ThreadSafe;
-import javax.swing.JFrame;
+import javax.swing.JDialog;
 import javax.swing.UIManager;
 
 import org.jdesktop.application.Application;
@@ -75,9 +75,9 @@ public final class GuiExceptionHandler implements IErrHook {
                                 null);
                         final JXErrorPane pane = new JXErrorPane();
                         pane.setErrorInfo(info);
-                        final JFrame frame = JXErrorPane.createFrame(GuiService.get().getWindow(), pane);
-                        frame.setVisible(true);
-                        frame.addWindowListener(new WindowListenerSupport() {
+                        final JDialog dialog = JXErrorPane.createDialog(GuiService.get().getWindow(), pane);
+                        dialog.setVisible(true);
+                        dialog.addWindowListener(new WindowListenerSupport() {
                             @Override
                             public void windowClosed(final WindowEvent e) {
                                 ALREADY_SHOWING_COUNT.decrementAndGet();
