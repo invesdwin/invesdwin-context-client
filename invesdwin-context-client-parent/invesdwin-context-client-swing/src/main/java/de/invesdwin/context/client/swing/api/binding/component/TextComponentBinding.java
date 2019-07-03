@@ -16,6 +16,7 @@ import de.invesdwin.norva.beanpath.impl.clazz.BeanClassType;
 import de.invesdwin.norva.beanpath.spi.element.APropertyBeanPathElement;
 import de.invesdwin.norva.beanpath.spi.element.simple.modifier.IBeanPathPropertyModifier;
 import de.invesdwin.util.lang.Objects;
+import de.invesdwin.util.swing.Components;
 import de.invesdwin.util.swing.listener.FocusListenerSupport;
 
 @NotThreadSafe
@@ -78,6 +79,11 @@ public class TextComponentBinding extends AComponentBinding<JTextComponent, Obje
     @Override
     protected IBeanPathPropertyModifier<Object> getModifier() {
         return element.getModifier();
+    }
+
+    @Override
+    protected void setEnabled(final boolean enabled) {
+        Components.setEditable(component, enabled);
     }
 
 }

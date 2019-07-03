@@ -129,6 +129,7 @@ public abstract class AComponentBinding<C extends JComponent, V> implements ICom
             return;
         }
         if (!isModifiable()) {
+            setInvalidMessage(null);
             return;
         }
         final AModel model = bindingGroup.getModel();
@@ -157,6 +158,9 @@ public abstract class AComponentBinding<C extends JComponent, V> implements ICom
     @Override
     public String validate() {
         if (isFrozen()) {
+            return invalidMessage;
+        }
+        if (!isModifiable()) {
             return invalidMessage;
         }
         if (invalidMessage != null) {
@@ -249,7 +253,7 @@ public abstract class AComponentBinding<C extends JComponent, V> implements ICom
             prevModelValue = fromModelToComponent(modelValue);
 
             final Object target = getTarget();
-            Components.setEnabled(component, element.isEnabled(target));
+            setEnabled(element.isEnabled(target));
             Components.setVisible(component, element.isVisible(target));
 
             if (showingInvalidMessage != null) {
@@ -268,6 +272,10 @@ public abstract class AComponentBinding<C extends JComponent, V> implements ICom
         } finally {
             updating = false;
         }
+    }
+
+    protected void setEnabled(final boolean enabled) {
+        Components.setEnabled(component, enabled);
     }
 
     protected V getValueFromRoot(final AModel model) {
