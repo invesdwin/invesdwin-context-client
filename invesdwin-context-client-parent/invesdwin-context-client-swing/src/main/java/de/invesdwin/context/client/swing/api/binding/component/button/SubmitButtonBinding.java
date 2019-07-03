@@ -191,11 +191,9 @@ public class SubmitButtonBinding implements IComponentBinding {
     public void update() {
         final Object target = getTarget();
         final String title = bindingGroup.getTitle(element, target);
-        if (!Strings.equals(title, component.getText())) {
-            component.setText(title);
-        }
-        component.setEnabled(element.isEnabled(target));
-        component.setVisible(element.isVisible(target));
+        Components.setText(component, title);
+        Components.setEnabled(component, element.isEnabled(target));
+        Components.setVisible(component, element.isVisible(target));
         if (showingInvalidMessage != null) {
             Components.setBorder(component, AComponentBinding.INVALID_MESSAGE_BORDER);
             String combinedTooltip = bindingGroup.i18n(element.getTooltip(target));
