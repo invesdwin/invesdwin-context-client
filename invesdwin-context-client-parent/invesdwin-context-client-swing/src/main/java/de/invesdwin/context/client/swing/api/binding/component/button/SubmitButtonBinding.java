@@ -8,10 +8,12 @@ import java.util.List;
 
 import javax.annotation.concurrent.NotThreadSafe;
 import javax.swing.AbstractButton;
+import javax.swing.border.Border;
 
 import de.invesdwin.context.client.swing.api.AModel;
 import de.invesdwin.context.client.swing.api.AView;
 import de.invesdwin.context.client.swing.api.binding.BindingGroup;
+import de.invesdwin.context.client.swing.api.binding.component.AComponentBinding;
 import de.invesdwin.context.client.swing.api.binding.component.IComponentBinding;
 import de.invesdwin.context.client.swing.api.guiservice.GuiService;
 import de.invesdwin.context.client.swing.util.SubmitAllViewsHelper;
@@ -28,6 +30,8 @@ public class SubmitButtonBinding implements IComponentBinding {
     private final AActionBeanPathElement element;
     private final BindingGroup bindingGroup;
     private final Runnable submitRunnable;
+    private final Border originalBorder;
+    private String showingInvalidMessage;
 
     public SubmitButtonBinding(final AbstractButton component, final AActionBeanPathElement element,
             final BindingGroup bindingGroup) {
@@ -41,6 +45,7 @@ public class SubmitButtonBinding implements IComponentBinding {
                 submitRunnable.run();
             }
         });
+        this.originalBorder = component.getBorder();
     }
 
     private Runnable newSubmitRunnable() {
@@ -84,11 +89,13 @@ public class SubmitButtonBinding implements IComponentBinding {
                     protected String validate(final List<AView<?, ?>> views) {
                         final String invalidMessage = super.validate(views);
                         if (invalidMessage != null) {
+                            showingInvalidMessage = invalidMessage;
                             return invalidMessage;
+                        } else {
+                            invoke();
+                            //validate again after invoking
+                            return super.validate(views);
                         }
-                        invoke();
-                        //validate again after invoking
-                        return super.validate(views);
                     }
                 };
 
@@ -150,7 +157,7 @@ public class SubmitButtonBinding implements IComponentBinding {
 
     @Override
     public void submit() {
-        //noop
+        showingInvalidMessage = null;
     }
 
     @Override
@@ -189,7 +196,19 @@ public class SubmitButtonBinding implements IComponentBinding {
         }
         component.setEnabled(element.isEnabled(target));
         component.setVisible(element.isVisible(target));
-        Components.setTooltipText(component, bindingGroup.i18n(element.getTooltip(target)));
+        if (showingInvalidMessage != null) {
+            Components.setBorder(component, AComponentBinding.INVALID_MESSAGE_BORDER);
+            String combinedTooltip = bindingGroup.i18n(element.getTooltip(target));
+            if (Strings.isNotBlank(combinedTooltip)) {
+                combinedTooltip += "\n\n" + showingInvalidMessage;
+            } else {
+                combinedTooltip = showingInvalidMessage;
+            }
+            Components.setToolTipText(component, combinedTooltip);
+        } else {
+            Components.setBorder(component, originalBorder);
+            Components.setToolTipText(component, bindingGroup.i18n(element.getTooltip(target)));
+        }
     }
 
     protected Object getTarget() {

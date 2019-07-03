@@ -249,21 +249,21 @@ public abstract class AComponentBinding<C extends JComponent, V> implements ICom
             prevModelValue = fromModelToComponent(modelValue);
 
             final Object target = getTarget();
-            component.setEnabled(element.isEnabled(target));
-            component.setVisible(element.isVisible(target));
+            Components.setEnabled(component, element.isEnabled(target));
+            Components.setVisible(component, element.isVisible(target));
 
             if (showingInvalidMessage != null) {
-                setBorder(INVALID_MESSAGE_BORDER);
+                Components.setBorder(component, INVALID_MESSAGE_BORDER);
                 String combinedTooltip = bindingGroup.i18n(element.getTooltip(target));
                 if (Strings.isNotBlank(combinedTooltip)) {
                     combinedTooltip += "\n\n" + showingInvalidMessage;
                 } else {
                     combinedTooltip = showingInvalidMessage;
                 }
-                Components.setTooltipText(component, combinedTooltip);
+                Components.setToolTipText(component, combinedTooltip);
             } else {
-                setBorder(originalBorder);
-                Components.setTooltipText(component, bindingGroup.i18n(element.getTooltip(target)));
+                Components.setBorder(component, originalBorder);
+                Components.setToolTipText(component, bindingGroup.i18n(element.getTooltip(target)));
             }
         } finally {
             updating = false;
@@ -272,10 +272,6 @@ public abstract class AComponentBinding<C extends JComponent, V> implements ICom
 
     protected V getValueFromRoot(final AModel model) {
         return getModifier().getValueFromRoot(model);
-    }
-
-    protected void setBorder(final Border border) {
-        component.setBorder(border);
     }
 
     protected Object getTarget() {

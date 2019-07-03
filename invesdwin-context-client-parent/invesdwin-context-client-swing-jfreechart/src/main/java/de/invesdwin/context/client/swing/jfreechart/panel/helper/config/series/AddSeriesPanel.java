@@ -78,7 +78,7 @@ public class AddSeriesPanel extends JPanel {
                 final String selectedName = (String) layout.tbl_indicator.getModel().getValueAt(selectedRow, 0);
                 final IIndicatorSeriesProvider selectedValue = plotConfigurationHelper
                         .getIndicatorSeriesProvider(selectedName);
-                Components.setTooltipText(layout.tbl_indicator, selectedValue.getDescription());
+                Components.setToolTipText(layout.tbl_indicator, selectedValue.getDescription());
             }
         });
         layout.tbl_indicator.addMouseListener(new MouseListenerSupport() {
@@ -235,20 +235,20 @@ public class AddSeriesPanel extends JPanel {
                 final IExpression parsedExpression = provider.parseExpression(expression);
                 if (parsedExpression == null) {
                     lbl_expression.setIcon(AddSeriesPanel.ICON_EXPRESSION);
-                    Components.setTooltipText(lbl_expression, null);
+                    Components.setToolTipText(lbl_expression, null);
                     return;
                 }
                 lbl_expression.setIcon(AddSeriesPanel.ICON_EXPRESSION_PENDING_VALID);
-                Components.setTooltipText(lbl_expression, "<html><b>Valid:</b><br><pre>  "
+                Components.setToolTipText(lbl_expression, "<html><b>Valid:</b><br><pre>  "
                         + HtmlUtils.htmlEscape(parsedExpression.toString().replace("\n", "\n  ")) + "</pre>");
             } catch (final Throwable t) {
                 lbl_expression.setIcon(AddSeriesPanel.ICON_EXPRESSION_PENDING_INVALID);
-                Components.setTooltipText(lbl_expression,
+                Components.setToolTipText(lbl_expression,
                         "<html><b>Error:</b><br><pre>  " + AddSeriesPanel.prepareErrorMessageForTooltip(t) + "</pre>");
             }
         } else {
             lbl_expression.setIcon(AddSeriesPanel.ICON_EXPRESSION);
-            Components.setTooltipText(lbl_expression, null);
+            Components.setToolTipText(lbl_expression, null);
         }
     }
 

@@ -66,12 +66,12 @@ public class StatusBarMessageView extends AView<StatusBarMessageView, JPanel> {
                         if (Strings.isNotBlank(text)) {
                             lblSpace.setText(StatusBarView.DISTANCE_TO_BORDER);
                             lblMessage.setText(text);
-                            Components.setTooltipText(lblMessage, text);
+                            Components.setToolTipText(lblMessage, text);
                             StatusBarMessageTimeoutThread.startInstance(timeout);
                         } else {
                             lblSpace.setText(null);
                             lblMessage.setText(null);
-                            Components.setTooltipText(lblMessage, null);
+                            Components.setToolTipText(lblMessage, null);
                             StatusBarMessageTimeoutThread.stopInstance();
                         }
                     }

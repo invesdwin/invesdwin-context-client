@@ -86,7 +86,7 @@ public class StatusBarTaskView extends AView<StatusBarTaskView, JPanel> implemen
                 tooltip.append("<hr>");
                 tooltip.append(foregroundTask.getDescription());
             }
-            Components.setTooltipText(lblForegroundTask, tooltip.toString());
+            Components.setToolTipText(lblForegroundTask, tooltip.toString());
 
             if (foregroundTask.isProgressPropertyValid()) {
                 pgbForegroundTask.setIndeterminate(false);
@@ -97,10 +97,10 @@ public class StatusBarTaskView extends AView<StatusBarTaskView, JPanel> implemen
             pnlProgress.setVisible(true);
         } else {
             lblForegroundTask.setText(null);
-            Components.setTooltipText(lblForegroundTask, null);
+            Components.setToolTipText(lblForegroundTask, null);
             pnlProgress.setVisible(false);
         }
-        Components.setTooltipText(pgbForegroundTask, lblForegroundTask.getToolTipText());
+        Components.setToolTipText(pgbForegroundTask, lblForegroundTask.getToolTipText());
     }
 
     @EventDispatchThread(InvocationType.INVOKE_AND_WAIT)
@@ -123,10 +123,10 @@ public class StatusBarTaskView extends AView<StatusBarTaskView, JPanel> implemen
                     tooltip.append("<br>");
                 }
             }
-            Components.setTooltipText(lblTasks, tooltip.toString());
+            Components.setToolTipText(lblTasks, tooltip.toString());
         } else {
             lblTasks.setText(null);
-            Components.setTooltipText(lblTasks, null);
+            Components.setToolTipText(lblTasks, null);
         }
     }
 

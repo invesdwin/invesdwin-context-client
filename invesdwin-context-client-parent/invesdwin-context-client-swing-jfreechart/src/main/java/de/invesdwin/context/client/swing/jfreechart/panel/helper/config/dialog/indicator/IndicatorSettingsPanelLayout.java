@@ -26,7 +26,7 @@ public class IndicatorSettingsPanelLayout extends JPanel {
         for (int i = 0; i < modifiers.length; i++) {
             final IParameterSettingsModifier modifier = modifiers[i];
             final JLabel label = new JLabel(modifier.getParameter().getName());
-            Components.setTooltipText(label, modifier.getParameter().getDescription());
+            Components.setToolTipText(label, modifier.getParameter().getDescription());
             add(label);
             final JComponent modifierComponent = modifier.getComponent();
             add(modifierComponent);
