@@ -256,22 +256,34 @@ public abstract class AComponentBinding<C extends JComponent, V> implements ICom
             setEnabled(element.isEnabled(target));
             Components.setVisible(component, element.isVisible(target));
 
-            if (showingInvalidMessage != null) {
-                Components.setBorder(component, INVALID_MESSAGE_BORDER);
-                String combinedTooltip = bindingGroup.i18n(element.getTooltip(target));
-                if (Strings.isNotBlank(combinedTooltip)) {
-                    combinedTooltip += "\n\n" + showingInvalidMessage;
-                } else {
-                    combinedTooltip = showingInvalidMessage;
-                }
-                Components.setToolTipText(component, combinedTooltip);
-            } else {
-                Components.setBorder(component, originalBorder);
-                Components.setToolTipText(component, bindingGroup.i18n(element.getTooltip(target)));
-            }
+            updateValidation(target);
         } finally {
             updating = false;
         }
+    }
+
+    protected void updateValidation(final Object target) {
+        if (showingInvalidMessage != null) {
+            setBorder(INVALID_MESSAGE_BORDER);
+            String combinedToolTip = bindingGroup.i18n(element.getTooltip(target));
+            if (Strings.isNotBlank(combinedToolTip)) {
+                combinedToolTip += "\n\n" + showingInvalidMessage;
+            } else {
+                combinedToolTip = showingInvalidMessage;
+            }
+            setToolTipText(combinedToolTip);
+        } else {
+            setBorder(originalBorder);
+            setToolTipText(bindingGroup.i18n(element.getTooltip(target)));
+        }
+    }
+
+    protected void setBorder(final Border border) {
+        Components.setBorder(component, border);
+    }
+
+    protected void setToolTipText(final String toolTipText) {
+        Components.setToolTipText(component, toolTipText);
     }
 
     protected void setEnabled(final boolean enabled) {

@@ -44,4 +44,9 @@ public class LabelTitleBinding extends LabelBinding {
         return modifier;
     }
 
+    @Override
+    protected void updateValidation(final Object target) {
+        //noop, the actual component has the tooltip and border
+    }
+
 }
