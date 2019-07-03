@@ -6,7 +6,6 @@ import java.util.List;
 import javax.annotation.concurrent.ThreadSafe;
 import javax.inject.Inject;
 import javax.swing.Icon;
-import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -19,6 +18,7 @@ import org.jdesktop.application.SingleFrameApplication;
 
 import de.invesdwin.context.client.swing.api.AView;
 import de.invesdwin.context.client.swing.api.IRichApplication;
+import de.invesdwin.context.client.swing.api.guiservice.GuiService;
 import de.invesdwin.context.client.swing.api.menu.IMenuBarConfig;
 import de.invesdwin.context.client.swing.api.menu.MenuBarConfigSupport;
 import de.invesdwin.context.client.swing.api.menu.OpenViewMenuItem;
@@ -162,7 +162,6 @@ public class MenuBarView extends AView<MenuBarView, JMenuBar> {
     public void about() {
         final SingleFrameApplication app = (SingleFrameApplication) Application.getInstance();
         final ResourceMap resourceMap = app.getContext().getResourceMap();
-        final JFrame frame = app.getMainFrame();
         final Icon icon = resourceMap.getIcon("Application.icon");
         final String title = (String) getActionMap().get("about").getValue(javax.swing.Action.NAME);
 
@@ -180,7 +179,7 @@ public class MenuBarView extends AView<MenuBarView, JMenuBar> {
         message.append("\">");
         message.append(homepage);
         message.append("</a></center></body></html>");
-        Dialogs.showMessageDialog(frame, message, title, Dialogs.INFORMATION_MESSAGE, icon);
+        Dialogs.showMessageDialog(GuiService.get().getWindow(), message, title, Dialogs.INFORMATION_MESSAGE, icon);
     }
 
 }

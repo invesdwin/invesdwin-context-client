@@ -6,6 +6,7 @@ import java.util.MissingResourceException;
 import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.context.client.swing.api.guiservice.GuiService;
+import de.invesdwin.context.client.swing.util.Views;
 import de.invesdwin.norva.beanpath.spi.element.IBeanPathElement;
 import de.invesdwin.util.lang.Strings;
 import de.invesdwin.util.swing.Dialogs;
@@ -54,7 +55,7 @@ public class DefaultSubmitButtonExceptionHandler implements ISubmitButtonExcepti
 
     protected void showExceptionMessage(final IBeanPathElement element, final Component component, final Throwable t,
             final String title, final String message) {
-        Dialogs.showMessageDialog(component, message, title, Dialogs.ERROR_MESSAGE);
+        Dialogs.showMessageDialog(Views.getRootComponentInDockable(component), message, title, Dialogs.ERROR_MESSAGE);
     }
 
     public void logShowExceptionMessage(final Throwable t) {
