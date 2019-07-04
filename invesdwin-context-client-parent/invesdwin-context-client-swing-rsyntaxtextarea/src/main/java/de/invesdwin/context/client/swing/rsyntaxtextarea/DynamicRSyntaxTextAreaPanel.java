@@ -1,7 +1,6 @@
 package de.invesdwin.context.client.swing.rsyntaxtextarea;
 
 import java.awt.BorderLayout;
-import java.awt.Dimension;
 import java.awt.Window;
 import java.awt.event.ComponentEvent;
 
@@ -17,6 +16,7 @@ import org.fife.ui.rtextarea.RTextScrollPane;
 
 import de.invesdwin.context.client.swing.rsyntaxtextarea.expression.ExpressionTokenMaker;
 import de.invesdwin.util.math.Integers;
+import de.invesdwin.util.swing.Components;
 import de.invesdwin.util.swing.listener.ComponentListenerSupport;
 import de.invesdwin.util.swing.listener.DocumentListenerSupport;
 
@@ -52,12 +52,12 @@ public class DynamicRSyntaxTextAreaPanel extends JPanel {
         scrollPane.getHorizontalScrollBar().addComponentListener(new ComponentListenerSupport() {
             @Override
             public void componentShown(final ComponentEvent e) {
-                pack();
+                Components.packHeight(window);
             }
 
             @Override
             public void componentHidden(final ComponentEvent e) {
-                pack();
+                Components.packHeight(window);
             }
         });
         add(scrollPane, BorderLayout.CENTER);
@@ -79,7 +79,7 @@ public class DynamicRSyntaxTextAreaPanel extends JPanel {
                     } else {
                         scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
                     }
-                    pack();
+                    Components.packHeight(window);
                 }
             }
 
@@ -88,17 +88,6 @@ public class DynamicRSyntaxTextAreaPanel extends JPanel {
 
     protected String getSyntaxEditingStyle() {
         return ExpressionTokenMaker.getSyntaxStyle();
-    }
-
-    private void pack() {
-        if (window != null) {
-            synchronized (this) {
-                final Dimension minimumSizeBefore = window.getMinimumSize();
-                window.setMinimumSize(new Dimension(window.getWidth(), 1));
-                window.pack();
-                window.setMinimumSize(minimumSizeBefore);
-            }
-        }
     }
 
     protected int getMinRows() {

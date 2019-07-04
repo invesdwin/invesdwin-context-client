@@ -49,4 +49,9 @@ public class LabelTitleBinding extends LabelBinding {
         //noop, the actual component has the tooltip and border
     }
 
+    @Override
+    protected void setEnabled(final boolean enabled) {
+        //noop
+    }
+
 }
