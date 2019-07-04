@@ -1,9 +1,11 @@
 package de.invesdwin.context.client.swing.api.binding.component;
 
+import java.awt.Color;
 import java.awt.event.FocusEvent;
 import java.util.Optional;
 
 import javax.annotation.concurrent.NotThreadSafe;
+import javax.swing.UIManager;
 import javax.swing.text.JTextComponent;
 
 import de.invesdwin.context.client.swing.api.binding.BindingGroup;
@@ -24,6 +26,7 @@ public class TextComponentBinding extends AComponentBinding<JTextComponent, Obje
 
     private final IConverter<Object, String> converter;
     private Optional<String> prevComponentValue;
+    private final Color originalBackground;
 
     public TextComponentBinding(final JTextComponent component, final APropertyBeanPathElement element,
             final BindingGroup bindingGroup) {
@@ -37,6 +40,7 @@ public class TextComponentBinding extends AComponentBinding<JTextComponent, Obje
                 }
             });
         }
+        this.originalBackground = component.getBackground();
     }
 
     @Override
@@ -84,6 +88,15 @@ public class TextComponentBinding extends AComponentBinding<JTextComponent, Obje
     @Override
     protected void setEnabled(final boolean enabled) {
         Components.setEditable(component, enabled);
+        if (enabled) {
+            if (originalBackground == null) {
+                Components.setBackground(component, UIManager.getColor("TextField.background"));
+            } else {
+                Components.setBackground(component, originalBackground);
+            }
+        } else {
+            Components.setBackground(component, UIManager.getColor("TextField.inactiveBackground"));
+        }
     }
 
 }
