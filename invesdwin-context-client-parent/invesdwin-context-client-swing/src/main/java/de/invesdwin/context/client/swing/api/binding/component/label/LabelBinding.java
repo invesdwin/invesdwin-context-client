@@ -16,6 +16,7 @@ import de.invesdwin.norva.beanpath.impl.clazz.BeanClassType;
 import de.invesdwin.norva.beanpath.spi.element.APropertyBeanPathElement;
 import de.invesdwin.norva.beanpath.spi.element.simple.modifier.IBeanPathPropertyModifier;
 import de.invesdwin.util.lang.Objects;
+import de.invesdwin.util.swing.Components;
 
 @NotThreadSafe
 public class LabelBinding extends AComponentBinding<JLabel, Object> {
@@ -47,7 +48,7 @@ public class LabelBinding extends AComponentBinding<JLabel, Object> {
         final String convertedValue = converter.fromModelToComponent(modelValue);
         final String newComponentValue = bindingGroup.i18n(convertedValue);
         if (prevComponentValue == null || !Objects.equals(newComponentValue, prevComponentValue.orElse(null))) {
-            component.setText(newComponentValue);
+            Components.setText(component, newComponentValue);
             prevComponentValue = Optional.ofNullable(newComponentValue);
             return Optional.ofNullable(modelValue);
         } else {

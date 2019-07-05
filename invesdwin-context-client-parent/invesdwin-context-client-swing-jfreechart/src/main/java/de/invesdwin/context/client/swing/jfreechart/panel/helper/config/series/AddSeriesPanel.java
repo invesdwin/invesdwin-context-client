@@ -26,7 +26,6 @@ import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.SeriesRe
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.series.expression.IExpressionSeriesProvider;
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.series.indicator.IIndicatorSeriesProvider;
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.IPlotSourceDataset;
-import de.invesdwin.context.client.swing.rsyntaxtextarea.DynamicRSyntaxTextAreaPanel;
 import de.invesdwin.util.concurrent.MutableReference;
 import de.invesdwin.util.error.Throwables;
 import de.invesdwin.util.lang.Strings;
@@ -223,13 +222,12 @@ public class AddSeriesPanel extends JPanel {
     }
 
     private void validateExpressionAdd(final PlotConfigurationHelper plotConfigurationHelper) {
-        validateExpressionAdd(layout.lbl_expression, layout.tf_expression,
-                plotConfigurationHelper.getExpressionSeriesProvider());
+        final String expression = layout.tf_expression.textArea.getText();
+        validateExpressionAdd(layout.lbl_expression, expression, plotConfigurationHelper.getExpressionSeriesProvider());
     }
 
-    public static void validateExpressionAdd(final JLabel lbl_expression,
-            final DynamicRSyntaxTextAreaPanel tf_expression, final IExpressionSeriesProvider provider) {
-        final String expression = tf_expression.textArea.getText();
+    public static void validateExpressionAdd(final JLabel lbl_expression, final String expression,
+            final IExpressionSeriesProvider provider) {
         if (Strings.isNotBlank(expression)) {
             try {
                 final IExpression parsedExpression = provider.parseExpression(expression);

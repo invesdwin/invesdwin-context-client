@@ -22,7 +22,6 @@ import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.series.A
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.series.expression.IExpressionSeriesProvider;
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.legend.HighlightedLegendInfo;
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.IPlotSourceDataset;
-import de.invesdwin.context.client.swing.rsyntaxtextarea.DynamicRSyntaxTextAreaPanel;
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.error.Throwables;
 import de.invesdwin.util.lang.Objects;
@@ -88,13 +87,13 @@ public class ExpressionSettingsPanel extends JPanel implements ISettingsPanelAct
     }
 
     private void validateExpressionEdit(final String originalExpression) {
-        validateExpressionEdit(layout.lbl_expression, layout.tf_expression, dataset.getExpressionSeriesProvider(),
+        final String newExpression = layout.tf_expression.textArea.getText();
+        validateExpressionEdit(layout.lbl_expression, newExpression, dataset.getExpressionSeriesProvider(),
                 originalExpression);
     }
 
-    public static void validateExpressionEdit(final JLabel lbl_expression, final DynamicRSyntaxTextAreaPanel tf_expression,
+    public static void validateExpressionEdit(final JLabel lbl_expression, final String newExpression,
             final IExpressionSeriesProvider provider, final String originalExpression) {
-        final String newExpression = getExpressionValue(tf_expression);
         if (provider != null && hasChanges(originalExpression, newExpression) && Strings.isNotBlank(newExpression)) {
             try {
                 final IExpression parsedExpression = provider.parseExpression(newExpression);
@@ -136,20 +135,12 @@ public class ExpressionSettingsPanel extends JPanel implements ISettingsPanelAct
 
     @Override
     public void ok() {
-        final String newExpression = getExpressionValue();
+        final String newExpression = layout.tf_expression.textArea.getText();
         if (hasChanges(dataset.getExpressionSeriesArguments(), newExpression)) {
             apply(newExpression);
         } else {
             layout.lbl_expression.setIcon(ICON_EXPRESSION);
         }
-    }
-
-    private String getExpressionValue() {
-        return getExpressionValue(layout.tf_expression);
-    }
-
-    private static String getExpressionValue(final DynamicRSyntaxTextAreaPanel tf_expression) {
-        return tf_expression.textArea.getText();
     }
 
     public void apply(final String toExpression) {

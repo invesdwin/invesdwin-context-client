@@ -7,6 +7,7 @@ import java.beans.PropertyChangeListener;
 import javax.annotation.concurrent.NotThreadSafe;
 import javax.swing.ActionMap;
 import javax.swing.JComponent;
+import javax.swing.KeyStroke;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.Document;
@@ -20,6 +21,8 @@ import de.invesdwin.aspects.annotation.EventDispatchThread;
 import de.invesdwin.aspects.annotation.EventDispatchThread.InvocationType;
 import de.invesdwin.context.beans.hook.IStartupHook;
 import de.invesdwin.util.bean.AValueObject;
+import de.invesdwin.util.swing.text.CompoundUndoManager;
+import de.invesdwin.util.swing.text.IUndoManagerAware;
 
 /**
  * Modeled after TextActions from BSAF.
@@ -27,12 +30,11 @@ import de.invesdwin.util.bean.AValueObject;
  * @author subes
  * 
  */
-@SuppressWarnings("serial")
 @NotThreadSafe
 public class UndoRedoActions extends AValueObject implements IStartupHook {
 
-    private static final String MARKER_ACTION_KEY = UndoRedoActions.class.getSimpleName() + ".markerAction";
-    private static final String UNDO_MANAGER_KEY = UndoRedoActions.class.getSimpleName() + ".undoManager";
+    private static final String KEY_MARKER_ACTION = UndoRedoActions.class.getSimpleName() + ".markerAction";
+    private static final String KEY_UNDO_MANAGER = UndoRedoActions.class.getSimpleName() + ".undoManager";
     private final javax.swing.Action markerAction = new javax.swing.AbstractAction() {
         @Override
         public void actionPerformed(final ActionEvent e) {}
@@ -115,37 +117,57 @@ public class UndoRedoActions extends AValueObject implements IStartupHook {
 
     private void maybeInstallUndoRedoActions(final JTextComponent text) {
         final ActionMap actionMap = text.getActionMap();
-        if (actionMap.get(MARKER_ACTION_KEY) == null) {
-            actionMap.put(MARKER_ACTION_KEY, markerAction);
+        if (actionMap.get(KEY_MARKER_ACTION) == null) {
+            actionMap.put(KEY_MARKER_ACTION, markerAction);
             final ActionMap undoRedoActions = Application.getInstance().getContext().getActionMap(this);
             for (final Object key : undoRedoActions.keys()) {
-                actionMap.put(key, undoRedoActions.get(key));
+                final javax.swing.Action action = undoRedoActions.get(key);
+                actionMap.put(key, action);
+                final KeyStroke keyStroke = (KeyStroke) action.getValue(javax.swing.Action.ACCELERATOR_KEY);
+                if (keyStroke != null) {
+                    text.getInputMap().put(keyStroke, key);
+                }
             }
         }
     }
 
     private UndoManager maybeInstallUndoManager(final JTextComponent text) {
         final Document document = text.getDocument();
-        UndoManager undoManager = (UndoManager) document.getProperty(UNDO_MANAGER_KEY);
-        if (undoManager == null) {
-            undoManager = new UndoManager();
-            document.putProperty(UNDO_MANAGER_KEY, undoManager);
-            document.addUndoableEditListener(undoManager);
+        final UndoManager undoManager = (UndoManager) document.getProperty(KEY_UNDO_MANAGER);
+        if (undoManager != null) {
+            return undoManager;
         }
-        return undoManager;
+        if (text instanceof IUndoManagerAware) {
+            final IUndoManagerAware aware = (IUndoManagerAware) text;
+            final UndoManager existingUndoManager = aware.getUndoManager();
+            if (!(existingUndoManager instanceof CompoundUndoManager) && aware.isUndoManagerReplaceable()) {
+                final CompoundUndoManager replacedUndoManager = new CompoundUndoManager();
+                aware.replaceUndoManager(replacedUndoManager);
+                document.putProperty(KEY_UNDO_MANAGER, replacedUndoManager);
+                return aware.getUndoManager();
+            } else {
+                document.putProperty(KEY_UNDO_MANAGER, existingUndoManager);
+                return existingUndoManager;
+            }
+        } else {
+            final CompoundUndoManager newUndoManager = new CompoundUndoManager();
+            document.putProperty(KEY_UNDO_MANAGER, newUndoManager);
+            document.addUndoableEditListener(newUndoManager);
+            return undoManager;
+        }
     }
 
     @Action(enabledProperty = "undoEnabled")
     public void undo() {
         final JTextComponent text = (JTextComponent) Application.getInstance().getContext().getFocusOwner();
-        final UndoManager undoManager = (UndoManager) text.getDocument().getProperty(UNDO_MANAGER_KEY);
+        final UndoManager undoManager = (UndoManager) text.getDocument().getProperty(KEY_UNDO_MANAGER);
         undoManager.undo();
     }
 
     @Action(enabledProperty = "redoEnabled")
     public void redo() {
         final JTextComponent text = (JTextComponent) Application.getInstance().getContext().getFocusOwner();
-        final UndoManager undoManager = (UndoManager) text.getDocument().getProperty(UNDO_MANAGER_KEY);
+        final UndoManager undoManager = (UndoManager) text.getDocument().getProperty(KEY_UNDO_MANAGER);
         undoManager.redo();
     }
 

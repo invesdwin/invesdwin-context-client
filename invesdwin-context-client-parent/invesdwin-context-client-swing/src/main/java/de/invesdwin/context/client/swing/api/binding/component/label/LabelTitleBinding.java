@@ -10,6 +10,7 @@ import de.invesdwin.context.client.swing.api.binding.BindingGroup;
 import de.invesdwin.norva.beanpath.spi.element.APropertyBeanPathElement;
 import de.invesdwin.norva.beanpath.spi.element.simple.modifier.IBeanPathPropertyModifier;
 import de.invesdwin.util.lang.Objects;
+import de.invesdwin.util.swing.Components;
 
 @NotThreadSafe
 public class LabelTitleBinding extends LabelBinding {
@@ -32,7 +33,7 @@ public class LabelTitleBinding extends LabelBinding {
     protected Optional<Object> fromModelToComponent(final Object modelValue) {
         if (prevModelValue == null || !Objects.equals(modelValue, prevModelValue.orElse(null))) {
             final String newComponentValue = (String) modelValue;
-            component.setText(newComponentValue);
+            Components.setText(component, newComponentValue);
             return Optional.ofNullable(modelValue);
         } else {
             return prevModelValue;

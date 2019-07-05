@@ -38,7 +38,10 @@ public class ExpressionValidatingParser extends AbstractParser {
         try (DocumentReader r = new DocumentReader(doc)) {
             try (Scanner scanner = new Scanner(r)) {
                 while (scanner.hasNextLine()) {
-                    expression.append(scanner.nextLine()).append("\n");
+                    if (expression.length() > 0) {
+                        expression.append("\n");
+                    }
+                    expression.append(scanner.nextLine());
                 }
             }
         }

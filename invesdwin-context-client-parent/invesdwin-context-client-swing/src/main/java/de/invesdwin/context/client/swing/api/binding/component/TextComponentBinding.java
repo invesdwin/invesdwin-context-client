@@ -6,6 +6,7 @@ import java.util.Optional;
 
 import javax.annotation.concurrent.NotThreadSafe;
 import javax.swing.UIManager;
+import javax.swing.event.DocumentEvent;
 import javax.swing.text.JTextComponent;
 
 import de.invesdwin.context.client.swing.api.binding.BindingGroup;
@@ -19,6 +20,7 @@ import de.invesdwin.norva.beanpath.spi.element.APropertyBeanPathElement;
 import de.invesdwin.norva.beanpath.spi.element.simple.modifier.IBeanPathPropertyModifier;
 import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.swing.Components;
+import de.invesdwin.util.swing.listener.DocumentListenerSupport;
 import de.invesdwin.util.swing.listener.FocusListenerSupport;
 
 @NotThreadSafe
@@ -36,6 +38,12 @@ public class TextComponentBinding extends AComponentBinding<JTextComponent, Obje
             component.addFocusListener(new FocusListenerSupport() {
                 @Override
                 public void focusLost(final FocusEvent e) {
+                    eagerSubmitRunnable.run();
+                }
+            });
+            component.getDocument().addDocumentListener(new DocumentListenerSupport() {
+                @Override
+                protected void update(final DocumentEvent e) {
                     eagerSubmitRunnable.run();
                 }
             });
@@ -65,7 +73,7 @@ public class TextComponentBinding extends AComponentBinding<JTextComponent, Obje
     protected Optional<Object> fromModelToComponent(final Object modelValue) {
         final String newComponentValue = converter.fromModelToComponent(modelValue);
         if (prevComponentValue == null || !Objects.equals(newComponentValue, prevComponentValue.orElse(null))) {
-            component.setText(newComponentValue);
+            Components.setText(component, newComponentValue); //need to double check edit because undo/redo might have modified this
             prevComponentValue = Optional.ofNullable(newComponentValue);
             return Optional.ofNullable(modelValue);
         } else {

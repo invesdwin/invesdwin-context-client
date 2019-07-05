@@ -14,6 +14,7 @@ import org.fife.ui.rsyntaxtextarea.RSyntaxTextArea;
 import org.fife.ui.rtextarea.CaretStyle;
 import org.fife.ui.rtextarea.RTextScrollPane;
 
+import de.invesdwin.context.client.swing.rsyntaxtextarea.expression.ExpressionRSyntaxTextArea;
 import de.invesdwin.context.client.swing.rsyntaxtextarea.expression.ExpressionTokenMaker;
 import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.swing.Components;
@@ -25,7 +26,7 @@ public class DynamicRSyntaxTextAreaPanel extends JPanel {
 
     private static final int MIN_COLUMNS = 1;
     //CHECKSTYLE:OFF
-    public final RSyntaxTextArea textArea;
+    public final ExpressionRSyntaxTextArea textArea;
     public final RTextScrollPane scrollPane;
     //CHECKSTYLE:OFF
     private final Window window;
@@ -33,7 +34,7 @@ public class DynamicRSyntaxTextAreaPanel extends JPanel {
     public DynamicRSyntaxTextAreaPanel(final Window window) {
         this.window = window;
         setLayout(new BorderLayout());
-        textArea = new RSyntaxTextArea();
+        textArea = new ExpressionRSyntaxTextArea();
         textArea.setRows(getMinRows());
         textArea.setColumns(MIN_COLUMNS);
         textArea.setBorder(new JTextField().getBorder());

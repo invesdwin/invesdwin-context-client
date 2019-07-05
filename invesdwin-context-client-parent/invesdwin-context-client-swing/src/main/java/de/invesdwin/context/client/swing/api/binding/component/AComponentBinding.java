@@ -222,7 +222,12 @@ public abstract class AComponentBinding<C extends JComponent, V> implements ICom
         if (!isModifiable()) {
             return;
         }
-        if (!submitted && invalidMessage == null) {
+        if (!submitted) {
+            return;
+        }
+        if (invalidMessage == null) {
+            //keep valid values, only roll back issues
+            commit();
             return;
         }
         final AModel model = bindingGroup.getModel();
