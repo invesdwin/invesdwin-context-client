@@ -29,6 +29,8 @@ public class TextComponentBinding extends AComponentBinding<JTextComponent, Obje
     private final IConverter<Object, String> converter;
     private Optional<String> prevComponentValue;
     private final Color originalBackground;
+    private boolean isFocusOwner = false;
+    private boolean isSettingText = false;
 
     public TextComponentBinding(final JTextComponent component, final APropertyBeanPathElement element,
             final BindingGroup bindingGroup) {
@@ -37,18 +39,30 @@ public class TextComponentBinding extends AComponentBinding<JTextComponent, Obje
         if (eagerSubmitRunnable != null) {
             component.addFocusListener(new FocusListenerSupport() {
                 @Override
+                public void focusGained(final FocusEvent e) {
+                    isFocusOwner = true;
+                }
+
+                @Override
                 public void focusLost(final FocusEvent e) {
-                    eagerSubmitRunnable.run();
+                    try {
+                        eagerSubmitRunnable.run();
+                    } finally {
+                        isFocusOwner = false;
+                    }
                 }
             });
             component.getDocument().addDocumentListener(new DocumentListenerSupport() {
                 @Override
                 protected void update(final DocumentEvent e) {
-                    eagerSubmitRunnable.run();
+                    if (!isFocusOwner && !isSettingText) {
+                        eagerSubmitRunnable.run();
+                    }
                 }
             });
         }
         this.originalBackground = component.getBackground();
+
     }
 
     @Override
@@ -73,7 +87,12 @@ public class TextComponentBinding extends AComponentBinding<JTextComponent, Obje
     protected Optional<Object> fromModelToComponent(final Object modelValue) {
         final String newComponentValue = converter.fromModelToComponent(modelValue);
         if (prevComponentValue == null || !Objects.equals(newComponentValue, prevComponentValue.orElse(null))) {
-            Components.setText(component, newComponentValue); //need to double check edit because undo/redo might have modified this
+            isSettingText = true;
+            try {
+                Components.setText(component, newComponentValue); //need to double check edit because undo/redo might have modified this
+            } finally {
+                isSettingText = false;
+            }
             prevComponentValue = Optional.ofNullable(newComponentValue);
             return Optional.ofNullable(modelValue);
         } else {
