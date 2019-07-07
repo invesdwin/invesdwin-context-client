@@ -26,7 +26,7 @@ import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.SeriesRe
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.series.expression.IExpressionSeriesProvider;
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.series.indicator.IIndicatorSeriesProvider;
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.IPlotSourceDataset;
-import de.invesdwin.util.concurrent.MutableReference;
+import de.invesdwin.util.concurrent.reference.MutableReference;
 import de.invesdwin.util.error.Throwables;
 import de.invesdwin.util.lang.Strings;
 import de.invesdwin.util.math.expression.AExpressionVisitor;
