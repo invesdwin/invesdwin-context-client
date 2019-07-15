@@ -153,7 +153,7 @@ public class UndoRedoActions extends AValueObject implements IStartupHook {
             final CompoundUndoManager newUndoManager = new CompoundUndoManager();
             document.putProperty(KEY_UNDO_MANAGER, newUndoManager);
             document.addUndoableEditListener(newUndoManager);
-            return undoManager;
+            return newUndoManager;
         }
     }
 
