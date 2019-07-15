@@ -9,7 +9,7 @@ import javax.swing.JComponent;
 import bibliothek.gui.dock.common.DefaultSingleCDockable;
 import de.invesdwin.context.client.swing.api.AView;
 import de.invesdwin.context.client.swing.api.IDockable;
-import de.invesdwin.util.swing.Components;
+import de.invesdwin.util.swing.AComponentFinder;
 
 @NotThreadSafe
 public class ContentPaneDockable extends DefaultSingleCDockable implements IDockable {
@@ -39,7 +39,7 @@ public class ContentPaneDockable extends DefaultSingleCDockable implements IDock
             return focusComponent;
         } else {
             //fallback
-            return Components.DEFAULT_FOCUS_FINDER.find(getComponent());
+            return AComponentFinder.DEFAULT_FOCUS.find(getComponent());
         }
     }
 
