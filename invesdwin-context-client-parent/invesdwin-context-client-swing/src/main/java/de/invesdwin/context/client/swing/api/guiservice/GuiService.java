@@ -21,6 +21,8 @@ import de.invesdwin.aspects.annotation.EventDispatchThread;
 import de.invesdwin.aspects.annotation.EventDispatchThread.InvocationType;
 import de.invesdwin.context.beans.init.MergedContext;
 import de.invesdwin.context.client.swing.api.AView;
+import de.invesdwin.context.client.swing.api.guiservice.dialog.DialogDockable;
+import de.invesdwin.context.client.swing.impl.content.DockableIdGenerator;
 import de.invesdwin.context.client.swing.util.SubmitAllViewsHelper;
 import de.invesdwin.context.client.swing.util.UpdateAllViewsHelper;
 import de.invesdwin.util.swing.Dialogs;
@@ -28,7 +30,7 @@ import de.invesdwin.util.swing.Dialogs;
 @ThreadSafe
 public class GuiService implements IGuiService {
 
-    private final Stack<JDialog> dialogs = new Stack<JDialog>();
+    private final Stack<DialogDockable> dialogs = new Stack<DialogDockable>();
 
     @Inject
     private StatusBar statusBar;
@@ -64,7 +66,8 @@ public class GuiService implements IGuiService {
     @Override
     public void hideModalView() {
         if (isModalViewShowing()) {
-            final JDialog dialog = dialogs.pop();
+            final DialogDockable dialog = dialogs.pop();
+            dialog.getView().setDockable(null);
             dialog.dispose();
         }
     }
@@ -77,7 +80,7 @@ public class GuiService implements IGuiService {
     @Override
     public void showModalView(final AView<?, ?> view, final Dimension dimension) {
         final Window window = getWindow();
-        final JDialog dialog = new JDialog(window);
+        final DialogDockable dialog = new DialogDockable(DockableIdGenerator.newId(view), window);
         dialog.setModal(true);
         dialogs.push(dialog);
         final Container contentPane = dialog.getContentPane();
@@ -85,6 +88,7 @@ public class GuiService implements IGuiService {
         contentPane.add(view.getComponent());
         dialog.setTitle(view.getTitle());
         dialog.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
+        view.setDockable(dialog);
         dialog.pack();
         if (dimension != null) {
             dialog.setSize(dimension);

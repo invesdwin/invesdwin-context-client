@@ -16,7 +16,7 @@ import bibliothek.gui.dock.common.intern.CDockable;
 import de.invesdwin.aspects.annotation.EventDispatchThread;
 import de.invesdwin.aspects.annotation.EventDispatchThread.InvocationType;
 import de.invesdwin.context.client.swing.api.AView;
-import de.invesdwin.context.client.swing.api.DockableContent;
+import de.invesdwin.context.client.swing.api.IDockable;
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.collections.loadingcache.ALoadingCache;
 import de.invesdwin.util.lang.Objects;
@@ -49,7 +49,7 @@ public class ContentPane {
             Assertions.assertThat(id_visibleView.remove(view.getDockableUniqueId())).isNotNull();
             Assertions.assertThat(class_id_visibleView.get(view.getClass()).remove(view.getDockableUniqueId()))
                     .isNotNull();
-            view.setDockable(ContentPane.this, null);
+            view.setDockable(null);
         }
     }
 
@@ -74,7 +74,7 @@ public class ContentPane {
     }
 
     @EventDispatchThread(InvocationType.INVOKE_AND_WAIT)
-    public boolean containsDockable(final DockableContent dockable) {
+    public boolean containsDockable(final IDockable dockable) {
         return id_visibleView.containsKey(dockable.getUniqueId());
     }
 
@@ -100,14 +100,14 @@ public class ContentPane {
     @EventDispatchThread(InvocationType.INVOKE_AND_WAIT)
     public void showView(final AView<?, ?> view) {
         if (containsView(view)) {
-            final DockableContent dockable = view.getDockable();
-            dockable.toFront(dockable.getFocusComponent());
+            final IDockable dockable = view.getDockable();
+            dockable.requestFocus();
         } else {
             final AView<?, ?> existingView = findViewWithEqualModel(view);
             if (existingView != null) {
                 view.replaceView(existingView);
-                final DockableContent dockable = view.getDockable();
-                dockable.toFront(dockable.getFocusComponent());
+                final IDockable dockable = view.getDockable();
+                dockable.requestFocus();
             } else {
                 addView(view);
             }
@@ -130,10 +130,10 @@ public class ContentPane {
         Assertions.assertThat(containsView(view))
                 .as("View [%s] is already being displayed.", view.getDockableUniqueId())
                 .isFalse();
-        final DockableContent content = contentPaneView.addView(ContentPane.this, view);
+        final IDockable content = contentPaneView.addView(view);
         Assertions.assertThat(id_visibleView.put(content.getUniqueId(), view)).isNull();
         Assertions.assertThat(class_id_visibleView.get(view.getClass()).put(content.getUniqueId(), view)).isNull();
-        view.setDockable(ContentPane.this, content);
+        view.setDockable(content);
     }
 
 }

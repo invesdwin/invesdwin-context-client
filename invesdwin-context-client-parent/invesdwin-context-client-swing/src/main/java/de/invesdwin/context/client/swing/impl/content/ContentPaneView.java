@@ -22,7 +22,7 @@ import bibliothek.gui.dock.common.mode.ExtendedMode;
 import bibliothek.gui.dock.control.focus.DefaultFocusRequest;
 import de.invesdwin.aspects.EventDispatchThreadUtil;
 import de.invesdwin.context.client.swing.api.AView;
-import de.invesdwin.context.client.swing.api.DockableContent;
+import de.invesdwin.context.client.swing.api.IDockable;
 import de.invesdwin.context.client.swing.api.guiservice.ContentPane;
 import de.invesdwin.context.client.swing.api.guiservice.GuiService;
 import de.invesdwin.util.assertions.Assertions;
@@ -75,16 +75,17 @@ public class ContentPaneView extends AView<ContentPaneView, JPanel> {
         return panel;
     }
 
-    public DockableContent addView(final ContentPane contentPane, final AView<?, ?> view) {
+    public IDockable addView(final AView<?, ?> view) {
         if (control == null) {
             Assertions.checkNotNull(getComponent());
         }
-        final String uniqueId = DockableContentIdGenerator.newId(view);
+        final String uniqueId = DockableIdGenerator.newId(view);
         String title = view.getTitle();
         if (title == null) {
             title = uniqueId;
         }
-        final DockableContent dockable = new DockableContent(uniqueId, view.getIcon(), title, view.getComponent());
+        final ContentPaneDockable dockable = new ContentPaneDockable(uniqueId, view.getIcon(), title,
+                view.getComponent());
         dockable.setTitleToolTip(view.getDescription());
         defaultWorkingArea.show(dockable);
         return dockable;
@@ -94,7 +95,7 @@ public class ContentPaneView extends AView<ContentPaneView, JPanel> {
         if (control == null) {
             return false;
         }
-        final boolean removed = control.removeDockable(view.getDockable());
+        final boolean removed = control.removeDockable((ContentPaneDockable) view.getDockable());
         if (removed) {
             updateFocusViaHistory();
         }

@@ -8,6 +8,7 @@ import javax.swing.JComponent;
 
 import bibliothek.gui.dock.util.BackgroundPanel;
 import de.invesdwin.context.client.swing.api.AView;
+import de.invesdwin.context.client.swing.api.IDockable;
 
 @Immutable
 public final class Views {
@@ -32,7 +33,10 @@ public final class Views {
     }
 
     public static AView<?, ?> getViewAt(final Component component) {
-        if (component instanceof JComponent) {
+        if (component instanceof IDockable) {
+            final IDockable dockable = (IDockable) component;
+            return dockable.getView();
+        } else if (component instanceof JComponent) {
             final JComponent container = (JComponent) component;
             final AView<?, ?> view = (AView<?, ?>) container.getClientProperty(AView.CLIENTPROP_VIEW_INSTANCE);
             return view;

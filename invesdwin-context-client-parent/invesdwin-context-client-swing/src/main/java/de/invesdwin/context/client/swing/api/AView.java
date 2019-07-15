@@ -10,7 +10,6 @@ import javax.swing.JComponent;
 import de.invesdwin.aspects.EventDispatchThreadUtil;
 import de.invesdwin.context.client.swing.api.binding.BindingGroup;
 import de.invesdwin.context.client.swing.api.binding.GeneratedBindingGroup;
-import de.invesdwin.context.client.swing.api.guiservice.ContentPane;
 import de.invesdwin.context.client.swing.util.AViewVisitor;
 import de.invesdwin.context.client.swing.util.ComponentStandardizer;
 import de.invesdwin.context.client.swing.util.Views;
@@ -38,7 +37,7 @@ public abstract class AView<M extends AModel, C extends JComponent> extends AMod
     private BindingGroup bindingGroup;
     private final Object dockableLock = new Object();
     @GuardedBy("dockableLock")
-    private DockableContent dockable;
+    private IDockable dockable;
 
     @SuppressWarnings("unchecked")
     public AView() {
@@ -154,7 +153,7 @@ public abstract class AView<M extends AModel, C extends JComponent> extends AMod
     }
 
     @Hidden(skip = true)
-    public DockableContent getDockable() {
+    public IDockable getDockable() {
         synchronized (dockableLock) {
             return dockable;
         }
@@ -163,11 +162,12 @@ public abstract class AView<M extends AModel, C extends JComponent> extends AMod
     /**
      * This method may only be called by the ContentPane class.
      */
-    public void setDockable(final ContentPane contentPane, final DockableContent dockable) {
+    public void setDockable(final IDockable dockable) {
         synchronized (dockableLock) {
             if (this.dockable == null) {
                 Assertions.assertThat(dockable.getComponent()).isSameAs(getComponent());
                 this.dockable = dockable;
+                dockable.setView(this);
                 new AViewVisitor() {
                     @Override
                     protected void visit(final AView<?, ?> view) {
@@ -177,6 +177,7 @@ public abstract class AView<M extends AModel, C extends JComponent> extends AMod
             } else {
                 Assertions.assertThat(dockable).as("A View instance can only be made visible once.").isNull();
                 this.dockable = null;
+                dockable.setView(null);
                 new AViewVisitor() {
                     @Override
                     protected void visit(final AView<?, ?> view) {
@@ -195,6 +196,7 @@ public abstract class AView<M extends AModel, C extends JComponent> extends AMod
                 this.dockable = existingView.dockable;
                 existingView.dockable = null;
                 //replace dockable content
+                this.dockable.setView(this);
                 this.dockable.setComponent(getComponent());
                 //close existing view
                 new AViewVisitor() {

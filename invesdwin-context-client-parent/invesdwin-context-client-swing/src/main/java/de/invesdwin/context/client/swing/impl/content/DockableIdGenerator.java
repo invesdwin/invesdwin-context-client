@@ -8,7 +8,7 @@ import de.invesdwin.context.client.swing.api.AView;
 import de.invesdwin.util.collections.loadingcache.ALoadingCache;
 
 @ThreadSafe
-public final class DockableContentIdGenerator {
+public final class DockableIdGenerator {
 
     @SuppressWarnings("rawtypes")
     private static final ALoadingCache<Class<? extends AView>, AtomicInteger> CLASS_SEQUENCENUMBER = new ALoadingCache<Class<? extends AView>, AtomicInteger>() {
@@ -18,7 +18,7 @@ public final class DockableContentIdGenerator {
         }
     };
 
-    private DockableContentIdGenerator() {}
+    private DockableIdGenerator() {}
 
     /**
      * Generates IDs in the schema of [ClassFQN]_[SequenceNumber].
