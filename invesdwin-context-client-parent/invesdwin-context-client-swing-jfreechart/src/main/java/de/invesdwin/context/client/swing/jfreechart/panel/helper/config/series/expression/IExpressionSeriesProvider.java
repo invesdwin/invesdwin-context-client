@@ -44,6 +44,7 @@ public interface IExpressionSeriesProvider {
         ac.setListCellRenderer(new ExpressionCompletionCellRenderer());
         ac.setShowDescWindow(true);
         ac.setParameterAssistanceEnabled(true);
+        ac.setAutoCompleteSingleChoices(false);
         return ac;
     }
 

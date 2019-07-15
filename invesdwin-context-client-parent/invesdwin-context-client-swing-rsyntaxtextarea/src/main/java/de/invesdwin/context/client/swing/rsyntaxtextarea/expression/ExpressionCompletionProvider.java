@@ -2,7 +2,9 @@ package de.invesdwin.context.client.swing.rsyntaxtextarea.expression;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -13,6 +15,7 @@ import javax.swing.text.JTextComponent;
 import org.fife.ui.autocomplete.Completion;
 import org.fife.ui.autocomplete.DefaultCompletionProvider;
 import org.fife.ui.autocomplete.ParameterizedCompletion.Parameter;
+import org.fife.ui.autocomplete.Util;
 
 import de.invesdwin.context.client.swing.rsyntaxtextarea.expression.completion.AliasedFunctionCompletion;
 import de.invesdwin.context.client.swing.rsyntaxtextarea.expression.completion.AliasedVariableCompletion;
@@ -27,6 +30,7 @@ import de.invesdwin.util.math.expression.variable.IVariable;
 public class ExpressionCompletionProvider extends DefaultCompletionProvider {
 
     private final Map<String, IAliasedCompletion> alias_completion = new HashMap<>();
+    private final List<String> aliases = new ArrayList<>();
 
     @Override
     protected boolean isValidChar(final char ch) {
@@ -91,12 +95,22 @@ public class ExpressionCompletionProvider extends DefaultCompletionProvider {
         addCompletions(name_completion.values(), alias_completion);
     }
 
+    @SuppressWarnings("unchecked")
     public void addCompletions(final Collection<? extends Completion> completions,
             final Map<String, IAliasedCompletion> alias_completion) {
-        for (final Completion completion : completions) {
-            addCompletion(completion);
-        }
+        this.completions.addAll(completions);
+        Collections.sort(this.completions);
         this.alias_completion.putAll(alias_completion);
+        this.aliases.clear();
+        this.aliases.addAll(this.alias_completion.keySet());
+        Collections.sort(this.aliases, comparator);
+    }
+
+    @Override
+    public void clear() {
+        super.clear();
+        alias_completion.clear();
+        aliases.clear();
     }
 
     public Parameter newParameter(final String expressionName, final String description, final String type) {
@@ -134,18 +148,65 @@ public class ExpressionCompletionProvider extends DefaultCompletionProvider {
         return sb.toString();
     }
 
-    private List<Completion> maybeAddAliasCompletion(final String inputText, final List<Completion> normalCompletions) {
-        final IAliasedCompletion alias = alias_completion.get(inputText);
-        if (alias != null) {
-            final int indexOfAlias = normalCompletions.indexOf(alias);
-            final List<Completion> extendedCompletions = new ArrayList<>(normalCompletions);
-            extendedCompletions.add(0, alias.asAliasedReference(inputText));
-            if (indexOfAlias < 0) {
-                extendedCompletions.add(alias);
+    protected List<Completion> maybeAddAliasCompletion(final String inputText,
+            final List<Completion> normalCompletions) {
+        if (normalCompletions.isEmpty()) {
+            return getAliasCompletionByInputText(inputText);
+        } else {
+            final IAliasedCompletion alias = alias_completion.get(inputText);
+            if (alias != null) {
+                final int indexOfAlias = normalCompletions.indexOf(alias);
+                final List<Completion> extendedCompletions = new ArrayList<>(normalCompletions);
+                extendedCompletions.add(0, alias.asAliasedReference(inputText));
+                if (indexOfAlias < 0) {
+                    extendedCompletions.add(alias);
+                }
+                return extendedCompletions;
             }
-            return extendedCompletions;
+            return normalCompletions;
         }
-        return normalCompletions;
+    }
+
+    @SuppressWarnings("unchecked")
+    protected List<Completion> getAliasCompletionByInputText(final String inputText) {
+        final Set<String> duplicateReferenceFilter = new HashSet<>();
+        final List<Completion> list = new ArrayList<>();
+
+        int index = Collections.binarySearch(aliases, inputText, comparator);
+        if (index < 0) { // No exact match
+            index = -index - 1;
+        } else {
+            // If there are several overloads for the function being
+            // completed, Collections.binarySearch() will return the index
+            // of one of those overloads, but we must return all of them,
+            // so search backward until we find the first one.
+            int pos = index - 1;
+            while (pos > 0 && comparator.compare(aliases.get(pos), inputText) == 0) {
+                addAliasedReference(aliases.get(pos), list, duplicateReferenceFilter);
+                pos--;
+            }
+        }
+
+        while (index < aliases.size()) {
+            final String alias = aliases.get(index);
+            if (Util.startsWithIgnoreCase(alias, inputText)) {
+                addAliasedReference(alias, list, duplicateReferenceFilter);
+                index++;
+            } else {
+                break;
+            }
+        }
+
+        return list;
+    }
+
+    private void addAliasedReference(final String alias, final List<Completion> list,
+            final Set<String> duplicateReferenceFilter) {
+        final IAliasedCompletion reference = alias_completion.get(alias);
+        list.add(reference.asAliasedReference(alias));
+        if (duplicateReferenceFilter.add(reference.getReplacementText())) {
+            list.add(reference);
+        }
     }
 
     @Override
