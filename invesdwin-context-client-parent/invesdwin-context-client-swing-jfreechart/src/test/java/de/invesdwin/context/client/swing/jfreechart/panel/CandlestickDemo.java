@@ -226,8 +226,9 @@ public class CandlestickDemo extends JFrame {
         public CompletionProvider newCompletionProvider() {
             final Set<String> duplicateExpressionFilter = new HashSet<>();
             final Map<String, IAliasedCompletion> name_completion = new HashMap<>();
+            final Map<String, IAliasedCompletion> alias_completion = new HashMap<>();
             final ExpressionCompletionProvider provider = new ExpressionCompletionProvider();
-            provider.addDefaultCompletions(duplicateExpressionFilter, name_completion);
+            provider.addDefaultCompletions(duplicateExpressionFilter, name_completion, alias_completion);
             return provider;
         }
 
