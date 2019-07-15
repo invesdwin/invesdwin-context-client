@@ -176,8 +176,8 @@ public abstract class AView<M extends AModel, C extends JComponent> extends AMod
                 }.visitAll(Views.getRootComponentInDockable(getComponent()));
             } else {
                 Assertions.assertThat(dockable).as("A View instance can only be made visible once.").isNull();
+                this.dockable.setView(null);
                 this.dockable = null;
-                dockable.setView(null);
                 new AViewVisitor() {
                     @Override
                     protected void visit(final AView<?, ?> view) {
