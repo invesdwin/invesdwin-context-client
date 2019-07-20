@@ -54,7 +54,7 @@ public class ExpressionValidatingParser extends AbstractParser {
         } catch (final ParseException e) {
             final IPosition position = e.getPosition();
             final int line = position.getLine();
-            final int offset = position.getPos() - 1;
+            final int offset = position.getColumn() - 1;
             final int length = Integers.max(1, position.getLength());
             result.addNotice(new DefaultParserNotice(this, e.getOriginalMessage(), line, offset, length));
         } catch (final Throwable t) {
