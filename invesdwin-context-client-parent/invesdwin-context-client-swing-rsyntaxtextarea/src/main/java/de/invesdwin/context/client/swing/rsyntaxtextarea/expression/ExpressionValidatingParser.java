@@ -33,15 +33,17 @@ public class ExpressionValidatingParser extends AbstractParser {
         // Always spell check all lines, for now.
         final int lineCount = doc.getDefaultRootElement().getElementCount();
         result.setParsedLines(0, lineCount - 1);
+        boolean firstLine = true;
 
         final StringBuilder expression = new StringBuilder();
         try (DocumentReader r = new DocumentReader(doc)) {
             try (Scanner scanner = new Scanner(r)) {
                 while (scanner.hasNextLine()) {
-                    if (expression.length() > 0) {
+                    if (!firstLine) {
                         expression.append("\n");
                     }
                     expression.append(scanner.nextLine());
+                    firstLine = false;
                 }
             }
         }
@@ -53,8 +55,8 @@ public class ExpressionValidatingParser extends AbstractParser {
             parseExpression(expression.toString());
         } catch (final ParseException e) {
             final IPosition position = e.getPosition();
-            final int line = position.getLine();
-            final int offset = position.getColumn() - 1;
+            final int line = position.getLineOffset();
+            final int offset = position.getIndexOffset();
             final int length = Integers.max(1, position.getLength());
             result.addNotice(new DefaultParserNotice(this, e.getOriginalMessage(), line, offset, length));
         } catch (final Throwable t) {
