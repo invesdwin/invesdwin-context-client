@@ -4,6 +4,7 @@ import java.awt.Component;
 
 import javax.annotation.concurrent.NotThreadSafe;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.text.JTextComponent;
 
 import com.jgoodies.common.base.Strings;
@@ -33,5 +34,10 @@ public class ComponentStandardizer extends AComponentVisitor {
                 JButtons.setDefaultSize(button);
             }
         }
+        if (component instanceof JComboBox) {
+            final JComboBox<?> combobox = (JComboBox<?>) component;
+            JComboBoxes.enableAutoComplete(combobox);
+        }
     }
+
 }
