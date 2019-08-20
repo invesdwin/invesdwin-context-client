@@ -10,7 +10,7 @@ import com.jgoodies.forms.layout.FormLayout;
 import com.jgoodies.forms.layout.FormSpecs;
 import com.jgoodies.forms.layout.RowSpec;
 
-import de.invesdwin.context.client.swing.api.AView;
+import de.invesdwin.context.client.swing.api.view.AView;
 import de.invesdwin.util.swing.Dialogs;
 
 @NotThreadSafe

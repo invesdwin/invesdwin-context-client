@@ -10,9 +10,9 @@ import javax.swing.BorderFactory;
 import javax.swing.JComponent;
 import javax.swing.border.Border;
 
-import de.invesdwin.context.client.swing.api.AModel;
-import de.invesdwin.context.client.swing.api.AView;
 import de.invesdwin.context.client.swing.api.binding.BindingGroup;
+import de.invesdwin.context.client.swing.api.view.AModel;
+import de.invesdwin.context.client.swing.api.view.AView;
 import de.invesdwin.context.log.error.Err;
 import de.invesdwin.norva.beanpath.impl.object.BeanObjectContainer;
 import de.invesdwin.norva.beanpath.spi.element.APropertyBeanPathElement;

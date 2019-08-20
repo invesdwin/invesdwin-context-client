@@ -6,7 +6,7 @@ import java.util.List;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
-import de.invesdwin.context.client.swing.api.AView;
+import de.invesdwin.context.client.swing.api.view.AView;
 
 @NotThreadSafe
 public class UpdateAllViewsHelper {

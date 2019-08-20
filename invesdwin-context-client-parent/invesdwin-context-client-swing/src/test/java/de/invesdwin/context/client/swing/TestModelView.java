@@ -18,7 +18,7 @@ import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableModel;
 
-import de.invesdwin.context.client.swing.api.AView;
+import de.invesdwin.context.client.swing.api.view.AView;
 
 @NotThreadSafe
 public class TestModelView extends AView<TestModel, JPanel> {

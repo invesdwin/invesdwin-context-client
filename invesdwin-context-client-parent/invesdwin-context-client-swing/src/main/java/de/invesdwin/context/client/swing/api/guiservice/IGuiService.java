@@ -7,7 +7,7 @@ import java.awt.Window;
 import org.jdesktop.application.ResourceMap;
 import org.jdesktop.application.TaskService;
 
-import de.invesdwin.context.client.swing.api.AView;
+import de.invesdwin.context.client.swing.api.view.AView;
 
 public interface IGuiService {
 

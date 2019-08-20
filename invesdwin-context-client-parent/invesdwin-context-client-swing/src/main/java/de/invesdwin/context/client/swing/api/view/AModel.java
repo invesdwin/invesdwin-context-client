@@ -1,4 +1,4 @@
-package de.invesdwin.context.client.swing.api;
+package de.invesdwin.context.client.swing.api.view;
 
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;

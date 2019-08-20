@@ -20,8 +20,8 @@ import org.jdesktop.application.TaskMonitor;
 
 import de.invesdwin.aspects.annotation.EventDispatchThread;
 import de.invesdwin.aspects.annotation.EventDispatchThread.InvocationType;
-import de.invesdwin.context.client.swing.api.AView;
 import de.invesdwin.context.client.swing.api.hook.IRichApplicationHook;
+import de.invesdwin.context.client.swing.api.view.AView;
 import de.invesdwin.context.client.swing.impl.status.StatusBarView;
 import de.invesdwin.util.lang.Strings;
 import de.invesdwin.util.swing.Components;

@@ -15,8 +15,6 @@ import javax.swing.JSpinner;
 import javax.swing.JTable;
 import javax.swing.text.JTextComponent;
 
-import de.invesdwin.context.client.swing.api.AModel;
-import de.invesdwin.context.client.swing.api.AView;
 import de.invesdwin.context.client.swing.api.binding.component.CheckBoxBinding;
 import de.invesdwin.context.client.swing.api.binding.component.ComboBoxBinding;
 import de.invesdwin.context.client.swing.api.binding.component.IComponentBinding;
@@ -29,6 +27,8 @@ import de.invesdwin.context.client.swing.api.binding.component.button.SubmitButt
 import de.invesdwin.context.client.swing.api.binding.component.label.LabelBinding;
 import de.invesdwin.context.client.swing.api.binding.component.label.LabelTitleBinding;
 import de.invesdwin.context.client.swing.api.binding.component.table.TableChoiceBinding;
+import de.invesdwin.context.client.swing.api.view.AModel;
+import de.invesdwin.context.client.swing.api.view.AView;
 import de.invesdwin.context.client.swing.util.NamedModelComponentFinder;
 import de.invesdwin.context.client.swing.util.Views;
 import de.invesdwin.norva.beanpath.impl.object.BeanObjectContainer;

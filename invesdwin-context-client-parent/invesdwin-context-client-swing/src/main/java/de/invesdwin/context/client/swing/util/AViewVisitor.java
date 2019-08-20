@@ -4,7 +4,7 @@ import java.awt.Component;
 
 import javax.annotation.concurrent.Immutable;
 
-import de.invesdwin.context.client.swing.api.AView;
+import de.invesdwin.context.client.swing.api.view.AView;
 import de.invesdwin.util.swing.AComponentVisitor;
 
 @Immutable

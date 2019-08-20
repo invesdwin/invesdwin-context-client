@@ -4,7 +4,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.annotation.concurrent.ThreadSafe;
 
-import de.invesdwin.context.client.swing.api.AView;
+import de.invesdwin.context.client.swing.api.view.AView;
 import de.invesdwin.util.collections.loadingcache.ALoadingCache;
 
 @ThreadSafe

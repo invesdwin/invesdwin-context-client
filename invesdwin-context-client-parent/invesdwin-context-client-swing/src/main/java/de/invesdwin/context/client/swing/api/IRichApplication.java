@@ -5,6 +5,7 @@ import java.util.Locale;
 
 import de.invesdwin.context.client.swing.api.exit.AMainFrameCloseOperation;
 import de.invesdwin.context.client.swing.api.menu.IMenuBarConfig;
+import de.invesdwin.context.client.swing.api.view.AView;
 
 public interface IRichApplication {
 

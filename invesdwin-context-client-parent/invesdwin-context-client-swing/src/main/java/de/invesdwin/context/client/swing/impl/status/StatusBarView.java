@@ -8,7 +8,7 @@ import org.jdesktop.swingx.plaf.basic.BasicStatusBarUI;
 
 import com.jidesoft.swing.PartialEtchedBorder;
 
-import de.invesdwin.context.client.swing.api.AView;
+import de.invesdwin.context.client.swing.api.view.AView;
 import de.invesdwin.context.client.swing.impl.status.message.StatusBarMessageView;
 import de.invesdwin.context.client.swing.impl.status.task.StatusBarTaskView;
 

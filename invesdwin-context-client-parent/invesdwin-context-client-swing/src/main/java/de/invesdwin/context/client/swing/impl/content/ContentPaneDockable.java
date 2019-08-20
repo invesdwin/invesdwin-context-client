@@ -7,8 +7,8 @@ import javax.swing.Icon;
 import javax.swing.JComponent;
 
 import bibliothek.gui.dock.common.DefaultSingleCDockable;
-import de.invesdwin.context.client.swing.api.AView;
-import de.invesdwin.context.client.swing.api.IDockable;
+import de.invesdwin.context.client.swing.api.view.AView;
+import de.invesdwin.context.client.swing.api.view.IDockable;
 import de.invesdwin.util.swing.AComponentFinder;
 
 @NotThreadSafe

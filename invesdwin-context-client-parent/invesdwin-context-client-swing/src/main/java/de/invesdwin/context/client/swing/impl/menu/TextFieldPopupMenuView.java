@@ -10,7 +10,7 @@ import javax.swing.JSeparator;
 import javax.swing.SwingUtilities;
 import javax.swing.text.JTextComponent;
 
-import de.invesdwin.context.client.swing.api.AView;
+import de.invesdwin.context.client.swing.api.view.AView;
 import de.invesdwin.context.client.swing.impl.RichApplicationContextLocation;
 
 /**

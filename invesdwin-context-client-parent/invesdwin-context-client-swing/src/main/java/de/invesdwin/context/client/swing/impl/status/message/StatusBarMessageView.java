@@ -10,7 +10,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import de.invesdwin.aspects.EventDispatchThreadUtil;
-import de.invesdwin.context.client.swing.api.AView;
+import de.invesdwin.context.client.swing.api.view.AView;
 import de.invesdwin.context.client.swing.impl.status.StatusBarView;
 import de.invesdwin.util.lang.Strings;
 import de.invesdwin.util.swing.Components;

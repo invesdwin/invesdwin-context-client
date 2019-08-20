@@ -11,8 +11,8 @@ import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
-import de.invesdwin.context.client.swing.api.AModel;
 import de.invesdwin.context.client.swing.api.binding.BindingGroup;
+import de.invesdwin.context.client.swing.api.view.AModel;
 import de.invesdwin.norva.beanpath.spi.element.AChoiceBeanPathElement;
 import de.invesdwin.norva.beanpath.spi.element.simple.modifier.IBeanPathPropertyModifier;
 import de.invesdwin.util.lang.Objects;

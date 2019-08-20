@@ -7,8 +7,8 @@ import javax.annotation.concurrent.Immutable;
 import javax.swing.JComponent;
 
 import bibliothek.gui.dock.util.BackgroundPanel;
-import de.invesdwin.context.client.swing.api.AView;
-import de.invesdwin.context.client.swing.api.IDockable;
+import de.invesdwin.context.client.swing.api.view.AView;
+import de.invesdwin.context.client.swing.api.view.IDockable;
 
 @Immutable
 public final class Views {

@@ -12,11 +12,11 @@ import javax.validation.ConstraintViolationException;
 import com.jgoodies.common.base.Strings;
 
 import de.invesdwin.context.beans.validator.BeanValidator;
-import de.invesdwin.context.client.swing.api.AModel;
-import de.invesdwin.context.client.swing.api.AView;
 import de.invesdwin.context.client.swing.api.binding.component.AComponentBinding;
 import de.invesdwin.context.client.swing.api.binding.component.IComponentBinding;
 import de.invesdwin.context.client.swing.api.binding.component.button.ISubmitButtonExceptionHandler;
+import de.invesdwin.context.client.swing.api.view.AModel;
+import de.invesdwin.context.client.swing.api.view.AView;
 import de.invesdwin.norva.beanpath.impl.object.BeanObjectContext;
 import de.invesdwin.norva.beanpath.spi.element.IBeanPathElement;
 import de.invesdwin.norva.beanpath.spi.element.RootBeanPathElement;

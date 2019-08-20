@@ -21,10 +21,10 @@ import bibliothek.gui.dock.common.intern.CommonDockable;
 import bibliothek.gui.dock.common.mode.ExtendedMode;
 import bibliothek.gui.dock.control.focus.DefaultFocusRequest;
 import de.invesdwin.aspects.EventDispatchThreadUtil;
-import de.invesdwin.context.client.swing.api.AView;
-import de.invesdwin.context.client.swing.api.IDockable;
 import de.invesdwin.context.client.swing.api.guiservice.ContentPane;
 import de.invesdwin.context.client.swing.api.guiservice.GuiService;
+import de.invesdwin.context.client.swing.api.view.AView;
+import de.invesdwin.context.client.swing.api.view.IDockable;
 import de.invesdwin.util.assertions.Assertions;
 
 @NotThreadSafe

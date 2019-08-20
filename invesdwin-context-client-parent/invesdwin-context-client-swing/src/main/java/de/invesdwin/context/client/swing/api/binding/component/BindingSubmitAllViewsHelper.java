@@ -4,7 +4,7 @@ import java.util.List;
 
 import javax.annotation.concurrent.Immutable;
 
-import de.invesdwin.context.client.swing.api.AView;
+import de.invesdwin.context.client.swing.api.view.AView;
 import de.invesdwin.context.client.swing.util.SubmitAllViewsHelper;
 
 @Immutable

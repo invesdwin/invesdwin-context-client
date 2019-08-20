@@ -7,9 +7,9 @@ import javax.annotation.concurrent.NotThreadSafe;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
 
-import de.invesdwin.context.client.swing.api.AModel;
 import de.invesdwin.context.client.swing.api.binding.BindingGroup;
 import de.invesdwin.context.client.swing.api.binding.component.AComponentBinding;
+import de.invesdwin.context.client.swing.api.view.AModel;
 import de.invesdwin.norva.beanpath.spi.element.ATableBeanPathElement;
 import de.invesdwin.norva.beanpath.spi.element.simple.modifier.IBeanPathPropertyModifier;
 

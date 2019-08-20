@@ -7,6 +7,7 @@ import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.context.client.swing.api.exit.AMainFrameCloseOperation;
 import de.invesdwin.context.client.swing.api.menu.IMenuBarConfig;
+import de.invesdwin.context.client.swing.api.view.AView;
 
 @Immutable
 public abstract class ARichApplication implements IRichApplication {

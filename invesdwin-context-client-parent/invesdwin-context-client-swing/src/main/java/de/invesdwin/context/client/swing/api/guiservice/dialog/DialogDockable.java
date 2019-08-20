@@ -6,8 +6,8 @@ import javax.annotation.concurrent.NotThreadSafe;
 import javax.swing.JComponent;
 import javax.swing.JDialog;
 
-import de.invesdwin.context.client.swing.api.AView;
-import de.invesdwin.context.client.swing.api.IDockable;
+import de.invesdwin.context.client.swing.api.view.AView;
+import de.invesdwin.context.client.swing.api.view.IDockable;
 
 @NotThreadSafe
 public class DialogDockable extends JDialog implements IDockable {

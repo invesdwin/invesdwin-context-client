@@ -1,4 +1,4 @@
-package de.invesdwin.context.client.swing.api;
+package de.invesdwin.context.client.swing.api.view;
 
 import java.util.concurrent.Callable;
 
@@ -10,6 +10,8 @@ import javax.swing.JComponent;
 import de.invesdwin.aspects.EventDispatchThreadUtil;
 import de.invesdwin.context.client.swing.api.binding.BindingGroup;
 import de.invesdwin.context.client.swing.api.binding.GeneratedBindingGroup;
+import de.invesdwin.context.client.swing.api.view.listener.BroadcastingViewListener;
+import de.invesdwin.context.client.swing.api.view.listener.IViewListener;
 import de.invesdwin.context.client.swing.util.AViewVisitor;
 import de.invesdwin.context.client.swing.util.ComponentStandardizer;
 import de.invesdwin.context.client.swing.util.Views;
@@ -18,6 +20,7 @@ import de.invesdwin.norva.beanpath.impl.object.BeanObjectContext;
 import de.invesdwin.norva.beanpath.spi.element.IBeanPathElement;
 import de.invesdwin.norva.beanpath.spi.element.RootBeanPathElement;
 import de.invesdwin.util.assertions.Assertions;
+import de.invesdwin.util.collections.fast.IFastIterable;
 
 @ThreadSafe
 public abstract class AView<M extends AModel, C extends JComponent> extends AModel {
@@ -38,6 +41,8 @@ public abstract class AView<M extends AModel, C extends JComponent> extends AMod
     private final Object dockableLock = new Object();
     @GuardedBy("dockableLock")
     private IDockable dockable;
+    @GuardedBy("dockableLock")
+    private BroadcastingViewListener broadcastingViewListener;
 
     @SuppressWarnings("unchecked")
     public AView() {
@@ -171,7 +176,7 @@ public abstract class AView<M extends AModel, C extends JComponent> extends AMod
                 new AViewVisitor() {
                     @Override
                     protected void visit(final AView<?, ?> view) {
-                        view.onOpen();
+                        view.triggerOnOpen();
                     }
                 }.visitAll(Views.getRootComponentInDockable(getComponent()));
             } else {
@@ -179,10 +184,12 @@ public abstract class AView<M extends AModel, C extends JComponent> extends AMod
                 this.dockable.setView(null);
                 this.dockable = null;
                 new AViewVisitor() {
+
                     @Override
                     protected void visit(final AView<?, ?> view) {
-                        view.onClose();
+                        view.triggerOnClose();
                     }
+
                 }.visitAll(Views.getRootComponentInDockable(getComponent()));
             }
         }
@@ -202,24 +209,65 @@ public abstract class AView<M extends AModel, C extends JComponent> extends AMod
                 new AViewVisitor() {
                     @Override
                     protected void visit(final AView<?, ?> view) {
-                        view.onClose();
+                        view.triggerOnClose();
                     }
                 }.visitAll(Views.getRootComponentInDockable(existingView.getComponent()));
                 //open new view
                 new AViewVisitor() {
                     @Override
                     protected void visit(final AView<?, ?> view) {
-                        view.onOpen();
+                        view.triggerOnOpen();
                     }
                 }.visitAll(Views.getRootComponentInDockable(getComponent()));
             }
         }
     }
 
-    @Hidden(skip = true)
-    public void onOpen() {}
+    private BroadcastingViewListener getBroadcastingViewListener() {
+        synchronized (dockableLock) {
+            if (broadcastingViewListener == null) {
+                broadcastingViewListener = new BroadcastingViewListener();
+            }
+            return broadcastingViewListener;
+        }
+    }
+
+    public boolean registerViewListener(final IViewListener l) {
+        return getBroadcastingViewListener().registerListener(l);
+    }
+
+    public boolean unregisterViewListener(final IViewListener l) {
+        synchronized (dockableLock) {
+            if (broadcastingViewListener == null) {
+                return false;
+            } else {
+                return broadcastingViewListener.unregisterListener(l);
+            }
+        }
+    }
+
+    public IFastIterable<IViewListener> getViewListeners() {
+        return broadcastingViewListener.getListeners();
+    }
+
+    private void triggerOnOpen() {
+        onOpen();
+        if (broadcastingViewListener != null) {
+            broadcastingViewListener.onOpen();
+        }
+    }
+
+    private void triggerOnClose() {
+        onClose();
+        if (broadcastingViewListener != null) {
+            broadcastingViewListener.onClose();
+        }
+    }
 
     @Hidden(skip = true)
-    public void onClose() {}
+    protected void onOpen() {}
+
+    @Hidden(skip = true)
+    protected void onClose() {}
 
 }
