@@ -30,6 +30,7 @@ import de.invesdwin.util.swing.listener.WindowListenerSupport;
 public final class GuiExceptionHandler implements IErrHook {
 
     public static final GuiExceptionHandler INSTANCE = new GuiExceptionHandler();
+    private static final int MAX_EXCEPTIONS_SHOWING = 1;
     private static final AtomicInteger ALREADY_SHOWING_COUNT = new AtomicInteger(0);
     private final Set<IGuiExceptionHandlerHook> hooks = Collections
             .synchronizedSet(new LinkedHashSet<IGuiExceptionHandlerHook>());
@@ -68,7 +69,7 @@ public final class GuiExceptionHandler implements IErrHook {
             /*
              * prevent the window manager from overflowing due to endless bombardment with error dialogs
              */
-            if (ALREADY_SHOWING_COUNT.incrementAndGet() < 10) {
+            if (ALREADY_SHOWING_COUNT.incrementAndGet() <= MAX_EXCEPTIONS_SHOWING) {
                 EventDispatchThreadUtil.invokeLater(new Runnable() {
                     @Override
                     public void run() {

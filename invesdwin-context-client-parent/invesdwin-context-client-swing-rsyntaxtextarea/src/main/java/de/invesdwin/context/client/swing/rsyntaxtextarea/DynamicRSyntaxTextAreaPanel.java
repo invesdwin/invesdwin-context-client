@@ -1,6 +1,7 @@
 package de.invesdwin.context.client.swing.rsyntaxtextarea;
 
 import java.awt.BorderLayout;
+import java.awt.KeyboardFocusManager;
 import java.awt.Window;
 import java.awt.event.ComponentEvent;
 
@@ -85,6 +86,10 @@ public class DynamicRSyntaxTextAreaPanel extends JPanel {
             }
 
         });
+
+        //disable tab character: https://stackoverflow.com/questions/525855/moving-focus-from-jtextarea-using-tab-key
+        textArea.setFocusTraversalKeys(KeyboardFocusManager.FORWARD_TRAVERSAL_KEYS, null);
+        textArea.setFocusTraversalKeys(KeyboardFocusManager.BACKWARD_TRAVERSAL_KEYS, null);
     }
 
     protected String getSyntaxEditingStyle() {
