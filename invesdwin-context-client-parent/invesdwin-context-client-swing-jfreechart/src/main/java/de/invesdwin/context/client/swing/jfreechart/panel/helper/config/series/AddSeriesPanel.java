@@ -33,6 +33,7 @@ import de.invesdwin.util.math.expression.AExpressionVisitor;
 import de.invesdwin.util.math.expression.ExpressionVisitorSupport;
 import de.invesdwin.util.math.expression.IExpression;
 import de.invesdwin.util.math.expression.eval.operation.BinaryOperation;
+import de.invesdwin.util.math.expression.eval.operation.BinaryOperation.Op;
 import de.invesdwin.util.swing.Components;
 import de.invesdwin.util.swing.Dialogs;
 import de.invesdwin.util.swing.icon.ChangeColorImageFilter;
@@ -164,7 +165,13 @@ public class AddSeriesPanel extends JPanel {
                     @Override
                     protected boolean visitMath(final BinaryOperation expression) {
                         final String plotPaneId = provider.getPlotPaneId(expression);
-                        addExpressionDebug(expression, plotPaneId, duplicateExpressionFilter, SeriesRendererType.Line);
+                        final SeriesRendererType seriesType;
+                        if (expression.getOp() == Op.NOT) {
+                            seriesType = SeriesRendererType.Step;
+                        } else {
+                            seriesType = SeriesRendererType.Line;
+                        }
+                        addExpressionDebug(expression, plotPaneId, duplicateExpressionFilter, seriesType);
                         return false;
                     }
 
