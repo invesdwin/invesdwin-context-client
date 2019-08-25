@@ -43,6 +43,7 @@ import org.jfree.chart.plot.Zoomable;
 import org.jfree.chart.util.ResourceBundleWrapper;
 import org.jfree.data.Range;
 
+import de.invesdwin.context.log.error.Err;
 import de.invesdwin.util.swing.listener.MouseListenerSupport;
 import de.invesdwin.util.swing.listener.MouseMotionListenerSupport;
 
@@ -620,109 +621,113 @@ public class CustomChartPanel extends JPanel implements ChartChangeListener, Cha
      */
     @Override
     public void paintComponent(final Graphics g) {
-        super.paintComponent(g);
-        if (this.chart == null) {
-            return;
-        }
-        final Graphics2D g2 = (Graphics2D) g.create();
+        try {
+            super.paintComponent(g);
+            if (this.chart == null) {
+                return;
+            }
+            final Graphics2D g2 = (Graphics2D) g.create();
 
-        // first determine the size of the chart rendering area...
-        final Dimension size = getSize();
-        final Insets insets = getInsets();
-        final Rectangle2D available = new Rectangle2D.Double(insets.left, insets.top,
-                size.getWidth() - insets.left - insets.right, size.getHeight() - insets.top - insets.bottom);
+            // first determine the size of the chart rendering area...
+            final Dimension size = getSize();
+            final Insets insets = getInsets();
+            final Rectangle2D available = new Rectangle2D.Double(insets.left, insets.top,
+                    size.getWidth() - insets.left - insets.right, size.getHeight() - insets.top - insets.bottom);
 
-        // work out if scaling is required...
-        boolean scale = false;
-        double drawWidth = available.getWidth();
-        double drawHeight = available.getHeight();
-        this.scaleX = 1.0;
-        this.scaleY = 1.0;
+            // work out if scaling is required...
+            boolean scale = false;
+            double drawWidth = available.getWidth();
+            double drawHeight = available.getHeight();
+            this.scaleX = 1.0;
+            this.scaleY = 1.0;
 
-        if (drawWidth < this.minimumDrawWidth) {
-            this.scaleX = drawWidth / this.minimumDrawWidth;
-            drawWidth = this.minimumDrawWidth;
-            scale = true;
-        } else if (drawWidth > this.maximumDrawWidth) {
-            this.scaleX = drawWidth / this.maximumDrawWidth;
-            drawWidth = this.maximumDrawWidth;
-            scale = true;
-        }
-
-        if (drawHeight < this.minimumDrawHeight) {
-            this.scaleY = drawHeight / this.minimumDrawHeight;
-            drawHeight = this.minimumDrawHeight;
-            scale = true;
-        } else if (drawHeight > this.maximumDrawHeight) {
-            this.scaleY = drawHeight / this.maximumDrawHeight;
-            drawHeight = this.maximumDrawHeight;
-            scale = true;
-        }
-
-        final Rectangle2D chartArea = new Rectangle2D.Double(0.0, 0.0, drawWidth, drawHeight);
-
-        // are we using the chart buffer?
-        if (this.useBuffer) {
-
-            // do we need to resize the buffer?
-            if ((this.chartBuffer == null) || (this.chartBufferWidth != available.getWidth())
-                    || (this.chartBufferHeight != available.getHeight())) {
-                this.chartBufferWidth = (int) available.getWidth();
-                this.chartBufferHeight = (int) available.getHeight();
-                final GraphicsConfiguration gc = g2.getDeviceConfiguration();
-                this.chartBuffer = gc.createCompatibleImage(this.chartBufferWidth, this.chartBufferHeight,
-                        Transparency.TRANSLUCENT);
-                this.refreshBuffer = true;
+            if (drawWidth < this.minimumDrawWidth) {
+                this.scaleX = drawWidth / this.minimumDrawWidth;
+                drawWidth = this.minimumDrawWidth;
+                scale = true;
+            } else if (drawWidth > this.maximumDrawWidth) {
+                this.scaleX = drawWidth / this.maximumDrawWidth;
+                drawWidth = this.maximumDrawWidth;
+                scale = true;
             }
 
-            // do we need to redraw the buffer?
-            if (this.refreshBuffer) {
+            if (drawHeight < this.minimumDrawHeight) {
+                this.scaleY = drawHeight / this.minimumDrawHeight;
+                drawHeight = this.minimumDrawHeight;
+                scale = true;
+            } else if (drawHeight > this.maximumDrawHeight) {
+                this.scaleY = drawHeight / this.maximumDrawHeight;
+                drawHeight = this.maximumDrawHeight;
+                scale = true;
+            }
 
-                this.refreshBuffer = false; // clear the flag
+            final Rectangle2D chartArea = new Rectangle2D.Double(0.0, 0.0, drawWidth, drawHeight);
 
-                final Rectangle2D bufferArea = new Rectangle2D.Double(0, 0, this.chartBufferWidth,
-                        this.chartBufferHeight);
+            // are we using the chart buffer?
+            if (this.useBuffer) {
 
-                // make the background of the buffer clear and transparent
-                final Graphics2D bufferG2 = (Graphics2D) this.chartBuffer.getGraphics();
-                final Composite savedComposite = bufferG2.getComposite();
-                bufferG2.setComposite(AlphaComposite.getInstance(AlphaComposite.CLEAR, 0.0f));
-                final Rectangle r = new Rectangle(0, 0, this.chartBufferWidth, this.chartBufferHeight);
-                bufferG2.fill(r);
-                bufferG2.setComposite(savedComposite);
-
-                if (scale) {
-                    final AffineTransform saved = bufferG2.getTransform();
-                    final AffineTransform st = AffineTransform.getScaleInstance(this.scaleX, this.scaleY);
-                    bufferG2.transform(st);
-                    this.chart.draw(bufferG2, chartArea, this.anchor, this.info);
-                    bufferG2.setTransform(saved);
-                } else {
-                    this.chart.draw(bufferG2, bufferArea, this.anchor, this.info);
+                // do we need to resize the buffer?
+                if ((this.chartBuffer == null) || (this.chartBufferWidth != available.getWidth())
+                        || (this.chartBufferHeight != available.getHeight())) {
+                    this.chartBufferWidth = (int) available.getWidth();
+                    this.chartBufferHeight = (int) available.getHeight();
+                    final GraphicsConfiguration gc = g2.getDeviceConfiguration();
+                    this.chartBuffer = gc.createCompatibleImage(this.chartBufferWidth, this.chartBufferHeight,
+                            Transparency.TRANSLUCENT);
+                    this.refreshBuffer = true;
                 }
 
+                // do we need to redraw the buffer?
+                if (this.refreshBuffer) {
+
+                    this.refreshBuffer = false; // clear the flag
+
+                    final Rectangle2D bufferArea = new Rectangle2D.Double(0, 0, this.chartBufferWidth,
+                            this.chartBufferHeight);
+
+                    // make the background of the buffer clear and transparent
+                    final Graphics2D bufferG2 = (Graphics2D) this.chartBuffer.getGraphics();
+                    final Composite savedComposite = bufferG2.getComposite();
+                    bufferG2.setComposite(AlphaComposite.getInstance(AlphaComposite.CLEAR, 0.0f));
+                    final Rectangle r = new Rectangle(0, 0, this.chartBufferWidth, this.chartBufferHeight);
+                    bufferG2.fill(r);
+                    bufferG2.setComposite(savedComposite);
+
+                    if (scale) {
+                        final AffineTransform saved = bufferG2.getTransform();
+                        final AffineTransform st = AffineTransform.getScaleInstance(this.scaleX, this.scaleY);
+                        bufferG2.transform(st);
+                        this.chart.draw(bufferG2, chartArea, this.anchor, this.info);
+                        bufferG2.setTransform(saved);
+                    } else {
+                        this.chart.draw(bufferG2, bufferArea, this.anchor, this.info);
+                    }
+
+                }
+
+                // zap the buffer onto the panel...
+                g2.drawImage(this.chartBuffer, insets.left, insets.top, this);
+
+            } else { // redrawing the chart every time...
+                final AffineTransform saved = g2.getTransform();
+                g2.translate(insets.left, insets.top);
+                if (scale) {
+                    final AffineTransform st = AffineTransform.getScaleInstance(this.scaleX, this.scaleY);
+                    g2.transform(st);
+                }
+                this.chart.draw(g2, chartArea, this.anchor, this.info);
+                g2.setTransform(saved);
+
             }
 
-            // zap the buffer onto the panel...
-            g2.drawImage(this.chartBuffer, insets.left, insets.top, this);
+            g2.dispose();
 
-        } else { // redrawing the chart every time...
-            final AffineTransform saved = g2.getTransform();
-            g2.translate(insets.left, insets.top);
-            if (scale) {
-                final AffineTransform st = AffineTransform.getScaleInstance(this.scaleX, this.scaleY);
-                g2.transform(st);
-            }
-            this.chart.draw(g2, chartArea, this.anchor, this.info);
-            g2.setTransform(saved);
-
+            this.anchor = null;
+            this.verticalTraceLine = null;
+            this.horizontalTraceLine = null;
+        } catch (final Throwable t) {
+            Err.process(t); //log and ignore
         }
-
-        g2.dispose();
-
-        this.anchor = null;
-        this.verticalTraceLine = null;
-        this.horizontalTraceLine = null;
     }
 
     /**
