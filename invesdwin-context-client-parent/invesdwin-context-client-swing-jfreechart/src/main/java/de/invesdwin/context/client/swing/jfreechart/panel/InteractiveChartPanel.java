@@ -232,7 +232,8 @@ public class InteractiveChartPanel extends JPanel {
 
     private void configureRangeAxis() {
         final List<XYPlot> plots = combinedPlot.getSubplots();
-        for (final XYPlot plot : plots) {
+        for (int i = 0; i < plots.size(); i++) {
+            final XYPlot plot = plots.get(i);
             XYPlots.configureRangeAxes(plot);
         }
     }
