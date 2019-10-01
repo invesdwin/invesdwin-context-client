@@ -10,6 +10,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
@@ -362,7 +363,9 @@ public class PlotConfigurationHelper {
         for (final SeriesInitialSettings series : seriesId_initialSettings.values()) {
             addRangeAxisId(rangeAxisIds, series.getRangeAxisId());
         }
-        for (final XYPlot plot : chartPanel.getCombinedPlot().getSubplots()) {
+        final List<XYPlot> plots = chartPanel.getCombinedPlot().getSubplots();
+        for (int i = 0; i < plots.size(); i++) {
+            final XYPlot plot = plots.get(i);
             for (int datasetIndex = 0; datasetIndex < plot.getDatasetCount(); datasetIndex++) {
                 final IPlotSourceDataset dataset = (IPlotSourceDataset) plot.getDataset(datasetIndex);
                 if (dataset != null) {

@@ -72,7 +72,8 @@ public class PlotLegendHelper {
 
     public void update() {
         final List<XYPlot> plots = chartPanel.getCombinedPlot().getSubplots();
-        for (final XYPlot plot : plots) {
+        for (int i = 0; i < plots.size(); i++) {
+            final XYPlot plot = plots.get(i);
             final CustomLegendTitle title = getTitle(plot);
             title.setBackgroundPaint(title.getBackgroundPaint()); //fire change event
         }

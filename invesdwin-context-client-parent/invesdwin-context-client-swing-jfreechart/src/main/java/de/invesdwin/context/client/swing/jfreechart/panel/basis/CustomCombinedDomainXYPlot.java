@@ -65,7 +65,8 @@ public class CustomCombinedDomainXYPlot extends CombinedDomainXYPlot {
 
     public boolean isSubplotVisible(final XYPlot plot) {
         final List<XYPlot> plots = getSubplots();
-        for (final XYPlot potentialPlot : plots) {
+        for (int i = 0; i < plots.size(); i++) {
+            final XYPlot potentialPlot = plots.get(i);
             if (potentialPlot == plot) {
                 return true;
             }
