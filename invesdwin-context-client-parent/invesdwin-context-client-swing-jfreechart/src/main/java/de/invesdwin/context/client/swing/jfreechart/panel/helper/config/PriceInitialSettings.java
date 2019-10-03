@@ -11,7 +11,7 @@ import de.invesdwin.context.client.swing.jfreechart.plot.XYPlots;
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.IPlotSourceDataset;
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.IndexedDateTimeOHLCDataset;
 import de.invesdwin.context.client.swing.jfreechart.plot.renderer.FastCandlestickRenderer;
-import de.invesdwin.context.client.swing.jfreechart.plot.renderer.FastHighLowRenderer;
+import de.invesdwin.context.client.swing.jfreechart.plot.renderer.FastOHLCRenderer;
 import de.invesdwin.context.client.swing.jfreechart.plot.renderer.FastStandardXYItemRenderer;
 import de.invesdwin.context.client.swing.jfreechart.plot.renderer.FastXYAreaRenderer;
 import de.invesdwin.context.client.swing.jfreechart.plot.renderer.FastXYStepRenderer;
@@ -34,7 +34,7 @@ public class PriceInitialSettings {
     private final PlotConfigurationHelper plotConfigurationHelper;
 
     private final FastCandlestickRenderer candlestickRenderer;
-    private final FastHighLowRenderer barsRenderer;
+    private final FastOHLCRenderer ohlcRenderer;
     private final FastXYAreaRenderer areaRenderer;
     private final FastStandardXYItemRenderer lineRenderer;
     private final FastXYStepRenderer stepLineRenderer;
@@ -57,7 +57,7 @@ public class PriceInitialSettings {
 
         final IndexedDateTimeOHLCDataset dataset = plotConfigurationHelper.getChartPanel().getDataset();
         this.candlestickRenderer = new FastCandlestickRenderer(dataset);
-        this.barsRenderer = new FastHighLowRenderer(candlestickRenderer);
+        this.ohlcRenderer = candlestickRenderer.getOhlcRenderer();
         this.areaRenderer = new FastXYAreaRenderer(dataset);
         this.lineRenderer = new FastStandardXYItemRenderer(dataset);
         this.stepLineRenderer = new FastXYStepRenderer(dataset);
@@ -74,7 +74,7 @@ public class PriceInitialSettings {
     public PriceInitialSettings(final PriceInitialSettings copyOf) {
         this.plotConfigurationHelper = copyOf.plotConfigurationHelper;
         this.candlestickRenderer = copyOf.candlestickRenderer;
-        this.barsRenderer = copyOf.barsRenderer;
+        this.ohlcRenderer = copyOf.ohlcRenderer;
         this.areaRenderer = copyOf.areaRenderer;
         this.lineRenderer = copyOf.lineRenderer;
         this.stepLineRenderer = copyOf.stepLineRenderer;
@@ -124,7 +124,7 @@ public class PriceInitialSettings {
         case Step:
             return stepLineRenderer;
         case OHLC:
-            return barsRenderer;
+            return ohlcRenderer;
         case Candlestick:
             return candlestickRenderer;
         default:
@@ -139,7 +139,7 @@ public class PriceInitialSettings {
             return PriceRendererType.Line;
         } else if (renderer == stepLineRenderer) {
             return PriceRendererType.Step;
-        } else if (renderer == barsRenderer) {
+        } else if (renderer == ohlcRenderer) {
             return PriceRendererType.OHLC;
         } else if (renderer == candlestickRenderer) {
             return PriceRendererType.Candlestick;
@@ -185,7 +185,7 @@ public class PriceInitialSettings {
 
     private void updateSeriesColor() {
         this.candlestickRenderer.setSeriesPaint(0, seriesColor);
-        this.barsRenderer.setSeriesPaint(0, seriesColor);
+        this.ohlcRenderer.setSeriesPaint(0, seriesColor);
         this.lineRenderer.setSeriesPaint(0, seriesColor);
         this.areaRenderer.setSeriesPaint(0, seriesColor);
         this.stepLineRenderer.setSeriesPaint(0, seriesColor);
@@ -198,7 +198,7 @@ public class PriceInitialSettings {
 
     private void updateSeriesStroke() {
         this.candlestickRenderer.setSeriesStroke(0, seriesStroke);
-        this.barsRenderer.setSeriesStroke(0, seriesStroke);
+        this.ohlcRenderer.setSeriesStroke(0, seriesStroke);
         this.lineRenderer.setSeriesStroke(0, seriesStroke);
         this.areaRenderer.setSeriesStroke(0, seriesStroke);
         this.stepLineRenderer.setSeriesStroke(0, seriesStroke);
@@ -224,7 +224,7 @@ public class PriceInitialSettings {
 
     private void updatePriceLineVisible() {
         this.candlestickRenderer.setPriceLineVisible(priceLineVisible);
-        this.barsRenderer.setPriceLineVisible(priceLineVisible);
+        this.ohlcRenderer.setPriceLineVisible(priceLineVisible);
         this.lineRenderer.setPriceLineVisible(priceLineVisible);
         this.areaRenderer.setPriceLineVisible(priceLineVisible);
         this.stepLineRenderer.setPriceLineVisible(priceLineVisible);
@@ -241,7 +241,7 @@ public class PriceInitialSettings {
 
     private void updatePriceLabelVisible() {
         candlestickRenderer.setPriceLabelVisible(priceLabelVisible);
-        barsRenderer.setPriceLabelVisible(priceLabelVisible);
+        ohlcRenderer.setPriceLabelVisible(priceLabelVisible);
         areaRenderer.setPriceLabelVisible(priceLabelVisible);
         lineRenderer.setPriceLabelVisible(priceLabelVisible);
         stepLineRenderer.setPriceLabelVisible(priceLabelVisible);

@@ -86,6 +86,7 @@ public class FastCandlestickRenderer extends AbstractXYItemRenderer
     private BasicStroke itemStroke;
 
     private final XYPriceLineAnnotation priceLineAnnotation;
+    private final FastOHLCRenderer ohlcRenderer;
 
     public FastCandlestickRenderer(final IndexedDateTimeOHLCDataset dataset) {
         super();
@@ -96,6 +97,12 @@ public class FastCandlestickRenderer extends AbstractXYItemRenderer
         this.dataset = dataset;
         this.priceLineAnnotation = new XYPriceLineAnnotation(dataset, this);
         addAnnotation(priceLineAnnotation);
+
+        this.ohlcRenderer = new FastOHLCRenderer(this);
+    }
+
+    public FastOHLCRenderer getOhlcRenderer() {
+        return ohlcRenderer;
     }
 
     @Override
@@ -292,6 +299,11 @@ public class FastCandlestickRenderer extends AbstractXYItemRenderer
         final double yLow = highLowData.getLowValue(series, item);
         final double yOpen = highLowData.getOpenValue(series, item);
         final double yClose = highLowData.getCloseValue(series, item);
+        if (yHigh == yLow && yLow == yOpen && yOpen == yClose) {
+            ohlcRenderer.drawItem(g2, state, dataArea, info, plot, domainAxis, rangeAxis, dataset, series, item,
+                    crosshairState, pass);
+            return;
+        }
 
         final RectangleEdge domainEdge = plot.getDomainAxisEdge();
         final double xx = domainAxis.valueToJava2D(x, dataArea, domainEdge);
