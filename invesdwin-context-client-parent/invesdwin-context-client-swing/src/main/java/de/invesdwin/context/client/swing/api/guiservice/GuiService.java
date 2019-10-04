@@ -17,6 +17,7 @@ import org.jdesktop.application.ApplicationContext;
 import org.jdesktop.application.ResourceMap;
 import org.jdesktop.application.TaskService;
 
+import de.invesdwin.aspects.EventDispatchThreadUtil;
 import de.invesdwin.aspects.annotation.EventDispatchThread;
 import de.invesdwin.aspects.annotation.EventDispatchThread.InvocationType;
 import de.invesdwin.context.beans.init.MergedContext;
@@ -97,7 +98,12 @@ public class GuiService implements IGuiService {
         }
         dialog.setMinimumSize(new Dimension(100, 100));
         dialog.setLocationRelativeTo(window);
-        dialog.setVisible(true);
+        EventDispatchThreadUtil.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                dialog.setVisible(true);
+            }
+        });
     }
 
     @Override
