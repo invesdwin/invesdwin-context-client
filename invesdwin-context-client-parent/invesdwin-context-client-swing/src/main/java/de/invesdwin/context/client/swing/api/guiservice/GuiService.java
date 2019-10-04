@@ -98,12 +98,8 @@ public class GuiService implements IGuiService {
         }
         dialog.setMinimumSize(new Dimension(100, 100));
         dialog.setLocationRelativeTo(window);
-        EventDispatchThreadUtil.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                dialog.setVisible(true);
-            }
-        });
+        //this call blocks for modal dialogs, which is expected
+        dialog.setVisible(true);
     }
 
     @Override
