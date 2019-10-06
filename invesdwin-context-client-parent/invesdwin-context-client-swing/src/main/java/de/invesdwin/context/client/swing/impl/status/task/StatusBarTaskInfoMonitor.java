@@ -1,10 +1,16 @@
 package de.invesdwin.context.client.swing.impl.status.task;
 
+import java.util.Map;
+import java.util.Set;
+
 import javax.annotation.concurrent.ThreadSafe;
 import javax.inject.Inject;
 
+import org.apache.commons.text.StringEscapeUtils;
 import org.jdesktop.application.Application;
 import org.jdesktop.application.TaskService;
+
+import com.github.benmanes.caffeine.cache.Caffeine;
 
 import de.invesdwin.context.client.swing.api.ATask;
 import de.invesdwin.context.client.swing.api.hook.IRichApplicationHook;
@@ -21,6 +27,11 @@ import de.invesdwin.util.time.fdate.FTimeUnit;
 public class StatusBarTaskInfoMonitor implements IRichApplicationHook, ITaskInfoListener {
 
     private static final Duration CHECK_INTERVAL = new Duration(1, FTimeUnit.SECONDS);
+
+    private final Map<String, ATask<?, ?>> name_task = Caffeine.newBuilder()
+            .weakValues()
+            .<String, ATask<?, ?>> build()
+            .asMap();
 
     @Inject
     private TaskService taskService;
@@ -40,7 +51,7 @@ public class StatusBarTaskInfoMonitor implements IRichApplicationHook, ITaskInfo
 
     @Override
     public void onTaskInfoAdded(final String name) {
-        taskService.execute(new ATask<Object, Object>(Application.getInstance()) {
+        final ATask<Object, Object> task = new ATask<Object, Object>(Application.getInstance()) {
 
             {
                 setTitle(name);
@@ -64,15 +75,28 @@ public class StatusBarTaskInfoMonitor implements IRichApplicationHook, ITaskInfo
                     } else {
                         setMessage(null);
                     }
+                    final Set<String> descriptions = taskInfo.getDescriptions();
+                    if (!descriptions.isEmpty()) {
+                        setDescription(StringEscapeUtils.escapeHtml4(descriptions.iterator().next()));
+                    } else {
+                        setDescription(null);
+                    }
                     CHECK_INTERVAL.sleep();
                 }
                 return null;
             }
 
-        });
+        };
+        name_task.put(name, task);
+        taskService.execute(task);
     }
 
     @Override
-    public void onTaskInfoRemoved(final String name) {}
+    public void onTaskInfoRemoved(final String name) {
+        final ATask<?, ?> task = name_task.remove(name);
+        if (task != null) {
+            task.cancel(true);
+        }
+    }
 
 }
