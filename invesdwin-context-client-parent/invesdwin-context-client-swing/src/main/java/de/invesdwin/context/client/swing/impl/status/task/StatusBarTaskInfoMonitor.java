@@ -10,7 +10,7 @@ import de.invesdwin.context.client.swing.api.ATask;
 import de.invesdwin.context.client.swing.api.hook.IRichApplicationHook;
 import de.invesdwin.util.concurrent.Threads;
 import de.invesdwin.util.concurrent.taskinfo.ITaskInfoListener;
-import de.invesdwin.util.concurrent.taskinfo.TaskInfo;
+import de.invesdwin.util.concurrent.taskinfo.TaskInfoSnapshot;
 import de.invesdwin.util.concurrent.taskinfo.TaskInfoManager;
 import de.invesdwin.util.math.decimal.scaled.Percent;
 import de.invesdwin.util.math.decimal.scaled.PercentScale;
@@ -49,7 +49,7 @@ public class StatusBarTaskInfoMonitor implements IRichApplicationHook, ITaskInfo
             @Override
             protected Object doInBackground() throws Exception {
                 while (!Threads.isInterrupted()) {
-                    final TaskInfo taskInfo = TaskInfoManager.getTaskInfo(name);
+                    final TaskInfoSnapshot taskInfo = TaskInfoManager.getTaskInfo(name);
                     if (taskInfo == null) {
                         break;
                     }
