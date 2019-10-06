@@ -13,4 +13,7 @@ public class RichApplicationHookSupport implements IRichApplicationHook {
     @Override
     public void startupDone() {}
 
+    @Override
+    public void shutdownDone() {}
+
 }

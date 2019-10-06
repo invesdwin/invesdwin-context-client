@@ -156,6 +156,13 @@ public class DelegateRichApplication extends SingleFrameApplication {
     @Override
     public void shutdown() {
         super.shutdown();
+        final IRichApplication delegate = RichApplicationProperties.getDelegate();
+        delegate.startupDone();
+        final Map<String, IRichApplicationHook> hooks = MergedContext.getInstance()
+                .getBeansOfType(IRichApplicationHook.class);
+        for (final IRichApplicationHook hook : hooks.values()) {
+            hook.shutdownDone();
+        }
     }
 
     @Override

@@ -6,4 +6,6 @@ public interface IRichApplicationHook {
 
     void startupDone();
 
+    void shutdownDone();
+
 }

@@ -29,4 +29,6 @@ public interface IRichApplication {
 
     void startupDone();
 
+    void shutdownDone();
+
 }

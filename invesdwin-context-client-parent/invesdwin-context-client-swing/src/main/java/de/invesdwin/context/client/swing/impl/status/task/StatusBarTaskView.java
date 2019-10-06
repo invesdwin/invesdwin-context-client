@@ -65,6 +65,11 @@ public class StatusBarTaskView extends AView<StatusBarTaskView, JPanel> implemen
         calculateProgressbarPreferredSize();
         setForegroundTaskText(null);
         setTasksText(new ArrayList<Task<?, ?>>());
+
+        Components.showTooltipWithoutDelay(lblForegroundTask);
+        Components.showTooltipWithoutDelay(pgbForegroundTask);
+        Components.showTooltipWithoutDelay(lblTasks);
+
         return component;
     }
 
@@ -163,6 +168,9 @@ public class StatusBarTaskView extends AView<StatusBarTaskView, JPanel> implemen
 
     @Override
     public void startupDone() {}
+
+    @Override
+    public void shutdownDone() {}
 
     private void updateTaskMonitor(final ApplicationContext context) {
         this.taskMonitor = new TaskMonitor(context);

@@ -11,6 +11,7 @@
 	<bean class="de.invesdwin.context.client.swing.impl.status.message.StatusBarMessageView" />
 	<bean class="de.invesdwin.context.client.swing.impl.status.task.StatusBarTaskView" />
 	<bean class="de.invesdwin.context.client.swing.impl.status.StatusBarView" />
+	<bean class="de.invesdwin.context.client.swing.impl.status.task.StatusBarTaskInfoMonitor" />
 	<bean class="de.invesdwin.context.client.swing.api.guiservice.ContentPane" />
 	<bean class="de.invesdwin.context.client.swing.api.guiservice.StatusBar" />
 	<bean class="de.invesdwin.context.client.swing.api.guiservice.GuiService" />

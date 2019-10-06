@@ -61,4 +61,7 @@ public abstract class ARichApplication implements IRichApplication {
     @Override
     public void startupDone() {}
 
+    @Override
+    public void shutdownDone() {}
+
 }
