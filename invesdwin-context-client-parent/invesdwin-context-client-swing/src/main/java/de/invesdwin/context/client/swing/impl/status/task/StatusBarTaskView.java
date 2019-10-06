@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.concurrent.ThreadSafe;
+import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
@@ -26,7 +27,6 @@ import de.invesdwin.context.client.swing.impl.status.StatusBarView;
 import de.invesdwin.util.lang.Strings;
 import de.invesdwin.util.swing.Components;
 
-@SuppressWarnings("serial")
 @ThreadSafe
 public class StatusBarTaskView extends AView<StatusBarTaskView, JPanel> implements IRichApplicationHook {
 
@@ -42,6 +42,7 @@ public class StatusBarTaskView extends AView<StatusBarTaskView, JPanel> implemen
     @Override
     protected JPanel initComponent() {
         final JPanel component = new JPanel();
+        component.setBorder(BorderFactory.createEmptyBorder(0, 0, 2, 0));
         component.setMinimumSize(new Dimension(0, 0));
         component.setLayout(new BorderLayout(0, 0));
 
