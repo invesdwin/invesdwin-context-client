@@ -20,10 +20,22 @@ import de.invesdwin.context.test.stub.StubSupport;
 public class FrameFixtureStub extends StubSupport {
 
     private static volatile FrameFixture frameFixture;
+    private static volatile boolean installFailOnThreadViolationRepaintManager = true;
 
     @Override
     public void setUpContext(final ATest test, final TestContext ctx) {
-        FailOnThreadViolationRepaintManager.install();
+        if (installFailOnThreadViolationRepaintManager) {
+            FailOnThreadViolationRepaintManager.install();
+        }
+    }
+
+    public static boolean isInstallFailOnThreadViolationRepaintManager() {
+        return installFailOnThreadViolationRepaintManager;
+    }
+
+    public static void setInstallFailOnThreadViolationRepaintManager(
+            final boolean installFailOnThreadViolationRepaintManager) {
+        FrameFixtureStub.installFailOnThreadViolationRepaintManager = installFailOnThreadViolationRepaintManager;
     }
 
     @Override
