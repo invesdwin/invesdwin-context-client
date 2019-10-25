@@ -2,6 +2,11 @@
 <web-fragment>
 	<name>de.invesdwin.context.client.wicket</name>
 
+	<session-config>
+		<!-- 24 hours session timeout -->
+		<session-timeout>1440</session-timeout>
+	</session-config>
+
 	<filter>
 		<filter-name>wicket</filter-name>
 		<filter-class>de.invesdwin.context.client.wicket.internal.DelegateWicketFilter
