@@ -1,4 +1,4 @@
-package de.invesdwin.context.client.swing.api.guiservice.dialog;
+package de.invesdwin.context.client.swing.api.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

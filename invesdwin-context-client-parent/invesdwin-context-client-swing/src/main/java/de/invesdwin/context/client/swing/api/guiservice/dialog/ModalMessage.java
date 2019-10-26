@@ -2,6 +2,7 @@ package de.invesdwin.context.client.swing.api.guiservice.dialog;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
+import de.invesdwin.context.client.swing.api.annotation.DefaultCloseOperation;
 import de.invesdwin.context.client.swing.api.view.AModel;
 import de.invesdwin.norva.beanpath.annotation.ModalCloser;
 

@@ -10,11 +10,11 @@ import javax.annotation.concurrent.NotThreadSafe;
 import javax.swing.AbstractButton;
 import javax.swing.border.Border;
 
+import de.invesdwin.context.client.swing.api.annotation.DefaultCloseOperation;
 import de.invesdwin.context.client.swing.api.binding.BindingGroup;
 import de.invesdwin.context.client.swing.api.binding.component.AComponentBinding;
 import de.invesdwin.context.client.swing.api.binding.component.IComponentBinding;
 import de.invesdwin.context.client.swing.api.guiservice.GuiService;
-import de.invesdwin.context.client.swing.api.guiservice.dialog.DefaultCloseOperation;
 import de.invesdwin.context.client.swing.api.view.AModel;
 import de.invesdwin.context.client.swing.api.view.AView;
 import de.invesdwin.context.client.swing.util.SubmitAllViewsHelper;
