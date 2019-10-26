@@ -8,7 +8,10 @@ import java.lang.annotation.Target;
 import de.invesdwin.norva.beanpath.annotation.ModalCloser;
 
 /**
- * This can be used to make button methods close a modal dialog (if they are part of the modal).
+ * This marks actions that are to be called when the window close button was clicked. Only one such annotated action
+ * should exist. Normally the default action should something equivalent to a "cancel".
+ * 
+ * This works both for Modals and for Dockables.
  * 
  */
 @Target({ ElementType.METHOD, ElementType.ANNOTATION_TYPE })
