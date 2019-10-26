@@ -726,7 +726,8 @@ public class CustomChartPanel extends JPanel implements ChartChangeListener, Cha
             this.verticalTraceLine = null;
             this.horizontalTraceLine = null;
         } catch (final Throwable t) {
-            Err.process(t); //log and ignore
+            Err.process(new RuntimeException("Must be some race condition, retrying", t)); //log and ignore
+            paintComponent(g);
         }
     }
 

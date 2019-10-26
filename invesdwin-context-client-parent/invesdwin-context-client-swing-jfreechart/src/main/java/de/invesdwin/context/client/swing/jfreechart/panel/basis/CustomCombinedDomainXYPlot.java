@@ -12,6 +12,7 @@ import org.jfree.chart.plot.CombinedDomainXYPlot;
 import org.jfree.chart.plot.PlotRenderingInfo;
 import org.jfree.chart.plot.XYPlot;
 
+import de.invesdwin.aspects.EventDispatchThreadUtil;
 import de.invesdwin.context.client.swing.jfreechart.panel.InteractiveChartPanel;
 
 @NotThreadSafe
@@ -82,12 +83,19 @@ public class CustomCombinedDomainXYPlot extends CombinedDomainXYPlot {
 
     @Override
     public void add(final XYPlot subplot, final int weight) {
+        EventDispatchThreadUtil.assertEventDispatchThread();
         if (weight == 0) {
             super.add(subplot, 1);
             subplot.setWeight(0);
         } else {
             super.add(subplot, weight);
         }
+    }
+
+    @Override
+    public void remove(final XYPlot subplot) {
+        EventDispatchThreadUtil.assertEventDispatchThread();
+        super.remove(subplot);
     }
 
 }
