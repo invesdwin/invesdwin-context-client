@@ -31,7 +31,7 @@ public class ModalMessage extends AModel {
     @ModalCloser
     public void ok() {}
 
-    @ModalCloser
+    @DefaultCloseOperation
     public void cancel() {}
 
     /**

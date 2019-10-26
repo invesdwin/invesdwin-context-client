@@ -14,6 +14,7 @@ import de.invesdwin.context.client.swing.api.binding.BindingGroup;
 import de.invesdwin.context.client.swing.api.binding.component.AComponentBinding;
 import de.invesdwin.context.client.swing.api.binding.component.IComponentBinding;
 import de.invesdwin.context.client.swing.api.guiservice.GuiService;
+import de.invesdwin.context.client.swing.api.guiservice.dialog.DefaultCloseOperation;
 import de.invesdwin.context.client.swing.api.view.AModel;
 import de.invesdwin.context.client.swing.api.view.AView;
 import de.invesdwin.context.client.swing.util.SubmitAllViewsHelper;
@@ -127,6 +128,8 @@ public class SubmitButtonBinding implements IComponentBinding {
     protected void processResult(final Object result) {
         if (shouldHideModalView()) {
             GuiService.get().hideModalView();
+        } else if (shouldRemoveView()) {
+            GuiService.get().getContentPane().removeView(bindingGroup.getView());
         }
         if (result != null) {
             Assertions.assertThat(result).isInstanceOf(AView.class);
@@ -137,6 +140,10 @@ public class SubmitButtonBinding implements IComponentBinding {
                 GuiService.get().showView(view);
             }
         }
+    }
+
+    private boolean shouldRemoveView() {
+        return element.isModalCloser();
     }
 
     protected boolean shouldHideModalView() {
@@ -212,6 +219,21 @@ public class SubmitButtonBinding implements IComponentBinding {
     protected Object getTarget() {
         final BeanObjectContainer container = (BeanObjectContainer) element.getContainer();
         return container.getObject();
+    }
+
+    public boolean isDefaultCloseOperation() {
+        return isDefaultCloseOperation(element);
+    }
+
+    public static boolean isDefaultCloseOperation(final AActionBeanPathElement element) {
+        if (element.getAccessor().getAnnotation(DefaultCloseOperation.class) != null) {
+            return true;
+        }
+        return false;
+    }
+
+    public void doClick() {
+        component.doClick();
     }
 
 }

@@ -5,6 +5,7 @@ import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Window;
+import java.awt.event.WindowEvent;
 import java.util.Stack;
 
 import javax.annotation.concurrent.GuardedBy;
@@ -20,12 +21,14 @@ import org.jdesktop.application.TaskService;
 import de.invesdwin.aspects.annotation.EventDispatchThread;
 import de.invesdwin.aspects.annotation.EventDispatchThread.InvocationType;
 import de.invesdwin.context.beans.init.MergedContext;
+import de.invesdwin.context.client.swing.api.binding.component.button.SubmitButtonBinding;
 import de.invesdwin.context.client.swing.api.guiservice.dialog.DialogDockable;
 import de.invesdwin.context.client.swing.api.view.AView;
 import de.invesdwin.context.client.swing.impl.content.DockableIdGenerator;
 import de.invesdwin.context.client.swing.util.SubmitAllViewsHelper;
 import de.invesdwin.context.client.swing.util.UpdateAllViewsHelper;
 import de.invesdwin.util.swing.Dialogs;
+import de.invesdwin.util.swing.listener.WindowListenerSupport;
 
 @ThreadSafe
 public class GuiService implements IGuiService {
@@ -88,6 +91,15 @@ public class GuiService implements IGuiService {
         contentPane.add(view.getComponent());
         dialog.setTitle(view.getTitle());
         dialog.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
+        final SubmitButtonBinding defaultCloseOperation = view.getBindingGroup().getDefaultCloseOperation();
+        if (defaultCloseOperation != null) {
+            dialog.addWindowListener(new WindowListenerSupport() {
+                @Override
+                public void windowClosing(final WindowEvent e) {
+                    defaultCloseOperation.doClick();
+                }
+            });
+        }
         view.setDockable(dialog);
         dialog.pack();
         if (dimension != null) {

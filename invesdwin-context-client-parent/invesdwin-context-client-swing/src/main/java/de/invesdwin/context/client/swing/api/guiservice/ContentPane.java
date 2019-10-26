@@ -45,8 +45,10 @@ public class ContentPane {
     public void removeView(final AView<?, ?> view) {
         //May also be called by contentRemoved, in that case we should not trigger that again.
         if (containsView(view)) {
+            final String dockableUniqueId = view.getDockableUniqueId();
+            view.getDockable().setView(null);
             Assertions.assertThat(contentPaneView.removeView(view)).isTrue();
-            Assertions.assertThat(id_visibleView.remove(view.getDockableUniqueId())).isNotNull();
+            Assertions.assertThat(id_visibleView.remove(dockableUniqueId)).isNotNull();
             Assertions.assertThat(class_id_visibleView.get(view.getClass()).remove(view.getDockableUniqueId()))
                     .isNotNull();
             view.setDockable(null);

@@ -1,11 +1,13 @@
 package de.invesdwin.context.client.swing.api.binding;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
 import javax.annotation.concurrent.NotThreadSafe;
+import javax.swing.JButton;
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 
@@ -15,9 +17,12 @@ import de.invesdwin.context.beans.validator.BeanValidator;
 import de.invesdwin.context.client.swing.api.binding.component.AComponentBinding;
 import de.invesdwin.context.client.swing.api.binding.component.IComponentBinding;
 import de.invesdwin.context.client.swing.api.binding.component.button.ISubmitButtonExceptionHandler;
+import de.invesdwin.context.client.swing.api.binding.component.button.SubmitButtonBinding;
+import de.invesdwin.context.client.swing.api.guiservice.dialog.DefaultCloseOperation;
 import de.invesdwin.context.client.swing.api.view.AModel;
 import de.invesdwin.context.client.swing.api.view.AView;
 import de.invesdwin.norva.beanpath.impl.object.BeanObjectContext;
+import de.invesdwin.norva.beanpath.spi.element.AActionBeanPathElement;
 import de.invesdwin.norva.beanpath.spi.element.IBeanPathElement;
 import de.invesdwin.norva.beanpath.spi.element.RootBeanPathElement;
 import de.invesdwin.util.collections.fast.AFastIterableDelegateList;
@@ -44,6 +49,7 @@ public class BindingGroup implements IComponentBinding {
     private final BeanObjectContext modelContext;
     private final ISubmitButtonExceptionHandler submitButtonExceptionHandler;
     private String invalidMessage = null;
+    private SubmitButtonBinding defaultCloseOperation;
 
     public BindingGroup(final AView<?, ?> view, final BeanObjectContext modelContext,
             final ISubmitButtonExceptionHandler submitButtonExceptionHandler) {
@@ -64,9 +70,35 @@ public class BindingGroup implements IComponentBinding {
         return modelContext;
     }
 
-    public void add(final IComponentBinding binding) {
+    public void addBinding(final IComponentBinding binding) {
         beanPath_binding.get(binding.getBeanPath()).add(binding);
         bindings.add(binding);
+        if (binding instanceof SubmitButtonBinding) {
+            final SubmitButtonBinding cBinding = (SubmitButtonBinding) binding;
+            if (cBinding.isDefaultCloseOperation()) {
+                if (defaultCloseOperation != null) {
+                    throw new IllegalStateException("Only one @" + DefaultCloseOperation.class.getSimpleName()
+                            + " supported binding group. Existing=" + defaultCloseOperation.getBeanPath() + " New="
+                            + cBinding.getBeanPath());
+                } else {
+                    defaultCloseOperation = cBinding;
+                }
+            }
+        }
+    }
+
+    public void finishBinding() {
+        if (defaultCloseOperation == null) {
+            final Collection<IBeanPathElement> elements = modelContext.getElementRegistry().getElements();
+            for (final IBeanPathElement element : elements) {
+                if (element instanceof AActionBeanPathElement) {
+                    final AActionBeanPathElement action = (AActionBeanPathElement) element;
+                    if (SubmitButtonBinding.isDefaultCloseOperation(action)) {
+                        defaultCloseOperation = new SubmitButtonBinding(new JButton(), action, this);
+                    }
+                }
+            }
+        }
     }
 
     @Override
@@ -200,4 +232,9 @@ public class BindingGroup implements IComponentBinding {
         }
         return i18n;
     }
+
+    public SubmitButtonBinding getDefaultCloseOperation() {
+        return defaultCloseOperation;
+    }
+
 }

@@ -46,7 +46,7 @@ public class TableChoiceBinding extends AComponentBinding<JTable, List<?>> {
         component.setAutoCreateColumnsFromModel(true);
         selectionBinding = configureSelectionMode(component);
         if (selectionBinding != null) {
-            bindingGroup.add(selectionBinding);
+            bindingGroup.addBinding(selectionBinding);
         }
     }
 

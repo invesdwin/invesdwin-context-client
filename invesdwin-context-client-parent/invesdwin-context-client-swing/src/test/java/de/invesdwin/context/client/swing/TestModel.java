@@ -15,12 +15,14 @@ import de.invesdwin.aspects.EventDispatchThreadUtil;
 import de.invesdwin.context.client.swing.api.ATask;
 import de.invesdwin.context.client.swing.api.guiservice.GuiService;
 import de.invesdwin.context.client.swing.api.guiservice.StatusBar;
+import de.invesdwin.context.client.swing.api.guiservice.dialog.DefaultCloseOperation;
 import de.invesdwin.context.client.swing.api.guiservice.dialog.ModalMessage;
 import de.invesdwin.context.client.swing.api.guiservice.dialog.ModalMessageView;
 import de.invesdwin.context.client.swing.api.view.AModel;
 import de.invesdwin.context.client.swing.api.view.AView;
 import de.invesdwin.context.log.error.Err;
 import de.invesdwin.norva.beanpath.annotation.ColumnOrder;
+import de.invesdwin.norva.beanpath.annotation.Forced;
 import de.invesdwin.norva.beanpath.annotation.ModalOpener;
 import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.swing.Dialogs;
@@ -97,6 +99,12 @@ public class TestModel extends AModel {
 
     public boolean isCheckboxTest() {
         return checkboxTest;
+    }
+
+    @DefaultCloseOperation
+    @Forced
+    public void defaultCloseOperation() {
+        GuiService.get().getStatusBar().message("Default Close Operation");
     }
 
     public void next() {

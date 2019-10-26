@@ -7,6 +7,9 @@ import javax.swing.Icon;
 import javax.swing.JComponent;
 
 import bibliothek.gui.dock.common.DefaultSingleCDockable;
+import de.invesdwin.context.client.swing.api.binding.BindingGroup;
+import de.invesdwin.context.client.swing.api.binding.component.button.SubmitButtonBinding;
+import de.invesdwin.context.client.swing.api.guiservice.GuiService;
 import de.invesdwin.context.client.swing.api.view.AView;
 import de.invesdwin.context.client.swing.api.view.IDockable;
 import de.invesdwin.util.swing.AComponentFinder;
@@ -40,6 +43,25 @@ public class ContentPaneDockable extends DefaultSingleCDockable implements IDock
         } else {
             //fallback
             return AComponentFinder.DEFAULT_FOCUS.find(getComponent());
+        }
+    }
+
+    @Override
+    public void setVisible(final boolean visible) {
+        if (view != null && isVisible() && !visible) {
+            final BindingGroup bindingGroup = view.getBindingGroup();
+            if (bindingGroup != null) {
+                final SubmitButtonBinding defaultCloseOperation = bindingGroup.getDefaultCloseOperation();
+                if (defaultCloseOperation != null) {
+                    //binding handles removal
+                    defaultCloseOperation.doClick();
+                    return;
+                }
+            }
+            //content pane handles removal
+            GuiService.get().getContentPane().removeView(view);
+        } else {
+            super.setVisible(visible);
         }
     }
 

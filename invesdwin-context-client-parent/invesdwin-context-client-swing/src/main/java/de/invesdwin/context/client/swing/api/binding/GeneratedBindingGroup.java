@@ -125,9 +125,10 @@ public final class GeneratedBindingGroup {
                 throw UnknownArgumentException.newInstance(Class.class, c.getClass());
             }
             if (binding != null) {
-                bindingGroup.add(binding);
+                bindingGroup.addBinding(binding);
             }
         }
+        bindingGroup.finishBinding();
         bindingGroup.update();
         return bindingGroup;
     }
