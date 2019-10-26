@@ -4,7 +4,6 @@ import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.concurrent.ThreadSafe;
@@ -39,6 +38,7 @@ public class StatusBarTaskView extends AView<StatusBarTaskView, JPanel> implemen
     /**
      * @wbp.parser.entryPoint
      */
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     @Override
     protected JPanel initComponent() {
         final JPanel component = new JPanel();
@@ -64,8 +64,9 @@ public class StatusBarTaskView extends AView<StatusBarTaskView, JPanel> implemen
         component.add(lblTasks, BorderLayout.EAST);
 
         calculateProgressbarPreferredSize();
-        setForegroundTaskText(null);
-        setTasksText(new ArrayList<Task<?, ?>>());
+        setForegroundTaskText(taskMonitor.getForegroundTask());
+        final List<Task<?, ?>> tasks = (List) taskMonitor.getTasks();
+        setTasksText(tasks);
 
         Components.showTooltipWithoutDelay(lblForegroundTask);
         Components.showTooltipWithoutDelay(pgbForegroundTask);
@@ -83,6 +84,10 @@ public class StatusBarTaskView extends AView<StatusBarTaskView, JPanel> implemen
 
     @EventDispatchThread(InvocationType.INVOKE_AND_WAIT)
     private void setForegroundTaskText(final Task<?, ?> foregroundTask) {
+        if (pgbForegroundTask == null) {
+            //not initialized yet
+            return;
+        }
         if (foregroundTask != null) {
             lblForegroundTask.setText(taskToString(foregroundTask) + " ");
             final StringBuilder tooltip = new StringBuilder("<html>");
@@ -111,6 +116,10 @@ public class StatusBarTaskView extends AView<StatusBarTaskView, JPanel> implemen
 
     @EventDispatchThread(InvocationType.INVOKE_AND_WAIT)
     private void setTasksText(final List<Task<?, ?>> tasks) {
+        if (lblTasks == null) {
+            //not initialized yet
+            return;
+        }
         if (tasks.size() > 0) {
             final StringBuilder text = new StringBuilder(" [");
             text.append(tasks.size());
