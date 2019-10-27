@@ -322,8 +322,8 @@ public abstract class ACustomProfitLossRenderer extends AbstractXYItemRenderer
         final ListXYSeriesOHLC cSeries = cDataset.getSeries(series);
         final List<XYDataItemOHLC> data = cSeries.getData();
         final int item0 = Math.max(item1 - 1, 0);
-        final OHLCDataItem cItem0 = data.get(item0).asOHLC();
-        final OHLCDataItem cItem1 = data.get(item1).asOHLC();
+        final OHLCDataItem cItem0 = data.get(item0).getOHLC();
+        final OHLCDataItem cItem1 = data.get(item1).getOHLC();
 
         final double x1 = dataset.getXValue(series, item1);
         if (Double.isNaN(cItem1.getClose().doubleValue())) {

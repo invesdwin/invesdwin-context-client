@@ -192,7 +192,7 @@ public class PlotSourceXYSeriesCollection extends XYSeriesCollection implements 
 
     @Override
     public Number getHigh(final int series, final int item) {
-        return getSeries(series).getData().get(item).asOHLC().getHigh();
+        return getSeries(series).getData().get(item).getOHLC().getHigh();
     }
 
     @Override
@@ -202,7 +202,7 @@ public class PlotSourceXYSeriesCollection extends XYSeriesCollection implements 
 
     @Override
     public Number getLow(final int series, final int item) {
-        return getSeries(series).getData().get(item).asOHLC().getLow();
+        return getSeries(series).getData().get(item).getOHLC().getLow();
     }
 
     @Override
@@ -212,7 +212,7 @@ public class PlotSourceXYSeriesCollection extends XYSeriesCollection implements 
 
     @Override
     public Number getOpen(final int series, final int item) {
-        return getSeries(series).getData().get(item).asOHLC().getOpen();
+        return getSeries(series).getData().get(item).getOHLC().getOpen();
     }
 
     @Override
@@ -222,7 +222,7 @@ public class PlotSourceXYSeriesCollection extends XYSeriesCollection implements 
 
     @Override
     public Number getClose(final int series, final int item) {
-        return getSeries(series).getData().get(item).asOHLC().getClose();
+        return getSeries(series).getData().get(item).getOHLC().getClose();
     }
 
     @Override
@@ -232,7 +232,7 @@ public class PlotSourceXYSeriesCollection extends XYSeriesCollection implements 
 
     @Override
     public Number getVolume(final int series, final int item) {
-        return getSeries(series).getData().get(item).asOHLC().getVolume();
+        return getSeries(series).getData().get(item).getOHLC().getVolume();
     }
 
     @Override
