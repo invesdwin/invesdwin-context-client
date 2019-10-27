@@ -38,7 +38,7 @@ public class StatusBarTaskInfoMonitor implements IRichApplicationHook, ITaskInfo
 
     @Override
     public void initializeDone() {
-        TaskInfoManager.getListeners().add(this);
+        TaskInfoManager.registerListener(this);
     }
 
     @Override
@@ -46,7 +46,7 @@ public class StatusBarTaskInfoMonitor implements IRichApplicationHook, ITaskInfo
 
     @Override
     public void shutdownDone() {
-        TaskInfoManager.getListeners().remove(this);
+        TaskInfoManager.unregisterListener(this);
     }
 
     @Override
