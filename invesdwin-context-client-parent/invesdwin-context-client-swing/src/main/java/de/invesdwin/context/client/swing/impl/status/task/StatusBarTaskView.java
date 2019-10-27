@@ -44,6 +44,7 @@ public class StatusBarTaskView extends AView<StatusBarTaskView, JPanel> implemen
     @Override
     protected JPanel initComponent() {
         final JPanel component = new JPanel();
+        component.setBorder(VISIBLE_BORDER);
         component.setMinimumSize(new Dimension(0, 0));
         component.setLayout(new BorderLayout(0, 0));
 
@@ -79,6 +80,7 @@ public class StatusBarTaskView extends AView<StatusBarTaskView, JPanel> implemen
     }
 
     private void updateBorder(final JPanel component) {
+        //somehow we need to set BOTH border and visible, only visible still shows gaps
         if (pnlProgress.isVisible()) {
             component.setBorder(VISIBLE_BORDER);
         } else {
