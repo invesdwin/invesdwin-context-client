@@ -65,8 +65,13 @@ public class StatusBarTaskInfoMonitor implements IRichApplicationHook, ITaskInfo
                         break;
                     }
                     final Percent progress = taskInfo.getProgress();
-                    if (progress != null && !progress.isZero() && progress.isLessThan(Percent.ONE_HUNDRED_PERCENT)) {
-                        setProgress((float) progress.getValue(PercentScale.RATE));
+                    if (progress != null) {
+                        final float percentage = (float) progress.getValue(PercentScale.RATE);
+                        if (percentage < 0.0 || percentage > 1.0) {
+                            setProgress(0F);
+                        } else {
+                            setProgress(percentage);
+                        }
                     } else {
                         setProgress(0F);
                     }
