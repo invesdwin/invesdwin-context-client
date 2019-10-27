@@ -12,6 +12,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.SwingConstants;
+import javax.swing.border.Border;
 
 import org.jdesktop.application.Application;
 import org.jdesktop.application.ApplicationContext;
@@ -22,13 +23,14 @@ import de.invesdwin.aspects.annotation.EventDispatchThread;
 import de.invesdwin.aspects.annotation.EventDispatchThread.InvocationType;
 import de.invesdwin.context.client.swing.api.hook.IRichApplicationHook;
 import de.invesdwin.context.client.swing.api.view.AView;
-import de.invesdwin.context.client.swing.impl.status.StatusBarView;
 import de.invesdwin.util.lang.Strings;
 import de.invesdwin.util.swing.Components;
 
 @ThreadSafe
 public class StatusBarTaskView extends AView<StatusBarTaskView, JPanel> implements IRichApplicationHook {
 
+    private static final Border VISIBLE_BORDER = BorderFactory.createEmptyBorder(1, 0, 2, 0);
+    private static final Border INVISIBLE_BORDER = BorderFactory.createEmptyBorder(0, 0, 0, 0);
     private TaskMonitor taskMonitor;
     private JLabel lblForegroundTask;
     private JLabel lblTasks;
@@ -42,7 +44,6 @@ public class StatusBarTaskView extends AView<StatusBarTaskView, JPanel> implemen
     @Override
     protected JPanel initComponent() {
         final JPanel component = new JPanel();
-        component.setBorder(BorderFactory.createEmptyBorder(0, 0, 2, 0));
         component.setMinimumSize(new Dimension(0, 0));
         component.setLayout(new BorderLayout(0, 0));
 
@@ -72,7 +73,18 @@ public class StatusBarTaskView extends AView<StatusBarTaskView, JPanel> implemen
         Components.showTooltipWithoutDelay(pgbForegroundTask);
         Components.showTooltipWithoutDelay(lblTasks);
 
+        updateBorder(component);
+
         return component;
+    }
+
+    private void updateBorder(final JPanel component) {
+        if (pnlProgress.isVisible()) {
+            component.setBorder(VISIBLE_BORDER);
+        } else {
+            component.setBorder(INVISIBLE_BORDER);
+        }
+        component.setVisible(pnlProgress.isVisible());
     }
 
     private void calculateProgressbarPreferredSize() {
@@ -123,8 +135,7 @@ public class StatusBarTaskView extends AView<StatusBarTaskView, JPanel> implemen
         if (tasks.size() > 0) {
             final StringBuilder text = new StringBuilder(" [");
             text.append(tasks.size());
-            text.append("]");
-            text.append(StatusBarView.DISTANCE_TO_BORDER);
+            text.append("] ");
             lblTasks.setText(text.toString());
 
             final StringBuilder tooltip = new StringBuilder("<html>");
@@ -209,6 +220,7 @@ public class StatusBarTaskView extends AView<StatusBarTaskView, JPanel> implemen
                 setForegroundTaskText(newForegroundTask);
                 final List<Task<?, ?>> tasks = (List) taskMonitor.getTasks();
                 setTasksText(tasks);
+                updateBorder(getComponent());
             }
         });
 
@@ -221,6 +233,7 @@ public class StatusBarTaskView extends AView<StatusBarTaskView, JPanel> implemen
                     setForegroundTaskText(null);
                 }
                 setTasksText(tasks);
+                updateBorder(getComponent());
             }
         });
     }

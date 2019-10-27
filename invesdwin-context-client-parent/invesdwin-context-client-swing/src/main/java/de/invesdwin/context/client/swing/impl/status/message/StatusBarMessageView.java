@@ -11,7 +11,6 @@ import javax.swing.JPanel;
 
 import de.invesdwin.aspects.EventDispatchThreadUtil;
 import de.invesdwin.context.client.swing.api.view.AView;
-import de.invesdwin.context.client.swing.impl.status.StatusBarView;
 import de.invesdwin.util.lang.Strings;
 import de.invesdwin.util.swing.Components;
 import de.invesdwin.util.time.duration.Duration;
@@ -21,7 +20,6 @@ import de.invesdwin.util.time.duration.Duration;
 public class StatusBarMessageView extends AView<StatusBarMessageView, JPanel> {
 
     private JLabel lblMessage;
-    private JLabel lblSpace;
 
     /**
      * @wbp.parser.entryPoint
@@ -50,9 +48,8 @@ public class StatusBarMessageView extends AView<StatusBarMessageView, JPanel> {
             }
         });
 
-        lblSpace = new JLabel("");
-        component.add(lblSpace, BorderLayout.WEST);
         component.add(lblMessage, BorderLayout.CENTER);
+        component.setVisible(false);
         return component;
     }
 
@@ -64,15 +61,15 @@ public class StatusBarMessageView extends AView<StatusBarMessageView, JPanel> {
                     public void run() {
                         lblMessage.setForeground(color);
                         if (Strings.isNotBlank(text)) {
-                            lblSpace.setText(StatusBarView.DISTANCE_TO_BORDER);
                             lblMessage.setText(text);
                             Components.setToolTipText(lblMessage, text);
                             StatusBarMessageTimeoutThread.startInstance(timeout);
+                            getComponent().setVisible(true);
                         } else {
-                            lblSpace.setText(null);
                             lblMessage.setText(null);
                             Components.setToolTipText(lblMessage, null);
                             StatusBarMessageTimeoutThread.stopInstance();
+                            getComponent().setVisible(false);
                         }
                     }
                 });
