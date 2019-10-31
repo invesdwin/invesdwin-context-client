@@ -13,7 +13,6 @@ import java.util.zip.ZipOutputStream;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.wicket.request.Url;
 import org.apache.wicket.request.resource.IResource;
@@ -27,6 +26,7 @@ import de.invesdwin.nowicket.generated.guiservice.GuiService;
 import de.invesdwin.nowicket.generated.guiservice.OfferDownloadConfig;
 import de.invesdwin.nowicket.generated.markup.annotation.GeneratedMarkup;
 import de.invesdwin.util.bean.AValueObject;
+import de.invesdwin.util.lang.Files;
 import de.invesdwin.util.lang.uri.URIs;
 
 @GeneratedMarkup
@@ -56,7 +56,7 @@ public class RedirectedModel extends AValueObject {
     public File multiFileDownload() throws IOException {
         final File tempFile = new File(GuiService.get().getSessionFolder(),
                 getClass().getSimpleName() + "/multiFileDownload.zip");
-        FileUtils.forceMkdir(tempFile.getParentFile());
+        Files.forceMkdir(tempFile.getParentFile());
         final ZipOutputStream zip = new ZipOutputStream(new FileOutputStream(tempFile));
         for (final File file : multiFiles) {
             final ZipEntry entry = new ZipEntry(file.getName());

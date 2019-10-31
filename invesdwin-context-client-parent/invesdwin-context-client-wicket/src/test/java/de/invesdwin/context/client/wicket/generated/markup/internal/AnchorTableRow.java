@@ -4,10 +4,10 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
+import java.nio.charset.Charset;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.wicket.request.Url;
 import org.apache.wicket.request.resource.IResource;
 import org.apache.wicket.request.resource.ResourceReference;
@@ -16,6 +16,7 @@ import de.agilecoders.wicket.core.markup.html.themes.bootstrap.BootstrapCssRefer
 import de.invesdwin.norva.beanpath.annotation.Disabled;
 import de.invesdwin.nowicket.generated.guiservice.GuiService;
 import de.invesdwin.util.bean.AValueObject;
+import de.invesdwin.util.lang.Files;
 import de.invesdwin.util.lang.uri.URIs;
 
 @NotThreadSafe
@@ -56,8 +57,8 @@ public class AnchorTableRow extends AValueObject {
 
     public File fileDownload() throws IOException {
         final File file = new File(GuiService.get().getSessionFolder(), getClass().getSimpleName() + ".txt");
-        FileUtils.deleteQuietly(file);
-        FileUtils.writeStringToFile(file, "asdf");
+        Files.deleteQuietly(file);
+        Files.writeStringToFile(file, "asdf", Charset.defaultCharset());
         return file;
     }
 

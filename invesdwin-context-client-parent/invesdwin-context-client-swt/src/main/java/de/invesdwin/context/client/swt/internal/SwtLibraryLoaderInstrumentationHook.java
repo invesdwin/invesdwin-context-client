@@ -7,13 +7,12 @@ import java.lang.instrument.Instrumentation;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
-import org.apache.commons.io.FileUtils;
-
 import de.invesdwin.context.beans.hook.IInstrumentationHook;
 import de.invesdwin.context.log.error.Err;
 import de.invesdwin.instrument.DynamicInstrumentationProperties;
 import de.invesdwin.instrument.DynamicInstrumentationReflections;
 import de.invesdwin.util.assertions.Assertions;
+import de.invesdwin.util.lang.Files;
 import de.invesdwin.util.lang.Reflections;
 
 /**
@@ -36,7 +35,7 @@ public class SwtLibraryLoaderInstrumentationHook implements IInstrumentationHook
                 if (source == null) {
                     throw new IllegalStateException("Jar file [" + jarPath + "] not found on classpath!");
                 }
-                FileUtils.copyInputStreamToFile(source, destination);
+                Files.copyInputStreamToFile(source, destination);
             } catch (final IOException e) {
                 throw new RuntimeException(e);
             }
