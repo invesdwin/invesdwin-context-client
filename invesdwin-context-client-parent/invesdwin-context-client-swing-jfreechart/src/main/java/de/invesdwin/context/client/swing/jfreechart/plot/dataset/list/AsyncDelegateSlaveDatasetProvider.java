@@ -1,6 +1,7 @@
 package de.invesdwin.context.client.swing.jfreechart.plot.dataset.list;
 
-import java.util.concurrent.Executor;
+import java.lang.ref.WeakReference;
+import java.util.concurrent.ExecutorService;
 
 import javax.annotation.concurrent.ThreadSafe;
 
@@ -13,10 +14,39 @@ import de.invesdwin.util.time.fdate.FDate;
 @ThreadSafe
 public class AsyncDelegateSlaveDatasetProvider implements ISlaveLazyDatasetProvider {
 
-    private final Executor executor;
+    private final class AsnyRunnable implements IPriorityRunnable {
+        private final FDate key;
+        //use weak reference to not load already evicted items due to fast scrolling
+        private final WeakReference<XYDataItemOHLC> itemRef;
+
+        private AsnyRunnable(final FDate key, final XYDataItemOHLC item) {
+            this.key = key;
+            this.itemRef = new WeakReference<XYDataItemOHLC>(item);
+        }
+
+        @Override
+        public void run() {
+            final XYDataItemOHLC item = itemRef.get();
+            if (item == null || item.getOHLC() == null) {
+                return;
+            }
+            final XYDataItemOHLC value = delegate.getValue(key);
+            if (value != null) {
+                item.setOHLC(value.getOHLC());
+            }
+        }
+
+        @Override
+        public double getPriority() {
+            //update ascending (because that is faster with historical caches)
+            return key.millisValue();
+        }
+    }
+
+    private final ExecutorService executor;
     private final ISlaveLazyDatasetProvider delegate;
 
-    public AsyncDelegateSlaveDatasetProvider(final Executor executor, final ISlaveLazyDatasetProvider delegate) {
+    public AsyncDelegateSlaveDatasetProvider(final ExecutorService executor, final ISlaveLazyDatasetProvider delegate) {
         this.executor = executor;
         this.delegate = delegate;
     }
@@ -25,21 +55,7 @@ public class AsyncDelegateSlaveDatasetProvider implements ISlaveLazyDatasetProvi
     public XYDataItemOHLC getValue(final FDate key) {
         final XYDataItemOHLC item = new XYDataItemOHLC(
                 new OHLCDataItem(key.dateValue(), Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN));
-        executor.execute(new IPriorityRunnable() {
-            @Override
-            public void run() {
-                final XYDataItemOHLC value = delegate.getValue(key);
-                if (value != null) {
-                    item.setOHLC(value.getOHLC());
-                }
-            }
-
-            @Override
-            public double getPriority() {
-                //update ascending (because that is faster with historical caches)
-                return key.millisValue();
-            }
-        });
+        executor.execute(new AsnyRunnable(key, item));
         return item;
     }
 

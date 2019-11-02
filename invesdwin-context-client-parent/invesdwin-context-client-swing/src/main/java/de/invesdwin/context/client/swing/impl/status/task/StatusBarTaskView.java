@@ -22,15 +22,19 @@ import org.jdesktop.application.TaskMonitor;
 import de.invesdwin.aspects.annotation.EventDispatchThread;
 import de.invesdwin.aspects.annotation.EventDispatchThread.InvocationType;
 import de.invesdwin.context.client.swing.api.hook.IRichApplicationHook;
+import de.invesdwin.context.client.swing.api.task.EstimatedRemainingDurationTaskListener;
 import de.invesdwin.context.client.swing.api.view.AView;
 import de.invesdwin.util.lang.Strings;
 import de.invesdwin.util.swing.Components;
+import de.invesdwin.util.time.duration.Duration;
+import de.invesdwin.util.time.fdate.FTimeUnit;
 
 @ThreadSafe
 public class StatusBarTaskView extends AView<StatusBarTaskView, JPanel> implements IRichApplicationHook {
 
     private static final Border VISIBLE_BORDER = BorderFactory.createEmptyBorder(1, 0, 2, 0);
     private static final Border INVISIBLE_BORDER = BorderFactory.createEmptyBorder(0, 0, 0, 0);
+    private static final Duration ETA_THRESHOLD = new Duration(10, FTimeUnit.SECONDS);
     private TaskMonitor taskMonitor;
     private JLabel lblForegroundTask;
     private JLabel lblTasks;
@@ -66,8 +70,8 @@ public class StatusBarTaskView extends AView<StatusBarTaskView, JPanel> implemen
         component.add(lblTasks, BorderLayout.EAST);
 
         calculateProgressbarPreferredSize();
-        setForegroundTaskText(taskMonitor.getForegroundTask());
         final List<Task<?, ?>> tasks = (List) taskMonitor.getTasks();
+        setForegroundTaskText(taskMonitor.getForegroundTask(), tasks);
         setTasksText(tasks);
 
         Components.showTooltipWithoutDelay(lblForegroundTask);
@@ -97,25 +101,27 @@ public class StatusBarTaskView extends AView<StatusBarTaskView, JPanel> implemen
     }
 
     @EventDispatchThread(InvocationType.INVOKE_AND_WAIT)
-    private void setForegroundTaskText(final Task<?, ?> foregroundTask) {
+    private void setForegroundTaskText(final Task<?, ?> foregroundTask, final List<Task<?, ?>> tasks) {
         if (pgbForegroundTask == null) {
             //not initialized yet
             return;
         }
         if (foregroundTask != null) {
-            lblForegroundTask.setText(taskToString(foregroundTask) + " ");
+            final Task<?, ?> task = determineForegroundTask(foregroundTask, tasks);
+            final String taskToString = taskToString(task);
+            lblForegroundTask.setText(taskToString + " ");
             final StringBuilder tooltip = new StringBuilder("<html>");
-            tooltip.append(lblForegroundTask.getText());
+            tooltip.append(taskToString);
             //Description
-            if (Strings.isNotBlank(foregroundTask.getDescription())) {
+            if (Strings.isNotBlank(task.getDescription())) {
                 tooltip.append("<hr>");
-                tooltip.append(foregroundTask.getDescription());
+                tooltip.append(task.getDescription());
             }
             Components.setToolTipText(lblForegroundTask, tooltip.toString());
 
-            if (foregroundTask.isProgressPropertyValid()) {
+            if (task.isProgressPropertyValid()) {
                 pgbForegroundTask.setIndeterminate(false);
-                pgbForegroundTask.setValue(foregroundTask.getProgress());
+                pgbForegroundTask.setValue(task.getProgress());
             } else {
                 pgbForegroundTask.setIndeterminate(true);
             }
@@ -126,6 +132,19 @@ public class StatusBarTaskView extends AView<StatusBarTaskView, JPanel> implemen
             pnlProgress.setVisible(false);
         }
         Components.setToolTipText(pgbForegroundTask, lblForegroundTask.getToolTipText());
+    }
+
+    private Task<?, ?> determineForegroundTask(final Task<?, ?> foregroundTask, final List<Task<?, ?>> tasks) {
+        Task<?, ?> longestDurationTask = foregroundTask;
+        Duration longestDuration = Duration.ZERO;
+        for (final Task<?, ?> task : tasks) {
+            final Duration duration = EstimatedRemainingDurationTaskListener.get(task).getEstimatedRemainingDuration();
+            if (duration != null && longestDuration.isLessThan(duration)) {
+                longestDuration = duration;
+                longestDurationTask = task;
+            }
+        }
+        return longestDurationTask;
     }
 
     @EventDispatchThread(InvocationType.INVOKE_AND_WAIT)
@@ -174,6 +193,11 @@ public class StatusBarTaskView extends AView<StatusBarTaskView, JPanel> implemen
             s.append(": ");
             s.append(task.getMessage());
         }
+        final Duration eta = EstimatedRemainingDurationTaskListener.get(task).getEstimatedRemainingDuration();
+        if (eta != null && eta.isGreaterThanOrEqualTo(ETA_THRESHOLD)) {
+            s.append(" | ETA: ");
+            s.append(eta.toString(FTimeUnit.SECONDS));
+        }
         return s.toString();
     }
 
@@ -212,15 +236,15 @@ public class StatusBarTaskView extends AView<StatusBarTaskView, JPanel> implemen
                                     if (task != taskMonitor.getForegroundTask()) {
                                         task.removePropertyChangeListener(this);
                                     } else {
-                                        setForegroundTaskText(task);
                                         final List<Task<?, ?>> tasks = (List) taskMonitor.getTasks();
+                                        setForegroundTaskText(task, tasks);
                                         setTasksText(tasks);
                                     }
                                 }
                             });
                 }
-                setForegroundTaskText(newForegroundTask);
                 final List<Task<?, ?>> tasks = (List) taskMonitor.getTasks();
+                setForegroundTaskText(newForegroundTask, tasks);
                 setTasksText(tasks);
                 updateBorder(getComponent());
             }
@@ -232,7 +256,7 @@ public class StatusBarTaskView extends AView<StatusBarTaskView, JPanel> implemen
             public void propertyChange(final PropertyChangeEvent evt) {
                 final List<Task<?, ?>> tasks = (List) taskMonitor.getTasks();
                 if (tasks.size() == 0) {
-                    setForegroundTaskText(null);
+                    setForegroundTaskText(null, tasks);
                 }
                 setTasksText(tasks);
                 updateBorder(getComponent());

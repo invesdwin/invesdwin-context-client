@@ -23,6 +23,9 @@ public class PlotPanHelper {
     }
 
     public void panLeft() {
+        if (chartPanel.isUpdating()) {
+            return;
+        }
         final Range range = chartPanel.getDomainAxis().getRange();
         final double length = range.getLength();
         final double newLowerBound = Doubles.max(range.getLowerBound() - length * scrollFactor,
@@ -33,6 +36,9 @@ public class PlotPanHelper {
     }
 
     public void panRight() {
+        if (chartPanel.isUpdating()) {
+            return;
+        }
         final Range range = chartPanel.getDomainAxis().getRange();
         final double length = range.getLength();
         final double newUpperBound = Doubles.min(range.getUpperBound() + length * scrollFactor,

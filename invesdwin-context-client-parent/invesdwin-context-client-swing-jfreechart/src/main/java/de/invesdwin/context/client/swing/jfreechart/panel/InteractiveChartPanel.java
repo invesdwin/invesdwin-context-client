@@ -21,6 +21,7 @@ import org.jfree.data.Range;
 import org.jfree.data.general.DatasetChangeEvent;
 import org.jfree.data.general.DatasetChangeListener;
 
+import de.invesdwin.aspects.EventDispatchThreadUtil;
 import de.invesdwin.context.client.swing.jfreechart.panel.basis.CustomChartPanel;
 import de.invesdwin.context.client.swing.jfreechart.panel.basis.CustomCombinedDomainXYPlot;
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.IRangeListener;
@@ -37,6 +38,9 @@ import de.invesdwin.context.client.swing.jfreechart.plot.dataset.IndexedDateTime
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.list.IChartPanelAwareDatasetList;
 import de.invesdwin.context.jfreechart.visitor.JFreeChartLocaleChanger;
 import de.invesdwin.util.assertions.Assertions;
+import de.invesdwin.util.concurrent.Executors;
+import de.invesdwin.util.concurrent.WrappedExecutorService;
+import de.invesdwin.util.lang.finalizer.AFinalizer;
 import de.invesdwin.util.math.Doubles;
 import de.invesdwin.util.swing.listener.KeyListenerSupport;
 import de.invesdwin.util.swing.listener.MouseListenerSupport;
@@ -70,10 +74,15 @@ public class InteractiveChartPanel extends JPanel {
     private FDate lastHorizontalScroll = FDate.MIN_DATE;
     private FDate lastVerticalScroll = FDate.MIN_DATE;
 
+    private final InteractiveChartPanelFinalizer finalizer;
+
     public InteractiveChartPanel(final IndexedDateTimeOHLCDataset dataset) {
         this.dataset = dataset;
         Assertions.checkNotBlank(dataset.getRangeAxisId());
         Assertions.checkNotNull(dataset.getPrecision());
+
+        this.finalizer = new InteractiveChartPanelFinalizer();
+        this.finalizer.register(this);
 
         this.plotResizeHelper = new PlotResizeHelper(this);
         this.plotCrosshairHelper = new PlotCrosshairHelper(this);
@@ -104,6 +113,11 @@ public class InteractiveChartPanel extends JPanel {
             @Override
             protected boolean isPanAllowed() {
                 return !isHighlighting();
+            }
+
+            @Override
+            protected boolean isMousePanningAllowed() {
+                return !isUpdating();
             }
         };
 
@@ -224,10 +238,31 @@ public class InteractiveChartPanel extends JPanel {
     }
 
     public void update() {
+        //have max 2 queue
         plotZoomHelper.limitRange();
-        configureRangeAxis();
         plotCrosshairHelper.disableCrosshair();
-        plotLegendHelper.update();
+        if (finalizer.executorUpdateLimit.getPendingCount() <= 1) {
+            finalizer.executorUpdateLimit.execute(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        EventDispatchThreadUtil.invokeAndWait(new Runnable() {
+                            @Override
+                            public void run() {
+                                configureRangeAxis();
+                                plotLegendHelper.update();
+                            }
+                        });
+                    } catch (final InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            });
+        }
+    }
+
+    public boolean isUpdating() {
+        return finalizer.executorUpdateLimit.getPendingCount() > 0;
     }
 
     private void configureRangeAxis() {
@@ -335,7 +370,7 @@ public class InteractiveChartPanel extends JPanel {
 
         @Override
         public void mouseDragged(final MouseEvent e) {
-            if (plotConfigurationHelper.isShowing()) {
+            if (plotConfigurationHelper.isShowing() || isUpdating()) {
                 return;
             }
 
@@ -427,6 +462,32 @@ public class InteractiveChartPanel extends JPanel {
     @Override
     public synchronized void addKeyListener(final KeyListener l) {
         chartPanel.addKeyListener(l);
+    }
+
+    private static final class InteractiveChartPanelFinalizer extends AFinalizer {
+
+        private WrappedExecutorService executorUpdateLimit;
+
+        private InteractiveChartPanelFinalizer() {
+            this.executorUpdateLimit = Executors
+                    .newFixedThreadPool(InteractiveChartPanel.class.getSimpleName() + "_UPDATE_LIMIT", 1);
+        }
+
+        @Override
+        protected void clean() {
+            executorUpdateLimit.shutdownNow();
+            executorUpdateLimit = null;
+        }
+
+        @Override
+        protected boolean isCleaned() {
+            return executorUpdateLimit != null;
+        }
+
+        @Override
+        public boolean isThreadLocal() {
+            return false;
+        }
     }
 
 }

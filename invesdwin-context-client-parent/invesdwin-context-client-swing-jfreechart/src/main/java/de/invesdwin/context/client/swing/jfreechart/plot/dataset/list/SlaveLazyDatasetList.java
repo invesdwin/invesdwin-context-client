@@ -29,7 +29,7 @@ public class SlaveLazyDatasetList extends ALazyDatasetList<XYDataItemOHLC> imple
         int countRemoved = 0;
         //remove at least two elements
         while (data.size() > masterSizeBefore || countRemoved < 2) {
-            data.remove(data.size() - 1);
+            invalidate(data.size() - 1);
             countRemoved++;
         }
         final int fromIndex = data.size();
@@ -45,6 +45,11 @@ public class SlaveLazyDatasetList extends ALazyDatasetList<XYDataItemOHLC> imple
             }
         }
         assertSameSizeAsMaster();
+    }
+
+    private void invalidate(final int i) {
+        final XYDataItemOHLC removed = data.remove(i);
+        removed.setOHLC(null);
     }
 
     @Override
@@ -84,7 +89,7 @@ public class SlaveLazyDatasetList extends ALazyDatasetList<XYDataItemOHLC> imple
     @Override
     public synchronized void removeStart(final int tooManyBefore) {
         for (int i = 0; i < tooManyBefore; i++) {
-            data.remove(0);
+            invalidate(0);
         }
         assertSameSizeAsMaster();
     }
@@ -92,7 +97,7 @@ public class SlaveLazyDatasetList extends ALazyDatasetList<XYDataItemOHLC> imple
     @Override
     public synchronized void removeEnd(final int tooManyAfter) {
         for (int i = 0; i < tooManyAfter; i++) {
-            data.remove(data.size() - 1);
+            invalidate(data.size() - 1);
         }
         assertSameSizeAsMaster();
     }

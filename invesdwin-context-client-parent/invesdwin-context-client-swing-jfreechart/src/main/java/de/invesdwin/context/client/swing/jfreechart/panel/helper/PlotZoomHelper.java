@@ -50,6 +50,9 @@ public class PlotZoomHelper {
     }
 
     private void handleZoomable(final Point2D point, final double zoomFactor) {
+        if (chartPanel.isUpdating()) {
+            return;
+        }
         final XYPlot plot = (XYPlot) this.chartPanel.getChart().getPlot();
 
         // don't zoom unless the mouse pointer is in the plot's data area
@@ -116,7 +119,7 @@ public class PlotZoomHelper {
             }
         }
         if (rangeChanged.booleanValue()) {
-            domainAxis.setRange(range);
+            domainAxis.setRange(range, true, false);
         }
     }
 

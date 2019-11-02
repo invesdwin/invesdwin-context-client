@@ -12,8 +12,8 @@ import org.jdesktop.application.TaskService;
 
 import com.github.benmanes.caffeine.cache.Caffeine;
 
-import de.invesdwin.context.client.swing.api.ATask;
 import de.invesdwin.context.client.swing.api.hook.IRichApplicationHook;
+import de.invesdwin.context.client.swing.api.task.ATask;
 import de.invesdwin.util.concurrent.Threads;
 import de.invesdwin.util.concurrent.taskinfo.ITaskInfoListener;
 import de.invesdwin.util.concurrent.taskinfo.TaskInfo;
@@ -64,31 +64,43 @@ public class StatusBarTaskInfoMonitor implements IRichApplicationHook, ITaskInfo
                     if (taskInfo == null) {
                         break;
                     }
-                    final Percent progress = taskInfo.getProgress();
-                    if (progress != null) {
-                        final float percentage = (float) progress.getValue(PercentScale.RATE);
-                        if (percentage < 0.0 || percentage > 1.0) {
-                            setProgress(0F);
-                        } else {
-                            setProgress(percentage);
-                        }
-                    } else {
-                        setProgress(0F);
-                    }
-                    if (taskInfo.getTasksCount() > 1) {
-                        setMessage(taskInfo.getCompletedCount() + "/" + taskInfo.getTasksCount());
-                    } else {
-                        setMessage(null);
-                    }
-                    final Set<String> descriptions = taskInfo.getDescriptions();
-                    if (!descriptions.isEmpty()) {
-                        setDescription(StringEscapeUtils.escapeHtml4(descriptions.iterator().next()));
-                    } else {
-                        setDescription(null);
-                    }
+                    updateProgress(taskInfo);
+                    updateMessage(taskInfo);
+                    updateDescription(taskInfo);
                     CHECK_INTERVAL.sleep();
                 }
                 return null;
+            }
+
+            private void updateProgress(final TaskInfo taskInfo) {
+                final Percent progress = taskInfo.getProgress();
+                if (progress != null) {
+                    final int percentage = (int) progress.getValue(PercentScale.PERCENT);
+                    if (percentage < 0 || percentage > 100) {
+                        setProgress(0);
+                    } else {
+                        setProgress(percentage);
+                    }
+                } else {
+                    setProgress(0);
+                }
+            }
+
+            private void updateMessage(final TaskInfo taskInfo) {
+                if (taskInfo.getTasksCount() > 1) {
+                    setMessage(taskInfo.getCompletedCount() + "/" + taskInfo.getTasksCount());
+                } else {
+                    setMessage(null);
+                }
+            }
+
+            private void updateDescription(final TaskInfo taskInfo) {
+                final Set<String> descriptions = taskInfo.getDescriptions();
+                if (!descriptions.isEmpty()) {
+                    setDescription(StringEscapeUtils.escapeHtml4(descriptions.iterator().next()));
+                } else {
+                    setDescription(null);
+                }
             }
 
         };

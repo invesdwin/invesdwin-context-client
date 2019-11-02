@@ -1,8 +1,6 @@
 package de.invesdwin.context.client.swing.jfreechart.plot.renderer.custom.orders;
 
-import java.util.Collections;
 import java.util.Date;
-import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
@@ -24,6 +22,7 @@ import de.invesdwin.context.client.swing.jfreechart.plot.dataset.IPlotSourceData
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.IndexedDateTimeOHLCDataset;
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.list.MasterLazyDatasetList;
 import de.invesdwin.util.assertions.Assertions;
+import de.invesdwin.util.collections.factory.ILockCollectionFactory;
 import de.invesdwin.util.collections.iterable.ASkippingIterable;
 import de.invesdwin.util.collections.iterable.ICloseableIterable;
 import de.invesdwin.util.collections.iterable.WrapperCloseableIterable;
@@ -41,7 +40,8 @@ public class OrderPlottingDataset extends AbstractXYDataset implements IPlotSour
     private DatasetGroup group;
     private String initialPlotPaneId;
     private String rangeAxisId;
-    private final Map<String, OrderPlottingDataItem> orderId_item = Collections.synchronizedMap(new LinkedHashMap<>());
+    private final Map<String, OrderPlottingDataItem> orderId_item = ILockCollectionFactory.getInstance(true)
+            .newFastIterableLinkedMap();
     private boolean lastTradeProfit = true;
     private IIndicatorSeriesProvider indicatorSeriesProvider;
     private IExpression[] indicatorSeriesArguments;

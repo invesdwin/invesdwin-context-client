@@ -1015,6 +1015,9 @@ public class CustomChartPanel extends JPanel implements ChartChangeListener, Cha
         public void mouseDragged(final MouseEvent e) {
             // handle panning if we have a start point
             if (panLast != null) {
+                if (!isMousePanningAllowed()) {
+                    return;
+                }
                 final double dx = e.getX() - panLast.getX();
                 final double dy = e.getY() - panLast.getY();
                 if (dx == 0.0 && dy == 0.0) {
@@ -1046,6 +1049,10 @@ public class CustomChartPanel extends JPanel implements ChartChangeListener, Cha
                 return;
             }
         }
+    }
+
+    protected boolean isMousePanningAllowed() {
+        return true;
     }
 
 }

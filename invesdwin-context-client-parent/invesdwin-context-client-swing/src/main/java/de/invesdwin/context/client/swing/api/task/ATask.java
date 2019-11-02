@@ -1,4 +1,4 @@
-package de.invesdwin.context.client.swing.api;
+package de.invesdwin.context.client.swing.api.task;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
