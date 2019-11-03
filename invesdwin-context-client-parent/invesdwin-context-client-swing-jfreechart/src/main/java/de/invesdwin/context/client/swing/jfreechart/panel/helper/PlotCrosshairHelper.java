@@ -79,8 +79,8 @@ public class PlotCrosshairHelper {
         rangeCrosshairMarkerLeft.setLabelOffset(new RectangleInsets(0, 2, 1, 0));
     }
 
-    public ValueMarker getDomainCrosshairMarker() {
-        return domainCrosshairMarker;
+    public double getDomainCrosshairMarkerValue() {
+        return domainCrosshairMarker.getValue();
     }
 
     public void updateCrosshair(final int mouseX, final int mouseY) {

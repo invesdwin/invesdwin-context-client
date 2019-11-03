@@ -31,7 +31,10 @@ public class ComboBoxBinding extends AComponentBinding<JComboBox, Object> {
             component.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(final ActionEvent e) {
-                    eagerSubmitRunnable.run();
+                    //autocomplete can send intermediary action events which we have to ignore
+                    if (component.getSelectedIndex() >= 0) {
+                        eagerSubmitRunnable.run();
+                    }
                 }
             });
         }
@@ -72,7 +75,8 @@ public class ComboBoxBinding extends AComponentBinding<JComboBox, Object> {
 
     @Override
     protected Object fromComponentToModel() {
-        return prevChoices.get(component.getSelectedIndex());
+        final int selectedIndex = component.getSelectedIndex();
+        return prevChoices.get(selectedIndex);
     }
 
     @Override

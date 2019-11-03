@@ -1,4 +1,4 @@
-package de.invesdwin.context.client.swing.jfreechart.panel.helper;
+package de.invesdwin.context.client.swing.jfreechart.panel.helper.listener;
 
 import org.apache.commons.lang3.mutable.MutableBoolean;
 import org.jfree.data.Range;

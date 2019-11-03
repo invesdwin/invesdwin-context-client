@@ -6,6 +6,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
@@ -24,7 +25,6 @@ import org.jfree.data.general.DatasetChangeListener;
 import de.invesdwin.aspects.EventDispatchThreadUtil;
 import de.invesdwin.context.client.swing.jfreechart.panel.basis.CustomChartPanel;
 import de.invesdwin.context.client.swing.jfreechart.panel.basis.CustomCombinedDomainXYPlot;
-import de.invesdwin.context.client.swing.jfreechart.panel.helper.IRangeListener;
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.PlotCrosshairHelper;
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.PlotNavigationHelper;
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.PlotPanHelper;
@@ -32,6 +32,7 @@ import de.invesdwin.context.client.swing.jfreechart.panel.helper.PlotResizeHelpe
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.PlotZoomHelper;
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.PlotConfigurationHelper;
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.legend.PlotLegendHelper;
+import de.invesdwin.context.client.swing.jfreechart.panel.helper.listener.IRangeListener;
 import de.invesdwin.context.client.swing.jfreechart.plot.IndexedDateTimeNumberFormat;
 import de.invesdwin.context.client.swing.jfreechart.plot.XYPlots;
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.IndexedDateTimeOHLCDataset;
@@ -132,7 +133,7 @@ public class InteractiveChartPanel extends JPanel {
             final IChartPanelAwareDatasetList cData = (IChartPanelAwareDatasetList) dataset.getData();
             cData.setChartPanel(this);
         }
-        resetRange();
+        resetRange(getInitialVisibleItemCount());
     }
 
     public void initialize() {
@@ -201,15 +202,42 @@ public class InteractiveChartPanel extends JPanel {
         return chartPanel;
     }
 
-    public void resetRange() {
-        beforeResetRange();
-        doResetRange();
-        update();
+    public void resetRange(final int visibleItemCount) {
+        if (dataset.getItemCount(0) > 0) {
+            final Date firstItemDate = dataset.getData().get(0).getDate();
+            final Date lastItemDate = dataset.getData().get(dataset.getItemCount(0) - 1).getDate();
+            beforeResetRange();
+            doResetRange(visibleItemCount);
+            update();
+            final Date newFirstItemDate = dataset.getData().get(0).getDate();
+            final Date newLastItemDate = dataset.getData().get(dataset.getItemCount(0) - 1).getDate();
+            if (!newFirstItemDate.equals(firstItemDate) || !newLastItemDate.equals(lastItemDate)) {
+                finalizer.executorUpdateLimit.execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            EventDispatchThreadUtil.invokeAndWait(new Runnable() {
+                                @Override
+                                public void run() {
+                                    resetRange(visibleItemCount);
+                                }
+                            });
+                        } catch (final InterruptedException e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
+                });
+            }
+        } else {
+            beforeResetRange();
+            doResetRange(visibleItemCount);
+            update();
+        }
     }
 
-    protected void doResetRange() {
+    protected void doResetRange(final int visibleItemCount) {
         final int minLowerBound = -chartPanel.getAllowedRangeGap();
-        final int lowerBound = dataset.getItemCount(0) - getInitialVisibleItemCount();
+        final int lowerBound = dataset.getItemCount(0) - visibleItemCount;
         final int upperBound = dataset.getItemCount(0) + chartPanel.getAllowedRangeGap();
         final Range range = new Range(Doubles.max(minLowerBound, lowerBound), upperBound);
         domainAxis.setRange(range);
@@ -240,15 +268,15 @@ public class InteractiveChartPanel extends JPanel {
     public void update() {
         //have max 2 queue
         plotZoomHelper.limitRange();
-        plotCrosshairHelper.disableCrosshair();
         if (finalizer.executorUpdateLimit.getPendingCount() <= 1) {
-            finalizer.executorUpdateLimit.execute(new Runnable() {
+            final Runnable task = new Runnable() {
                 @Override
                 public void run() {
                     try {
                         EventDispatchThreadUtil.invokeAndWait(new Runnable() {
                             @Override
                             public void run() {
+                                plotCrosshairHelper.disableCrosshair(); //need to do this in EDT, or we get ArrayIndexOutOfBounds exception
                                 configureRangeAxis();
                                 plotLegendHelper.update();
                             }
@@ -257,7 +285,8 @@ public class InteractiveChartPanel extends JPanel {
                         throw new RuntimeException(e);
                     }
                 }
-            });
+            };
+            finalizer.executorUpdateLimit.execute(task);
         }
     }
 

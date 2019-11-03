@@ -34,7 +34,7 @@ public class HighlightableLegendTitle extends CustomLegendTitle {
 
     @Override
     protected String newLabel(final LegendItem item) {
-        int domainMarkerItem = (int) chartPanel.getPlotCrosshairHelper().getDomainCrosshairMarker().getValue();
+        int domainMarkerItem = (int) chartPanel.getPlotCrosshairHelper().getDomainCrosshairMarkerValue();
         if (domainMarkerItem == -1) {
             domainMarkerItem = chartPanel.getDataset().getData().size() - 1;
         }
@@ -111,7 +111,7 @@ public class HighlightableLegendTitle extends CustomLegendTitle {
 
     @Override
     protected Paint newFillPaint(final LegendItem item) {
-        int domainMarkerItem = (int) chartPanel.getPlotCrosshairHelper().getDomainCrosshairMarker().getValue();
+        int domainMarkerItem = (int) chartPanel.getPlotCrosshairHelper().getDomainCrosshairMarkerValue();
         if (domainMarkerItem == -1) {
             domainMarkerItem = chartPanel.getDataset().getData().size() - 1;
         }

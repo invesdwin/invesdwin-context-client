@@ -7,6 +7,7 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.concurrent.ConcurrentMap;
 
+import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
 import org.apache.commons.lang3.mutable.MutableBoolean;
@@ -16,8 +17,8 @@ import org.jfree.data.xy.OHLCDataItem;
 import com.github.benmanes.caffeine.cache.Caffeine;
 
 import de.invesdwin.context.client.swing.jfreechart.panel.InteractiveChartPanel;
-import de.invesdwin.context.client.swing.jfreechart.panel.helper.IRangeListener;
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.PlotZoomHelper;
+import de.invesdwin.context.client.swing.jfreechart.panel.helper.listener.IRangeListener;
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.collections.iterable.ICloseableIterable;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
@@ -38,6 +39,8 @@ public class MasterLazyDatasetList extends ALazyDatasetList<OHLCDataItem> implem
     private final Set<IRangeListener> rangeListeners;
     private final FDate firstAvailableKey;
     private InteractiveChartPanel chartPanel;
+    @GuardedBy("this")
+    private FDate lastUpdateTime;
 
     public MasterLazyDatasetList(final IMasterLazyDatasetProvider provider) {
         this.provider = provider;
@@ -64,7 +67,7 @@ public class MasterLazyDatasetList extends ALazyDatasetList<OHLCDataItem> implem
 
     @Override
     public synchronized void resetRange() {
-        if (data.isEmpty() || getLastLoadedKey().isBefore(provider.getLastAvailableKey())) {
+        if (data.isEmpty() || getLastLoadedKey().isBefore(getResetReferenceTime())) {
             data = new ArrayList<>(data.size());
             loadInitialDataMaster();
             if (!slaveDatasetListeners.isEmpty()) {
@@ -73,6 +76,18 @@ public class MasterLazyDatasetList extends ALazyDatasetList<OHLCDataItem> implem
                 }
             }
         }
+    }
+
+    private FDate getResetReferenceTime() {
+        if (lastUpdateTime != null && isTrailing(chartPanel.getDomainAxis().getRange())) {
+            return lastUpdateTime;
+        } else {
+            return provider.getLastAvailableKey();
+        }
+    }
+
+    public synchronized boolean isTrailing(final Range range) {
+        return range.getUpperBound() >= (data.size() - 1);
     }
 
     private void loadInitialDataMaster() {
@@ -129,6 +144,7 @@ public class MasterLazyDatasetList extends ALazyDatasetList<OHLCDataItem> implem
     }
 
     public synchronized Range maybeLoadDataRange(final Range range, final MutableBoolean rangeChanged) {
+        final boolean isTrailing = isTrailing(range);
         Range updatedRange = range;
         final int preloadLowerBound = (int) (range.getLowerBound() - range.getLength());
         if (preloadLowerBound < 0) {
@@ -151,6 +167,11 @@ public class MasterLazyDatasetList extends ALazyDatasetList<OHLCDataItem> implem
                 if (appendCount > 0) {
                     appendCount = appendMaster(appendCount);
                     appendSlaves(appendCount);
+                    if (isTrailing) {
+                        updatedRange = new Range(range.getLowerBound() + appendCount,
+                                range.getUpperBound() + appendCount);
+                        rangeChanged.setTrue();
+                    }
                 }
             }
         }
@@ -158,7 +179,9 @@ public class MasterLazyDatasetList extends ALazyDatasetList<OHLCDataItem> implem
     }
 
     private int appendMaster(final int appendCount) {
-        data.remove(data.size() - 1);
+        if (data.size() > 1) {
+            data.remove(data.size() - 1);
+        }
         final OHLCDataItem lastItemRemoved = data.remove(data.size() - 1);
         final ICloseableIterable<OHLCDataItem> masterPrependValues = provider
                 .getNextValues(FDate.valueOf(lastItemRemoved.getDate()), appendCount + 2);
@@ -213,11 +236,15 @@ public class MasterLazyDatasetList extends ALazyDatasetList<OHLCDataItem> implem
     }
 
     public synchronized FDate getFirstLoadedKey() {
-        return FDate.valueOf(data.get(0).getDate());
+        return getLoadedKey(0);
     }
 
     public synchronized FDate getLastLoadedKey() {
-        return FDate.valueOf(data.get(data.size() - 1).getDate());
+        return getLoadedKey(data.size() - 1);
+    }
+
+    private FDate getLoadedKey(final int i) {
+        return FDate.valueOf(data.get(i).getDate());
     }
 
     private final class LimitRangeListenerImpl implements IRangeListener {
@@ -265,6 +292,8 @@ public class MasterLazyDatasetList extends ALazyDatasetList<OHLCDataItem> implem
     }
 
     public synchronized boolean update(final FDate lastTickTime) {
+        final Range rangeBefore = chartPanel.getDomainAxis().getRange();
+        final boolean isTrailing = isTrailing(rangeBefore);
         int lastItemIndex = data.size() - 2;
         OHLCDataItem lastItem = data.get(lastItemIndex);
         final ICloseableIterable<? extends OHLCDataItem> history = provider.getValues(new FDate(lastItem.getDate()),
@@ -296,6 +325,12 @@ public class MasterLazyDatasetList extends ALazyDatasetList<OHLCDataItem> implem
              * the NaN bar will always be appended without the real value appearing
              */
             appendSlaves(appendCount);
+            lastUpdateTime = getLastLoadedKey();
+            if (isTrailing) {
+                final Range updatedRange = new Range(rangeBefore.getLowerBound() + appendCount,
+                        rangeBefore.getUpperBound() + appendCount);
+                chartPanel.getDomainAxis().setRange(updatedRange);
+            }
             return true;
         } else {
             return false;

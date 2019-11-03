@@ -6,11 +6,13 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 
+import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
 @ThreadSafe
 public abstract class ALazyDatasetList<E> implements List<E> {
 
+    @GuardedBy("this")
     protected List<E> data = new ArrayList<>();
 
     @Override
@@ -99,7 +101,7 @@ public abstract class ALazyDatasetList<E> implements List<E> {
 
     @Override
     public synchronized E get(final int index) {
-        return data.get(index);
+        return data.get(Math.min(index, data.size() - 1));
     }
 
     @Deprecated

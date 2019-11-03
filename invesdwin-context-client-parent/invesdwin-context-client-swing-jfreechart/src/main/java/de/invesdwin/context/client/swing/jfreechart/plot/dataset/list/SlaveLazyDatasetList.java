@@ -74,6 +74,9 @@ public class SlaveLazyDatasetList extends ALazyDatasetList<XYDataItemOHLC> imple
 
     @Override
     public synchronized void loadInitial() {
+        for (int i = 0; i < data.size(); i++) {
+            invalidate(i);
+        }
         data = new ArrayList<>(data.size());
         for (int i = 0; i < master.size(); i++) {
             final FDate key = FDate.valueOf(master.get(i).getDate());

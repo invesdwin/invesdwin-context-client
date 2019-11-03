@@ -427,7 +427,7 @@ public class PlotNavigationHelper {
             final XYIconAnnotationEntity l = (XYIconAnnotationEntity) entityForPoint;
             final XYIconAnnotation iconAnnotation = getIconAnnotation(l);
             if (iconAnnotation == reset) {
-                chartPanel.resetRange();
+                chartPanel.resetRange(chartPanel.getInitialVisibleItemCount());
             } else if (iconAnnotation == configure) {
                 chartPanel.getPlotConfigurationHelper().displayPopupMenu(mouseX, mouseY);
             }

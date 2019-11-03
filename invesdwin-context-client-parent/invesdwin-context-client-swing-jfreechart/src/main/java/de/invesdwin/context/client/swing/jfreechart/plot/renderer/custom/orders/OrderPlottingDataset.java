@@ -1,22 +1,19 @@
 package de.invesdwin.context.client.swing.jfreechart.plot.renderer.custom.orders;
 
 import java.util.Date;
-import java.util.LinkedHashSet;
 import java.util.Map;
-import java.util.Set;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
-import org.apache.commons.lang3.mutable.MutableBoolean;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.data.Range;
-import org.jfree.data.general.DatasetChangeListener;
 import org.jfree.data.general.DatasetGroup;
 import org.jfree.data.xy.AbstractXYDataset;
 
-import de.invesdwin.context.client.swing.jfreechart.panel.helper.IRangeListener;
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.series.expression.IExpressionSeriesProvider;
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.series.indicator.IIndicatorSeriesProvider;
+import de.invesdwin.context.client.swing.jfreechart.panel.helper.listener.IRangeListener;
+import de.invesdwin.context.client.swing.jfreechart.panel.helper.listener.RangeListenerSupport;
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.IIndexedDateTimeXYDataset;
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.IPlotSourceDataset;
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.IndexedDateTimeOHLCDataset;
@@ -34,7 +31,6 @@ public class OrderPlottingDataset extends AbstractXYDataset implements IPlotSour
     private final String seriesKey;
     private String seriesTitle;
     private final IndexedDateTimeOHLCDataset ohlcDataset;
-    private final Set<DatasetChangeListener> changeListeners = new LinkedHashSet<>();
     private Integer precision;
     private XYPlot plot;
     private DatasetGroup group;
@@ -47,7 +43,7 @@ public class OrderPlottingDataset extends AbstractXYDataset implements IPlotSour
     private IExpression[] indicatorSeriesArguments;
     private IExpressionSeriesProvider expressionSeriesProvider;
     private String expressionSeriesArguments;
-    private final RangeListenerImpl rangeListener;
+    private final IRangeListener rangeListener;
 
     private long prevFirstLoadedKeyMillis;
     private long prevLastLoadedKeyMillis;
@@ -60,21 +56,16 @@ public class OrderPlottingDataset extends AbstractXYDataset implements IPlotSour
         if (ohlcDataset.getData() instanceof MasterLazyDatasetList) {
             final MasterLazyDatasetList master = (MasterLazyDatasetList) ohlcDataset.getData();
             //keep references to the listeners so they don't get garbage collected due to the weak refrences inside master
-            this.rangeListener = new RangeListenerImpl();
+            this.rangeListener = new RangeListenerSupport() {
+                @Override
+                public void onRangeChanged(final Range range) {
+                    updateItemsLoaded();
+                }
+            };
             master.registerRangeListener(rangeListener);
         } else {
             this.rangeListener = null;
         }
-    }
-
-    @Override
-    public void addChangeListener(final DatasetChangeListener listener) {
-        changeListeners.add(listener);
-    }
-
-    @Override
-    public void removeChangeListener(final DatasetChangeListener listener) {
-        changeListeners.remove(listener);
     }
 
     @Override
@@ -308,23 +299,6 @@ public class OrderPlottingDataset extends AbstractXYDataset implements IPlotSour
         this.initialPlotPaneId = initialPlotPaneId;
     }
 
-    private final class RangeListenerImpl implements IRangeListener {
-        @Override
-        public Range beforeLimitRange(final Range range, final MutableBoolean rangeChanged) {
-            return range;
-        }
-
-        @Override
-        public Range afterLimitRange(final Range range, final MutableBoolean rangeChanged) {
-            return range;
-        }
-
-        @Override
-        public void onRangeChanged(final Range range) {
-            updateItemsLoaded();
-        }
-    }
-
     private void updateItemsLoaded() {
         final long firstLoadedKeyMillis = (long) getXValueAsDateTime(0, 0);
         final long lastLoadedKeyMillis = (long) getXValueAsDateTime(0, getItemCount(0) - 1);
@@ -336,5 +310,5 @@ public class OrderPlottingDataset extends AbstractXYDataset implements IPlotSour
             prevLastLoadedKeyMillis = lastLoadedKeyMillis;
         }
     }
-
+    
 }
