@@ -27,11 +27,11 @@ public class DelegateWicketFilter extends AWicketFilter {
     protected boolean processRequestCycle(final RequestCycle requestCycle, final WebResponse webResponse,
             final HttpServletRequest httpServletRequest, final HttpServletResponse httpServletResponse,
             final FilterChain chain) throws IOException, ServletException {
-        final boolean registerRetryDisabled = IntegrationProperties.registerThreadRetryDisabled();
+        final boolean registerThreadRetryDisabled = IntegrationProperties.registerThreadRetryDisabled();
         try {
             return super.processRequestCycle(requestCycle, webResponse, httpServletRequest, httpServletResponse, chain);
         } finally {
-            IntegrationProperties.unregisterThreadRetryDisabled(registerRetryDisabled);
+            IntegrationProperties.unregisterThreadRetryDisabled(registerThreadRetryDisabled);
         }
     }
 
