@@ -9,7 +9,6 @@ import javax.annotation.concurrent.NotThreadSafe;
 import org.apache.wicket.Component;
 import org.apache.wicket.extensions.markup.html.tabs.ITab;
 import org.apache.wicket.markup.html.WebMarkupContainer;
-import org.apache.wicket.model.AbstractReadOnlyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 
@@ -44,7 +43,7 @@ public class BugfixPage extends AWebPage {
                     /*
                      * could also use ModelCollapsibleList here to allow multiple to be open at the same time
                      */
-                    final AbstractReadOnlyModel<Collection<? extends ITab>> tabs = new AbstractReadOnlyModel<Collection<? extends ITab>>() {
+                    final IModel<Collection<? extends ITab>> tabs = new IModel<Collection<? extends ITab>>() {
                         @Override
                         public Collection<? extends ITab> getObject() {
                             final List<ITab> tabs = new ArrayList<ITab>();
@@ -78,7 +77,7 @@ public class BugfixPage extends AWebPage {
                             return new AccordionCollapsible(componentId, tab, index) {
                                 @Override
                                 protected Component newTitle(final String markupId, final ITab tab) {
-                                    final IModel<String> badgeModel = new AbstractReadOnlyModel<String>() {
+                                    final IModel<String> badgeModel = new IModel<String>() {
                                         @Override
                                         public String getObject() {
                                             final SampleModel modelObject = (SampleModel) getPanelModel().getObject();
