@@ -12,9 +12,9 @@ public interface IMasterLazyDatasetProvider {
 
     FDate getLastAvailableKey();
 
-    ICloseableIterable<OHLCDataItem> getPreviousValues(FDate key, int count);
+    ICloseableIterable<? extends OHLCDataItem> getPreviousValues(FDate key, int count);
 
-    default ICloseableIterable<OHLCDataItem> getNextValues(final FDate key, final int count) {
+    default ICloseableIterable<? extends OHLCDataItem> getNextValues(final FDate key, final int count) {
         return new LimitingIterable<>(getValues(key, getLastAvailableKey()), count);
     }
 

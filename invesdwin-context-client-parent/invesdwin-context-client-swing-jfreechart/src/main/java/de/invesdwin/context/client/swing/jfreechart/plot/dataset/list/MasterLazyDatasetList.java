@@ -78,6 +78,32 @@ public class MasterLazyDatasetList extends ALazyDatasetList<OHLCDataItem> implem
         }
     }
 
+    public synchronized void reloadData() {
+        if (data.isEmpty()) {
+            return;
+        }
+        reloadDataMaster();
+        if (!slaveDatasetListeners.isEmpty()) {
+            for (final ISlaveLazyDatasetListener slave : slaveDatasetListeners) {
+                slave.loadInitial();
+            }
+        }
+    }
+
+    private void reloadDataMaster() {
+        final ICloseableIterable<? extends OHLCDataItem> initialValues = provider.getValues(getFirstLoadedKey(),
+                getLastLoadedKey());
+        data = new ArrayList<>(data.size());
+        try (ICloseableIterator<? extends OHLCDataItem> it = initialValues.iterator()) {
+            while (true) {
+                final OHLCDataItem next = it.next();
+                data.add(next);
+            }
+        } catch (final NoSuchElementException e) {
+            //end reached
+        }
+    }
+
     private FDate getResetReferenceTime() {
         if (lastUpdateTime != null && isTrailing(chartPanel.getDomainAxis().getRange())) {
             return lastUpdateTime;
@@ -92,9 +118,9 @@ public class MasterLazyDatasetList extends ALazyDatasetList<OHLCDataItem> implem
 
     private void loadInitialDataMaster() {
         final int initialVisibleItemCount = chartPanel.getInitialVisibleItemCount() * PRELOAD_RANGE_MULTIPLIER;
-        final ICloseableIterable<OHLCDataItem> initialValues = provider
+        final ICloseableIterable<? extends OHLCDataItem> initialValues = provider
                 .getPreviousValues(provider.getLastAvailableKey(), initialVisibleItemCount);
-        try (ICloseableIterator<OHLCDataItem> it = initialValues.iterator()) {
+        try (ICloseableIterator<? extends OHLCDataItem> it = initialValues.iterator()) {
             while (true) {
                 final OHLCDataItem next = it.next();
                 data.add(next);
@@ -183,11 +209,11 @@ public class MasterLazyDatasetList extends ALazyDatasetList<OHLCDataItem> implem
             data.remove(data.size() - 1);
         }
         final OHLCDataItem lastItemRemoved = data.remove(data.size() - 1);
-        final ICloseableIterable<OHLCDataItem> masterPrependValues = provider
+        final ICloseableIterable<? extends OHLCDataItem> masterPrependValues = provider
                 .getNextValues(FDate.valueOf(lastItemRemoved.getDate()), appendCount + 2);
         //remove last two values to replace them
         int countAdded = 0;
-        try (ICloseableIterator<OHLCDataItem> it = masterPrependValues.iterator()) {
+        try (ICloseableIterator<? extends OHLCDataItem> it = masterPrependValues.iterator()) {
             while (true) {
                 final OHLCDataItem next = it.next();
                 if (countAdded == 0) {
@@ -212,9 +238,9 @@ public class MasterLazyDatasetList extends ALazyDatasetList<OHLCDataItem> implem
 
     private int prependMaster(final int prependCount, final FDate firstLoadedKey) {
         final List<OHLCDataItem> prependItems = new ArrayList<>(prependCount);
-        final ICloseableIterable<OHLCDataItem> masterPrependValues = provider
+        final ICloseableIterable<? extends OHLCDataItem> masterPrependValues = provider
                 .getPreviousValues(firstLoadedKey.addMilliseconds(-1), prependCount);
-        try (ICloseableIterator<OHLCDataItem> it = masterPrependValues.iterator()) {
+        try (ICloseableIterator<? extends OHLCDataItem> it = masterPrependValues.iterator()) {
             while (true) {
                 final OHLCDataItem next = it.next();
                 prependItems.add(next);
