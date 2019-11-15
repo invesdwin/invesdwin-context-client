@@ -28,7 +28,6 @@ public class CustomEquityChangeRenderer extends ACustomEquityChangeRenderer
 
     public static final Color UP_COLOR = CustomProfitLossRenderer.UP_COLOR;
     public static final Color DOWN_COLOR = CustomProfitLossRenderer.DOWN_COLOR;
-    public static final Color LEGEND_COLOR = Colors.setTransparency(UP_COLOR, Percent.FIFTY_PERCENT);
     public static final Percent AREA_TRANSPARENCY = new Percent(90, PercentScale.PERCENT);
     public static final Percent LINE_TRANSPARENCY = new Percent(80, PercentScale.PERCENT);
 
@@ -43,10 +42,10 @@ public class CustomEquityChangeRenderer extends ACustomEquityChangeRenderer
 
         final PriceInitialSettings config = plotConfigurationHelper.getPriceInitialSettings();
 
-        setSeriesPaint(0, Colors.setTransparency(LEGEND_COLOR, LINE_TRANSPARENCY));
+        setSeriesPaint(0, Colors.setTransparency(UP_COLOR, LINE_TRANSPARENCY));
         setSeriesStroke(0, config.getSeriesStroke());
 
-        this.upColor = Colors.setTransparency(LEGEND_COLOR, AREA_TRANSPARENCY);
+        this.upColor = Colors.setTransparency(UP_COLOR, AREA_TRANSPARENCY);
         this.downColor = Colors.setTransparency(DOWN_COLOR, AREA_TRANSPARENCY);
         this.priceLineAnnotation = new XYPriceLineAnnotation(dataset, this);
         addAnnotation(priceLineAnnotation);
@@ -64,7 +63,25 @@ public class CustomEquityChangeRenderer extends ACustomEquityChangeRenderer
 
     @Override
     public Paint getItemPaint(final int row, final int column) {
-        return LEGEND_COLOR;
+        final double yValue;
+        final int lastDatasetItem = dataset.getItemCount(row) - 1;
+        if (column >= lastDatasetItem && column > 0) {
+            final double lastY = dataset.getYValue(row, lastDatasetItem);
+            if (Double.isNaN(lastY)) {
+                yValue = dataset.getYValue(row, lastDatasetItem - 1);
+            } else {
+                yValue = lastY;
+            }
+        } else {
+            yValue = dataset.getYValue(row, column);
+        }
+        if (Double.isNaN(yValue)) {
+            return Colors.INVISIBLE_COLOR;
+        } else if (yValue >= 0) {
+            return upColor;
+        } else {
+            return downColor;
+        }
     }
 
     @Override

@@ -11,7 +11,7 @@ import de.invesdwin.context.client.swing.jfreechart.plot.annotation.priceline.ID
 import de.invesdwin.context.client.swing.jfreechart.plot.annotation.priceline.IPriceLineRenderer;
 import de.invesdwin.context.client.swing.jfreechart.plot.annotation.priceline.XYPriceLineAnnotation;
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.IPlotSourceDataset;
-import de.invesdwin.context.client.swing.jfreechart.plot.renderer.custom.internal.ACustomProfitLossRenderer;
+import de.invesdwin.context.client.swing.jfreechart.plot.renderer.custom.internal.ACustomEquityChangeRenderer;
 import de.invesdwin.util.lang.Colors;
 import de.invesdwin.util.math.decimal.scaled.Percent;
 import de.invesdwin.util.math.decimal.scaled.PercentScale;
@@ -23,7 +23,7 @@ import de.invesdwin.util.math.decimal.scaled.PercentScale;
  *
  */
 @NotThreadSafe
-public class CustomProfitLossRenderer extends ACustomProfitLossRenderer
+public class CustomProfitLossRenderer extends ACustomEquityChangeRenderer
         implements ICustomRendererType, IDelegatePriceLineXYItemRenderer {
 
     public static final Percent TRANSPARENCY = new Percent(50, PercentScale.PERCENT);
@@ -62,7 +62,18 @@ public class CustomProfitLossRenderer extends ACustomProfitLossRenderer
 
     @Override
     public Paint getItemPaint(final int row, final int column) {
-        final double yValue = dataset.getYValue(row, column);
+        final double yValue;
+        final int lastDatasetItem = dataset.getItemCount(row) - 1;
+        if (column >= lastDatasetItem && column > 0) {
+            final double lastY = dataset.getYValue(row, lastDatasetItem);
+            if (Double.isNaN(lastY)) {
+                yValue = dataset.getYValue(row, lastDatasetItem - 1);
+            } else {
+                yValue = lastY;
+            }
+        } else {
+            yValue = dataset.getYValue(row, column);
+        }
         if (Double.isNaN(yValue)) {
             return Colors.INVISIBLE_COLOR;
         } else if (yValue >= 0) {

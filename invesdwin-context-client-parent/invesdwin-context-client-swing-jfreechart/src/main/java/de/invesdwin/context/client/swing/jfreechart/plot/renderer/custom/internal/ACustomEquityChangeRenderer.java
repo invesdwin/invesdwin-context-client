@@ -333,8 +333,13 @@ public abstract class ACustomEquityChangeRenderer extends AbstractXYItemRenderer
         if (Double.isNaN(cItem1.getClose().doubleValue())) {
             lineColor = Colors.INVISIBLE_COLOR;
             //workaround for in-progress-bar
-            xClose = x0;
-            itemClose = item0;
+            if (item1 == lastDatasetItem) {
+                xClose = x0;
+                itemClose = item0;
+            } else {
+                xClose = x1;
+                itemClose = item1;
+            }
         } else {
             lineColor = lookupSeriesPaint(series);
             xClose = x1;
@@ -350,7 +355,7 @@ public abstract class ACustomEquityChangeRenderer extends AbstractXYItemRenderer
 
         // Check if the item is the last item for the series.
         // and number of items > 0.  We can't draw an area for a single point.
-        if (getPlotArea() && item1 > 0 && item1 == lastDatasetItem) {
+        if (getPlotArea() && item1 > 0 && (item1 == lastDatasetItem || item1 == state.getLastItemIndex())) {
             //this should never be invisible color
             closeArea(g2, dataArea, plot, domainAxis, rangeAxis, getUpColor(), xClose, areaState.profit);
             closeArea(g2, dataArea, plot, domainAxis, rangeAxis, getDownColor(), xClose, areaState.loss);
