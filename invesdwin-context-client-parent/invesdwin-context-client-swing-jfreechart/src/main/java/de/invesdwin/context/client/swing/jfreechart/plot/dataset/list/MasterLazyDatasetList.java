@@ -319,10 +319,14 @@ public class MasterLazyDatasetList extends ALazyDatasetList<OHLCDataItem> implem
     }
 
     public synchronized boolean update(final FDate lastTickTime) {
+        if (data.isEmpty()) {
+            resetRange();
+            return !data.isEmpty();
+        }
         final Range rangeBefore = chartPanel.getDomainAxis().getRange();
         final boolean isTrailing = isTrailing(rangeBefore);
         //remove at least two elements
-        int lastItemIndex = data.size() - 3;
+        int lastItemIndex = Math.max(0, data.size() - 3);
         OHLCDataItem lastItem = data.get(lastItemIndex);
         final ICloseableIterable<? extends OHLCDataItem> history = provider.getValues(new FDate(lastItem.getDate()),
                 lastTickTime);
