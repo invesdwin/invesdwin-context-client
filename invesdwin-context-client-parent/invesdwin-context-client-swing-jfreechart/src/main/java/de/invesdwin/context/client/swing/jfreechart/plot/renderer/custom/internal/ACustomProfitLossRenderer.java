@@ -310,13 +310,13 @@ public abstract class ACustomProfitLossRenderer extends AbstractXYItemRenderer
             final int pass) {
         //CHECKSTYLE:ON
 
-        if (!getItemVisible(series, item1)) {
+        final int lastDatasetItem = dataset.getItemCount(series) - 1;
+        if (!getItemVisible(series, item1) || item1 > lastDatasetItem) {
             return;
         }
         final XYAreaRendererState areaState = (XYAreaRendererState) state;
 
-        final Color upColor;
-        final Color downColor;
+        final Color lineColor;
         // get the data point...
         final PlotSourceXYSeriesCollection cDataset = (PlotSourceXYSeriesCollection) dataset;
         final ListXYSeriesOHLC cSeries = cDataset.getSeries(series);
@@ -326,29 +326,34 @@ public abstract class ACustomProfitLossRenderer extends AbstractXYItemRenderer
         final OHLCDataItem cItem1 = data.get(item1).getOHLC();
 
         final double x1 = dataset.getXValue(series, item1);
-        if (Double.isNaN(cItem1.getClose().doubleValue())) {
-            upColor = Colors.INVISIBLE_COLOR;
-            downColor = Colors.INVISIBLE_COLOR;
-        } else {
-            upColor = getUpColor();
-            downColor = getDownColor();
-        }
         final double x0 = dataset.getXValue(series, item0);
+        final int itemClose;
+        final double xClose;
+        if (Double.isNaN(cItem1.getClose().doubleValue())) {
+            lineColor = Colors.INVISIBLE_COLOR;
+            //workaround for in-progress-bar
+            xClose = x0;
+            itemClose = item0;
+        } else {
+            lineColor = getUpColor();
+            xClose = x1;
+            itemClose = item1;
+        }
 
         //profit to profit
-        drawProfitLoss(g2, dataArea, plot, domainAxis, rangeAxis, series, item1, areaState.profit, x0,
-                convert(cItem0.getHigh()), x1, convert(cItem1.getHigh()), dataset, state, upColor,
+        drawProfitLoss(g2, dataArea, plot, domainAxis, rangeAxis, series, itemClose, areaState.profit, x0,
+                convert(cItem0.getHigh()), xClose, convert(cItem1.getHigh()), dataset, state, lineColor,
                 state.getFirstItemIndex());
-        drawProfitLoss(g2, dataArea, plot, domainAxis, rangeAxis, series, item1, areaState.loss, x0,
-                convert(cItem0.getLow()), x1, convert(cItem1.getLow()), dataset, state, upColor,
+        drawProfitLoss(g2, dataArea, plot, domainAxis, rangeAxis, series, itemClose, areaState.loss, x0,
+                convert(cItem0.getLow()), xClose, convert(cItem1.getLow()), dataset, state, lineColor,
                 state.getFirstItemIndex());
 
         // Check if the item is the last item for the series.
         // and number of items > 0.  We can't draw an area for a single point.
-        if (getPlotArea() && item1 > 0 && item1 == state.getLastItemIndex()) {
+        if (getPlotArea() && item1 > 0 && item1 == lastDatasetItem) {
             //this should never be invisible color
-            closeArea(g2, dataArea, plot, domainAxis, rangeAxis, getUpColor(), x1, areaState.profit);
-            closeArea(g2, dataArea, plot, domainAxis, rangeAxis, getDownColor(), x1, areaState.loss);
+            closeArea(g2, dataArea, plot, domainAxis, rangeAxis, getUpColor(), xClose, areaState.profit);
+            closeArea(g2, dataArea, plot, domainAxis, rangeAxis, getDownColor(), xClose, areaState.loss);
         }
     }
 

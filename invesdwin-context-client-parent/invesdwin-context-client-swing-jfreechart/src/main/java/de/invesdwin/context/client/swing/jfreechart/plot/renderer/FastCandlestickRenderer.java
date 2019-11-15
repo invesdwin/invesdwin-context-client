@@ -33,6 +33,7 @@ import de.invesdwin.context.client.swing.jfreechart.plot.annotation.priceline.IP
 import de.invesdwin.context.client.swing.jfreechart.plot.annotation.priceline.XYPriceLineAnnotation;
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.IndexedDateTimeOHLCDataset;
 import de.invesdwin.util.error.UnknownArgumentException;
+import de.invesdwin.util.math.Doubles;
 import de.invesdwin.util.math.Floats;
 
 /**
@@ -48,6 +49,7 @@ import de.invesdwin.util.math.Floats;
 public class FastCandlestickRenderer extends AbstractXYItemRenderer
         implements IUpDownColorRenderer, IDelegatePriceLineXYItemRenderer {
 
+    private static final double MAX_CANDLE_WIDTH_LIMIT = 30D;
     private static final double SMALL_AUTO_WIDTH_SCALING_MIN_ITEMS = 10;
     private static final double SMALL_AUTO_WIDTH_SCALING_MAX_ITEMS = 200;
 
@@ -238,7 +240,7 @@ public class FastCandlestickRenderer extends AbstractXYItemRenderer
         final RectangleEdge edge = plot.getDomainAxisEdge();
         final double xx1 = axis.valueToJava2D(x1, dataArea, edge);
         final double xx2 = axis.valueToJava2D(x2, dataArea, edge);
-        this.maxCandleWidth = Math.abs(xx2 - xx1);
+        this.maxCandleWidth = Math.min(Math.abs(xx2 - xx1), MAX_CANDLE_WIDTH_LIMIT);
         // Absolute value, since the relative x
         // positions are reversed for horizontal orientation
 
@@ -434,7 +436,7 @@ public class FastCandlestickRenderer extends AbstractXYItemRenderer
         } else {
             xxWidth *= autoWidthFactorSmall;
         }
-        xxWidth = Math.min(xxWidth, this.maxCandleWidth);
+        xxWidth = Doubles.min(xxWidth, this.maxCandleWidth);
         stickWidth = Math.max(Math.min(STROKE_SCALING_MIN_WIDTH, this.maxCandleWidth), xxWidth);
         return stickWidth;
     }

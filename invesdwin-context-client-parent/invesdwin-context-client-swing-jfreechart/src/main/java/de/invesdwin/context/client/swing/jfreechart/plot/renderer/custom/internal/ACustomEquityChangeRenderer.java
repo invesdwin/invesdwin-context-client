@@ -311,7 +311,8 @@ public abstract class ACustomEquityChangeRenderer extends AbstractXYItemRenderer
             final int pass) {
         //CHECKSTYLE:ON
 
-        if (!getItemVisible(series, item1)) {
+        final int lastDatasetItem = dataset.getItemCount(series) - 1;
+        if (!getItemVisible(series, item1) || item1 > lastDatasetItem) {
             return;
         }
         final XYAreaRendererState areaState = (XYAreaRendererState) state;
@@ -326,20 +327,33 @@ public abstract class ACustomEquityChangeRenderer extends AbstractXYItemRenderer
 
         final double x1 = dataset.getXValue(series, item1);
         final double x0 = dataset.getXValue(series, item0);
+        final int itemClose;
+        final double xClose;
+        final Paint lineColor;
+        if (Double.isNaN(cItem1.getClose().doubleValue())) {
+            lineColor = Colors.INVISIBLE_COLOR;
+            //workaround for in-progress-bar
+            xClose = x0;
+            itemClose = item0;
+        } else {
+            lineColor = lookupSeriesPaint(series);
+            xClose = x1;
+            itemClose = item1;
+        }
 
         drawLine(g2, dataArea, plot, domainAxis, rangeAxis, series, item1, areaState, x0, convert(cItem0.getClose()),
-                x1, convert(cItem1.getClose()), dataset);
-        drawArea(g2, dataArea, plot, domainAxis, rangeAxis, series, item1, areaState.profit, x1,
+                x1, convert(cItem1.getClose()), dataset, lineColor);
+        drawArea(g2, dataArea, plot, domainAxis, rangeAxis, series, itemClose, areaState.profit, xClose,
                 convert(cItem1.getHigh()), dataset, state, state.getFirstItemIndex());
-        drawArea(g2, dataArea, plot, domainAxis, rangeAxis, series, item1, areaState.loss, x1, convert(cItem1.getLow()),
-                dataset, state, state.getFirstItemIndex());
+        drawArea(g2, dataArea, plot, domainAxis, rangeAxis, series, itemClose, areaState.loss, xClose,
+                convert(cItem1.getLow()), dataset, state, state.getFirstItemIndex());
 
         // Check if the item is the last item for the series.
         // and number of items > 0.  We can't draw an area for a single point.
-        if (getPlotArea() && item1 > 0 && item1 == state.getLastItemIndex()) {
+        if (getPlotArea() && item1 > 0 && item1 == lastDatasetItem) {
             //this should never be invisible color
-            closeArea(g2, dataArea, plot, domainAxis, rangeAxis, getUpColor(), x1, areaState.profit);
-            closeArea(g2, dataArea, plot, domainAxis, rangeAxis, getDownColor(), x1, areaState.loss);
+            closeArea(g2, dataArea, plot, domainAxis, rangeAxis, getUpColor(), xClose, areaState.profit);
+            closeArea(g2, dataArea, plot, domainAxis, rangeAxis, getDownColor(), xClose, areaState.loss);
         }
 
     }
@@ -404,16 +418,8 @@ public abstract class ACustomEquityChangeRenderer extends AbstractXYItemRenderer
     private void drawLine(final Graphics2D g2, final Rectangle2D dataArea, final XYPlot plot,
             final ValueAxis domainAxis, final ValueAxis rangeAxis, final int series, final int item,
             final XYAreaRendererState areaState, final double x0, final double y0, final double x1, final double y1,
-            final XYDataset dataset) {
+            final XYDataset dataset, final Paint paint) {
         //CHECKSTYLE:ON
-
-        final Paint paint;
-        final double yValue = dataset.getYValue(series, item);
-        if (Double.isNaN(yValue)) {
-            paint = Colors.INVISIBLE_COLOR;
-        } else {
-            paint = lookupSeriesPaint(series);
-        }
 
         final double transX1 = domainAxis.valueToJava2D(x1, dataArea, plot.getDomainAxisEdge());
         final double transY1 = rangeAxis.valueToJava2D(y1, dataArea, plot.getRangeAxisEdge());
