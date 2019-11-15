@@ -7,7 +7,7 @@ import javax.annotation.concurrent.ThreadSafe;
 
 import de.invesdwin.context.client.swing.jfreechart.panel.InteractiveChartPanel;
 import de.invesdwin.context.jfreechart.dataset.XYDataItemOHLC;
-import de.invesdwin.util.assertions.Assertions;
+import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.time.fdate.FDate;
 
 @ThreadSafe
@@ -36,13 +36,11 @@ public class SlaveLazyDatasetList extends ALazyDatasetList<XYDataItemOHLC> imple
         final int toIndex = masterSizeAfter - 1;
         for (int i = fromIndex; i <= toIndex; i++) {
             final FDate key = FDate.valueOf(master.get(i).getDate());
-            final XYDataItemOHLC next = provider.getValue(key);
-            if (next != null) {
-                data.add(next);
-            } else {
-                //verify that skipping incomplete bars only happens for the last element
-                Assertions.checkEquals(i, toIndex);
+            final XYDataItemOHLC value = provider.getValue(key);
+            if (value == null) {
+                throw new IllegalStateException(toString() + ": " + i + ". value should not be null: " + key);
             }
+            data.add(value);
         }
         assertSameSizeAsMaster();
     }
@@ -58,7 +56,9 @@ public class SlaveLazyDatasetList extends ALazyDatasetList<XYDataItemOHLC> imple
         for (int i = 0; i < prependCount; i++) {
             final FDate key = FDate.valueOf(master.get(i).getDate());
             final XYDataItemOHLC value = provider.getValue(key);
-            Assertions.checkNotNull(value);
+            if (value == null) {
+                throw new IllegalStateException(toString() + ": " + i + ". value should not be null: " + key);
+            }
             prependItems.add(value);
         }
         data.addAll(0, prependItems);
@@ -81,12 +81,12 @@ public class SlaveLazyDatasetList extends ALazyDatasetList<XYDataItemOHLC> imple
         for (int i = 0; i < master.size(); i++) {
             final FDate key = FDate.valueOf(master.get(i).getDate());
             final XYDataItemOHLC value = provider.getValue(key);
-            if (value != null) {
-                data.add(value);
-            } else {
-                Assertions.checkEquals(i, master.size() - 1);
+            if (value == null) {
+                throw new IllegalStateException(toString() + ": " + i + ". value should not be null: " + key);
             }
+            data.add(value);
         }
+        assertSameSizeAsMaster();
     }
 
     @Override
@@ -103,6 +103,11 @@ public class SlaveLazyDatasetList extends ALazyDatasetList<XYDataItemOHLC> imple
             invalidate(data.size() - 1);
         }
         assertSameSizeAsMaster();
+    }
+
+    @Override
+    public String toString() {
+        return Objects.toStringHelper(SlaveLazyDatasetList.class).with(provider).toString();
     }
 
 }

@@ -9,6 +9,7 @@ import org.jfree.data.xy.OHLCDataItem;
 
 import de.invesdwin.context.jfreechart.dataset.XYDataItemOHLC;
 import de.invesdwin.util.concurrent.priority.IPriorityRunnable;
+import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.time.fdate.FDate;
 
 @ThreadSafe
@@ -30,6 +31,10 @@ public class AsyncDelegateSlaveDatasetProvider implements ISlaveLazyDatasetProvi
             if (item == null || item.getOHLC() == null) {
                 return;
             }
+            loadData(item);
+        }
+
+        private void loadData(final XYDataItemOHLC item) {
             final XYDataItemOHLC value = delegate.getValue(key);
             if (value != null) {
                 item.setOHLC(value.getOHLC());
@@ -57,6 +62,11 @@ public class AsyncDelegateSlaveDatasetProvider implements ISlaveLazyDatasetProvi
                 new OHLCDataItem(key.dateValue(), Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN));
         executor.execute(new AsyncRunnable(key, item));
         return item;
+    }
+
+    @Override
+    public String toString() {
+        return Objects.toStringHelper(this).with(delegate).toString();
     }
 
 }

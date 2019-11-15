@@ -6,6 +6,7 @@ import java.awt.geom.Rectangle2D;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
+import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.entity.EntityCollection;
 import org.jfree.chart.plot.CrosshairState;
 import org.jfree.chart.plot.PlotOrientation;
@@ -19,11 +20,12 @@ import de.invesdwin.context.client.swing.jfreechart.plot.annotation.priceline.ID
 import de.invesdwin.context.client.swing.jfreechart.plot.annotation.priceline.IPriceLineRenderer;
 import de.invesdwin.context.client.swing.jfreechart.plot.annotation.priceline.XYPriceLineAnnotation;
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.IPlotSourceDataset;
+import de.invesdwin.util.math.Doubles;
 
 @NotThreadSafe
 public class FastXYStepRenderer extends XYStepRenderer implements IDelegatePriceLineXYItemRenderer {
 
-    private IPlotSourceDataset dataset;
+    private final IPlotSourceDataset dataset;
     private final XYPriceLineAnnotation priceLineAnnotation;
 
     public FastXYStepRenderer(final IPlotSourceDataset dataset) {
@@ -31,7 +33,6 @@ public class FastXYStepRenderer extends XYStepRenderer implements IDelegatePrice
         this.priceLineAnnotation = new XYPriceLineAnnotation(dataset, this);
         addAnnotation(priceLineAnnotation);
     }
-    
 
     @Override
     public IPlotSourceDataset getDataset() {
@@ -60,6 +61,21 @@ public class FastXYStepRenderer extends XYStepRenderer implements IDelegatePrice
     protected void addEntity(final EntityCollection entities, final Shape hotspot, final XYDataset dataset,
             final int series, final int item, final double entityX, final double entityY) {
         //noop
+    }
+
+    //CHECKSTYLE:OFF
+    @Override
+    public void drawItem(final Graphics2D g2, final XYItemRendererState state, final Rectangle2D dataArea,
+            final PlotRenderingInfo info, final XYPlot plot, final ValueAxis domainAxis, final ValueAxis rangeAxis,
+            final XYDataset dataset, final int series, final int item, final CrosshairState crosshairState,
+            final int pass) {
+        //CHECKSTYLE:ON
+        //don't draw in-progress values that are missing
+        if (!Doubles.isNaN(dataset.getYValue(series, item))) {
+            return;
+        }
+        super.drawItem(g2, state, dataArea, info, plot, domainAxis, rangeAxis, dataset, series, item, crosshairState,
+                pass);
     }
 
 }
