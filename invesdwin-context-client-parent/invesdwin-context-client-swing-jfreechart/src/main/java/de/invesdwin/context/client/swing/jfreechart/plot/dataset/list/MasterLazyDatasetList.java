@@ -205,6 +205,7 @@ public class MasterLazyDatasetList extends ALazyDatasetList<OHLCDataItem> implem
     }
 
     private int appendMaster(final int appendCount) {
+        //remove at least two elements
         if (data.size() > 1) {
             data.remove(data.size() - 1);
         }
@@ -320,7 +321,8 @@ public class MasterLazyDatasetList extends ALazyDatasetList<OHLCDataItem> implem
     public synchronized boolean update(final FDate lastTickTime) {
         final Range rangeBefore = chartPanel.getDomainAxis().getRange();
         final boolean isTrailing = isTrailing(rangeBefore);
-        int lastItemIndex = data.size() - 2;
+        //remove at least two elements
+        int lastItemIndex = data.size() - 3;
         OHLCDataItem lastItem = data.get(lastItemIndex);
         final ICloseableIterable<? extends OHLCDataItem> history = provider.getValues(new FDate(lastItem.getDate()),
                 lastTickTime);

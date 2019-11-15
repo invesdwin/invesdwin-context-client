@@ -14,12 +14,12 @@ import de.invesdwin.util.time.fdate.FDate;
 @ThreadSafe
 public class AsyncDelegateSlaveDatasetProvider implements ISlaveLazyDatasetProvider {
 
-    private final class AsnyRunnable implements IPriorityRunnable {
+    private final class AsyncRunnable implements IPriorityRunnable {
         private final FDate key;
         //use weak reference to not load already evicted items due to fast scrolling
         private final WeakReference<XYDataItemOHLC> itemRef;
 
-        private AsnyRunnable(final FDate key, final XYDataItemOHLC item) {
+        private AsyncRunnable(final FDate key, final XYDataItemOHLC item) {
             this.key = key;
             this.itemRef = new WeakReference<XYDataItemOHLC>(item);
         }
@@ -55,7 +55,7 @@ public class AsyncDelegateSlaveDatasetProvider implements ISlaveLazyDatasetProvi
     public XYDataItemOHLC getValue(final FDate key) {
         final XYDataItemOHLC item = new XYDataItemOHLC(
                 new OHLCDataItem(key.dateValue(), Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN));
-        executor.execute(new AsnyRunnable(key, item));
+        executor.execute(new AsyncRunnable(key, item));
         return item;
     }
 
