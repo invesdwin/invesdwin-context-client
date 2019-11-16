@@ -57,6 +57,19 @@ public class AsyncDelegateSlaveDatasetProvider implements ISlaveLazyDatasetProvi
     }
 
     @Override
+    public XYDataItemOHLC getValue(final FDate key, final OHLCDataItem prevValue) {
+        final XYDataItemOHLC item;
+        if (prevValue != null) {
+            item = new XYDataItemOHLC(prevValue);
+        } else {
+            item = new XYDataItemOHLC(
+                    new OHLCDataItem(key.dateValue(), Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN));
+        }
+        executor.execute(new AsyncRunnable(key, item));
+        return item;
+    }
+
+    @Override
     public XYDataItemOHLC getValue(final FDate key) {
         final XYDataItemOHLC item = new XYDataItemOHLC(
                 new OHLCDataItem(key.dateValue(), Double.NaN, Double.NaN, Double.NaN, Double.NaN, Double.NaN));

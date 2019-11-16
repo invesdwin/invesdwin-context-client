@@ -5,6 +5,7 @@ import java.awt.GridLayout;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 import java.util.Date;
 import java.util.List;
@@ -43,6 +44,7 @@ import de.invesdwin.util.concurrent.Executors;
 import de.invesdwin.util.concurrent.WrappedExecutorService;
 import de.invesdwin.util.lang.finalizer.AFinalizer;
 import de.invesdwin.util.math.Doubles;
+import de.invesdwin.util.swing.Components;
 import de.invesdwin.util.swing.listener.KeyListenerSupport;
 import de.invesdwin.util.swing.listener.MouseListenerSupport;
 import de.invesdwin.util.swing.listener.MouseMotionListenerSupport;
@@ -72,6 +74,7 @@ public class InteractiveChartPanel extends JPanel {
     private final PlotConfigurationHelper plotConfigurationHelper;
     private final PlotZoomHelper plotZoomHelper;
     private final PlotPanHelper plotPanHelper;
+    private final MouseMotionListener mouseMotionListener;
     private FDate lastHorizontalScroll = FDate.MIN_DATE;
     private FDate lastVerticalScroll = FDate.MIN_DATE;
 
@@ -92,6 +95,7 @@ public class InteractiveChartPanel extends JPanel {
         this.plotConfigurationHelper = new PlotConfigurationHelper(this);
         this.plotZoomHelper = new PlotZoomHelper(this);
         this.plotPanHelper = new PlotPanHelper(this);
+        this.mouseMotionListener = new MouseMotionListenerImpl();
 
         domainAxis = new DomainAxisImpl();
         domainAxis.setAutoRange(false);
@@ -139,7 +143,7 @@ public class InteractiveChartPanel extends JPanel {
     public void initialize() {
         chartPanel.initialize();
         chartPanel.addMouseWheelListener(new MouseWheelListenerImpl());
-        chartPanel.addMouseMotionListener(new MouseMotionListenerImpl());
+        chartPanel.addMouseMotionListener(mouseMotionListener);
         chartPanel.addKeyListener(new KeyListenerImpl());
         chartPanel.setFocusable(true); //key listener only works on focusable panels
         chartPanel.addMouseListener(new MouseListenerImpl());
@@ -276,10 +280,15 @@ public class InteractiveChartPanel extends JPanel {
                         EventDispatchThreadUtil.invokeAndWait(new Runnable() {
                             @Override
                             public void run() {
-                                plotCrosshairHelper.disableCrosshair(); //need to do this in EDT, or we get ArrayIndexOutOfBounds exception
+                                chart.setNotify(false);
+                                //need to do this in EDT, or we get ArrayIndexOutOfBounds exception
+                                plotCrosshairHelper.disableCrosshair();
                                 configureRangeAxis();
+                                chart.setNotify(true);
                                 plotLegendHelper.update();
+                                updateCrosshair();
                             }
+
                         });
                     } catch (final InterruptedException e) {
                         throw new RuntimeException(e);
@@ -288,6 +297,10 @@ public class InteractiveChartPanel extends JPanel {
             };
             finalizer.executorUpdateLimit.execute(task);
         }
+    }
+
+    private void updateCrosshair() {
+        Components.triggerMouseMoved(InteractiveChartPanel.this, mouseMotionListener);
     }
 
     public boolean isUpdating() {

@@ -71,7 +71,7 @@ public class FastXYStepRenderer extends XYStepRenderer implements IDelegatePrice
             final int pass) {
         //CHECKSTYLE:ON
         //don't draw in-progress values that are missing
-        if (!Doubles.isNaN(dataset.getYValue(series, item))) {
+        if (Doubles.isNaN(dataset.getYValue(series, item))) {
             return;
         }
         super.drawItem(g2, state, dataArea, info, plot, domainAxis, rangeAxis, dataset, series, item, crosshairState,

@@ -1,9 +1,13 @@
 package de.invesdwin.context.client.swing.jfreechart.plot.dataset.list;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.concurrent.ThreadSafe;
+
+import org.jfree.data.xy.OHLCDataItem;
 
 import de.invesdwin.context.client.swing.jfreechart.panel.InteractiveChartPanel;
 import de.invesdwin.context.jfreechart.dataset.XYDataItemOHLC;
@@ -28,15 +32,19 @@ public class SlaveLazyDatasetList extends ALazyDatasetList<XYDataItemOHLC> imple
         final int masterSizeBefore = masterSizeAfter - appendCount;
         int countRemoved = 0;
         //remove at least two elements
+        final Map<Integer, OHLCDataItem> prevValues = new HashMap<>();
         while (data.size() > masterSizeBefore || countRemoved < 2) {
-            invalidate(data.size() - 1);
+            final int index = data.size() - 1;
+            prevValues.put(index, data.get(index).getOHLC());
+            invalidate(index);
             countRemoved++;
         }
         final int fromIndex = data.size();
         final int toIndex = masterSizeAfter - 1;
         for (int i = fromIndex; i <= toIndex; i++) {
             final FDate key = FDate.valueOf(master.get(i).getDate());
-            final XYDataItemOHLC value = provider.getValue(key);
+            final OHLCDataItem prevValue = prevValues.get(i);
+            final XYDataItemOHLC value = provider.getValue(key, prevValue);
             if (value == null) {
                 throw new IllegalStateException(toString() + ": " + i + ". value should not be null: " + key);
             }
