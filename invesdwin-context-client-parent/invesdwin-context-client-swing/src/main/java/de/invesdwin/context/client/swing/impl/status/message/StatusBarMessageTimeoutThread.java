@@ -90,7 +90,7 @@ public final class StatusBarMessageTimeoutThread extends Thread {
     }
 
     private boolean isTimeoutExpired() {
-        return new Duration(getTimeoutStarted()).isGreaterThan(getTimeout());
+        return getTimeoutStarted().isGreaterThan(getTimeout());
     }
 
     private Instant getTimeoutEnd() {
