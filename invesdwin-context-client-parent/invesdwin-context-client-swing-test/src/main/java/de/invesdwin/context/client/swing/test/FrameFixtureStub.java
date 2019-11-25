@@ -14,6 +14,7 @@ import de.invesdwin.aspects.EventDispatchThreadUtil;
 import de.invesdwin.context.test.ATest;
 import de.invesdwin.context.test.TestContext;
 import de.invesdwin.context.test.stub.StubSupport;
+import de.invesdwin.util.time.duration.Duration;
 
 @ThreadSafe
 @Named
@@ -21,11 +22,15 @@ public class FrameFixtureStub extends StubSupport {
 
     private static volatile FrameFixture frameFixture;
     private static volatile boolean installFailOnThreadViolationRepaintManager = true;
+    private static volatile Duration installEventDispatchThreadBlockingTimeout = null;
 
     @Override
     public void setUpContext(final ATest test, final TestContext ctx) {
         if (installFailOnThreadViolationRepaintManager) {
             FailOnThreadViolationRepaintManager.install();
+        }
+        if (installEventDispatchThreadBlockingTimeout != null) {
+            System.out.println("TODO");
         }
     }
 
@@ -36,6 +41,15 @@ public class FrameFixtureStub extends StubSupport {
     public static void setInstallFailOnThreadViolationRepaintManager(
             final boolean installFailOnThreadViolationRepaintManager) {
         FrameFixtureStub.installFailOnThreadViolationRepaintManager = installFailOnThreadViolationRepaintManager;
+    }
+
+    public static void setInstallEventDispatchThreadBlockingTimeout(
+            final Duration installEventDispatchThreadBlockingTimeout) {
+        FrameFixtureStub.installEventDispatchThreadBlockingTimeout = installEventDispatchThreadBlockingTimeout;
+    }
+
+    public static Duration getInstallEventDispatchThreadBlockingTimeout() {
+        return installEventDispatchThreadBlockingTimeout;
     }
 
     @Override
