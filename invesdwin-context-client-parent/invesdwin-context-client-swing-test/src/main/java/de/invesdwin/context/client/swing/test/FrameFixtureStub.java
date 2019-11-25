@@ -1,6 +1,8 @@
 package de.invesdwin.context.client.swing.test;
 
+import java.awt.AWTEvent;
 import java.util.concurrent.Callable;
+import java.util.concurrent.TimeoutException;
 
 import javax.annotation.concurrent.ThreadSafe;
 import javax.inject.Named;
@@ -11,6 +13,9 @@ import org.jdesktop.application.Application;
 import org.jdesktop.application.SingleFrameApplication;
 
 import de.invesdwin.aspects.EventDispatchThreadUtil;
+import de.invesdwin.context.client.swing.test.edt.ITimeoutEventQueueListener;
+import de.invesdwin.context.client.swing.test.edt.TimeoutEventQueue;
+import de.invesdwin.context.log.error.Err;
 import de.invesdwin.context.test.ATest;
 import de.invesdwin.context.test.TestContext;
 import de.invesdwin.context.test.stub.StubSupport;
@@ -29,8 +34,21 @@ public class FrameFixtureStub extends StubSupport {
         if (installFailOnThreadViolationRepaintManager) {
             FailOnThreadViolationRepaintManager.install();
         }
-        if (installEventDispatchThreadBlockingTimeout != null) {
-            System.out.println("TODO");
+        final Duration timeout = installEventDispatchThreadBlockingTimeout;
+        if (timeout != null) {
+            final TimeoutEventQueue timeoutEventQueue = TimeoutEventQueue.install();
+            final Duration checkInterval = Duration.ONE_SECOND.orLower(timeout.divide(2))
+                    .orHigher(Duration.ONE_MILLISECOND);
+            timeoutEventQueue.addTimeoutListener(timeout, checkInterval, new ITimeoutEventQueueListener() {
+                @Override
+                public void onTimeout(final AWTEvent event, final Thread eventDispatchThread) {
+                    final StackTraceElement[] stackTrace = eventDispatchThread.getStackTrace();
+                    final TimeoutException exception = new TimeoutException(
+                            "EventDispatchThread timeout [" + timeout + "] occured.");
+                    exception.setStackTrace(stackTrace);
+                    Err.process(exception);
+                }
+            }, false);
         }
     }
 

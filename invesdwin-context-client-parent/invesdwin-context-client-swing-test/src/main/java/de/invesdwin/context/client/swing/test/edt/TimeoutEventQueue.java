@@ -1,13 +1,14 @@
-package de.invesdwin.context.client.swing.test;
+package de.invesdwin.context.client.swing.test.edt;
 
 import java.awt.AWTEvent;
 import java.awt.EventQueue;
 import java.awt.Toolkit;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.TimerTask;
 
 import javax.annotation.concurrent.ThreadSafe;
+
+import de.invesdwin.util.time.duration.Duration;
+import de.invesdwin.util.time.fdate.FTimeUnit;
 
 /**
  * Alternative events dispatching queue. The benefit over the default Event Dispatch queue is that you can add as many
@@ -41,28 +42,29 @@ import javax.annotation.concurrent.ThreadSafe;
  */
 //https://www.javaspecialists.eu/archive/Issue104.html
 @ThreadSafe
-public final class EventQueueWithWatchDog extends EventQueue {
+public final class TimeoutEventQueue extends EventQueue {
     // Main timer
     private final java.util.Timer timer = new java.util.Timer(true);
 
     // Group of informational fields for describing the event
     private final Object eventChangeLock = new Object();
-    private volatile long eventDispatchingStart = -1;
-    private volatile AWTEvent event = null;
+    private long eventDispatchingStart;
+    private AWTEvent event;
+    private Thread eventDispatchThread;
 
     /**
      * Hidden utility constructor.
      */
-    private EventQueueWithWatchDog() {}
+    private TimeoutEventQueue() {}
 
     /**
      * Install alternative queue.
      *
      * @return instance of queue installed.
      */
-    public static EventQueueWithWatchDog install() {
+    public static TimeoutEventQueue install() {
         final EventQueue eventQueue = Toolkit.getDefaultToolkit().getSystemEventQueue();
-        final EventQueueWithWatchDog newEventQueue = new EventQueueWithWatchDog();
+        final TimeoutEventQueue newEventQueue = new TimeoutEventQueue();
         eventQueue.push(newEventQueue);
         return newEventQueue;
     }
@@ -75,51 +77,43 @@ public final class EventQueueWithWatchDog extends EventQueue {
      */
     @Override
     protected void dispatchEvent(final AWTEvent anEvent) {
-        setEventDispatchingStart(anEvent, System.currentTimeMillis());
+        setEventDispatchingStart(anEvent, System.nanoTime(), Thread.currentThread());
         super.dispatchEvent(anEvent);
-        setEventDispatchingStart(null, -1);
+        setEventDispatchingStart(null, -1, null);
     }
 
     /**
      * Register event and dispatching start time.
      *
-     * @param anEvent
+     * @param event
      *            event.
-     * @param timestamp
+     * @param eventDispatchingStart
      *            dispatching start time.
      */
-    private void setEventDispatchingStart(final AWTEvent anEvent, final long timestamp) {
+    private void setEventDispatchingStart(final AWTEvent event, final long eventDispatchingStart,
+            final Thread eventDispatchThread) {
         synchronized (eventChangeLock) {
-            event = anEvent;
-            eventDispatchingStart = timestamp;
+            this.event = event;
+            this.eventDispatchingStart = eventDispatchingStart;
+            this.eventDispatchThread = eventDispatchThread;
         }
     }
 
-    /**
-     * Add watchdog timer. Timer will trigger <code>listener</code> if the queue dispatching event longer than specified
-     * <code>maxProcessingTime</code>. If the timer is <code>repetitive</code> then it will trigger additional events if
-     * the processing 2x, 3x and further longer than <code>maxProcessingTime</code>.
-     *
-     * @param maxProcessingTime
-     *            maximum processing time.
-     * @param listener
-     *            listener for events. The listener will receive <code>AWTEvent</code> as source of event.
-     * @param repetitive
-     *            TRUE to trigger consequent events for 2x, 3x and further periods.
-     */
-    public void addWatchdog(final long maxProcessingTime, final ActionListener listener, final boolean repetitive) {
-        final Watchdog checker = new Watchdog(maxProcessingTime, listener, repetitive);
-        timer.schedule(checker, maxProcessingTime, maxProcessingTime);
+    public void addTimeoutListener(final Duration maxProcessingTime, final Duration checkInterval,
+            final ITimeoutEventQueueListener listener, final boolean repetitive) {
+        final TimeoutListenerTask checker = new TimeoutListenerTask(maxProcessingTime, listener, repetitive);
+        final long checkIntervalMillis = checkInterval.longValue(FTimeUnit.MILLISECONDS);
+        timer.schedule(checker, checkIntervalMillis, checkIntervalMillis);
     }
 
     /**
      * Checks if the processing of the event is longer than the specified <code>maxProcessingTime</code>. If so then
      * listener is notified.
      */
-    private final class Watchdog extends TimerTask {
+    private final class TimeoutListenerTask extends TimerTask {
         // Settings
-        private final long maxProcessingTime;
-        private final ActionListener listener;
+        private final long maxProcessingTimeNanos;
+        private final ITimeoutEventQueueListener listener;
         private final boolean repetitive;
 
         // Event reported as "lengthy" for the last time. Used to
@@ -136,14 +130,15 @@ public final class EventQueueWithWatchDog extends EventQueue {
          * @param repetitive
          *            TRUE to allow consequent notifications for the same event
          */
-        private Watchdog(final long maxProcessingTime, final ActionListener listener, final boolean repetitive) {
+        private TimeoutListenerTask(final Duration maxProcessingTime, final ITimeoutEventQueueListener listener,
+                final boolean repetitive) {
             if (listener == null) {
                 throw new IllegalArgumentException("Listener cannot be null.");
             }
-            if (maxProcessingTime < 0) {
+            if (maxProcessingTime.isNegativeOrZero()) {
                 throw new IllegalArgumentException("Max locking period should be greater than zero");
             }
-            this.maxProcessingTime = maxProcessingTime;
+            this.maxProcessingTimeNanos = maxProcessingTime.nanosValue();
             this.listener = listener;
             this.repetitive = repetitive;
         }
@@ -152,19 +147,21 @@ public final class EventQueueWithWatchDog extends EventQueue {
         public void run() {
             final long time;
             final AWTEvent currentEvent;
+            final Thread edt;
 
             // Get current event requisites
             synchronized (eventChangeLock) {
                 time = eventDispatchingStart;
                 currentEvent = event;
+                edt = eventDispatchThread;
             }
 
-            final long currentTime = System.currentTimeMillis();
+            final long currentTime = System.nanoTime();
 
             // Check if event is being processed longer than allowed
-            if (time != -1 && (currentTime - time > maxProcessingTime)
+            if (time != -1 && (currentTime - time > maxProcessingTimeNanos)
                     && (repetitive || currentEvent != lastReportedEvent)) {
-                listener.actionPerformed(new ActionEvent(currentEvent, -1, null));
+                listener.onTimeout(currentEvent, edt);
                 lastReportedEvent = currentEvent;
             }
         }
