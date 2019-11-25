@@ -44,7 +44,7 @@ public class FrameFixtureStub extends StubSupport {
                 public void onTimeout(final AWTEvent event, final Thread eventDispatchThread) {
                     final StackTraceElement[] stackTrace = eventDispatchThread.getStackTrace();
                     final TimeoutException exception = new TimeoutException(
-                            "EventDispatchThread timeout [" + timeout + "] occured.");
+                            "EventDispatchThread timeout [" + timeout + "] occured");
                     exception.setStackTrace(stackTrace);
                     Err.process(exception);
                 }
