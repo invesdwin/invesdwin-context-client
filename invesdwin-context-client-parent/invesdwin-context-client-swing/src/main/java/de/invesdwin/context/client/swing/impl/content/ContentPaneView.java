@@ -52,7 +52,7 @@ public class ContentPaneView extends AView<ContentPaneView, JPanel> {
                             final CDockable focused = control.getFocusedCDockable();
                             final ContentPane contentPane = GuiService.get().getContentPane();
                             if (focused != null && focused.isCloseable() && contentPane.containsDockable(focused)) {
-                                contentPane.removeDockable(focused);
+                                focused.setVisible(false); //use default close operation
                             }
                         }
                     });
