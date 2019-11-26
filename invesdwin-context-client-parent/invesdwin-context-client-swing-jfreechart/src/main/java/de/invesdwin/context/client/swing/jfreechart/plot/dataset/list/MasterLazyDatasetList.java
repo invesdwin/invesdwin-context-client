@@ -194,7 +194,6 @@ public class MasterLazyDatasetList extends ALazyDatasetList<OHLCDataItem> implem
                 //prepend a whole screen additional to the requested items
                 int prependCount = Integers.abs(preloadLowerBound);
                 prependCount = prependMaster(prependCount, firstLoadedKey);
-                System.out.println("prepend " + prependCount + " => " + data.size());
                 prependSlaves(prependCount);
                 updatedRange = new Range(range.getLowerBound() + prependCount, range.getUpperBound() + prependCount);
                 rangeChanged.setTrue();
@@ -208,7 +207,6 @@ public class MasterLazyDatasetList extends ALazyDatasetList<OHLCDataItem> implem
                 int appendCount = preloadUpperBound - data.size();
                 if (appendCount > 0) {
                     appendCount = appendMaster(appendCount);
-                    System.out.println("append " + appendCount + " => " + data.size());
                     appendSlaves(appendCount);
                     if (isTrailing) {
                         updatedRange = new Range(range.getLowerBound() + appendCount,
