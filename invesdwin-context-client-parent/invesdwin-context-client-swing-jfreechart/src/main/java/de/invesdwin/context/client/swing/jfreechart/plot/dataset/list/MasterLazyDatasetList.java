@@ -30,12 +30,12 @@ public class MasterLazyDatasetList extends ALazyDatasetList<OHLCDataItem> implem
 
     public static final OHLCDataItem DUMMY_VALUE = new OHLCDataItem(FDate.MIN_DATE.dateValue(), Double.NaN, Double.NaN,
             Double.NaN, Double.NaN, Double.NaN);
-    private static final int PRELOAD_RANGE_MULTIPLIER = 2;
     /*
      * keep a few more items because we need to keep some buffer to the left and right and we don't want to load data on
      * all the smaller panning actions
      */
     private static final int STEP_ITEM_COUNT = PlotZoomHelper.MAX_ZOOM_ITEM_COUNT;
+    private static final int INITIAL_ITEM_COUNT = PlotZoomHelper.MAX_ZOOM_ITEM_COUNT * 2;
     private static final int MAX_ITEM_COUNT = STEP_ITEM_COUNT * 5;
     private static final int TRIM_ITEM_COUNT = MAX_ITEM_COUNT * 2;
     private final IMasterLazyDatasetProvider provider;
@@ -129,10 +129,8 @@ public class MasterLazyDatasetList extends ALazyDatasetList<OHLCDataItem> implem
     }
 
     private void loadInitialDataMaster() {
-        final int initialVisibleItemCount = Math.max(chartPanel.getInitialVisibleItemCount() * PRELOAD_RANGE_MULTIPLIER,
-                STEP_ITEM_COUNT * PRELOAD_RANGE_MULTIPLIER);
         final ICloseableIterable<? extends OHLCDataItem> initialValues = provider
-                .getPreviousValues(provider.getLastAvailableKey(), initialVisibleItemCount);
+                .getPreviousValues(provider.getLastAvailableKey(), INITIAL_ITEM_COUNT);
         final List<OHLCDataItem> data = getData();
         try (ICloseableIterator<? extends OHLCDataItem> it = initialValues.iterator()) {
             while (true) {
@@ -195,6 +193,7 @@ public class MasterLazyDatasetList extends ALazyDatasetList<OHLCDataItem> implem
                 //prepend a whole screen additional to the requested items
                 int prependCount = STEP_ITEM_COUNT;
                 prependCount = prependMaster(prependCount, firstLoadedKey);
+                System.out.println("prepend " + prependCount + " => " + getData().size());
                 prependSlaves(prependCount);
                 updatedRange = new Range(range.getLowerBound() + prependCount, range.getUpperBound() + prependCount);
                 rangeChanged.setTrue();
@@ -208,6 +207,7 @@ public class MasterLazyDatasetList extends ALazyDatasetList<OHLCDataItem> implem
                 int appendCount = STEP_ITEM_COUNT;
                 if (appendCount > 0) {
                     appendCount = appendMaster(appendCount);
+                    System.out.println("append " + appendCount + " => " + getData().size());
                     appendSlaves(appendCount);
                     if (isTrailing) {
                         updatedRange = new Range(range.getLowerBound() + appendCount,
