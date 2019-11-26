@@ -26,6 +26,7 @@ import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYItemRenderer;
 import org.jfree.data.xy.OHLCDataItem;
 
+import de.invesdwin.aspects.EventDispatchThreadUtil;
 import de.invesdwin.context.client.swing.jfreechart.panel.basis.CustomCombinedDomainXYPlot;
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.LineStyleType;
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.LineWidthType;
@@ -129,7 +130,7 @@ public class CandlestickDemo extends JFrame {
     }
 
     //CHECKSTYLE:OFF
-    public static void main(final String[] args) {
+    public static void main(final String[] args) throws InterruptedException {
         if (Reflections.JAVA_VERSION < 12) {
             new SystemProperties().setInteger("jdk.gtk.version", 2);
         }
@@ -140,7 +141,12 @@ public class CandlestickDemo extends JFrame {
                 | UnsupportedLookAndFeelException e) {
             throw new RuntimeException(e);
         }
-        new CandlestickDemo().setVisible(true);
+        EventDispatchThreadUtil.invokeAndWait(new Runnable() {
+            @Override
+            public void run() {
+                new CandlestickDemo().setVisible(true);
+            }
+        });
     }
 
     private final class CustomExpressionSeriesProvider implements IExpressionSeriesProvider {

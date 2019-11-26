@@ -79,34 +79,30 @@ public abstract class AView<M extends AModel, C extends JComponent> extends AMod
 
     @Hidden(skip = true)
     public C getComponent() {
-        synchronized (componentLock) {
-            if (component == null) {
-                try {
-                    component = EventDispatchThreadUtil.invokeAndWait(new Callable<C>() {
-                        @Override
-                        public C call() throws Exception {
-                            final C component = initComponent();
-                            new ComponentStandardizer().visitAll(component);
-                            getResourceMap().injectComponents(component);
-                            component.putClientProperty(CLIENTPROP_VIEW_INSTANCE, AView.this);
-                            return component;
-                        }
-                    });
-                    if (getModel() != null) {
-                        final C componentCopy = component;
-                        bindingGroup = EventDispatchThreadUtil.invokeAndWait(new Callable<BindingGroup>() {
+        if (component == null) {
+            synchronized (componentLock) {
+                if (component == null) {
+                    try {
+                        component = EventDispatchThreadUtil.invokeAndWait(new Callable<C>() {
                             @Override
-                            public BindingGroup call() throws Exception {
-                                return initBindingGroup(componentCopy);
+                            public C call() throws Exception {
+                                final C component = initComponent();
+                                new ComponentStandardizer().visitAll(component);
+                                getResourceMap().injectComponents(component);
+                                component.putClientProperty(CLIENTPROP_VIEW_INSTANCE, AView.this);
+                                return component;
                             }
                         });
+                    } catch (final InterruptedException e) {
+                        throw new RuntimeException(e);
                     }
-                } catch (final InterruptedException e) {
-                    Thread.currentThread().interrupt();
+                    if (getModel() != null) {
+                        bindingGroup = initBindingGroup(component);
+                    }
                 }
             }
-            return component;
         }
+        return component;
     }
 
     @Hidden(skip = true)
@@ -119,12 +115,14 @@ public abstract class AView<M extends AModel, C extends JComponent> extends AMod
 
     @Hidden(skip = true)
     public BindingGroup getBindingGroup() {
-        synchronized (componentLock) {
-            if (component == null) {
-                Assertions.checkNotNull(getComponent());
+        if (component == null) {
+            synchronized (componentLock) {
+                if (component == null) {
+                    Assertions.checkNotNull(getComponent());
+                }
             }
-            return bindingGroup;
         }
+        return bindingGroup;
     }
 
     @Hidden(skip = true)

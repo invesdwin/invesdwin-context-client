@@ -28,12 +28,16 @@ import de.invesdwin.util.time.fdate.FDate;
 @ThreadSafe
 public class MasterLazyDatasetList extends ALazyDatasetList<OHLCDataItem> implements IChartPanelAwareDatasetList {
 
+    public static final OHLCDataItem DUMMY_VALUE = new OHLCDataItem(FDate.MIN_DATE.dateValue(), Double.NaN, Double.NaN,
+            Double.NaN, Double.NaN, Double.NaN);
     private static final int PRELOAD_RANGE_MULTIPLIER = 2;
     /*
      * keep a few more items because we need to keep some buffer to the left and right and we don't want to load data on
      * all the smaller panning actions
      */
-    private static final int MAX_ITEM_COUNT = PlotZoomHelper.MAX_ZOOM_ITEM_COUNT * 5;
+    private static final int STEP_ITEM_COUNT = PlotZoomHelper.MAX_ZOOM_ITEM_COUNT;
+    private static final int MAX_ITEM_COUNT = STEP_ITEM_COUNT * 5;
+    private static final int TRIM_ITEM_COUNT = MAX_ITEM_COUNT * 2;
     private final IMasterLazyDatasetProvider provider;
     private final Set<ISlaveLazyDatasetListener> slaveDatasetListeners;
     private final Set<IRangeListener> rangeListeners;
@@ -57,6 +61,11 @@ public class MasterLazyDatasetList extends ALazyDatasetList<OHLCDataItem> implem
         this.rangeListeners = Collections.newSetFromMap(limitRangeListeners);
 
         this.firstAvailableKey = provider.getFirstAvailableKey();
+    }
+
+    @Override
+    protected OHLCDataItem dummyValue() {
+        return DUMMY_VALUE;
     }
 
     @Override
@@ -132,9 +141,10 @@ public class MasterLazyDatasetList extends ALazyDatasetList<OHLCDataItem> implem
 
     private Range maybeTrimDataRange(final Range range, final MutableBoolean rangeChanged) {
         Range updatedRange = range;
-        if (data.size() > MAX_ITEM_COUNT) {
+        if (data.size() > TRIM_ITEM_COUNT) {
             //trim both ends based on center
-            final int centralValueAdj = (int) range.getCentralValue();
+            final int centralValueAdj = Integers.max(0, (int) range.getLowerBound())
+                    + Integers.min(data.size() - 1, (int) range.getUpperBound()) / 2;
             int tooManyBefore = centralValueAdj - MAX_ITEM_COUNT / 2;
             int tooManyAfter = data.size() - centralValueAdj - MAX_ITEM_COUNT / 2;
             if (tooManyBefore < 0) {
@@ -177,7 +187,7 @@ public class MasterLazyDatasetList extends ALazyDatasetList<OHLCDataItem> implem
             final FDate firstLoadedKey = getFirstLoadedKey();
             if (firstAvailableKey.isBefore(firstLoadedKey)) {
                 //prepend a whole screen additional to the requested items
-                int prependCount = Integers.abs(preloadLowerBound);
+                int prependCount = STEP_ITEM_COUNT;
                 prependCount = prependMaster(prependCount, firstLoadedKey);
                 prependSlaves(prependCount);
                 updatedRange = new Range(range.getLowerBound() + prependCount, range.getUpperBound() + prependCount);
@@ -189,7 +199,7 @@ public class MasterLazyDatasetList extends ALazyDatasetList<OHLCDataItem> implem
             final FDate lastLoadedKey = getLastLoadedKey();
             if (provider.getLastAvailableKey().isAfter(lastLoadedKey)) {
                 //append a whole screen additional to the requested items
-                int appendCount = preloadUpperBound - data.size();
+                int appendCount = STEP_ITEM_COUNT;
                 if (appendCount > 0) {
                     appendCount = appendMaster(appendCount);
                     appendSlaves(appendCount);

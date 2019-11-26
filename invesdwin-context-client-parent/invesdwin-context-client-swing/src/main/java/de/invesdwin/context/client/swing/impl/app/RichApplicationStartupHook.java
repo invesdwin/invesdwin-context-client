@@ -14,8 +14,6 @@ import org.jdesktop.application.Application.ExitListener;
 import org.jdesktop.application.FrameView;
 
 import de.invesdwin.aspects.EventDispatchThreadUtil;
-import de.invesdwin.aspects.annotation.EventDispatchThread;
-import de.invesdwin.aspects.annotation.EventDispatchThread.InvocationType;
 import de.invesdwin.context.beans.hook.IStartupHook;
 import de.invesdwin.context.beans.init.MergedContext;
 import de.invesdwin.context.client.swing.api.IRichApplication;
@@ -26,6 +24,7 @@ import de.invesdwin.context.client.swing.impl.content.ContentPaneView;
 import de.invesdwin.context.client.swing.impl.menu.MenuBarView;
 import de.invesdwin.context.client.swing.impl.splash.ConfiguredSplashScreen;
 import de.invesdwin.context.client.swing.impl.status.StatusBarView;
+import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.swing.Dialogs;
 
 /**
@@ -51,7 +50,6 @@ public class RichApplicationStartupHook implements IStartupHook {
     private StatusBarView statusBarView;
 
     @Override
-    @EventDispatchThread(InvocationType.INVOKE_LATER)
     public void startup() throws Exception {
         //Dependency Injection must be invoked manually here
         MergedContext.autowire(this);
@@ -62,7 +60,19 @@ public class RichApplicationStartupHook implements IStartupHook {
             application.addExitListener(exitListener);
         }
 
-        setupFrame(application);
+        EventDispatchThreadUtil.invokeAndWait(new Runnable() {
+            @Override
+            public void run() {
+                Assertions.checkNotNull(application.getMainFrame());
+            }
+        });
+        Assertions.checkNotNull(contentPaneView.getComponent()); // eager init
+        EventDispatchThreadUtil.invokeAndWait(new Runnable() {
+            @Override
+            public void run() {
+                setupFrame(application);
+            }
+        });
 
         EventDispatchThreadUtil.invokeLater(new Runnable() {
             @Override

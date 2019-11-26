@@ -1,6 +1,7 @@
 package de.invesdwin.context.client.swing.jfreechart.plot.dataset.list;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -11,11 +12,29 @@ import org.jfree.data.xy.OHLCDataItem;
 
 import de.invesdwin.context.client.swing.jfreechart.panel.InteractiveChartPanel;
 import de.invesdwin.context.jfreechart.dataset.XYDataItemOHLC;
+import de.invesdwin.context.log.error.Err;
 import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.time.fdate.FDate;
 
 @ThreadSafe
 public class SlaveLazyDatasetList extends ALazyDatasetList<XYDataItemOHLC> implements ISlaveLazyDatasetListener {
+
+    public static final XYDataItemOHLC DUMMY_VALUE = new XYDataItemOHLC(MasterLazyDatasetList.DUMMY_VALUE) {
+        @Override
+        public void setOHLC(final OHLCDataItem ohlc) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void setY(final double y) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void setY(final Number y) {
+            throw new UnsupportedOperationException();
+        }
+    };
 
     private final ISlaveLazyDatasetProvider provider;
     private final MasterLazyDatasetList master;
@@ -24,6 +43,11 @@ public class SlaveLazyDatasetList extends ALazyDatasetList<XYDataItemOHLC> imple
         this.provider = provider;
         this.master = (MasterLazyDatasetList) chartPanel.getDataset().getData();
         master.registerSlaveDatasetListener(this);
+    }
+
+    @Override
+    protected XYDataItemOHLC dummyValue() {
+        return DUMMY_VALUE;
     }
 
     @Override
@@ -74,9 +98,28 @@ public class SlaveLazyDatasetList extends ALazyDatasetList<XYDataItemOHLC> imple
     }
 
     private void assertSameSizeAsMaster() {
-        if (data.size() != master.size() && data.size() != master.size() - 1) {
-            throw new IllegalStateException("data.size [" + data.size() + "] should be between master.size ["
-                    + master.size() + "] and master.size-1 [" + (master.size() - 1) + "]");
+        final int masterSize = master.size();
+        if (data.size() != masterSize) {
+            Err.process(new IllegalStateException("slave.size [" + data.size() + "] should be equal to master.size ["
+                    + masterSize + "]. Reloading: " + provider));
+            loadInitial();
+        } else if (data.size() > 0) {
+            final Date slaveFirstDate = data.get(0).getOHLC().getDate();
+            final Date masterFirstDate = master.get(0).getDate();
+            if (!slaveFirstDate.equals(masterFirstDate)) {
+                Err.process(new IllegalStateException("slave[first].date [" + slaveFirstDate
+                        + "] should be equal to master[first].date [" + masterFirstDate + "]. Reloading: " + provider));
+                loadInitial();
+            } else {
+                final Date slaveLastDate = data.get(data.size() - 1).getOHLC().getDate();
+                final Date masterLastDate = master.get(master.size() - 1).getDate();
+                if (!slaveLastDate.equals(masterLastDate)) {
+                    Err.process(new IllegalStateException(
+                            "slave[last].date [" + slaveLastDate + "] should be equal to master[last].date ["
+                                    + masterLastDate + "]. Reloading: " + provider));
+                    loadInitial();
+                }
+            }
         }
     }
 

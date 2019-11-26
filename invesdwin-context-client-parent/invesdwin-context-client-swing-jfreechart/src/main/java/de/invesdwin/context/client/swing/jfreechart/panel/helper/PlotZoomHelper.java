@@ -18,6 +18,9 @@ import de.invesdwin.context.client.swing.jfreechart.panel.helper.listener.IRange
 import de.invesdwin.util.collections.factory.ILockCollectionFactory;
 import de.invesdwin.util.collections.fast.IFastIterableSet;
 import de.invesdwin.util.math.Doubles;
+import de.invesdwin.util.time.Instant;
+import de.invesdwin.util.time.duration.Duration;
+import de.invesdwin.util.time.fdate.FTimeUnit;
 
 @NotThreadSafe
 public class PlotZoomHelper {
@@ -28,6 +31,8 @@ public class PlotZoomHelper {
     private static final double ZOOM_FACTOR = 0.1D;
     private static final double ZOOM_OUT_FACTOR = 1D + ZOOM_FACTOR;
     private static final double ZOOM_IN_FACTOR = 1 / ZOOM_OUT_FACTOR;
+    private static final Duration ZOOMABLE_THRESHOLD = new Duration(5, FTimeUnit.MILLISECONDS);
+    private Instant lastZoomable = new Instant();
 
     private final InteractiveChartPanel chartPanel;
 
@@ -51,9 +56,13 @@ public class PlotZoomHelper {
     }
 
     private void handleZoomable(final Point2D point, final double zoomFactor) {
+        if (lastZoomable.isLessThan(ZOOMABLE_THRESHOLD)) {
+            return;
+        }
         if (chartPanel.isUpdating()) {
             return;
         }
+        lastZoomable = new Instant();
         final XYPlot plot = (XYPlot) this.chartPanel.getChart().getPlot();
 
         // don't zoom unless the mouse pointer is in the plot's data area
@@ -63,11 +72,16 @@ public class PlotZoomHelper {
             return;
         }
 
+        final Range rangeBefore = chartPanel.getDomainAxis().getRange();
         // do not notify while zooming each axis
         final boolean notifyState = plot.isNotify();
         plot.setNotify(false);
-
         plot.zoomDomainAxes(zoomFactor, pinfo, point, true);
+        final Range rangeAfter = chartPanel.getDomainAxis().getRange();
+        final int lengthAfter = (int) rangeAfter.getLength();
+        if (lengthAfter >= MAX_ZOOM_ITEM_COUNT || lengthAfter <= MIN_ZOOM_ITEM_COUNT) {
+            chartPanel.getDomainAxis().setRange(rangeBefore);
+        }
         plot.setNotify(notifyState); // this generates the change event too
         chartPanel.update();
     }
@@ -90,7 +104,7 @@ public class PlotZoomHelper {
         return rangeListeners;
     }
 
-    public void limitRange() {
+    public boolean limitRange() {
         final NumberAxis domainAxis = chartPanel.getDomainAxis();
         Range range = domainAxis.getRange();
         final MutableBoolean rangeChanged = new MutableBoolean(false);
@@ -100,8 +114,8 @@ public class PlotZoomHelper {
                 range = array[i].beforeLimitRange(range, rangeChanged);
             }
         }
-        final double minLowerBound = 0D - chartPanel.getAllowedRangeGap();
-        final int maxUpperBound = chartPanel.getDataset().getItemCount(0) + chartPanel.getAllowedRangeGap();
+        final double minLowerBound = (int) (0D - chartPanel.getAllowedRangeGap());
+        final double maxUpperBound = chartPanel.getDataset().getItemCount(0) + chartPanel.getAllowedRangeGap();
         if (range.getLowerBound() < minLowerBound) {
             final double difference = minLowerBound - range.getLowerBound();
             range = new Range(minLowerBound, Doubles.min(range.getUpperBound() + difference, maxUpperBound));
@@ -121,12 +135,15 @@ public class PlotZoomHelper {
         }
         if (rangeChanged.booleanValue()) {
             domainAxis.setRange(range, true, false);
+            return true;
+        } else {
+            return false;
         }
     }
 
-    private Range limitRangeZoom(final Range pRange, final MutableBoolean rangeChanged, final double minLowerBound,
-            final int maxUpperBound) {
-        Range range = pRange;
+    private Range limitRangeZoom(final Range newRange, final MutableBoolean rangeChanged, final double minLowerBound,
+            final double maxUpperBound) {
+        Range range = newRange;
         final int itemCount = (int) range.getLength();
         if (itemCount <= MIN_ZOOM_ITEM_COUNT) {
             final int gap = MIN_ZOOM_ITEM_COUNT / 2;

@@ -2,6 +2,7 @@ package de.invesdwin.context.client.swing.jfreechart.plot.dataset.list;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
@@ -12,16 +13,16 @@ import javax.annotation.concurrent.ThreadSafe;
 @ThreadSafe
 public abstract class ALazyDatasetList<E> implements List<E> {
 
-    @GuardedBy("this")
-    protected List<E> data = new ArrayList<>();
+    @GuardedBy("self")
+    protected List<E> data = Collections.synchronizedList(new ArrayList<>());
 
     @Override
-    public synchronized int size() {
+    public int size() {
         return data.size();
     }
 
     @Override
-    public synchronized boolean isEmpty() {
+    public boolean isEmpty() {
         return data.isEmpty();
     }
 
@@ -100,9 +101,25 @@ public abstract class ALazyDatasetList<E> implements List<E> {
     }
 
     @Override
-    public synchronized E get(final int index) {
-        return data.get(Math.min(index, data.size() - 1));
+    public E get(final int index) {
+        final E value = getSynchronized(index);
+        if (value == null) {
+            return dummyValue();
+        }
+        return value;
     }
+
+    private E getSynchronized(final int index) {
+        synchronized (data) {
+            try {
+                return data.get(Math.min(index, data.size() - 1));
+            } catch (final IndexOutOfBoundsException e) {
+                return dummyValue();
+            }
+        }
+    }
+
+    protected abstract E dummyValue();
 
     @Deprecated
     @Override

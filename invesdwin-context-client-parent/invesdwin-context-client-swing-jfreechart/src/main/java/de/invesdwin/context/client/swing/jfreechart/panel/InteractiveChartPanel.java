@@ -124,6 +124,11 @@ public class InteractiveChartPanel extends JPanel {
             protected boolean isMousePanningAllowed() {
                 return !isUpdating();
             }
+
+            @Override
+            protected boolean isPaintAllowed() {
+                return !isUpdating();
+            }
         };
 
         chartPanel.setAllowedRangeGap(2);
@@ -271,20 +276,18 @@ public class InteractiveChartPanel extends JPanel {
 
     public void update() {
         //have max 2 queue
-        plotZoomHelper.limitRange();
         if (finalizer.executorUpdateLimit.getPendingCount() <= 1) {
             final Runnable task = new Runnable() {
                 @Override
                 public void run() {
+                    plotZoomHelper.limitRange(); //do this expensive task outside of EDT
                     try {
                         EventDispatchThreadUtil.invokeAndWait(new Runnable() {
                             @Override
                             public void run() {
-                                chart.setNotify(false);
                                 //need to do this in EDT, or we get ArrayIndexOutOfBounds exception
                                 plotCrosshairHelper.disableCrosshair();
                                 configureRangeAxis();
-                                chart.setNotify(true);
                                 plotLegendHelper.update();
                                 updateCrosshair();
                             }

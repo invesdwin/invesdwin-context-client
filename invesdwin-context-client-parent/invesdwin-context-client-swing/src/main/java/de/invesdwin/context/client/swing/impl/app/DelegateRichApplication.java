@@ -210,18 +210,39 @@ public class DelegateRichApplication extends SingleFrameApplication {
         lookAndFeelConfigured = true;
     }
 
-    public static synchronized <T extends Application> void launch() {
-        launch(new String[0]);
+    public static synchronized void launch() {
+        launchInternal(new String[0]);
     }
 
-    public static synchronized <T extends Application> void launch(final String[] args) {
-        launch(DelegateRichApplication.class, args);
+    public static synchronized void launch(final String[] args) {
+        launchInternal(args);
     }
 
     @Deprecated
     public static synchronized <T extends Application> void launch(final Class<T> applicationClass,
             final String[] args) {
-        Application.launch(applicationClass, args);
+        launchInternal(args);
+    }
+
+    public static synchronized void launchInternal(final String[] args) {
+        try {
+            final DelegateRichApplication application = (DelegateRichApplication) Reflections.method("create")
+                    .withReturnType(Application.class)
+                    .withParameterTypes(Class.class)
+                    .in(Application.class)
+                    .invoke(DelegateRichApplication.class);
+            Reflections.field("application").ofType(Application.class).in(Application.class).set(application);
+            application.initialize(args);
+            application.startup();
+            EventDispatchThreadUtil.invokeAndWait(new Runnable() {
+                @Override
+                public void run() {
+                    Reflections.method("waitForReady").in(application).invoke();
+                }
+            });
+        } catch (final Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
 }
