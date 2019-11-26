@@ -76,8 +76,11 @@ public class MasterLazyDatasetList extends ALazyDatasetList<OHLCDataItem> implem
 
     @Override
     public synchronized void resetRange() {
-        if (data.isEmpty() || getLastLoadedKey().isBefore(getResetReferenceTime())) {
-            data = new ArrayList<>(data.size());
+        final boolean empty = getData().isEmpty();
+        if (empty || getLastLoadedKey().isBefore(getResetReferenceTime())) {
+            if (!empty) {
+                newData();
+            }
             loadInitialDataMaster();
             if (!slaveDatasetListeners.isEmpty()) {
                 for (final ISlaveLazyDatasetListener slave : slaveDatasetListeners) {
@@ -88,7 +91,7 @@ public class MasterLazyDatasetList extends ALazyDatasetList<OHLCDataItem> implem
     }
 
     public synchronized void reloadData() {
-        if (data.isEmpty()) {
+        if (getData().isEmpty()) {
             return;
         }
         reloadDataMaster();
@@ -102,7 +105,7 @@ public class MasterLazyDatasetList extends ALazyDatasetList<OHLCDataItem> implem
     private void reloadDataMaster() {
         final ICloseableIterable<? extends OHLCDataItem> initialValues = provider.getValues(getFirstLoadedKey(),
                 getLastLoadedKey());
-        data = new ArrayList<>(data.size());
+        final List<OHLCDataItem> data = newData();
         try (ICloseableIterator<? extends OHLCDataItem> it = initialValues.iterator()) {
             while (true) {
                 final OHLCDataItem next = it.next();
@@ -122,13 +125,15 @@ public class MasterLazyDatasetList extends ALazyDatasetList<OHLCDataItem> implem
     }
 
     public synchronized boolean isTrailing(final Range range) {
-        return range.getUpperBound() >= (data.size() - 1);
+        return range.getUpperBound() >= (getData().size() - 1);
     }
 
     private void loadInitialDataMaster() {
-        final int initialVisibleItemCount = chartPanel.getInitialVisibleItemCount() * PRELOAD_RANGE_MULTIPLIER;
+        final int initialVisibleItemCount = Math.max(chartPanel.getInitialVisibleItemCount() * PRELOAD_RANGE_MULTIPLIER,
+                STEP_ITEM_COUNT * PRELOAD_RANGE_MULTIPLIER);
         final ICloseableIterable<? extends OHLCDataItem> initialValues = provider
                 .getPreviousValues(provider.getLastAvailableKey(), initialVisibleItemCount);
+        final List<OHLCDataItem> data = getData();
         try (ICloseableIterator<? extends OHLCDataItem> it = initialValues.iterator()) {
             while (true) {
                 final OHLCDataItem next = it.next();
@@ -141,6 +146,7 @@ public class MasterLazyDatasetList extends ALazyDatasetList<OHLCDataItem> implem
 
     private Range maybeTrimDataRange(final Range range, final MutableBoolean rangeChanged) {
         Range updatedRange = range;
+        final List<OHLCDataItem> data = getData();
         if (data.size() > TRIM_ITEM_COUNT) {
             //trim both ends based on center
             final int centralValueAdj = Integers.max(0, (int) range.getLowerBound())
@@ -195,7 +201,7 @@ public class MasterLazyDatasetList extends ALazyDatasetList<OHLCDataItem> implem
             }
         }
         final int preloadUpperBound = (int) (range.getUpperBound() + range.getLength());
-        if (preloadUpperBound > data.size()) {
+        if (preloadUpperBound > getData().size()) {
             final FDate lastLoadedKey = getLastLoadedKey();
             if (provider.getLastAvailableKey().isAfter(lastLoadedKey)) {
                 //append a whole screen additional to the requested items
@@ -216,6 +222,7 @@ public class MasterLazyDatasetList extends ALazyDatasetList<OHLCDataItem> implem
 
     private int appendMaster(final int appendCount) {
         //remove at least two elements
+        final List<OHLCDataItem> data = getData();
         if (data.size() > 1) {
             data.remove(data.size() - 1);
         }
@@ -260,7 +267,7 @@ public class MasterLazyDatasetList extends ALazyDatasetList<OHLCDataItem> implem
             //end reached
         }
         final int prependItemsSize = prependItems.size();
-        data.addAll(0, prependItems);
+        getData().addAll(0, prependItems);
         return prependItemsSize;
     }
 
@@ -277,11 +284,11 @@ public class MasterLazyDatasetList extends ALazyDatasetList<OHLCDataItem> implem
     }
 
     public synchronized FDate getLastLoadedKey() {
-        return getLoadedKey(data.size() - 1);
+        return getLoadedKey(getData().size() - 1);
     }
 
     private FDate getLoadedKey(final int i) {
-        return FDate.valueOf(data.get(i).getDate());
+        return FDate.valueOf(getData().get(i).getDate());
     }
 
     private final class LimitRangeListenerImpl implements IRangeListener {
@@ -329,6 +336,7 @@ public class MasterLazyDatasetList extends ALazyDatasetList<OHLCDataItem> implem
     }
 
     public synchronized boolean update(final FDate lastTickTime) {
+        final List<OHLCDataItem> data = getData();
         if (data.isEmpty()) {
             resetRange();
             return !data.isEmpty();

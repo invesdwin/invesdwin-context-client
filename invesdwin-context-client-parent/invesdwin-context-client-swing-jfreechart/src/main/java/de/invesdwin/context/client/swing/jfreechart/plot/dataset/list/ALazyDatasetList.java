@@ -14,7 +14,24 @@ import javax.annotation.concurrent.ThreadSafe;
 public abstract class ALazyDatasetList<E> implements List<E> {
 
     @GuardedBy("self")
-    protected List<E> data = Collections.synchronizedList(new ArrayList<>());
+    private List<E> data;
+
+    public ALazyDatasetList() {
+        newData();
+    }
+
+    protected List<E> newData() {
+        if (data != null) {
+            data = Collections.synchronizedList(new ArrayList<>(data.size()));
+        } else {
+            data = Collections.synchronizedList(new ArrayList<>());
+        }
+        return data;
+    }
+
+    protected List<E> getData() {
+        return data;
+    }
 
     @Override
     public int size() {

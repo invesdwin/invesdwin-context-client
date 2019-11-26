@@ -2,9 +2,7 @@ package de.invesdwin.context.client.swing.jfreechart.plot.dataset.list;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.annotation.concurrent.ThreadSafe;
 
@@ -15,6 +13,7 @@ import de.invesdwin.context.jfreechart.dataset.XYDataItemOHLC;
 import de.invesdwin.context.log.error.Err;
 import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.time.fdate.FDate;
+import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
 
 @ThreadSafe
 public class SlaveLazyDatasetList extends ALazyDatasetList<XYDataItemOHLC> implements ISlaveLazyDatasetListener {
@@ -56,11 +55,12 @@ public class SlaveLazyDatasetList extends ALazyDatasetList<XYDataItemOHLC> imple
         final int masterSizeBefore = masterSizeAfter - appendCount;
         int countRemoved = 0;
         //remove at least two elements
-        final Map<Integer, OHLCDataItem> prevValues = new HashMap<>();
+        final Int2ObjectArrayMap<OHLCDataItem> prevValues = new Int2ObjectArrayMap<OHLCDataItem>();
+        final List<XYDataItemOHLC> data = getData();
         while (data.size() > masterSizeBefore || countRemoved < 2) {
             final int index = data.size() - 1;
             prevValues.put(index, data.get(index).getOHLC());
-            invalidate(index);
+            invalidate(data, index);
             countRemoved++;
         }
         final int fromIndex = data.size();
@@ -77,7 +77,7 @@ public class SlaveLazyDatasetList extends ALazyDatasetList<XYDataItemOHLC> imple
         assertSameSizeAsMaster();
     }
 
-    private void invalidate(final int i) {
+    private void invalidate(final List<XYDataItemOHLC> data, final int i) {
         final XYDataItemOHLC removed = data.remove(i);
         removed.setOHLC(null);
     }
@@ -93,12 +93,13 @@ public class SlaveLazyDatasetList extends ALazyDatasetList<XYDataItemOHLC> imple
             }
             prependItems.add(value);
         }
-        data.addAll(0, prependItems);
+        getData().addAll(0, prependItems);
         assertSameSizeAsMaster();
     }
 
     private void assertSameSizeAsMaster() {
         final int masterSize = master.size();
+        final List<XYDataItemOHLC> data = getData();
         if (data.size() != masterSize) {
             Err.process(new IllegalStateException("slave.size [" + data.size() + "] should be equal to master.size ["
                     + masterSize + "]. Reloading: " + provider));
@@ -125,10 +126,11 @@ public class SlaveLazyDatasetList extends ALazyDatasetList<XYDataItemOHLC> imple
 
     @Override
     public synchronized void loadInitial() {
+        List<XYDataItemOHLC> data = getData();
         for (int i = 0; i < data.size(); i++) {
-            invalidate(i);
+            invalidate(data, i);
         }
-        data = new ArrayList<>(data.size());
+        data = newData();
         for (int i = 0; i < master.size(); i++) {
             final FDate key = FDate.valueOf(master.get(i).getDate());
             final XYDataItemOHLC value = provider.getValue(key);
@@ -142,16 +144,18 @@ public class SlaveLazyDatasetList extends ALazyDatasetList<XYDataItemOHLC> imple
 
     @Override
     public synchronized void removeStart(final int tooManyBefore) {
+        final List<XYDataItemOHLC> data = getData();
         for (int i = 0; i < tooManyBefore; i++) {
-            invalidate(0);
+            invalidate(data, 0);
         }
         assertSameSizeAsMaster();
     }
 
     @Override
     public synchronized void removeEnd(final int tooManyAfter) {
+        final List<XYDataItemOHLC> data = getData();
         for (int i = 0; i < tooManyAfter; i++) {
-            invalidate(data.size() - 1);
+            invalidate(data, data.size() - 1);
         }
         assertSameSizeAsMaster();
     }
