@@ -58,7 +58,8 @@ public class MasterLazyDatasetList extends ALazyDatasetList<OHLCDataItem> implem
                 .<IRangeListener, Boolean> build()
                 .asMap();
         this.rangeListeners = Collections.newSetFromMap(limitRangeListeners);
-
+        System.out.println(
+                "TODO: make master async too, first prefill with NaN, then fill with real values async (doing the slaves at the same time)");
         this.firstAvailableKey = provider.getFirstAvailableKey();
     }
 
