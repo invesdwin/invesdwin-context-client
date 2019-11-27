@@ -254,6 +254,11 @@
 				<version>${version.ikonli}</version>
 			</dependency>
 			<dependency>
+				<groupId>org.kordamp.ikonli</groupId>
+				<artifactId>ikonli-dashicons-pack</artifactId>
+				<version>${version.ikonli}</version>
+			</dependency>
+			<dependency>
 				<groupId>com.toedter</groupId>
 				<artifactId>jcalendar</artifactId>
 				<version>${version.jcalendar}</version>
