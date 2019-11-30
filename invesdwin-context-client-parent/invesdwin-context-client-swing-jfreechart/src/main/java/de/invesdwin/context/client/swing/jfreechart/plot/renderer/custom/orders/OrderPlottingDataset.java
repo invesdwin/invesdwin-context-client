@@ -62,29 +62,29 @@ public class OrderPlottingDataset extends AbstractXYDataset implements IPlotSour
             this.rangeListener = new RangeListenerSupport() {
                 @Override
                 public void onRangeChanged(final Range range) {
-                    updateItemsLoaded();
+                    updateItemsLoaded(false);
                 }
             };
             master.registerRangeListener(rangeListener);
             this.slaveDatasetListener = new SlaveLazyDatasetListenerSupport() {
                 @Override
                 public void afterLoadSlaveItems() {
-                    updateItemsLoaded();
+                    updateItemsLoaded(true);
                 }
 
                 @Override
                 public void prependItems(final int prependCount) {
-                    modifyItemLoadedIndexes(prependCount);
+                    modifyItemLoadedIndexes(0, prependCount);
                 }
 
                 @Override
                 public void removeStartItems(final int tooManyBefore) {
-                    modifyItemLoadedIndexes(-tooManyBefore);
+                    modifyItemLoadedIndexes(0, -tooManyBefore);
                 }
 
                 @Override
                 public void removeMiddleItems(final int index, final int count) {
-                    updateItemsLoaded();
+                    modifyItemLoadedIndexes(index, -count);
                 }
             };
             master.registerSlaveDatasetListener(slaveDatasetListener);
@@ -325,16 +325,17 @@ public class OrderPlottingDataset extends AbstractXYDataset implements IPlotSour
         this.initialPlotPaneId = initialPlotPaneId;
     }
 
-    private void modifyItemLoadedIndexes(final int addend) {
+    private void modifyItemLoadedIndexes(final int fromIndex, final int addend) {
         for (final OrderPlottingDataItem dataItem : orderId_item.values()) {
-            dataItem.modifyItemLoadedIndexes(addend);
+            dataItem.modifyItemLoadedIndexes(fromIndex, addend);
         }
     }
 
-    private void updateItemsLoaded() {
+    private void updateItemsLoaded(final boolean forced) {
         final long firstLoadedKeyMillis = (long) getXValueAsDateTime(0, 0);
         final long lastLoadedKeyMillis = (long) getXValueAsDateTime(0, getItemCount(0) - 1);
-        if (prevFirstLoadedKeyMillis != firstLoadedKeyMillis || prevLastLoadedKeyMillis != lastLoadedKeyMillis) {
+        if (forced || prevFirstLoadedKeyMillis != firstLoadedKeyMillis
+                || prevLastLoadedKeyMillis != lastLoadedKeyMillis) {
             for (final OrderPlottingDataItem dataItem : orderId_item.values()) {
                 dataItem.updateItemLoaded(firstLoadedKeyMillis, lastLoadedKeyMillis, OrderPlottingDataset.this);
             }

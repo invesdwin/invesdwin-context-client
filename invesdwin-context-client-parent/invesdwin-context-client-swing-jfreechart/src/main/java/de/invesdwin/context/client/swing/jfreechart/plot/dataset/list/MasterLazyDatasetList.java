@@ -186,7 +186,7 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
         }
     }
 
-    private Range maybeTrimDataRange(final Range range, final MutableBoolean rangeChanged) {
+    private synchronized Range maybeTrimDataRange(final Range range, final MutableBoolean rangeChanged) {
         Range updatedRange = range;
         final List<MasterOHLCDataItem> data = getData();
         if (data.size() > TRIM_ITEM_COUNT) {
@@ -306,6 +306,7 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
                     if (removeMasterIndex >= 0) {
                         synchronized (MasterLazyDatasetList.this) {
                             synchronized (data) {
+                                final int dataSizeBefore = data.size();
                                 for (int i = 0; i < tooManyAfter; i++) {
                                     data.remove(removeMasterIndex);
                                 }

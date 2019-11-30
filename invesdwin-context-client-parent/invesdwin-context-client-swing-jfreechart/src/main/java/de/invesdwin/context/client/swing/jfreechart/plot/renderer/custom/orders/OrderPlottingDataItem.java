@@ -102,10 +102,14 @@ public class OrderPlottingDataItem {
         }
     }
 
-    public void modifyItemLoadedIndexes(final int addend) {
+    public void modifyItemLoadedIndexes(final int fromIndex, final int addend) {
         if (itemLoaded) {
-            openTimeLoadedIndex += addend;
-            closeTimeLoadedIndex += addend;
+            if (openTimeLoadedIndex >= fromIndex) {
+                openTimeLoadedIndex += addend;
+            }
+            if (closeTimeLoadedIndex >= fromIndex) {
+                closeTimeLoadedIndex += addend;
+            }
         }
     }
 
