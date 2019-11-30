@@ -12,7 +12,8 @@ import de.invesdwin.util.concurrent.Executors;
 public final class DefaultTaskService extends TaskService {
 
     public DefaultTaskService() {
-        super(TaskService.DEFAULT_NAME, Executors.newCachedThreadPool(DefaultTaskService.class.getSimpleName()));
+        super(TaskService.DEFAULT_NAME,
+                Executors.newCachedThreadPool(DefaultTaskService.class.getSimpleName()).withDynamicThreadName(false));
     }
 
 }

@@ -15,7 +15,7 @@ import org.jfree.data.xy.XYSeriesCollection;
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.series.expression.IExpressionSeriesProvider;
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.series.indicator.IIndicatorSeriesProvider;
 import de.invesdwin.context.jfreechart.dataset.ListXYSeriesOHLC;
-import de.invesdwin.context.jfreechart.dataset.XYDataItemOHLC;
+import de.invesdwin.context.jfreechart.dataset.MutableXYDataItemOHLC;
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.math.expression.IExpression;
 
@@ -113,7 +113,7 @@ public class PlotSourceXYSeriesCollection extends XYSeriesCollection implements 
                 for (int item = 0; item < itemCount; item++) {
                     final double x = getXValue(series, item);
                     if (xRange.contains(x)) {
-                        final XYDataItemOHLC ohlc = cSeries.getData().get(item);
+                        final MutableXYDataItemOHLC ohlc = cSeries.getData().get(item);
                         final double lvalue = cSeries.getItemMinY(ohlc);
                         final double uvalue = cSeries.getItemMaxY(ohlc);
                         if (!Double.isNaN(lvalue)) {

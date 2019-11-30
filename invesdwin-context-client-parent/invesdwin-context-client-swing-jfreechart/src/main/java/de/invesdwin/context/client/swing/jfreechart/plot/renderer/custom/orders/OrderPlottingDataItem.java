@@ -102,6 +102,13 @@ public class OrderPlottingDataItem {
         }
     }
 
+    public void modifyItemLoadedIndexes(final int addend) {
+        if (itemLoaded) {
+            openTimeLoadedIndex += addend;
+            closeTimeLoadedIndex += addend;
+        }
+    }
+
     public int getOpenTimeLoadedIndex() {
         assertItemLoaded();
         return openTimeLoadedIndex;

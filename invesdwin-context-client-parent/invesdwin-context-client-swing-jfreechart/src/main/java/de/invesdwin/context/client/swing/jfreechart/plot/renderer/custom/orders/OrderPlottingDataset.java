@@ -17,7 +17,9 @@ import de.invesdwin.context.client.swing.jfreechart.panel.helper.listener.RangeL
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.IIndexedDateTimeXYDataset;
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.IPlotSourceDataset;
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.IndexedDateTimeOHLCDataset;
+import de.invesdwin.context.client.swing.jfreechart.plot.dataset.list.ISlaveLazyDatasetListener;
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.list.MasterLazyDatasetList;
+import de.invesdwin.context.client.swing.jfreechart.plot.dataset.list.SlaveLazyDatasetListenerSupport;
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.collections.factory.ILockCollectionFactory;
 import de.invesdwin.util.collections.iterable.ASkippingIterable;
@@ -44,6 +46,7 @@ public class OrderPlottingDataset extends AbstractXYDataset implements IPlotSour
     private IExpressionSeriesProvider expressionSeriesProvider;
     private String expressionSeriesArguments;
     private final IRangeListener rangeListener;
+    private final ISlaveLazyDatasetListener slaveDatasetListener;
 
     private long prevFirstLoadedKeyMillis;
     private long prevLastLoadedKeyMillis;
@@ -63,8 +66,31 @@ public class OrderPlottingDataset extends AbstractXYDataset implements IPlotSour
                 }
             };
             master.registerRangeListener(rangeListener);
+            this.slaveDatasetListener = new SlaveLazyDatasetListenerSupport() {
+                @Override
+                public void afterLoadSlaveItems() {
+                    updateItemsLoaded();
+                }
+
+                @Override
+                public void prependItems(final int prependCount) {
+                    modifyItemLoadedIndexes(prependCount);
+                }
+
+                @Override
+                public void removeStartItems(final int tooManyBefore) {
+                    modifyItemLoadedIndexes(-tooManyBefore);
+                }
+
+                @Override
+                public void removeMiddleItems(final int index, final int count) {
+                    updateItemsLoaded();
+                }
+            };
+            master.registerSlaveDatasetListener(slaveDatasetListener);
         } else {
             this.rangeListener = null;
+            this.slaveDatasetListener = null;
         }
     }
 
@@ -299,6 +325,12 @@ public class OrderPlottingDataset extends AbstractXYDataset implements IPlotSour
         this.initialPlotPaneId = initialPlotPaneId;
     }
 
+    private void modifyItemLoadedIndexes(final int addend) {
+        for (final OrderPlottingDataItem dataItem : orderId_item.values()) {
+            dataItem.modifyItemLoadedIndexes(addend);
+        }
+    }
+
     private void updateItemsLoaded() {
         final long firstLoadedKeyMillis = (long) getXValueAsDateTime(0, 0);
         final long lastLoadedKeyMillis = (long) getXValueAsDateTime(0, getItemCount(0) - 1);
@@ -310,5 +342,5 @@ public class OrderPlottingDataset extends AbstractXYDataset implements IPlotSour
             prevLastLoadedKeyMillis = lastLoadedKeyMillis;
         }
     }
-    
+
 }

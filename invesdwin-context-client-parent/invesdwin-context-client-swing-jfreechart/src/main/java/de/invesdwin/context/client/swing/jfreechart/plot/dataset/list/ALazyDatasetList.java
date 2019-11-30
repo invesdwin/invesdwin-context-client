@@ -2,13 +2,14 @@ package de.invesdwin.context.client.swing.jfreechart.plot.dataset.list;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
+
+import de.invesdwin.util.collections.fast.concurrent.SynchronizedList;
 
 @ThreadSafe
 public abstract class ALazyDatasetList<E> implements List<E> {
@@ -21,10 +22,13 @@ public abstract class ALazyDatasetList<E> implements List<E> {
     }
 
     protected List<E> newData() {
+        if (data != null && data.isEmpty()) {
+            return data;
+        }
         if (data != null) {
-            data = Collections.synchronizedList(new ArrayList<>(data.size()));
+            data = new SynchronizedList<E>(new ArrayList<>(data.size()));
         } else {
-            data = Collections.synchronizedList(new ArrayList<>());
+            data = new SynchronizedList<E>(new ArrayList<>());
         }
         return data;
     }

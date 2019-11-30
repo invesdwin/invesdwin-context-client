@@ -42,7 +42,7 @@ import de.invesdwin.context.client.swing.jfreechart.plot.dataset.IndexedDateTime
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.PlotSourceXYSeriesCollection;
 import de.invesdwin.context.client.swing.rsyntaxtextarea.expression.ExpressionCompletionProvider;
 import de.invesdwin.context.client.swing.rsyntaxtextarea.expression.completion.IAliasedCompletion;
-import de.invesdwin.context.jfreechart.dataset.XYDataItemOHLC;
+import de.invesdwin.context.jfreechart.dataset.MutableXYDataItemOHLC;
 import de.invesdwin.context.log.error.Err;
 import de.invesdwin.context.system.properties.SystemProperties;
 import de.invesdwin.util.assertions.Assertions;
@@ -203,12 +203,12 @@ public class CandlestickDemo extends JFrame {
             final IndexedDateTimeXYSeries series = new IndexedDateTimeXYSeries(seriesId, new ArrayList<>());
 
             final IExpression expression = parseExpression(expressionStr);
-            final List<XYDataItemOHLC> list = series.getData();
-            final List<OHLCDataItem> ohlc = chartPanel.getDataset().getData();
+            final List<MutableXYDataItemOHLC> list = series.getData();
+            final List<? extends OHLCDataItem> ohlc = chartPanel.getDataset().getData();
             for (int i = 0; i < ohlc.size(); i++) {
                 final FDate time = new FDate(ohlc.get(i).getDate());
                 final double value = expression.evaluateDouble(time);
-                final XYDataItemOHLC item = new XYDataItemOHLC(
+                final MutableXYDataItemOHLC item = new MutableXYDataItemOHLC(
                         new OHLCDataItem(time.dateValue(), Double.NaN, Double.NaN, Double.NaN, value, Double.NaN));
                 final int index = list.size();
                 final double xValueAsDateTime = chartPanel.getDataset().getXValueAsDateTime(0, index);
@@ -327,14 +327,14 @@ public class CandlestickDemo extends JFrame {
 
             final IndexedDateTimeXYSeries series = new IndexedDateTimeXYSeries(getExpressionName(), new ArrayList<>());
 
-            final List<XYDataItemOHLC> list = series.getData();
-            final List<OHLCDataItem> ohlc = chartPanel.getDataset().getData();
+            final List<MutableXYDataItemOHLC> list = series.getData();
+            final List<? extends OHLCDataItem> ohlc = chartPanel.getDataset().getData();
             for (int i = 0; i < ohlc.size(); i++) {
                 final FDate time = new FDate(ohlc.get(i).getDate());
                 final int lagIndex = Integers.max(i - lagBars, 0);
                 final OHLCDataItem ohlcItem = ohlc.get(lagIndex);
                 final double value = ohlcValueType.getValue(ohlcItem) + addition;
-                final XYDataItemOHLC item = new XYDataItemOHLC(
+                final MutableXYDataItemOHLC item = new MutableXYDataItemOHLC(
                         new OHLCDataItem(time.dateValue(), Double.NaN, Double.NaN, Double.NaN, value, Double.NaN));
                 final int index = list.size();
                 final double xValueAsDateTime = chartPanel.getDataset().getXValueAsDateTime(0, index);

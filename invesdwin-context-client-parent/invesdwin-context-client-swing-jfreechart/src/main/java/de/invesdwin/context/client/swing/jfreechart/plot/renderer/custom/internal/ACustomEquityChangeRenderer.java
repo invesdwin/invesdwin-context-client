@@ -45,7 +45,7 @@ import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.PriceIni
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.PlotSourceXYSeriesCollection;
 import de.invesdwin.context.client.swing.jfreechart.plot.renderer.IUpDownColorRenderer;
 import de.invesdwin.context.jfreechart.dataset.ListXYSeriesOHLC;
-import de.invesdwin.context.jfreechart.dataset.XYDataItemOHLC;
+import de.invesdwin.context.jfreechart.dataset.MutableXYDataItemOHLC;
 import de.invesdwin.util.lang.Colors;
 import de.invesdwin.util.math.Doubles;
 
@@ -320,7 +320,7 @@ public abstract class ACustomEquityChangeRenderer extends AbstractXYItemRenderer
         // get the data point...
         final PlotSourceXYSeriesCollection cDataset = (PlotSourceXYSeriesCollection) dataset;
         final ListXYSeriesOHLC cSeries = cDataset.getSeries(series);
-        final List<XYDataItemOHLC> data = cSeries.getData();
+        final List<MutableXYDataItemOHLC> data = cSeries.getData();
         final int item0 = Math.max(item1 - 1, 0);
         final OHLCDataItem cItem0 = data.get(item0).getOHLC();
         final OHLCDataItem cItem1 = data.get(item1).getOHLC();

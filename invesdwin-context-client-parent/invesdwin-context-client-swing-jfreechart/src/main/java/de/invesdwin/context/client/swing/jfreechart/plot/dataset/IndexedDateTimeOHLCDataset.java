@@ -30,7 +30,8 @@ public class IndexedDateTimeOHLCDataset extends ListOHLCDataset
     private IExpressionSeriesProvider expressionSeriesProvider;
     private String expressionSeriesArguments;
 
-    public IndexedDateTimeOHLCDataset(final String seriesKey, final List<OHLCDataItem> data) {
+    @SuppressWarnings("unchecked")
+    public IndexedDateTimeOHLCDataset(final String seriesKey, final List<? extends OHLCDataItem> data) {
         super(seriesKey, data);
         Assertions.checkNotNull(seriesKey);
         this.seriesTitle = seriesKey;
@@ -60,7 +61,7 @@ public class IndexedDateTimeOHLCDataset extends ListOHLCDataset
         return bisect(getData(), time);
     }
 
-    private static int bisect(final List<OHLCDataItem> keys, final Date skippingKeysAbove) {
+    private static int bisect(final List<? extends OHLCDataItem> keys, final Date skippingKeysAbove) {
         int lo = 0;
         int hi = keys.size();
         while (lo < hi) {

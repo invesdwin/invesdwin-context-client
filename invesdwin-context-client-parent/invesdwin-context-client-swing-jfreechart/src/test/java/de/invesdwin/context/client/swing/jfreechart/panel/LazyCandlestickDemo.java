@@ -46,7 +46,6 @@ import de.invesdwin.context.client.swing.jfreechart.plot.dataset.list.MasterLazy
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.list.SlaveLazyDatasetList;
 import de.invesdwin.context.client.swing.rsyntaxtextarea.expression.ExpressionCompletionProvider;
 import de.invesdwin.context.client.swing.rsyntaxtextarea.expression.completion.IAliasedCompletion;
-import de.invesdwin.context.jfreechart.dataset.XYDataItemOHLC;
 import de.invesdwin.context.log.error.Err;
 import de.invesdwin.context.system.properties.SystemProperties;
 import de.invesdwin.util.assertions.Assertions;
@@ -54,6 +53,7 @@ import de.invesdwin.util.collections.iterable.ICloseableIterable;
 import de.invesdwin.util.collections.loadingcache.historical.AHistoricalCache;
 import de.invesdwin.util.collections.loadingcache.historical.AIterableGapHistoricalCache;
 import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQuery;
+import de.invesdwin.util.concurrent.Executors;
 import de.invesdwin.util.error.UnknownArgumentException;
 import de.invesdwin.util.lang.Reflections;
 import de.invesdwin.util.lang.UniqueNameGenerator;
@@ -142,7 +142,7 @@ public class LazyCandlestickDemo extends JFrame {
     protected IndexedDateTimeOHLCDataset getDataSet() {
 
         //This is where we go get the data, replace with your own data source
-        final List<OHLCDataItem> data = getData();
+        final List<? extends OHLCDataItem> data = getData();
 
         //Create a dataset, an Open, High, Low, Close dataset
         final IndexedDateTimeOHLCDataset result = new IndexedDateTimeOHLCDataset("MSFT", data);
@@ -153,7 +153,7 @@ public class LazyCandlestickDemo extends JFrame {
     }
 
     //This method uses yahoo finance to get the OHLC data
-    protected List<OHLCDataItem> getData() {
+    protected List<? extends OHLCDataItem> getData() {
         final IMasterLazyDatasetProvider provider = new IMasterLazyDatasetProvider() {
             private final IHistoricalCacheQuery<OHLCDataItem> query = dataItemsCache.query();
 
@@ -178,7 +178,8 @@ public class LazyCandlestickDemo extends JFrame {
             }
 
         };
-        return new MasterLazyDatasetList(provider);
+        return new MasterLazyDatasetList(provider,
+                Executors.newDisabledExecutor(LazyCandlestickDemo.class.getSimpleName()));
     }
 
     //CHECKSTYLE:OFF
@@ -257,13 +258,11 @@ public class LazyCandlestickDemo extends JFrame {
             final ISlaveLazyDatasetProvider provider = new ISlaveLazyDatasetProvider() {
 
                 @Override
-                public XYDataItemOHLC getValue(final FDate key) {
+                public OHLCDataItem getValue(final FDate key) {
                     final OHLCDataItem ohlc = sourceQuery.getValue(key);
                     final FDate time = new FDate(ohlc.getDate());
                     final double value = expression.evaluateDouble(time);
-                    final XYDataItemOHLC item = new XYDataItemOHLC(
-                            new OHLCDataItem(time.dateValue(), Double.NaN, Double.NaN, Double.NaN, value, Double.NaN));
-                    return item;
+                    return new OHLCDataItem(time.dateValue(), Double.NaN, Double.NaN, Double.NaN, value, Double.NaN);
                 }
 
             };
@@ -378,13 +377,11 @@ public class LazyCandlestickDemo extends JFrame {
             final IHistoricalCacheQuery<OHLCDataItem> sourceQuery = dataItemsCache.query();
             final ISlaveLazyDatasetProvider provider = new ISlaveLazyDatasetProvider() {
                 @Override
-                public XYDataItemOHLC getValue(final FDate key) {
+                public OHLCDataItem getValue(final FDate key) {
                     final OHLCDataItem ohlcItem = sourceQuery.getPreviousValue(key, lagBars);
                     final FDate time = new FDate(ohlcItem.getDate());
                     final double value = ohlcValueType.getValue(ohlcItem) + finalAdditon;
-                    final XYDataItemOHLC item = new XYDataItemOHLC(
-                            new OHLCDataItem(time.dateValue(), Double.NaN, Double.NaN, Double.NaN, value, Double.NaN));
-                    return item;
+                    return new OHLCDataItem(time.dateValue(), Double.NaN, Double.NaN, Double.NaN, value, Double.NaN);
                 }
             };
             final IndexedDateTimeXYSeries series = new IndexedDateTimeXYSeries(getExpressionName(),

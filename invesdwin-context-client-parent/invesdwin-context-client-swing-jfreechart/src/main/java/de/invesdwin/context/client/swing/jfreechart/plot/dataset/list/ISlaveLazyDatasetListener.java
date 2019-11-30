@@ -2,14 +2,18 @@ package de.invesdwin.context.client.swing.jfreechart.plot.dataset.list;
 
 public interface ISlaveLazyDatasetListener {
 
-    void append(int appendCount);
+    void appendItems(int appendCount);
 
-    void prepend(int prependCount);
+    void prependItems(int prependCount);
 
-    void loadInitial();
+    void loadIinitialItems(boolean eager);
 
-    void removeStart(int tooManyBefore);
+    void removeStartItems(int tooManyBefore);
 
-    void removeEnd(int tooManyAfter);
+    void removeEndItems(int tooManyAfter);
+
+    void removeMiddleItems(int index, int count);
+
+    void afterLoadSlaveItems();
 
 }

@@ -6,34 +6,15 @@ import java.util.List;
 
 import javax.annotation.concurrent.ThreadSafe;
 
-import org.jfree.data.xy.OHLCDataItem;
-
 import de.invesdwin.context.client.swing.jfreechart.panel.InteractiveChartPanel;
-import de.invesdwin.context.jfreechart.dataset.XYDataItemOHLC;
-import de.invesdwin.context.log.error.Err;
+import de.invesdwin.context.client.swing.jfreechart.plot.dataset.list.item.MasterOHLCDataItem;
+import de.invesdwin.context.client.swing.jfreechart.plot.dataset.list.item.SlaveXYDataItemOHLC;
+import de.invesdwin.util.concurrent.priority.IPriorityRunnable;
 import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.time.fdate.FDate;
-import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
 
 @ThreadSafe
-public class SlaveLazyDatasetList extends ALazyDatasetList<XYDataItemOHLC> implements ISlaveLazyDatasetListener {
-
-    public static final XYDataItemOHLC DUMMY_VALUE = new XYDataItemOHLC(MasterLazyDatasetList.DUMMY_VALUE) {
-        @Override
-        public void setOHLC(final OHLCDataItem ohlc) {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public void setY(final double y) {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public void setY(final Number y) {
-            throw new UnsupportedOperationException();
-        }
-    };
+public class SlaveLazyDatasetList extends ALazyDatasetList<SlaveXYDataItemOHLC> implements ISlaveLazyDatasetListener {
 
     private final ISlaveLazyDatasetProvider provider;
     private final MasterLazyDatasetList master;
@@ -45,119 +26,128 @@ public class SlaveLazyDatasetList extends ALazyDatasetList<XYDataItemOHLC> imple
     }
 
     @Override
-    protected XYDataItemOHLC dummyValue() {
-        return DUMMY_VALUE;
+    protected SlaveXYDataItemOHLC dummyValue() {
+        return SlaveXYDataItemOHLC.DUMMY_VALUE;
     }
 
     @Override
-    public synchronized void append(final int appendCount) {
-        final int masterSizeAfter = master.size();
-        final int masterSizeBefore = masterSizeAfter - appendCount;
-        int countRemoved = 0;
-        //remove at least two elements
-        final Int2ObjectArrayMap<OHLCDataItem> prevValues = new Int2ObjectArrayMap<OHLCDataItem>();
-        final List<XYDataItemOHLC> data = getData();
-        while (data.size() > masterSizeBefore || countRemoved < 2) {
-            final int index = data.size() - 1;
-            prevValues.put(index, data.get(index).getOHLC());
-            invalidate(data, index);
-            countRemoved++;
+    public synchronized void appendItems(final int appendCount) {
+        //invalidate two elements to reload them
+        final List<SlaveXYDataItemOHLC> data = getData();
+        for (int i = Math.max(0, data.size() - 2); i <= data.size() - 1; i++) {
+            final SlaveXYDataItemOHLC prevItem = data.get(i);
+            final SlaveXYDataItemOHLC replaced = new SlaveXYDataItemOHLC(provider, prevItem.getOHLC());
+            data.set(i, replaced);
+            prevItem.invalidate();
+            final MasterOHLCDataItem masterItem = master.get(i);
+            masterItem.addSlaveItem(replaced);
         }
         final int fromIndex = data.size();
-        final int toIndex = masterSizeAfter - 1;
+        final int toIndex = master.size() - 1;
         for (int i = fromIndex; i <= toIndex; i++) {
-            final FDate key = FDate.valueOf(master.get(i).getDate());
-            final OHLCDataItem prevValue = prevValues.get(i);
-            final XYDataItemOHLC value = provider.getValue(key, prevValue);
-            if (value == null) {
-                throw new IllegalStateException(toString() + ": " + i + ". value should not be null: " + key);
-            }
-            data.add(value);
+            final SlaveXYDataItemOHLC slaveItem = new SlaveXYDataItemOHLC(provider);
+            data.add(slaveItem);
+            final MasterOHLCDataItem masterItem = master.get(i);
+            masterItem.addSlaveItem(slaveItem);
         }
         assertSameSizeAsMaster();
     }
 
-    private void invalidate(final List<XYDataItemOHLC> data, final int i) {
-        final XYDataItemOHLC removed = data.remove(i);
-        removed.setOHLC(null);
+    private void removeAndInvalidateItem(final List<SlaveXYDataItemOHLC> data, final int i) {
+        final SlaveXYDataItemOHLC removed = data.remove(i);
+        removed.invalidate();
     }
 
     @Override
-    public synchronized void prepend(final int prependCount) {
-        final List<XYDataItemOHLC> prependItems = new ArrayList<>(prependCount);
+    public synchronized void prependItems(final int prependCount) {
+        final List<SlaveXYDataItemOHLC> slavePrependItems = new ArrayList<>(prependCount);
         for (int i = 0; i < prependCount; i++) {
-            final FDate key = FDate.valueOf(master.get(i).getDate());
-            final XYDataItemOHLC value = provider.getValue(key);
-            if (value == null) {
-                throw new IllegalStateException(toString() + ": " + i + ". value should not be null: " + key);
-            }
-            prependItems.add(value);
+            final SlaveXYDataItemOHLC slaveItem = new SlaveXYDataItemOHLC(provider);
+            slavePrependItems.add(slaveItem);
+            final MasterOHLCDataItem masterItem = master.get(i);
+            masterItem.addSlaveItem(slaveItem);
         }
-        getData().addAll(0, prependItems);
+        getData().addAll(0, slavePrependItems);
         assertSameSizeAsMaster();
     }
 
     private void assertSameSizeAsMaster() {
         final int masterSize = master.size();
-        final List<XYDataItemOHLC> data = getData();
+        final List<SlaveXYDataItemOHLC> data = getData();
         if (data.size() != masterSize) {
-            Err.process(new IllegalStateException("slave.size [" + data.size() + "] should be equal to master.size ["
-                    + masterSize + "]. Reloading: " + provider));
-            loadInitial();
-        } else if (data.size() > 0) {
-            final Date slaveFirstDate = data.get(0).getOHLC().getDate();
-            final Date masterFirstDate = master.get(0).getDate();
-            if (!slaveFirstDate.equals(masterFirstDate)) {
-                Err.process(new IllegalStateException("slave[first].date [" + slaveFirstDate
-                        + "] should be equal to master[first].date [" + masterFirstDate + "]. Reloading: " + provider));
-                loadInitial();
-            } else {
-                final Date slaveLastDate = data.get(data.size() - 1).getOHLC().getDate();
-                final Date masterLastDate = master.get(master.size() - 1).getDate();
-                if (!slaveLastDate.equals(masterLastDate)) {
-                    Err.process(new IllegalStateException(
-                            "slave[last].date [" + slaveLastDate + "] should be equal to master[last].date ["
-                                    + masterLastDate + "]. Reloading: " + provider));
-                    loadInitial();
-                }
-            }
+            throw new IllegalStateException("slave.size [" + data.size() + "] should be equal to master.size ["
+                    + masterSize + "]. Reloading: " + provider);
         }
     }
 
     @Override
-    public synchronized void loadInitial() {
-        List<XYDataItemOHLC> data = getData();
+    public synchronized void loadIinitialItems(final boolean eager) {
+        List<SlaveXYDataItemOHLC> data = getData();
         for (int i = 0; i < data.size(); i++) {
-            invalidate(data, i);
+            removeAndInvalidateItem(data, i);
         }
         data = newData();
         for (int i = 0; i < master.size(); i++) {
-            final FDate key = FDate.valueOf(master.get(i).getDate());
-            final XYDataItemOHLC value = provider.getValue(key);
-            if (value == null) {
-                throw new IllegalStateException(toString() + ": " + i + ". value should not be null: " + key);
+            final SlaveXYDataItemOHLC slaveItem = new SlaveXYDataItemOHLC(provider);
+            data.add(slaveItem);
+            if (!eager) {
+                final MasterOHLCDataItem masterItem = master.get(i);
+                masterItem.addSlaveItem(slaveItem);
             }
-            data.add(value);
         }
         assertSameSizeAsMaster();
+        if (eager) {
+            master.getExecutor().execute(new IPriorityRunnable() {
+                @Override
+                public void run() {
+                    final List<SlaveXYDataItemOHLC> data = getData();
+                    for (int i = 0; i < master.size(); i++) {
+                        final MasterOHLCDataItem masterItem = master.get(i);
+                        final Date date = masterItem.getDate();
+                        final FDate key = FDate.valueOf(date);
+                        final SlaveXYDataItemOHLC slaveItem = data.get(i);
+                        slaveItem.loadValue(key);
+                    }
+                }
+
+                @Override
+                public double getPriority() {
+                    return 0;
+                }
+            });
+        }
     }
 
     @Override
-    public synchronized void removeStart(final int tooManyBefore) {
-        final List<XYDataItemOHLC> data = getData();
+    public synchronized void removeStartItems(final int tooManyBefore) {
+        final List<SlaveXYDataItemOHLC> data = getData();
         for (int i = 0; i < tooManyBefore; i++) {
-            invalidate(data, 0);
+            removeAndInvalidateItem(data, 0);
         }
         assertSameSizeAsMaster();
     }
 
     @Override
-    public synchronized void removeEnd(final int tooManyAfter) {
-        final List<XYDataItemOHLC> data = getData();
+    public synchronized void removeEndItems(final int tooManyAfter) {
+        final List<SlaveXYDataItemOHLC> data = getData();
         for (int i = 0; i < tooManyAfter; i++) {
-            invalidate(data, data.size() - 1);
+            removeAndInvalidateItem(data, data.size() - 1);
         }
         assertSameSizeAsMaster();
+    }
+
+    @Override
+    public void removeMiddleItems(final int index, final int count) {
+        final List<SlaveXYDataItemOHLC> data = getData();
+        for (int i = 0; i < count; i++) {
+            data.remove(index);
+        }
+        assertSameSizeAsMaster();
+    }
+
+    @Override
+    public void afterLoadSlaveItems() {
+        //noop
     }
 
     @Override
