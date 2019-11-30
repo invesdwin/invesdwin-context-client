@@ -79,7 +79,7 @@ public class OrderPlottingDataset extends AbstractXYDataset implements IPlotSour
 
                 @Override
                 public void removeStartItems(final int tooManyBefore) {
-                    modifyItemLoadedIndexes(0, -tooManyBefore);
+                    updateItemsLoaded(true);
                 }
 
                 @Override
