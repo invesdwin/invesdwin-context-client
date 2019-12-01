@@ -1,6 +1,7 @@
 package de.invesdwin.context.client.swing.jfreechart.panel;
 
 import java.awt.Cursor;
+import java.awt.Graphics;
 import java.awt.GridLayout;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
@@ -10,6 +11,7 @@ import java.awt.event.MouseWheelEvent;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.annotation.concurrent.NotThreadSafe;
 import javax.swing.JPanel;
@@ -42,6 +44,8 @@ import de.invesdwin.context.jfreechart.visitor.JFreeChartLocaleChanger;
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.concurrent.Executors;
 import de.invesdwin.util.concurrent.WrappedExecutorService;
+import de.invesdwin.util.concurrent.lock.ILock;
+import de.invesdwin.util.concurrent.lock.Locks;
 import de.invesdwin.util.lang.finalizer.AFinalizer;
 import de.invesdwin.util.math.Doubles;
 import de.invesdwin.util.swing.Components;
@@ -77,6 +81,8 @@ public class InteractiveChartPanel extends JPanel {
     private final MouseMotionListener mouseMotionListener;
     private FDate lastHorizontalScroll = FDate.MIN_DATE;
     private FDate lastVerticalScroll = FDate.MIN_DATE;
+    private final AtomicInteger updatingCount = new AtomicInteger();
+    private final ILock paintLock = Locks.newReentrantLock(InteractiveChartPanel.class.getSimpleName() + "_paintLock");
 
     private final InteractiveChartPanelFinalizer finalizer;
 
@@ -129,6 +135,17 @@ public class InteractiveChartPanel extends JPanel {
             protected boolean isPaintAllowed() {
                 return !isUpdating();
             }
+
+            @Override
+            public void paintComponent(final Graphics g) {
+                paintLock.lock();
+                try {
+                    super.paintComponent(g);
+                } finally {
+                    paintLock.unlock();
+                }
+            }
+
         };
 
         chartPanel.setAllowedRangeGap(2);
@@ -280,15 +297,25 @@ public class InteractiveChartPanel extends JPanel {
             final Runnable task = new Runnable() {
                 @Override
                 public void run() {
-                    plotZoomHelper.limitRange(); //do this expensive task outside of EDT
+                    incrementUpdatingCount();
+                    try {
+                        plotZoomHelper.limitRange(); //do this expensive task outside of EDT
+                    } finally {
+                        decrementUpdatingCount();
+                    }
                     try {
                         EventDispatchThreadUtil.invokeAndWait(new Runnable() {
                             @Override
                             public void run() {
-                                //need to do this in EDT, or we get ArrayIndexOutOfBounds exception
-                                plotCrosshairHelper.disableCrosshair();
-                                configureRangeAxis();
-                                plotLegendHelper.update();
+                                incrementUpdatingCount();
+                                try {
+                                    //need to do this in EDT, or we get ArrayIndexOutOfBounds exception
+                                    plotCrosshairHelper.disableCrosshair();
+                                    configureRangeAxis();
+                                    plotLegendHelper.update();
+                                } finally {
+                                    decrementUpdatingCount();
+                                }
                                 updateCrosshair();
                             }
 
@@ -307,7 +334,25 @@ public class InteractiveChartPanel extends JPanel {
     }
 
     public boolean isUpdating() {
-        return finalizer.executorUpdateLimit.getPendingCount() > 0;
+        return updatingCount.get() > 0;
+    }
+
+    public void incrementUpdatingCount() {
+        paintLock.lock();
+        try {
+            updatingCount.incrementAndGet();
+        } finally {
+            paintLock.unlock();
+        }
+    }
+
+    public void decrementUpdatingCount() {
+        paintLock.lock();
+        try {
+            updatingCount.decrementAndGet();
+        } finally {
+            paintLock.unlock();
+        }
     }
 
     private void configureRangeAxis() {

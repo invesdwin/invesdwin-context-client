@@ -68,13 +68,13 @@ public class OrderPlottingDataset extends AbstractXYDataset implements IPlotSour
             master.registerRangeListener(rangeListener);
             this.slaveDatasetListener = new SlaveLazyDatasetListenerSupport() {
                 @Override
-                public void afterLoadSlaveItems() {
+                public void afterLoadItems() {
                     updateItemsLoaded(true);
                 }
 
                 @Override
                 public void prependItems(final int prependCount) {
-                    modifyItemLoadedIndexes(0, prependCount);
+                    updateItemsLoaded(true);
                 }
 
                 @Override
@@ -84,7 +84,7 @@ public class OrderPlottingDataset extends AbstractXYDataset implements IPlotSour
 
                 @Override
                 public void removeMiddleItems(final int index, final int count) {
-                    modifyItemLoadedIndexes(index, -count);
+                    updateItemsLoaded(true);
                 }
             };
             master.registerSlaveDatasetListener(slaveDatasetListener);

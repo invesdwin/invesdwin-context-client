@@ -146,7 +146,7 @@ public class SlaveLazyDatasetList extends ALazyDatasetList<SlaveXYDataItemOHLC> 
     }
 
     @Override
-    public void afterLoadSlaveItems() {
+    public void afterLoadItems() {
         //noop
     }
 

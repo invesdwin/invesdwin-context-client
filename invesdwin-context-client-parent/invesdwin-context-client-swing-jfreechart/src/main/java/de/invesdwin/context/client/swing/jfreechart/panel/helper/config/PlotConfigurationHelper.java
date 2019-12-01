@@ -246,6 +246,8 @@ public class PlotConfigurationHelper {
                 sb.append(
                         "<li><b>Show/Hide Series</b>: Left click a series legend to show/hide that series. Or you can also use the series context menu for that.</li>");
                 sb.append(
+                        "<li><b>Remove Series</b>: Middle click a series legend to remove that series. Or you can also use the series context menu for that.</li>");
+                sb.append(
                         "<li><b>Series Context Menu</b>: Right click a series legend to get a context menu to modify its display settings."
                                 + "<br>You can modify the series type, line style, line width and colors. The settings differ depending on the selected series type."
                                 + "<br>The series style settings can also be reset to their initial values. If the series is removable, you can remove it here too."

@@ -72,18 +72,23 @@ public class PlotZoomHelper {
             return;
         }
 
-        final Range rangeBefore = chartPanel.getDomainAxis().getRange();
-        // do not notify while zooming each axis
-        final boolean notifyState = plot.isNotify();
-        plot.setNotify(false);
-        plot.zoomDomainAxes(zoomFactor, pinfo, point, true);
-        final Range rangeAfter = chartPanel.getDomainAxis().getRange();
-        final int lengthAfter = (int) rangeAfter.getLength();
-        if (lengthAfter >= MAX_ZOOM_ITEM_COUNT || lengthAfter <= MIN_ZOOM_ITEM_COUNT) {
-            chartPanel.getDomainAxis().setRange(rangeBefore);
+        chartPanel.incrementUpdatingCount();
+        try {
+            final Range rangeBefore = chartPanel.getDomainAxis().getRange();
+            // do not notify while zooming each axis
+            final boolean notifyState = plot.isNotify();
+            plot.setNotify(false);
+            plot.zoomDomainAxes(zoomFactor, pinfo, point, true);
+            final Range rangeAfter = chartPanel.getDomainAxis().getRange();
+            final int lengthAfter = (int) rangeAfter.getLength();
+            if (lengthAfter >= MAX_ZOOM_ITEM_COUNT || lengthAfter <= MIN_ZOOM_ITEM_COUNT) {
+                chartPanel.getDomainAxis().setRange(rangeBefore);
+            }
+            plot.setNotify(notifyState); // this generates the change event too
+            chartPanel.update();
+        } finally {
+            chartPanel.decrementUpdatingCount();
         }
-        plot.setNotify(notifyState); // this generates the change event too
-        chartPanel.update();
     }
 
     public void zoomOut() {

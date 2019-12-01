@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.Future;
 
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
@@ -24,6 +25,7 @@ import de.invesdwin.context.client.swing.jfreechart.plot.dataset.list.item.Maste
 import de.invesdwin.util.collections.iterable.ICloseableIterable;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
 import de.invesdwin.util.concurrent.WrappedExecutorService;
+import de.invesdwin.util.concurrent.future.Futures;
 import de.invesdwin.util.concurrent.priority.IPriorityRunnable;
 import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.time.fdate.FDate;
@@ -86,11 +88,23 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
             if (!empty) {
                 newData();
             }
-            loadInitialDataMaster();
-            if (!slaveDatasetListeners.isEmpty()) {
-                for (final ISlaveLazyDatasetListener slave : slaveDatasetListeners) {
-                    slave.loadIinitialItems(false);
+            final Future<?> future = executor.submit(new Runnable() { //show task info
+                @Override
+                public void run() {
+                    loadInitialDataMaster();
+                    if (!slaveDatasetListeners.isEmpty()) {
+                        for (final ISlaveLazyDatasetListener slave : slaveDatasetListeners) {
+                            slave.loadIinitialItems(false);
+                        }
+                    }
                 }
+            });
+            try {
+                Futures.wait(future);
+            } catch (final InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            if (!slaveDatasetListeners.isEmpty()) {
                 executor.execute(new IPriorityRunnable() {
                     @Override
                     public void run() {
@@ -100,7 +114,7 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
                             data.get(i).loadSlaveItems(key);
                         }
                         for (final ISlaveLazyDatasetListener slave : slaveDatasetListeners) {
-                            slave.afterLoadSlaveItems();
+                            slave.afterLoadItems();
                         }
                     }
 
@@ -117,11 +131,21 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
         if (getData().isEmpty()) {
             return;
         }
-        reloadDataMaster();
-        if (!slaveDatasetListeners.isEmpty()) {
-            for (final ISlaveLazyDatasetListener slave : slaveDatasetListeners) {
-                slave.loadIinitialItems(false);
+        final Future<?> future = executor.submit(new Runnable() { //show task info
+            @Override
+            public void run() {
+                reloadDataMaster();
+                if (!slaveDatasetListeners.isEmpty()) {
+                    for (final ISlaveLazyDatasetListener slave : slaveDatasetListeners) {
+                        slave.loadIinitialItems(false);
+                    }
+                }
             }
+        });
+        try {
+            Futures.wait(future);
+        } catch (final InterruptedException e) {
+            throw new RuntimeException(e);
         }
         if (!slaveDatasetListeners.isEmpty()) {
             executor.execute(new IPriorityRunnable() {
@@ -133,7 +157,7 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
                         data.get(i).loadSlaveItems(key);
                     }
                     for (final ISlaveLazyDatasetListener slave : slaveDatasetListeners) {
-                        slave.afterLoadSlaveItems();
+                        slave.afterLoadItems();
                     }
                 }
 
@@ -202,29 +226,50 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
                 tooManyBefore += tooManyAfter;
             }
             if (tooManyBefore > 0) {
-                for (int i = 0; i < tooManyBefore; i++) {
-                    data.remove(0);
-                }
-                updatedRange = new Range(range.getLowerBound() - tooManyBefore, range.getUpperBound() - tooManyBefore);
-                rangeChanged.setTrue();
-                if (!slaveDatasetListeners.isEmpty()) {
-                    for (final ISlaveLazyDatasetListener slave : slaveDatasetListeners) {
-                        slave.removeStartItems(tooManyBefore);
-                    }
-                }
+                updatedRange = removeTooManyBefore(range, rangeChanged, data, tooManyBefore);
             }
             if (tooManyAfter > 0) {
-                for (int i = 0; i < tooManyAfter; i++) {
-                    data.remove(data.size() - 1);
-                }
-                if (!slaveDatasetListeners.isEmpty()) {
-                    for (final ISlaveLazyDatasetListener slave : slaveDatasetListeners) {
-                        slave.removeEndItems(tooManyAfter);
-                    }
-                }
+                removeTooManyAfter(data, tooManyAfter);
             }
         }
         return updatedRange;
+    }
+
+    private void removeTooManyAfter(final List<MasterOHLCDataItem> data, final int tooManyAfter) {
+        chartPanel.incrementUpdatingCount();
+        try {
+            for (int i = 0; i < tooManyAfter; i++) {
+                data.remove(data.size() - 1);
+            }
+            if (!slaveDatasetListeners.isEmpty()) {
+                for (final ISlaveLazyDatasetListener slave : slaveDatasetListeners) {
+                    slave.removeEndItems(tooManyAfter);
+                }
+            }
+        } finally {
+            chartPanel.decrementUpdatingCount();
+        }
+    }
+
+    private Range removeTooManyBefore(final Range range, final MutableBoolean rangeChanged,
+            final List<MasterOHLCDataItem> data, final int tooManyBefore) {
+        chartPanel.incrementUpdatingCount();
+        try {
+            for (int i = 0; i < tooManyBefore; i++) {
+                data.remove(0);
+            }
+            final Range updatedRange = new Range(range.getLowerBound() - tooManyBefore,
+                    range.getUpperBound() - tooManyBefore);
+            rangeChanged.setTrue();
+            if (!slaveDatasetListeners.isEmpty()) {
+                for (final ISlaveLazyDatasetListener slave : slaveDatasetListeners) {
+                    slave.removeStartItems(tooManyBefore);
+                }
+            }
+            return updatedRange;
+        } finally {
+            chartPanel.decrementUpdatingCount();
+        }
     }
 
     public synchronized Range maybeLoadDataRange(final Range range, final MutableBoolean rangeChanged) {
@@ -242,9 +287,12 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
                 //prepend a whole screen additional to the requested items
                 final int prependCount = Integers.abs(preloadLowerBound);
                 final List<MasterOHLCDataItem> prependItems;
-                synchronized (data) {
+                chartPanel.incrementUpdatingCount(); //prevent flickering
+                try {
                     prependItems = prependMaster(prependCount);
                     prependSlaves(prependCount);
+                } finally {
+                    chartPanel.decrementUpdatingCount();
                 }
                 updatedRange = new Range(range.getLowerBound() + prependCount, range.getUpperBound() + prependCount);
                 rangeChanged.setTrue();
@@ -262,9 +310,12 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
                 final int appendCount = preloadUpperBound - data.size();
                 if (appendCount > 0) {
                     final List<MasterOHLCDataItem> appendItems;
-                    synchronized (data) {
+                    chartPanel.incrementUpdatingCount(); //prevent flickering
+                    try {
                         appendItems = appendMaster(appendCount);
                         appendSlaves(appendCount);
+                    } finally {
+                        chartPanel.decrementUpdatingCount();
                     }
                     if (isTrailing) {
                         updatedRange = new Range(range.getLowerBound() + appendCount,
@@ -300,13 +351,13 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
                 } catch (final NoSuchElementException e) {
                     //end reached
                 }
-                final int tooManyAfter = items.size() - nextItemsIndex;
-                if (tooManyAfter > 0) {
-                    final int removeMasterIndex = data.indexOf(items.get(nextItemsIndex));
-                    if (removeMasterIndex >= 0) {
-                        synchronized (MasterLazyDatasetList.this) {
-                            synchronized (data) {
-                                final int dataSizeBefore = data.size();
+                chartPanel.incrementUpdatingCount();
+                try {
+                    final int tooManyAfter = items.size() - nextItemsIndex;
+                    if (tooManyAfter > 0) {
+                        final int removeMasterIndex = data.indexOf(items.get(nextItemsIndex));
+                        if (removeMasterIndex >= 0) {
+                            synchronized (MasterLazyDatasetList.this) {
                                 for (int i = 0; i < tooManyAfter; i++) {
                                     data.remove(removeMasterIndex);
                                 }
@@ -318,13 +369,15 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
                             }
                         }
                     }
-                }
-                if (!slaveDatasetListeners.isEmpty()) {
-                    for (final ISlaveLazyDatasetListener slave : slaveDatasetListeners) {
-                        slave.afterLoadSlaveItems();
+                    if (!slaveDatasetListeners.isEmpty()) {
+                        for (final ISlaveLazyDatasetListener slave : slaveDatasetListeners) {
+                            slave.afterLoadItems();
+                        }
                     }
+                    chartPanel.update();
+                } finally {
+                    chartPanel.decrementUpdatingCount();
                 }
-                chartPanel.update();
             }
 
             @Override
@@ -428,8 +481,18 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
     public synchronized void registerSlaveDatasetListener(final ISlaveLazyDatasetListener slaveDatasetListener) {
         slaveDatasetListeners.add(slaveDatasetListener);
 
-        //sync slave data with master
-        slaveDatasetListener.loadIinitialItems(true);
+        final Future<?> future = executor.submit(new Runnable() { //show task info
+            @Override
+            public void run() {
+                //sync slave data with master
+                slaveDatasetListener.loadIinitialItems(true);
+            }
+        });
+        try {
+            Futures.wait(future);
+        } catch (final InterruptedException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public synchronized void registerRangeListener(final IRangeListener rangeListener) {

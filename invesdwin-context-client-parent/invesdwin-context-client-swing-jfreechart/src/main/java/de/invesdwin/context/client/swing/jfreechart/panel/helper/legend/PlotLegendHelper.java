@@ -128,31 +128,35 @@ public class PlotLegendHelper {
     }
 
     public void mouseReleased(final MouseEvent e) {
-        mouseMoved(e);
-        if (e.getButton() != MouseEvent.BUTTON1) {
-            return;
-        }
-        if (!dragged) {
-            toggleDatasetVisibility(e);
-        }
-        if (dragStart != null) {
-            dragStart = null;
-            dragged = false;
-            chartPanel.getChartPanel().setCursor(CustomChartPanel.DEFAULT_CURSOR);
-            if (visibleTrashPlot != null) {
-                for (int datasetIndex = 0; datasetIndex < visibleTrashPlot.getDatasetCount(); datasetIndex++) {
-                    final IPlotSourceDataset dataset = (IPlotSourceDataset) visibleTrashPlot.getDataset(datasetIndex);
-                    if (dataset != null) {
-                        final String seriesId = String.valueOf(dataset.getSeriesId());
-                        chartPanel.getPlotConfigurationHelper().removeInitialSeriesSettings(seriesId);
-                        dataset.close();
-                    }
-                }
-                visibleTrashPlot = null;
+        mouseMoved(e); //update highlighted element
+        if (e.getButton() == MouseEvent.BUTTON1) {
+            if (!dragged) {
+                toggleDatasetVisibility(e);
             }
-            if (visibleEmptyPlot != null) {
-                removeEmptyPlotsAndResetTrashPlot();
-                visibleEmptyPlot = null;
+            if (dragStart != null) {
+                dragStart = null;
+                dragged = false;
+                chartPanel.getChartPanel().setCursor(CustomChartPanel.DEFAULT_CURSOR);
+                if (visibleTrashPlot != null) {
+                    for (int datasetIndex = 0; datasetIndex < visibleTrashPlot.getDatasetCount(); datasetIndex++) {
+                        final IPlotSourceDataset dataset = (IPlotSourceDataset) visibleTrashPlot
+                                .getDataset(datasetIndex);
+                        if (dataset != null) {
+                            final String seriesId = String.valueOf(dataset.getSeriesId());
+                            chartPanel.getPlotConfigurationHelper().removeInitialSeriesSettings(seriesId);
+                            dataset.close();
+                        }
+                    }
+                    visibleTrashPlot = null;
+                }
+                if (visibleEmptyPlot != null) {
+                    removeEmptyPlotsAndResetTrashPlot();
+                    visibleEmptyPlot = null;
+                }
+            }
+        } else if (e.getButton() == MouseEvent.BUTTON2) {
+            if (!dragged && highlightedLegendInfo != null && highlightedLegendInfo.isRemovable()) {
+                highlightedLegendInfo.removeSeries();
             }
         }
     }
