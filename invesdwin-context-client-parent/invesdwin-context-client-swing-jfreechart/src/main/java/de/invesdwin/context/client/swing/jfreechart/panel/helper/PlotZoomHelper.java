@@ -31,7 +31,7 @@ public class PlotZoomHelper {
     private static final double ZOOM_FACTOR = 0.1D;
     private static final double ZOOM_OUT_FACTOR = 1D + ZOOM_FACTOR;
     private static final double ZOOM_IN_FACTOR = 1 / ZOOM_OUT_FACTOR;
-    private static final Duration ZOOMABLE_THRESHOLD = new Duration(5, FTimeUnit.MILLISECONDS);
+    private static final Duration ZOOMABLE_THRESHOLD = new Duration(10, FTimeUnit.MILLISECONDS);
     private Instant lastZoomable = new Instant();
 
     private final InteractiveChartPanel chartPanel;
@@ -72,18 +72,19 @@ public class PlotZoomHelper {
             return;
         }
 
+        final Range rangeBefore = chartPanel.getDomainAxis().getRange();
+        final int lengthBefore = (int) rangeBefore.getLength();
+        if (lengthBefore >= MAX_ZOOM_ITEM_COUNT && zoomFactor == ZOOM_OUT_FACTOR
+                || lengthBefore <= MIN_ZOOM_ITEM_COUNT && zoomFactor == ZOOM_IN_FACTOR) {
+            return;
+        }
+
         chartPanel.incrementUpdatingCount();
         try {
-            final Range rangeBefore = chartPanel.getDomainAxis().getRange();
             // do not notify while zooming each axis
             final boolean notifyState = plot.isNotify();
             plot.setNotify(false);
             plot.zoomDomainAxes(zoomFactor, pinfo, point, true);
-            final Range rangeAfter = chartPanel.getDomainAxis().getRange();
-            final int lengthAfter = (int) rangeAfter.getLength();
-            if (lengthAfter >= MAX_ZOOM_ITEM_COUNT || lengthAfter <= MIN_ZOOM_ITEM_COUNT) {
-                chartPanel.getDomainAxis().setRange(rangeBefore);
-            }
             plot.setNotify(notifyState); // this generates the change event too
             chartPanel.update();
         } finally {

@@ -25,6 +25,8 @@ import de.invesdwin.util.collections.factory.ILockCollectionFactory;
 import de.invesdwin.util.collections.iterable.ASkippingIterable;
 import de.invesdwin.util.collections.iterable.ICloseableIterable;
 import de.invesdwin.util.collections.iterable.WrapperCloseableIterable;
+import de.invesdwin.util.concurrent.Executors;
+import de.invesdwin.util.concurrent.WrappedExecutorService;
 import de.invesdwin.util.math.expression.IExpression;
 
 @NotThreadSafe
@@ -47,6 +49,7 @@ public class OrderPlottingDataset extends AbstractXYDataset implements IPlotSour
     private String expressionSeriesArguments;
     private final IRangeListener rangeListener;
     private final ISlaveLazyDatasetListener slaveDatasetListener;
+    private final WrappedExecutorService executor;
 
     private long prevFirstLoadedKeyMillis;
     private long prevLastLoadedKeyMillis;
@@ -74,7 +77,7 @@ public class OrderPlottingDataset extends AbstractXYDataset implements IPlotSour
 
                 @Override
                 public void prependItems(final int prependCount) {
-                    updateItemsLoaded(true);
+                    modifyItemLoadedIndexes(0, prependCount);
                 }
 
                 @Override
@@ -84,14 +87,20 @@ public class OrderPlottingDataset extends AbstractXYDataset implements IPlotSour
 
                 @Override
                 public void removeMiddleItems(final int index, final int count) {
-                    updateItemsLoaded(true);
+                    modifyItemLoadedIndexes(index, -count);
                 }
             };
             master.registerSlaveDatasetListener(slaveDatasetListener);
+            this.executor = master.getExecutor();
         } else {
             this.rangeListener = null;
             this.slaveDatasetListener = null;
+            this.executor = Executors.newDisabledExecutor(OrderPlottingDataset.class.getSimpleName() + "_DISABLED");
         }
+    }
+
+    public WrappedExecutorService getExecutor() {
+        return executor;
     }
 
     @Override

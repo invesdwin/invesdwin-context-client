@@ -481,7 +481,7 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
     public synchronized void registerSlaveDatasetListener(final ISlaveLazyDatasetListener slaveDatasetListener) {
         slaveDatasetListeners.add(slaveDatasetListener);
 
-        executor.submit(new Runnable() { //show task info and load data async
+        executor.execute(new Runnable() { //show task info and load data async
             @Override
             public void run() {
                 //sync slave data with master
