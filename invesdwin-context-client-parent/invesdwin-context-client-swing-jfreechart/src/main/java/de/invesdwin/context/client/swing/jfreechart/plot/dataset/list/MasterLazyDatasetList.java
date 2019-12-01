@@ -481,18 +481,13 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
     public synchronized void registerSlaveDatasetListener(final ISlaveLazyDatasetListener slaveDatasetListener) {
         slaveDatasetListeners.add(slaveDatasetListener);
 
-        final Future<?> future = executor.submit(new Runnable() { //show task info
+        executor.submit(new Runnable() { //show task info and load data async
             @Override
             public void run() {
                 //sync slave data with master
                 slaveDatasetListener.loadIinitialItems(true);
             }
         });
-        try {
-            Futures.wait(future);
-        } catch (final InterruptedException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     public synchronized void registerRangeListener(final IRangeListener rangeListener) {
