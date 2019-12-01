@@ -33,13 +33,15 @@ import de.invesdwin.util.time.fdate.FDate;
 @ThreadSafe
 public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> implements IChartPanelAwareDatasetList {
 
+    private static final int STEP_ITEM_COUNT_MULTIPLIER = 10;
     private static final int PRELOAD_RANGE_MULTIPLIER = 2;
     /*
      * keep a few more items because we need to keep some buffer to the left and right and we don't want to load data on
      * all the smaller panning actions
      */
-    private static final int MAX_ITEM_COUNT = PlotZoomHelper.MAX_ZOOM_ITEM_COUNT * 5;
-    private static final int TRIM_ITEM_COUNT = PlotZoomHelper.MAX_ZOOM_ITEM_COUNT * 7;
+    private static final int MAX_STEP_ITEM_COUNT = PlotZoomHelper.MAX_ZOOM_ITEM_COUNT;
+    private static final int MAX_ITEM_COUNT = MAX_STEP_ITEM_COUNT * 5;
+    private static final int TRIM_ITEM_COUNT = MAX_STEP_ITEM_COUNT * 7;
     private final WrappedExecutorService executor;
     private final IMasterLazyDatasetProvider provider;
     private final Set<ISlaveLazyDatasetListener> slaveDatasetListeners;
@@ -285,7 +287,8 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
             final FDate firstLoadedKey = getFirstLoadedKey();
             if (firstAvailableKey.isBefore(firstLoadedKey)) {
                 //prepend a whole screen additional to the requested items
-                final int prependCount = Integers.abs(preloadLowerBound);
+                final int prependCount = Integers.min(MAX_STEP_ITEM_COUNT,
+                        Integers.abs(preloadLowerBound) * STEP_ITEM_COUNT_MULTIPLIER);
                 final List<MasterOHLCDataItem> prependItems;
                 chartPanel.incrementUpdatingCount(); //prevent flickering
                 try {
@@ -307,7 +310,8 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
             final FDate lastLoadedKey = getLastLoadedKey();
             if (provider.getLastAvailableKey().isAfter(lastLoadedKey)) {
                 //append a whole screen additional to the requested items
-                final int appendCount = preloadUpperBound - data.size();
+                final int appendCount = Integers.min(MAX_STEP_ITEM_COUNT,
+                        (preloadUpperBound - data.size()) * STEP_ITEM_COUNT_MULTIPLIER);
                 if (appendCount > 0) {
                     final List<MasterOHLCDataItem> appendItems;
                     chartPanel.incrementUpdatingCount(); //prevent flickering
