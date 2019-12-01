@@ -215,4 +215,9 @@ public class DisabledXYDataset extends AbstractXYDataset implements IPlotSourceD
         enabledDataset.setInitialPlotPaneId(plotPaneId);
     }
 
+    @Override
+    public IndexedDateTimeOHLCDataset getMasterDataset() {
+        return enabledDataset.getMasterDataset();
+    }
+
 }

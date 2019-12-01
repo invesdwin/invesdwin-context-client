@@ -125,7 +125,7 @@ public class PlotConfigurationHelper {
 
             private void addSeriesConfigMenuItems() {
                 if (highlighted.isPriceSeries()) {
-                    titleItem.setText(String.valueOf(chartPanel.getDataset().getSeriesTitle() + " - Series"));
+                    titleItem.setText(String.valueOf(chartPanel.getMasterDataset().getSeriesTitle() + " - Series"));
                 } else {
                     titleItem.setText(highlighted.getSeriesTitle() + " - Series");
                 }

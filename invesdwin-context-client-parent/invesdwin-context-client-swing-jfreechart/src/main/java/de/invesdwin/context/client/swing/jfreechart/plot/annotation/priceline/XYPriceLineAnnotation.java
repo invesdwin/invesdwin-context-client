@@ -26,6 +26,8 @@ import org.jfree.chart.util.LineUtils;
 import org.jfree.data.xy.XYDataset;
 
 import de.invesdwin.context.client.swing.jfreechart.plot.XYPlots;
+import de.invesdwin.context.client.swing.jfreechart.plot.dataset.IPlotSourceDataset;
+import de.invesdwin.context.client.swing.jfreechart.plot.dataset.IndexedDateTimeOHLCDataset;
 import de.invesdwin.util.lang.Colors;
 import de.invesdwin.util.math.decimal.scaled.Percent;
 
@@ -36,14 +38,18 @@ public class XYPriceLineAnnotation extends AbstractXYAnnotation implements IPric
     public static final Percent TRANSPARENCY = Percent.ZERO_PERCENT;
 
     private static final ValueAxis ABSOLUTE_AXIS = XYPlots.DRAWING_ABSOLUTE_AXIS;
-    /** The line stroke. */
+    private final IndexedDateTimeOHLCDataset masterDataset;
     private final XYDataset dataset;
     private final XYItemRenderer renderer;
     private Stroke stroke;
     private boolean priceLineVisible;
     private boolean priceLabelVisible;
+    private double maxPriceTime = Double.MIN_VALUE;
+    private double maxPrice = Double.NaN;
+    private Color maxPriceColor = null;
 
-    public XYPriceLineAnnotation(final XYDataset dataset, final XYItemRenderer renderer) {
+    public XYPriceLineAnnotation(final IPlotSourceDataset dataset, final XYItemRenderer renderer) {
+        this.masterDataset = dataset.getMasterDataset();
         this.dataset = dataset;
         this.renderer = renderer;
         this.stroke = new BasicStroke(1f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 0, new float[] { 1.5f, 1.5f },
@@ -96,8 +102,13 @@ public class XYPriceLineAnnotation extends AbstractXYAnnotation implements IPric
         final double x1 = dataArea.getMinX();
         final double x2 = dataArea.getMaxX();
 
-        final double lastPrice = dataset.getYValue(0, lastItem);
-        final double y = rangeAxis.valueToJava2D(lastPrice, dataArea, rangeEdge);
+        final double lastPriceTime = masterDataset.getXValueAsDateTime(0, lastItem);
+        if (lastPriceTime >= maxPriceTime) {
+            maxPrice = dataset.getYValue(0, lastItem);
+            maxPriceTime = lastPriceTime;
+            maxPriceColor = Colors.setTransparency((Color) renderer.getItemPaint(0, lastItem), TRANSPARENCY);
+        }
+        final double y = rangeAxis.valueToJava2D(maxPrice, dataArea, rangeEdge);
 
         float j2DX1 = 0.0f;
         float j2DX2 = 0.0f;
@@ -114,7 +125,7 @@ public class XYPriceLineAnnotation extends AbstractXYAnnotation implements IPric
             j2DY2 = (float) x2;
             j2DX2 = (float) y;
         }
-        final Color paint = Colors.setTransparency((Color) renderer.getItemPaint(0, lastItem), TRANSPARENCY);
+        final Color paint = maxPriceColor;
         g2.setPaint(paint);
         g2.setStroke(this.stroke);
         final Line2D line = new Line2D.Float(j2DX1, j2DY1, j2DX2, j2DY2);
@@ -128,8 +139,8 @@ public class XYPriceLineAnnotation extends AbstractXYAnnotation implements IPric
                 final NumberAxis cRangeAxis = (NumberAxis) rangeAxis;
                 final NumberFormat rangeAxisFormat = cRangeAxis.getNumberFormatOverride();
 
-                final XYTextAnnotation priceAnnotation = new XYTextAnnotation(rangeAxisFormat.format(lastPrice),
-                        x2 - 1D, y + 1D);
+                final XYTextAnnotation priceAnnotation = new XYTextAnnotation(rangeAxisFormat.format(maxPrice), x2 - 1D,
+                        y + 1D);
                 priceAnnotation.setPaint(paint);
                 priceAnnotation.setFont(FONT);
                 priceAnnotation.setTextAnchor(TextAnchor.TOP_RIGHT);

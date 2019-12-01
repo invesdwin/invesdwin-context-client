@@ -241,7 +241,7 @@ public class CustomOrderPlottingRenderer extends AbstractXYItemRenderer
                 icon = noteBothIcon;
             }
             final double x = noteIndex;
-            final double y = cDataset.getOhlcDataset().getHighValue(0, noteIndex);
+            final double y = cDataset.getMasterDataset().getHighValue(0, noteIndex);
             XYNoteIconAnnotation noteAnnotation = noteIndex_noteAnnotation.get(noteIndex);
             if (noteAnnotation == null) {
                 noteAnnotation = new XYNoteIconAnnotation(x, y, icon);

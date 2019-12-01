@@ -192,4 +192,9 @@ public class IndexedDateTimeOHLCDataset extends ListOHLCDataset
         this.initialPlotPaneId = initialPlotPaneId;
     }
 
+    @Override
+    public IndexedDateTimeOHLCDataset getMasterDataset() {
+        return this;
+    }
+
 }

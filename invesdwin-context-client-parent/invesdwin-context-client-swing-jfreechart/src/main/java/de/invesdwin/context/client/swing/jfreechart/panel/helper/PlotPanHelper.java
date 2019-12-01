@@ -42,7 +42,7 @@ public class PlotPanHelper {
         final Range range = chartPanel.getDomainAxis().getRange();
         final double length = range.getLength();
         final double newUpperBound = Doubles.min(range.getUpperBound() + length * scrollFactor,
-                chartPanel.getDataset().getItemCount(0) + chartPanel.getAllowedRangeGap());
+                chartPanel.getMasterDataset().getItemCount(0) + chartPanel.getAllowedRangeGap());
         final Range newRange = new Range(newUpperBound - length, newUpperBound);
         chartPanel.getDomainAxis().setRange(newRange);
         chartPanel.update();

@@ -161,7 +161,8 @@ public class CandlestickDemo extends JFrame {
             final boolean priceLabelVisible = false;
 
             final String seriesId = SERIES_ID_GENERATOR.get(plotPaneId);
-            final PlotSourceXYSeriesCollection dataset = new PlotSourceXYSeriesCollection(seriesId);
+            final PlotSourceXYSeriesCollection dataset = new PlotSourceXYSeriesCollection(chartPanel.getMasterDataset(),
+                    seriesId);
             dataset.setSeriesTitle(expression);
             final XYPlot plot = chartPanel.getOhlcPlot();
             dataset.setPlot(plot);
@@ -204,14 +205,14 @@ public class CandlestickDemo extends JFrame {
 
             final IExpression expression = parseExpression(expressionStr);
             final List<MutableXYDataItemOHLC> list = series.getData();
-            final List<? extends OHLCDataItem> ohlc = chartPanel.getDataset().getData();
+            final List<? extends OHLCDataItem> ohlc = chartPanel.getMasterDataset().getData();
             for (int i = 0; i < ohlc.size(); i++) {
                 final FDate time = new FDate(ohlc.get(i).getDate());
                 final double value = expression.evaluateDouble(time);
                 final MutableXYDataItemOHLC item = new MutableXYDataItemOHLC(
                         new OHLCDataItem(time.dateValue(), Double.NaN, Double.NaN, Double.NaN, value, Double.NaN));
                 final int index = list.size();
-                final double xValueAsDateTime = chartPanel.getDataset().getXValueAsDateTime(0, index);
+                final double xValueAsDateTime = chartPanel.getMasterDataset().getXValueAsDateTime(0, index);
                 if (xValueAsDateTime != item.getXValue()) {
                     throw new IllegalStateException(
                             "Async at index [" + index + "]: ohlc[" + new FDate((long) xValueAsDateTime)
@@ -288,7 +289,8 @@ public class CandlestickDemo extends JFrame {
             final boolean priceLineVisible = false;
             final boolean priceLabelVisible = false;
 
-            final PlotSourceXYSeriesCollection dataset = new PlotSourceXYSeriesCollection(getExpressionString(args));
+            final PlotSourceXYSeriesCollection dataset = new PlotSourceXYSeriesCollection(chartPanel.getMasterDataset(),
+                    getExpressionString(args));
             final XYPlot plot = chartPanel.getOhlcPlot();
             dataset.setPlot(plot);
             dataset.setPrecision(4);
@@ -328,7 +330,7 @@ public class CandlestickDemo extends JFrame {
             final IndexedDateTimeXYSeries series = new IndexedDateTimeXYSeries(getExpressionName(), new ArrayList<>());
 
             final List<MutableXYDataItemOHLC> list = series.getData();
-            final List<? extends OHLCDataItem> ohlc = chartPanel.getDataset().getData();
+            final List<? extends OHLCDataItem> ohlc = chartPanel.getMasterDataset().getData();
             for (int i = 0; i < ohlc.size(); i++) {
                 final FDate time = new FDate(ohlc.get(i).getDate());
                 final int lagIndex = Integers.max(i - lagBars, 0);
@@ -337,7 +339,7 @@ public class CandlestickDemo extends JFrame {
                 final MutableXYDataItemOHLC item = new MutableXYDataItemOHLC(
                         new OHLCDataItem(time.dateValue(), Double.NaN, Double.NaN, Double.NaN, value, Double.NaN));
                 final int index = list.size();
-                final double xValueAsDateTime = chartPanel.getDataset().getXValueAsDateTime(0, index);
+                final double xValueAsDateTime = chartPanel.getMasterDataset().getXValueAsDateTime(0, index);
                 if (xValueAsDateTime != item.getXValue()) {
                     throw new IllegalStateException(
                             "Async at index [" + index + "]: ohlc[" + new FDate((long) xValueAsDateTime)

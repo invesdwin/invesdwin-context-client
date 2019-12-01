@@ -57,7 +57,7 @@ public class HighlightedLegendInfo {
     }
 
     public boolean isPriceSeries() {
-        return chartPanel.getDataset() == DisabledXYDataset.maybeUnwrap(getDataset());
+        return chartPanel.getMasterDataset() == DisabledXYDataset.maybeUnwrap(getDataset());
     }
 
     public IPlotSourceDataset getDataset() {

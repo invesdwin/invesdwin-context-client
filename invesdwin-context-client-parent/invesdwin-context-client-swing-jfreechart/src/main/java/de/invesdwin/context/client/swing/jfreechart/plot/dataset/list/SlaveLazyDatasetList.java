@@ -21,7 +21,7 @@ public class SlaveLazyDatasetList extends ALazyDatasetList<SlaveXYDataItemOHLC> 
 
     public SlaveLazyDatasetList(final InteractiveChartPanel chartPanel, final ISlaveLazyDatasetProvider provider) {
         this.provider = provider;
-        this.master = (MasterLazyDatasetList) chartPanel.getDataset().getData();
+        this.master = (MasterLazyDatasetList) chartPanel.getMasterDataset().getData();
         master.registerSlaveDatasetListener(this);
     }
 

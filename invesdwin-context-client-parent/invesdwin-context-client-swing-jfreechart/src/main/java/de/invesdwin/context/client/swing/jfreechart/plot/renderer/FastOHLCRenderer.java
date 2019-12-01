@@ -27,7 +27,8 @@ import de.invesdwin.context.client.swing.jfreechart.plot.annotation.priceline.XY
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.IPlotSourceDataset;
 
 @NotThreadSafe
-public class FastOHLCRenderer extends HighLowRenderer implements IUpDownColorRenderer, IDelegatePriceLineXYItemRenderer {
+public class FastOHLCRenderer extends HighLowRenderer
+        implements IUpDownColorRenderer, IDelegatePriceLineXYItemRenderer {
 
     private final FastCandlestickRenderer candlestickRenderer;
     private double tickLength;
@@ -40,12 +41,11 @@ public class FastOHLCRenderer extends HighLowRenderer implements IUpDownColorRen
         addAnnotation(priceLineAnnotation);
     }
 
-
     @Override
     public IPlotSourceDataset getDataset() {
         return candlestickRenderer.getDataset();
     }
-    
+
     @Override
     public IPriceLineRenderer getDelegatePriceLineRenderer() {
         return priceLineAnnotation;

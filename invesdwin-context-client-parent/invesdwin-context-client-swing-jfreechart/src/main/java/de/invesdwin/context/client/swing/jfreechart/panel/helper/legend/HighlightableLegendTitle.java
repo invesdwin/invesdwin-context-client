@@ -36,7 +36,7 @@ public class HighlightableLegendTitle extends CustomLegendTitle {
     protected String newLabel(final LegendItem item) {
         int domainMarkerItem = (int) chartPanel.getPlotCrosshairHelper().getDomainCrosshairMarkerValue();
         if (domainMarkerItem == -1) {
-            domainMarkerItem = chartPanel.getDataset().getData().size() - 1;
+            domainMarkerItem = chartPanel.getMasterDataset().getData().size() - 1;
         }
         if (domainMarkerItem >= 0) {
             final IPlotSourceDataset dataset = (IPlotSourceDataset) item.getDataset();
@@ -71,7 +71,7 @@ public class HighlightableLegendTitle extends CustomLegendTitle {
 
     private String newLabelString(final int domainMarkerItem, final IPlotSourceDataset dataset, final String label,
             final int series, final NumberFormat rangeAxisFormat) {
-        if (dataset instanceof OHLCDataset && dataset == chartPanel.getDataset()) {
+        if (dataset instanceof OHLCDataset && dataset == chartPanel.getMasterDataset()) {
             final OHLCDataset ohlc = dataset;
             final StringBuilder sb = new StringBuilder(label);
             final double open = ohlc.getOpenValue(series, domainMarkerItem);
@@ -113,7 +113,7 @@ public class HighlightableLegendTitle extends CustomLegendTitle {
     protected Paint newFillPaint(final LegendItem item) {
         int domainMarkerItem = (int) chartPanel.getPlotCrosshairHelper().getDomainCrosshairMarkerValue();
         if (domainMarkerItem == -1) {
-            domainMarkerItem = chartPanel.getDataset().getData().size() - 1;
+            domainMarkerItem = chartPanel.getMasterDataset().getData().size() - 1;
         }
         if (domainMarkerItem >= 0) {
             final IPlotSourceDataset dataset = (IPlotSourceDataset) item.getDataset();

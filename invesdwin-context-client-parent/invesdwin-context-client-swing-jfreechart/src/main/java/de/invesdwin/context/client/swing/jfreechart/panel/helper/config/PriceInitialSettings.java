@@ -55,7 +55,7 @@ public class PriceInitialSettings {
     public PriceInitialSettings(final PlotConfigurationHelper plotConfigurationHelper) {
         this.plotConfigurationHelper = plotConfigurationHelper;
 
-        final IndexedDateTimeOHLCDataset dataset = plotConfigurationHelper.getChartPanel().getDataset();
+        final IndexedDateTimeOHLCDataset dataset = plotConfigurationHelper.getChartPanel().getMasterDataset();
         this.candlestickRenderer = new FastCandlestickRenderer(dataset);
         this.ohlcRenderer = candlestickRenderer.getOhlcRenderer();
         this.areaRenderer = new FastXYAreaRenderer(dataset);

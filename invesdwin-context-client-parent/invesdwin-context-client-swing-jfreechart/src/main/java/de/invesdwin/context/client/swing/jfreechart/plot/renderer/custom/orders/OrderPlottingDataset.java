@@ -34,7 +34,7 @@ public class OrderPlottingDataset extends AbstractXYDataset implements IPlotSour
 
     private final String seriesKey;
     private String seriesTitle;
-    private final IndexedDateTimeOHLCDataset ohlcDataset;
+    private final IndexedDateTimeOHLCDataset masterDataset;
     private Integer precision;
     private XYPlot plot;
     private DatasetGroup group;
@@ -54,13 +54,13 @@ public class OrderPlottingDataset extends AbstractXYDataset implements IPlotSour
     private long prevFirstLoadedKeyMillis;
     private long prevLastLoadedKeyMillis;
 
-    public OrderPlottingDataset(final String seriesKey, final IndexedDateTimeOHLCDataset ohlcDataset) {
+    public OrderPlottingDataset(final String seriesKey, final IndexedDateTimeOHLCDataset masterDataset) {
         Assertions.checkNotNull(seriesKey);
         this.seriesKey = seriesKey;
         this.seriesTitle = seriesKey;
-        this.ohlcDataset = ohlcDataset;
-        if (ohlcDataset.getData() instanceof MasterLazyDatasetList) {
-            final MasterLazyDatasetList master = (MasterLazyDatasetList) ohlcDataset.getData();
+        this.masterDataset = masterDataset;
+        if (masterDataset.getData() instanceof MasterLazyDatasetList) {
+            final MasterLazyDatasetList master = (MasterLazyDatasetList) masterDataset.getData();
             //keep references to the listeners so they don't get garbage collected due to the weak refrences inside master
             this.rangeListener = new RangeListenerSupport() {
                 @Override
@@ -145,28 +145,28 @@ public class OrderPlottingDataset extends AbstractXYDataset implements IPlotSour
 
     @Override
     public int getItemCount(final int series) {
-        return ohlcDataset.getItemCount(series);
+        return masterDataset.getItemCount(series);
     }
 
     @Override
     public Number getX(final int series, final int item) {
-        return ohlcDataset.getX(series, item);
+        return masterDataset.getX(series, item);
     }
 
     @Override
     public double getXValue(final int series, final int item) {
-        return ohlcDataset.getXValue(series, item);
+        return masterDataset.getXValue(series, item);
     }
 
     @Override
     public Number getY(final int series, final int item) {
         //need to return the price here in orger to get axis scaling done properly
-        return ohlcDataset.getY(series, item);
+        return masterDataset.getY(series, item);
     }
 
     @Override
     public double getYValue(final int series, final int item) {
-        return ohlcDataset.getYValue(series, item);
+        return masterDataset.getYValue(series, item);
     }
 
     @Override
@@ -181,12 +181,12 @@ public class OrderPlottingDataset extends AbstractXYDataset implements IPlotSour
 
     @Override
     public double getXValueAsDateTime(final int series, final int item) {
-        return ohlcDataset.getXValueAsDateTime(series, item);
+        return masterDataset.getXValueAsDateTime(series, item);
     }
 
     @Override
     public int getDateTimeAsItemIndex(final int series, final Date time) {
-        return ohlcDataset.getDateTimeAsItemIndex(series, time);
+        return masterDataset.getDateTimeAsItemIndex(series, time);
     }
 
     public void addOrUpdate(final OrderPlottingDataItem item) {
@@ -220,8 +220,8 @@ public class OrderPlottingDataset extends AbstractXYDataset implements IPlotSour
         return lastTradeProfit;
     }
 
-    public IndexedDateTimeOHLCDataset getOhlcDataset() {
-        return ohlcDataset;
+    public IndexedDateTimeOHLCDataset getMasterDataset() {
+        return masterDataset;
     }
 
     @Override
@@ -276,52 +276,52 @@ public class OrderPlottingDataset extends AbstractXYDataset implements IPlotSour
 
     @Override
     public Number getHigh(final int series, final int item) {
-        return ohlcDataset.getHigh(series, item);
+        return masterDataset.getHigh(series, item);
     }
 
     @Override
     public double getHighValue(final int series, final int item) {
-        return ohlcDataset.getHighValue(series, item);
+        return masterDataset.getHighValue(series, item);
     }
 
     @Override
     public Number getLow(final int series, final int item) {
-        return ohlcDataset.getLow(series, item);
+        return masterDataset.getLow(series, item);
     }
 
     @Override
     public double getLowValue(final int series, final int item) {
-        return ohlcDataset.getLowValue(series, item);
+        return masterDataset.getLowValue(series, item);
     }
 
     @Override
     public Number getOpen(final int series, final int item) {
-        return ohlcDataset.getOpen(series, item);
+        return masterDataset.getOpen(series, item);
     }
 
     @Override
     public double getOpenValue(final int series, final int item) {
-        return ohlcDataset.getOpenValue(series, item);
+        return masterDataset.getOpenValue(series, item);
     }
 
     @Override
     public Number getClose(final int series, final int item) {
-        return ohlcDataset.getClose(series, item);
+        return masterDataset.getClose(series, item);
     }
 
     @Override
     public double getCloseValue(final int series, final int item) {
-        return ohlcDataset.getCloseValue(series, item);
+        return masterDataset.getCloseValue(series, item);
     }
 
     @Override
     public Number getVolume(final int series, final int item) {
-        return ohlcDataset.getVolume(series, item);
+        return masterDataset.getVolume(series, item);
     }
 
     @Override
     public double getVolumeValue(final int series, final int item) {
-        return ohlcDataset.getVolumeValue(series, item);
+        return masterDataset.getVolumeValue(series, item);
     }
 
     @Override

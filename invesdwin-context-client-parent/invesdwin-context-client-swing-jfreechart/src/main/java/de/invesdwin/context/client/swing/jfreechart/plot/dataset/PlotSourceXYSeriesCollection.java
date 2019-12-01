@@ -22,6 +22,7 @@ import de.invesdwin.util.math.expression.IExpression;
 @NotThreadSafe
 public class PlotSourceXYSeriesCollection extends XYSeriesCollection implements IPlotSourceDataset, XYRangeInfo {
 
+    private final IndexedDateTimeOHLCDataset masterDataset;
     private XYPlot plot;
     private Integer precision;
     private String initialPlotPaneId;
@@ -32,7 +33,8 @@ public class PlotSourceXYSeriesCollection extends XYSeriesCollection implements 
     private IExpressionSeriesProvider expressionSeriesProvider;
     private String expressionSeriesArguments;
 
-    public PlotSourceXYSeriesCollection(final String seriesTitle) {
+    public PlotSourceXYSeriesCollection(final IndexedDateTimeOHLCDataset masterDataset, final String seriesTitle) {
+        this.masterDataset = masterDataset;
         this.seriesTitle = seriesTitle;
         Assertions.checkNotNull(seriesTitle);
     }
@@ -248,6 +250,11 @@ public class PlotSourceXYSeriesCollection extends XYSeriesCollection implements 
     @Override
     public void setInitialPlotPaneId(final String initialPlotPaneId) {
         this.initialPlotPaneId = initialPlotPaneId;
+    }
+
+    @Override
+    public IndexedDateTimeOHLCDataset getMasterDataset() {
+        return masterDataset;
     }
 
 }

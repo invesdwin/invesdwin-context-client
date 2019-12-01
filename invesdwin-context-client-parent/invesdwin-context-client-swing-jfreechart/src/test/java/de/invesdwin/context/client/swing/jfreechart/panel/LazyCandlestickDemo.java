@@ -214,7 +214,8 @@ public class LazyCandlestickDemo extends JFrame {
             final boolean priceLabelVisible = false;
 
             final String seriesId = SERIES_ID_GENERATOR.get(plotPaneId);
-            final PlotSourceXYSeriesCollection dataset = new PlotSourceXYSeriesCollection(seriesId);
+            final PlotSourceXYSeriesCollection dataset = new PlotSourceXYSeriesCollection(chartPanel.getMasterDataset(),
+                    seriesId);
             dataset.setSeriesTitle(expression);
             final XYPlot plot = chartPanel.getOhlcPlot();
             dataset.setPlot(plot);
@@ -336,7 +337,8 @@ public class LazyCandlestickDemo extends JFrame {
             final boolean priceLineVisible = false;
             final boolean priceLabelVisible = false;
 
-            final PlotSourceXYSeriesCollection dataset = new PlotSourceXYSeriesCollection(getExpressionString(args));
+            final PlotSourceXYSeriesCollection dataset = new PlotSourceXYSeriesCollection(chartPanel.getMasterDataset(),
+                    getExpressionString(args));
             final XYPlot plot = chartPanel.getOhlcPlot();
             dataset.setPlot(plot);
             dataset.setPrecision(4);

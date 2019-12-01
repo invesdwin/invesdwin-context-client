@@ -76,4 +76,6 @@ public interface IPlotSourceDataset extends XYDataset, OHLCDataset, Closeable {
         return getExpressionSeriesArguments() != null;
     }
 
+    IndexedDateTimeOHLCDataset getMasterDataset();
+
 }

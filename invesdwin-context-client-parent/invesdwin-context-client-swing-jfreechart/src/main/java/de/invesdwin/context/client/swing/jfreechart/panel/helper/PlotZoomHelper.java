@@ -123,7 +123,7 @@ public class PlotZoomHelper {
             }
         }
         final double minLowerBound = (int) (0D - chartPanel.getAllowedRangeGap());
-        final double maxUpperBound = chartPanel.getDataset().getItemCount(0) + chartPanel.getAllowedRangeGap();
+        final double maxUpperBound = chartPanel.getMasterDataset().getItemCount(0) + chartPanel.getAllowedRangeGap();
         if (range.getLowerBound() < minLowerBound) {
             final double difference = minLowerBound - range.getLowerBound();
             range = new Range(minLowerBound, Doubles.min(range.getUpperBound() + difference, maxUpperBound));

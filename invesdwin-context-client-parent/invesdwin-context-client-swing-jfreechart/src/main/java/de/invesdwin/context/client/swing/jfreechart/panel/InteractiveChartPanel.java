@@ -65,7 +65,7 @@ public class InteractiveChartPanel extends JPanel {
     private static final Duration SCROLL_LOCK_DURATION = new Duration(250, FTimeUnit.MILLISECONDS);
 
     private final NumberAxis domainAxis;
-    private final IndexedDateTimeOHLCDataset dataset;
+    private final IndexedDateTimeOHLCDataset masterDataset;
     private final CustomCombinedDomainXYPlot combinedPlot;
     private XYPlot ohlcPlot;
     private final JFreeChart chart;
@@ -86,10 +86,10 @@ public class InteractiveChartPanel extends JPanel {
 
     private final InteractiveChartPanelFinalizer finalizer;
 
-    public InteractiveChartPanel(final IndexedDateTimeOHLCDataset dataset) {
-        this.dataset = dataset;
-        Assertions.checkNotBlank(dataset.getRangeAxisId());
-        Assertions.checkNotNull(dataset.getPrecision());
+    public InteractiveChartPanel(final IndexedDateTimeOHLCDataset masterDataset) {
+        this.masterDataset = masterDataset;
+        Assertions.checkNotBlank(masterDataset.getRangeAxisId());
+        Assertions.checkNotNull(masterDataset.getPrecision());
 
         this.finalizer = new InteractiveChartPanelFinalizer();
         this.finalizer.register(this);
@@ -108,15 +108,15 @@ public class InteractiveChartPanel extends JPanel {
         domainAxis.setLabelFont(XYPlots.DEFAULT_FONT);
         domainAxis.setTickLabelFont(XYPlots.DEFAULT_FONT);
         domainAxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
-        domainAxisFormat = new IndexedDateTimeNumberFormat(dataset, domainAxis);
+        domainAxisFormat = new IndexedDateTimeNumberFormat(masterDataset, domainAxis);
         domainAxis.setNumberFormatOverride(domainAxisFormat);
 
         combinedPlot = new CustomCombinedDomainXYPlot(this);
-        combinedPlot.setDataset(dataset);
+        combinedPlot.setDataset(masterDataset);
         combinedPlot.setDomainPannable(true);
 
-        dataset.addChangeListener(new DatasetChangeListenerImpl());
-        plotLegendHelper.setDatasetRemovable(dataset, false);
+        masterDataset.addChangeListener(new DatasetChangeListenerImpl());
+        plotLegendHelper.setDatasetRemovable(masterDataset, false);
 
         initPlots();
         chart = new JFreeChart(null, null, combinedPlot, false);
@@ -155,8 +155,8 @@ public class InteractiveChartPanel extends JPanel {
         setLayout(new GridLayout());
         add(chartPanel);
 
-        if (dataset.getData() instanceof IChartPanelAwareDatasetList) {
-            final IChartPanelAwareDatasetList cData = (IChartPanelAwareDatasetList) dataset.getData();
+        if (masterDataset.getData() instanceof IChartPanelAwareDatasetList) {
+            final IChartPanelAwareDatasetList cData = (IChartPanelAwareDatasetList) masterDataset.getData();
             cData.setChartPanel(this);
         }
         resetRange(getInitialVisibleItemCount());
@@ -204,8 +204,8 @@ public class InteractiveChartPanel extends JPanel {
         return chartPanel.getAllowedRangeGap();
     }
 
-    public IndexedDateTimeOHLCDataset getDataset() {
-        return dataset;
+    public IndexedDateTimeOHLCDataset getMasterDataset() {
+        return masterDataset;
     }
 
     public NumberAxis getDomainAxis() {
@@ -229,14 +229,14 @@ public class InteractiveChartPanel extends JPanel {
     }
 
     public void resetRange(final int visibleItemCount) {
-        if (dataset.getItemCount(0) > 0) {
-            final Date firstItemDate = dataset.getData().get(0).getDate();
-            final Date lastItemDate = dataset.getData().get(dataset.getItemCount(0) - 1).getDate();
+        if (masterDataset.getItemCount(0) > 0) {
+            final Date firstItemDate = masterDataset.getData().get(0).getDate();
+            final Date lastItemDate = masterDataset.getData().get(masterDataset.getItemCount(0) - 1).getDate();
             beforeResetRange();
             doResetRange(visibleItemCount);
             update();
-            final Date newFirstItemDate = dataset.getData().get(0).getDate();
-            final Date newLastItemDate = dataset.getData().get(dataset.getItemCount(0) - 1).getDate();
+            final Date newFirstItemDate = masterDataset.getData().get(0).getDate();
+            final Date newLastItemDate = masterDataset.getData().get(masterDataset.getItemCount(0) - 1).getDate();
             if (!newFirstItemDate.equals(firstItemDate) || !newLastItemDate.equals(lastItemDate)) {
                 finalizer.executorUpdateLimit.execute(new Runnable() {
                     @Override
@@ -263,15 +263,15 @@ public class InteractiveChartPanel extends JPanel {
 
     protected void doResetRange(final int visibleItemCount) {
         final int minLowerBound = -chartPanel.getAllowedRangeGap();
-        final int lowerBound = dataset.getItemCount(0) - visibleItemCount;
-        final int upperBound = dataset.getItemCount(0) + chartPanel.getAllowedRangeGap();
+        final int lowerBound = masterDataset.getItemCount(0) - visibleItemCount;
+        final int upperBound = masterDataset.getItemCount(0) + chartPanel.getAllowedRangeGap();
         final Range range = new Range(Doubles.max(minLowerBound, lowerBound), upperBound);
         domainAxis.setRange(range);
     }
 
     protected void beforeResetRange() {
-        if (dataset.getData() instanceof IChartPanelAwareDatasetList) {
-            final IChartPanelAwareDatasetList cData = (IChartPanelAwareDatasetList) dataset.getData();
+        if (masterDataset.getData() instanceof IChartPanelAwareDatasetList) {
+            final IChartPanelAwareDatasetList cData = (IChartPanelAwareDatasetList) masterDataset.getData();
             cData.resetRange();
         }
     }
@@ -281,11 +281,11 @@ public class InteractiveChartPanel extends JPanel {
     }
 
     protected void initPlots() {
-        ohlcPlot = new XYPlot(dataset, domainAxis, XYPlots.newRangeAxis(0, false, false),
+        ohlcPlot = new XYPlot(masterDataset, domainAxis, XYPlots.newRangeAxis(0, false, false),
                 plotConfigurationHelper.getPriceInitialSettings().getPriceRenderer());
         ohlcPlot.setRangeAxisLocation(AxisLocation.BOTTOM_OR_RIGHT);
         plotLegendHelper.addLegendAnnotation(ohlcPlot);
-        dataset.setPlot(ohlcPlot);
+        masterDataset.setPlot(ohlcPlot);
         //give main plot twice the weight
         combinedPlot.add(ohlcPlot, CustomCombinedDomainXYPlot.MAIN_PLOT_WEIGHT);
         XYPlots.updateRangeAxes(ohlcPlot);
