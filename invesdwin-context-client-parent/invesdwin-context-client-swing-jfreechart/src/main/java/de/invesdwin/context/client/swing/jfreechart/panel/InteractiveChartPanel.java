@@ -133,7 +133,7 @@ public class InteractiveChartPanel extends JPanel {
 
             @Override
             protected boolean isPaintAllowed() {
-                return !isUpdating();
+                return updatingCount.get() == 0;
             }
 
             @Override
@@ -334,7 +334,7 @@ public class InteractiveChartPanel extends JPanel {
     }
 
     public boolean isUpdating() {
-        return updatingCount.get() > 0;
+        return finalizer.executorUpdateLimit.getPendingCount() > 0 || updatingCount.get() > 0;
     }
 
     public void incrementUpdatingCount() {
