@@ -51,7 +51,7 @@ public class PlotLegendHelper {
 
     private HighlightedLegendInfo highlightedLegendInfo;
     private HighlightedLegendInfo dragStart;
-    private boolean dragged = false;
+    private boolean dragging = false;
     private XYPlot visibleEmptyPlot;
     private XYPlot visibleTrashPlot;
 
@@ -121,7 +121,7 @@ public class PlotLegendHelper {
     }
 
     public void disableHighlighting() {
-        if (!dragged && highlightedLegendInfo != null) {
+        if (!dragging && highlightedLegendInfo != null) {
             highlightedLegendInfo.getTitle().setBackgroundPaint(LEGEND_BACKGROUND_PAINT);
             highlightedLegendInfo = null;
         }
@@ -130,12 +130,12 @@ public class PlotLegendHelper {
     public void mouseReleased(final MouseEvent e) {
         mouseMoved(e); //update highlighted element
         if (e.getButton() == MouseEvent.BUTTON1) {
-            if (!dragged) {
+            if (!dragging) {
                 toggleDatasetVisibility(e);
             }
             if (dragStart != null) {
                 dragStart = null;
-                dragged = false;
+                dragging = false;
                 chartPanel.getChartPanel().setCursor(CustomChartPanel.DEFAULT_CURSOR);
                 if (visibleTrashPlot != null) {
                     for (int datasetIndex = 0; datasetIndex < visibleTrashPlot.getDatasetCount(); datasetIndex++) {
@@ -155,7 +155,7 @@ public class PlotLegendHelper {
                 }
             }
         } else if (e.getButton() == MouseEvent.BUTTON2) {
-            if (!dragged && highlightedLegendInfo != null && highlightedLegendInfo.isRemovable()) {
+            if (!dragging && highlightedLegendInfo != null && highlightedLegendInfo.isRemovable()) {
                 highlightedLegendInfo.removeSeries();
             }
         }
@@ -248,8 +248,8 @@ public class PlotLegendHelper {
             final int mouseX = e.getX();
             final int mouseY = e.getY();
             final int toSubplotIndex = chartPanel.getCombinedPlot().getSubplotIndex(mouseX, mouseY);
-            if (!dragged) {
-                dragged = true;
+            if (!dragging) {
+                dragging = true;
                 visibleEmptyPlot = chartPanel.newPlot();
                 visibleEmptyPlot.addAnnotation(addAnnotation);
                 visibleEmptyPlot.setBackgroundPaint(ADD_BACKGROUND_COLOR);

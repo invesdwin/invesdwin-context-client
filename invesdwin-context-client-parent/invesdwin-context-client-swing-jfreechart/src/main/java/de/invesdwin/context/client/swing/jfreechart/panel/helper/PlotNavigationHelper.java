@@ -71,6 +71,7 @@ public class PlotNavigationHelper {
 
     private XYNoteIconAnnotation noteShowingIconAnnotation;
     private XYPlot noteShowingOnPlot;
+    private boolean dragging = false;
 
     public PlotNavigationHelper(final InteractiveChartPanel chartPanel) {
         this.chartPanel = chartPanel;
@@ -117,14 +118,16 @@ public class PlotNavigationHelper {
     }
 
     public void mouseDragged(final MouseEvent e) {
-        mouseMoved(e);
+        final int mouseX = e.getX();
+        final int mouseY = e.getY();
+        unhighlight(mouseX, mouseY);
     }
 
     public void mouseMoved(final MouseEvent e) {
         final int mouseX = e.getX();
         final int mouseY = e.getY();
         final XYNoteIconAnnotation highlightedNoteIconAnnotation = findHighlightedNoteIconAnnotation(mouseX, mouseY);
-        if (highlightedNoteIconAnnotation != null) {
+        if (highlightedNoteIconAnnotation != null && !dragging) {
             if (noteShowingIconAnnotation == null || noteShowingIconAnnotation != highlightedNoteIconAnnotation) {
                 mouseExited();
                 final CustomCombinedDomainXYPlot combinedPlot = chartPanel.getCombinedPlot();
@@ -136,9 +139,13 @@ public class PlotNavigationHelper {
             }
             chartPanel.getChartPanel().setCursor(PlotResizeHelper.DEFAULT_CURSOR);
         } else {
-            hideNote();
-            updateNavigationVisibility(mouseX, mouseY);
+            unhighlight(mouseX, mouseY);
         }
+    }
+
+    private void unhighlight(final int mouseX, final int mouseY) {
+        hideNote();
+        updateNavigationVisibility(mouseX, mouseY);
     }
 
     private XYNoteIconAnnotation findHighlightedNoteIconAnnotation(final int mouseX, final int mouseY) {
@@ -361,6 +368,7 @@ public class PlotNavigationHelper {
         if (e.getButton() != MouseEvent.BUTTON1) {
             return;
         }
+        dragging = true;
         final int mouseX = e.getX();
         final int mouseY = e.getY();
         final ChartEntity entityForPoint = chartPanel.getChartPanel().getEntityForPoint(mouseX, mouseY);
@@ -413,6 +421,7 @@ public class PlotNavigationHelper {
     }
 
     public void mouseReleased(final MouseEvent e) {
+        dragging = false;
         mouseMoved(e); //update when configuration popup becomes invisible
         if (e.getButton() != MouseEvent.BUTTON1) {
             return;

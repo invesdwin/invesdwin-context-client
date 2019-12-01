@@ -56,13 +56,15 @@ public class PlotZoomHelper {
     }
 
     private void handleZoomable(final Point2D point, final double zoomFactor) {
-        if (lastZoomable.isLessThan(ZOOMABLE_THRESHOLD)) {
-            return;
+        synchronized (this) {
+            if (lastZoomable.isLessThan(ZOOMABLE_THRESHOLD)) {
+                return;
+            }
+            if (chartPanel.isUpdating()) {
+                return;
+            }
+            lastZoomable = new Instant();
         }
-        if (chartPanel.isUpdating()) {
-            return;
-        }
-        lastZoomable = new Instant();
         final XYPlot plot = (XYPlot) this.chartPanel.getChart().getPlot();
 
         // don't zoom unless the mouse pointer is in the plot's data area
