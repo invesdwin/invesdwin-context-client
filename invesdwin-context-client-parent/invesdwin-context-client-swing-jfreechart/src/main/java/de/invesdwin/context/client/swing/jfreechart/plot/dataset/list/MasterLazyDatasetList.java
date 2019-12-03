@@ -25,7 +25,6 @@ import de.invesdwin.util.collections.iterable.ICloseableIterable;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
 import de.invesdwin.util.concurrent.WrappedExecutorService;
 import de.invesdwin.util.concurrent.priority.IPriorityRunnable;
-import de.invesdwin.util.concurrent.taskinfo.provider.TaskInfoRunnable;
 import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.time.fdate.FDate;
 
@@ -42,7 +41,6 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
     private static final int MAX_ITEM_COUNT = MAX_STEP_ITEM_COUNT * 5;
     private static final int TRIM_ITEM_COUNT = MAX_STEP_ITEM_COUNT * 7;
     private final WrappedExecutorService executor;
-    private final String taskInfo;
     private final IMasterLazyDatasetProvider provider;
     private final Set<ISlaveLazyDatasetListener> slaveDatasetListeners;
     private final Set<IRangeListener> rangeListeners;
@@ -51,8 +49,7 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
     @GuardedBy("this")
     private FDate lastUpdateTime;
 
-    public MasterLazyDatasetList(final IMasterLazyDatasetProvider provider, final WrappedExecutorService executor,
-            final String taskInfo) {
+    public MasterLazyDatasetList(final IMasterLazyDatasetProvider provider, final WrappedExecutorService executor) {
         this.provider = provider;
 
         final ConcurrentMap<ISlaveLazyDatasetListener, Boolean> slaveDatasetListeners = Caffeine.newBuilder()
@@ -67,7 +64,6 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
         this.rangeListeners = Collections.newSetFromMap(limitRangeListeners);
         this.firstAvailableKey = provider.getFirstAvailableKey();
         this.executor = executor;
-        this.taskInfo = taskInfo;
     }
 
     @Override
@@ -92,7 +88,7 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
             if (!empty) {
                 newData();
             }
-            final Runnable task = TaskInfoRunnable.ofNullable(taskInfo, new Runnable() {
+            final Runnable task = newSyncTask(new Runnable() {
                 @Override
                 public void run() {
                     loadInitialDataMaster();
@@ -131,7 +127,7 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
         if (getData().isEmpty()) {
             return;
         }
-        final Runnable task = TaskInfoRunnable.ofNullable(taskInfo, new Runnable() {
+        final Runnable task = newSyncTask(new Runnable() {
             @Override
             public void run() {
                 reloadDataMaster();
@@ -163,6 +159,10 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
                 }
             });
         }
+    }
+
+    protected Runnable newSyncTask(final Runnable syncTask) {
+        return syncTask;
     }
 
     private void reloadDataMaster() {
