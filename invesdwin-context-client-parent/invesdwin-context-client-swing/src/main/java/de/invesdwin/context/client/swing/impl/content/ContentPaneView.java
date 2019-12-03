@@ -2,7 +2,6 @@ package de.invesdwin.context.client.swing.impl.content;
 
 import java.awt.GridLayout;
 import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 
 import javax.annotation.concurrent.NotThreadSafe;
 import javax.swing.JFrame;
@@ -26,6 +25,7 @@ import de.invesdwin.context.client.swing.api.guiservice.GuiService;
 import de.invesdwin.context.client.swing.api.view.AView;
 import de.invesdwin.context.client.swing.api.view.IDockable;
 import de.invesdwin.util.assertions.Assertions;
+import de.invesdwin.util.swing.listener.KeyListenerSupport;
 
 @NotThreadSafe
 public class ContentPaneView extends AView<ContentPaneView, JPanel> {
@@ -39,13 +39,13 @@ public class ContentPaneView extends AView<ContentPaneView, JPanel> {
         final SingleFrameApplication app = (SingleFrameApplication) Application.getInstance();
         final JFrame frame = app.getMainFrame();
         this.control = new CControl(frame);
-        control.addGlobalKeyListener(new KeyListener() {
-            @Override
-            public void keyTyped(final KeyEvent e) {}
+        control.addGlobalKeyListener(new KeyListenerSupport() {
+            //only activate once when both pressed and released happened on this window
+            private boolean pressed;
 
             @Override
             public void keyReleased(final KeyEvent e) {
-                if (e.isControlDown() && e.getKeyCode() == KeyEvent.VK_W) {
+                if (pressed && e.isControlDown() && e.getKeyCode() == KeyEvent.VK_W) {
                     EventDispatchThreadUtil.invokeLater(new Runnable() {
                         @Override
                         public void run() {
@@ -57,10 +57,15 @@ public class ContentPaneView extends AView<ContentPaneView, JPanel> {
                         }
                     });
                 }
+                pressed = false;
             }
 
             @Override
-            public void keyPressed(final KeyEvent e) {}
+            public void keyPressed(final KeyEvent e) {
+                if (e.isControlDown() && e.getKeyCode() == KeyEvent.VK_W) {
+                    pressed = true;
+                }
+            }
         });
         final CGrid grid = new CGrid(control);
         this.defaultWorkingArea = control.createWorkingArea(ContentPane.class.getSimpleName());
