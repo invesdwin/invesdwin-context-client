@@ -92,7 +92,7 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
             if (!empty) {
                 newData();
             }
-            final TaskInfoRunnable task = TaskInfoRunnable.of(taskInfo, new Runnable() {
+            final Runnable task = TaskInfoRunnable.ofNullable(taskInfo, new Runnable() {
                 @Override
                 public void run() {
                     loadInitialDataMaster();
@@ -131,7 +131,7 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
         if (getData().isEmpty()) {
             return;
         }
-        final TaskInfoRunnable task = TaskInfoRunnable.of(taskInfo, new Runnable() {
+        final Runnable task = TaskInfoRunnable.ofNullable(taskInfo, new Runnable() {
             @Override
             public void run() {
                 reloadDataMaster();
