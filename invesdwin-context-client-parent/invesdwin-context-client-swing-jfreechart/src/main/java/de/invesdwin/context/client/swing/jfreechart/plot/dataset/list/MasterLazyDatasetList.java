@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.Future;
 
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
@@ -25,8 +24,8 @@ import de.invesdwin.context.client.swing.jfreechart.plot.dataset.list.item.Maste
 import de.invesdwin.util.collections.iterable.ICloseableIterable;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
 import de.invesdwin.util.concurrent.WrappedExecutorService;
-import de.invesdwin.util.concurrent.future.Futures;
 import de.invesdwin.util.concurrent.priority.IPriorityRunnable;
+import de.invesdwin.util.concurrent.taskinfo.provider.TaskInfoRunnable;
 import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.time.fdate.FDate;
 
@@ -43,6 +42,7 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
     private static final int MAX_ITEM_COUNT = MAX_STEP_ITEM_COUNT * 5;
     private static final int TRIM_ITEM_COUNT = MAX_STEP_ITEM_COUNT * 7;
     private final WrappedExecutorService executor;
+    private final String taskInfo;
     private final IMasterLazyDatasetProvider provider;
     private final Set<ISlaveLazyDatasetListener> slaveDatasetListeners;
     private final Set<IRangeListener> rangeListeners;
@@ -51,7 +51,8 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
     @GuardedBy("this")
     private FDate lastUpdateTime;
 
-    public MasterLazyDatasetList(final IMasterLazyDatasetProvider provider, final WrappedExecutorService executor) {
+    public MasterLazyDatasetList(final IMasterLazyDatasetProvider provider, final WrappedExecutorService executor,
+            final String taskInfo) {
         this.provider = provider;
 
         final ConcurrentMap<ISlaveLazyDatasetListener, Boolean> slaveDatasetListeners = Caffeine.newBuilder()
@@ -66,6 +67,7 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
         this.rangeListeners = Collections.newSetFromMap(limitRangeListeners);
         this.firstAvailableKey = provider.getFirstAvailableKey();
         this.executor = executor;
+        this.taskInfo = taskInfo;
     }
 
     @Override
@@ -90,7 +92,7 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
             if (!empty) {
                 newData();
             }
-            final Future<?> future = executor.submit(new Runnable() { //show task info
+            final TaskInfoRunnable task = TaskInfoRunnable.of(taskInfo, new Runnable() {
                 @Override
                 public void run() {
                     loadInitialDataMaster();
@@ -101,11 +103,7 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
                     }
                 }
             });
-            try {
-                Futures.wait(future);
-            } catch (final InterruptedException e) {
-                throw new RuntimeException(e);
-            }
+            task.run();
             if (!slaveDatasetListeners.isEmpty()) {
                 executor.execute(new IPriorityRunnable() {
                     @Override
@@ -133,7 +131,7 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
         if (getData().isEmpty()) {
             return;
         }
-        final Future<?> future = executor.submit(new Runnable() { //show task info
+        final TaskInfoRunnable task = TaskInfoRunnable.of(taskInfo, new Runnable() {
             @Override
             public void run() {
                 reloadDataMaster();
@@ -144,11 +142,7 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
                 }
             }
         });
-        try {
-            Futures.wait(future);
-        } catch (final InterruptedException e) {
-            throw new RuntimeException(e);
-        }
+        task.run();
         if (!slaveDatasetListeners.isEmpty()) {
             executor.execute(new IPriorityRunnable() {
                 @Override
