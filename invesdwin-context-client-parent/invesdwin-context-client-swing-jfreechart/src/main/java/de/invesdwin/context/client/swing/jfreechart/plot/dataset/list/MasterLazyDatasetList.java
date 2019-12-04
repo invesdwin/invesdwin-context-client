@@ -110,7 +110,7 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
                             data.get(i).loadSlaveItems(key);
                         }
                         for (final ISlaveLazyDatasetListener slave : slaveDatasetListeners) {
-                            slave.afterLoadItems();
+                            slave.afterLoadItems(true);
                         }
                     }
 
@@ -149,7 +149,7 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
                         data.get(i).loadSlaveItems(key);
                     }
                     for (final ISlaveLazyDatasetListener slave : slaveDatasetListeners) {
-                        slave.afterLoadItems();
+                        slave.afterLoadItems(true);
                     }
                 }
 
@@ -269,20 +269,21 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
     }
 
     public synchronized Range maybeLoadDataRange(final Range range, final MutableBoolean rangeChanged) {
+        final List<MasterOHLCDataItem> data = getData();
         if (executor.getPendingCount() > 0) {
             //wait for lazy loading to finish
-            return range;
+            return limitLoadedRange(range, rangeChanged, data);
         }
         final boolean isTrailing = isTrailing(range);
         Range updatedRange = range;
         final int preloadLowerBound = (int) (range.getLowerBound() - range.getLength());
-        final List<MasterOHLCDataItem> data = getData();
         if (preloadLowerBound < 0) {
             final FDate firstLoadedKey = getFirstLoadedKey();
             if (firstAvailableKey.isBefore(firstLoadedKey)) {
                 //prepend a whole screen additional to the requested items
                 final int prependCount = Integers.min(MAX_STEP_ITEM_COUNT,
                         Integers.abs(preloadLowerBound) * STEP_ITEM_COUNT_MULTIPLIER);
+                System.out.println("prepend " + prependCount);
                 final List<MasterOHLCDataItem> prependItems;
                 chartPanel.incrementUpdatingCount(); //prevent flickering
                 try {
@@ -309,6 +310,7 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
                     final int appendCount = Integers.min(MAX_STEP_ITEM_COUNT,
                             (preloadUpperBound - data.size()) * STEP_ITEM_COUNT_MULTIPLIER);
                     if (appendCount > 0) {
+                        System.out.println("append " + appendCount);
                         final List<MasterOHLCDataItem> appendItems;
                         chartPanel.incrementUpdatingCount(); //prevent flickering
                         try {
@@ -326,6 +328,40 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
             }
         }
         return updatedRange;
+    }
+
+    private Range limitLoadedRange(final Range range, final MutableBoolean rangeChanged,
+            final List<MasterOHLCDataItem> data) {
+        if (data.isEmpty()) {
+            return range;
+        }
+        final int from = Integers.max(0, (int) range.getLowerBound());
+        final int central = (int) range.getCentralValue();
+        final int to = Integers.min((int) range.getUpperBound(), data.size() - 1);
+        if (central <= from || central >= to || !data.get(central).isSlaveItemsLoaded()) {
+            return range;
+        }
+        Range modifiedRange = range;
+        //scrolling higher
+        for (int i = central + 1; i <= to; i++) {
+            if (!data.get(i).isSlaveItemsLoaded()) {
+                modifiedRange = new Range(modifiedRange.getLowerBound(), i - 1);
+                rangeChanged.setTrue();
+                break;
+            }
+        }
+        //scrolling lower
+        for (int i = central - 1; i >= from; i--) {
+            if (!data.get(i).isSlaveItemsLoaded()) {
+                modifiedRange = new Range(i + 1, modifiedRange.getUpperBound());
+                rangeChanged.setTrue();
+                break;
+            }
+        }
+        if (rangeChanged.isTrue()) {
+            System.out.println(range + " -> " + modifiedRange);
+        }
+        return modifiedRange;
     }
 
     private void loadItems(final List<MasterOHLCDataItem> data, final List<MasterOHLCDataItem> items,
@@ -351,6 +387,7 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
                 try {
                     final int tooManyAfter = items.size() - nextItemsIndex;
                     if (tooManyAfter > 0) {
+                        System.out.println("tooManyAfter " + tooManyAfter);
                         final int removeMasterIndex = data.indexOf(items.get(nextItemsIndex));
                         if (removeMasterIndex >= 0) {
                             synchronized (MasterLazyDatasetList.this) {
@@ -367,7 +404,7 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
                     }
                     if (!slaveDatasetListeners.isEmpty()) {
                         for (final ISlaveLazyDatasetListener slave : slaveDatasetListeners) {
-                            slave.afterLoadItems();
+                            slave.afterLoadItems(true);
                         }
                     }
                     chartPanel.update();
@@ -442,6 +479,7 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
     }
 
     private final class LimitRangeListenerImpl implements IRangeListener {
+
         @Override
         public Range beforeLimitRange(final Range range, final MutableBoolean rangeChanged) {
             Range updatedRange = maybeLoadDataRange(range, rangeChanged);
@@ -560,6 +598,11 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
             for (int i = firstAppendIndex; i < lastItemIndex; i++) {
                 final MasterOHLCDataItem item = data.get(i);
                 item.loadSlaveItems(FDate.valueOf(item.getDate()));
+            }
+            if (!slaveDatasetListeners.isEmpty()) {
+                for (final ISlaveLazyDatasetListener slave : slaveDatasetListeners) {
+                    slave.afterLoadItems(false);
+                }
             }
             return true;
         } else {

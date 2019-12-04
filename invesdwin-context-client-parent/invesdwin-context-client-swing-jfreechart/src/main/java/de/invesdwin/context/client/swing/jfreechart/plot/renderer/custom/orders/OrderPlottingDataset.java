@@ -71,8 +71,8 @@ public class OrderPlottingDataset extends AbstractXYDataset implements IPlotSour
             master.registerRangeListener(rangeListener);
             this.slaveDatasetListener = new SlaveLazyDatasetListenerSupport() {
                 @Override
-                public void afterLoadItems() {
-                    updateItemsLoaded(true);
+                public void afterLoadItems(final boolean async) {
+                    updateItemsLoaded(async);
                 }
 
                 @Override
@@ -220,6 +220,7 @@ public class OrderPlottingDataset extends AbstractXYDataset implements IPlotSour
         return lastTradeProfit;
     }
 
+    @Override
     public IndexedDateTimeOHLCDataset getMasterDataset() {
         return masterDataset;
     }

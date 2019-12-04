@@ -93,4 +93,8 @@ public class MasterOHLCDataItem extends MutableOHLCDataItem {
         slaveItems = EmptyBufferingIterator.getInstance();
     }
 
+    public boolean isSlaveItemsLoaded() {
+        return slaveItems instanceof EmptyBufferingIterator;
+    }
+
 }

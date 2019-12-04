@@ -24,6 +24,6 @@ public class SlaveLazyDatasetListenerSupport implements ISlaveLazyDatasetListene
     public void loadIinitialItems(final boolean eager) {}
 
     @Override
-    public void afterLoadItems() {}
+    public void afterLoadItems(final boolean async) {}
 
 }

@@ -14,6 +14,6 @@ public interface ISlaveLazyDatasetListener {
 
     void removeMiddleItems(int index, int count);
 
-    void afterLoadItems();
+    void afterLoadItems(boolean async);
 
 }
