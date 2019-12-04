@@ -179,7 +179,7 @@ public class LazyCandlestickDemo extends JFrame {
 
         };
         return new MasterLazyDatasetList(provider,
-                Executors.newDisabledExecutor(LazyCandlestickDemo.class.getSimpleName()), null);
+                Executors.newDisabledExecutor(LazyCandlestickDemo.class.getSimpleName()));
     }
 
     //CHECKSTYLE:OFF
