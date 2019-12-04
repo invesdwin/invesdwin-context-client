@@ -505,7 +505,12 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
         if (!isTrailing) {
             return false;
         }
-        return updateTrailingItems(lastTickTime, data, rangeBefore);
+        chartPanel.incrementUpdatingCount();
+        try {
+            return updateTrailingItems(lastTickTime, data, rangeBefore);
+        } finally {
+            chartPanel.decrementUpdatingCount();
+        }
     }
 
     private boolean updateTrailingItems(final FDate lastTickTime, final List<MasterOHLCDataItem> data,
