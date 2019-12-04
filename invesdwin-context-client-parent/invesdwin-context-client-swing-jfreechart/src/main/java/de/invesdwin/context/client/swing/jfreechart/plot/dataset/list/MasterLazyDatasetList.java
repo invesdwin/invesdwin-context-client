@@ -299,31 +299,29 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
                 loadItems(data, prependItems, masterPrependValues);
             }
         }
-        final int preloadUpperBound = (int) (range.getUpperBound() + range.getLength());
-        if (preloadUpperBound > data.size()) {
-            final FDate lastLoadedKey = getLastLoadedKey();
-            if (provider.getLastAvailableKey().isAfter(lastLoadedKey)) {
-                //append a whole screen additional to the requested items
-                final int appendCount = Integers.min(MAX_STEP_ITEM_COUNT,
-                        (preloadUpperBound - data.size()) * STEP_ITEM_COUNT_MULTIPLIER);
-                if (appendCount > 0) {
-                    final List<MasterOHLCDataItem> appendItems;
-                    chartPanel.incrementUpdatingCount(); //prevent flickering
-                    try {
-                        appendItems = appendMaster(appendCount);
-                        appendSlaves(appendCount);
-                    } finally {
-                        chartPanel.decrementUpdatingCount();
-                    }
-                    if (isTrailing) {
-                        updatedRange = new Range(range.getLowerBound() + appendCount,
-                                range.getUpperBound() + appendCount);
-                        rangeChanged.setTrue();
-                    }
+        //wait for update instead if trailing
+        if (!isTrailing) {
+            final int preloadUpperBound = (int) (range.getUpperBound() + range.getLength());
+            if (preloadUpperBound > data.size()) {
+                final FDate lastLoadedKey = getLastLoadedKey();
+                if (provider.getLastAvailableKey().isAfter(lastLoadedKey)) {
+                    //append a whole screen additional to the requested items
+                    final int appendCount = Integers.min(MAX_STEP_ITEM_COUNT,
+                            (preloadUpperBound - data.size()) * STEP_ITEM_COUNT_MULTIPLIER);
+                    if (appendCount > 0) {
+                        final List<MasterOHLCDataItem> appendItems;
+                        chartPanel.incrementUpdatingCount(); //prevent flickering
+                        try {
+                            appendItems = appendMaster(appendCount);
+                            appendSlaves(appendCount);
+                        } finally {
+                            chartPanel.decrementUpdatingCount();
+                        }
 
-                    final ICloseableIterable<? extends OHLCDataItem> appendMasterValues = provider
-                            .getNextValues(FDate.valueOf(appendItems.get(0).getDate()), appendItems.size());
-                    loadItems(data, appendItems, appendMasterValues);
+                        final ICloseableIterable<? extends OHLCDataItem> appendMasterValues = provider
+                                .getNextValues(FDate.valueOf(appendItems.get(0).getDate()), appendItems.size());
+                        loadItems(data, appendItems, appendMasterValues);
+                    }
                 }
             }
         }
@@ -504,26 +502,36 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
         }
         final Range rangeBefore = chartPanel.getDomainAxis().getRange();
         final boolean isTrailing = isTrailing(rangeBefore);
+        if (!isTrailing) {
+            return false;
+        }
+        return updateTrailingItems(lastTickTime, data, rangeBefore);
+    }
+
+    private boolean updateTrailingItems(final FDate lastTickTime, final List<MasterOHLCDataItem> data,
+            final Range rangeBefore) {
         //remove at least two elements
         int lastItemIndex = Math.max(0, data.size() - 3);
         OHLCDataItem lastItem = data.get(lastItemIndex);
         final ICloseableIterable<? extends OHLCDataItem> history = provider.getValues(new FDate(lastItem.getDate()),
                 lastTickTime);
+        final int firstAppendIndex = lastItemIndex;
         int appendCount = 0;
         try (ICloseableIterator<? extends OHLCDataItem> it = history.iterator()) {
             while (true) {
                 final OHLCDataItem item = it.next();
+                final MasterOHLCDataItem newItem = new MasterOHLCDataItem(item);
                 if (lastItemIndex < data.size()) {
                     lastItem = data.get(lastItemIndex);
                     if (!item.equals(lastItem)) {
-                        data.set(lastItemIndex, new MasterOHLCDataItem(item));
-                        lastItem = item;
+                        data.set(lastItemIndex, newItem);
+                        lastItem = newItem;
                         appendCount++;
                     }
                 } else if (item.getDate().after(lastItem.getDate())) {
-                    data.add(new MasterOHLCDataItem(item));
+                    data.add(newItem);
                     appendCount++;
-                    lastItem = item;
+                    lastItem = newItem;
                 }
                 lastItemIndex++;
             }
@@ -537,10 +545,16 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
              */
             appendSlaves(appendCount);
             lastUpdateTime = getLastLoadedKey();
-            if (isTrailing) {
-                final Range updatedRange = new Range(rangeBefore.getLowerBound() + appendCount,
-                        rangeBefore.getUpperBound() + appendCount);
-                chartPanel.getDomainAxis().setRange(updatedRange);
+
+            //trail range
+            final Range updatedRange = new Range(rangeBefore.getLowerBound() + appendCount,
+                    rangeBefore.getUpperBound() + appendCount);
+            chartPanel.getDomainAxis().setRange(updatedRange);
+
+            //load slave items
+            for (int i = firstAppendIndex; i < lastItemIndex; i++) {
+                final MasterOHLCDataItem item = data.get(i);
+                item.loadSlaveItems(FDate.valueOf(item.getDate()));
             }
             return true;
         } else {
