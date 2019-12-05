@@ -136,6 +136,7 @@ public class ContentPane {
         Assertions.assertThat(id_visibleView.put(content.getUniqueId(), view)).isNull();
         Assertions.assertThat(class_id_visibleView.get(view.getClass()).put(content.getUniqueId(), view)).isNull();
         view.setDockable(content);
+        content.requestFocus();
     }
 
 }
