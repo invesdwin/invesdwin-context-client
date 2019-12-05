@@ -153,7 +153,7 @@ public class StatusBarTaskView extends AView<StatusBarTaskView, JPanel> implemen
             //not initialized yet
             return;
         }
-        if (tasks.size() > 0) {
+        if (tasks.size() > 1) {
             final StringBuilder text = new StringBuilder(" [");
             text.append(tasks.size());
             text.append("] ");
@@ -171,6 +171,9 @@ public class StatusBarTaskView extends AView<StatusBarTaskView, JPanel> implemen
                 }
             }
             Components.setToolTipText(lblTasks, tooltip.toString());
+        } else if (tasks.size() == 1) {
+            lblTasks.setText(" ");
+            Components.setToolTipText(lblTasks, null);
         } else {
             lblTasks.setText(null);
             Components.setToolTipText(lblTasks, null);

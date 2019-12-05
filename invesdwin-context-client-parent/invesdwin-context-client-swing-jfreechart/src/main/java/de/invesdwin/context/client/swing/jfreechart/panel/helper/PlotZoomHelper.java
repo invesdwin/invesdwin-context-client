@@ -2,6 +2,7 @@ package de.invesdwin.context.client.swing.jfreechart.panel.helper;
 
 import java.awt.event.MouseWheelEvent;
 import java.awt.geom.Point2D;
+import java.util.List;
 import java.util.Set;
 
 import javax.annotation.concurrent.NotThreadSafe;
@@ -12,9 +13,11 @@ import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.plot.PlotRenderingInfo;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.data.Range;
+import org.jfree.data.xy.OHLCDataItem;
 
 import de.invesdwin.context.client.swing.jfreechart.panel.InteractiveChartPanel;
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.listener.IRangeListener;
+import de.invesdwin.context.client.swing.jfreechart.plot.dataset.list.IChartPanelAwareDatasetList;
 import de.invesdwin.util.collections.factory.ILockCollectionFactory;
 import de.invesdwin.util.collections.fast.IFastIterableSet;
 import de.invesdwin.util.math.Doubles;
@@ -32,6 +35,7 @@ public class PlotZoomHelper {
     private static final double ZOOM_OUT_FACTOR = 1D + ZOOM_FACTOR;
     private static final double ZOOM_IN_FACTOR = 1 / ZOOM_OUT_FACTOR;
     private static final Duration ZOOMABLE_THRESHOLD = new Duration(10, FTimeUnit.MILLISECONDS);
+    private static final double EDGE_ANCHOR_TOLERANCE = 0.1D;
     private Instant lastZoomable = new Instant();
 
     private final InteractiveChartPanel chartPanel;
@@ -87,10 +91,53 @@ public class PlotZoomHelper {
             final boolean notifyState = plot.isNotify();
             plot.setNotify(false);
             plot.zoomDomainAxes(zoomFactor, pinfo, point, true);
+
+            final double anchor = plot.getDomainAxis()
+                    .java2DToValue(point.getX(), pinfo.getDataArea(), plot.getDomainAxisEdge());
+            applyEdgeAnchor(rangeBefore, lengthBefore, anchor);
             plot.setNotify(notifyState); // this generates the change event too
             chartPanel.update();
         } finally {
             chartPanel.decrementUpdatingCount();
+        }
+    }
+
+    private void applyEdgeAnchor(final Range rangeBefore, final int lengthBefore, final double anchor) {
+        final Range rangeAfter = chartPanel.getDomainAxis().getRange();
+        final double lengthAfter = rangeAfter.getLength();
+        final List<? extends OHLCDataItem> data = chartPanel.getMasterDataset().getData();
+        final double minLowerBound = getMinLowerBound(data);
+        final double maxUpperBound = getMaxUpperBound(data);
+        final double anchorUpperEdgeTolerance = rangeAfter.getUpperBound() - (lengthBefore * (EDGE_ANCHOR_TOLERANCE));
+        final int gapAfter = chartPanel.getAllowedRangeGap(lengthAfter);
+        if (anchor >= anchorUpperEdgeTolerance) {
+            if (rangeBefore.getUpperBound() >= maxUpperBound) {
+                //limit on max upper bound
+                final double maxUpperBoundWithGap = maxUpperBound + gapAfter;
+                chartPanel.getDomainAxis()
+                        .setRange(new Range(maxUpperBoundWithGap - lengthAfter, maxUpperBoundWithGap));
+            } else {
+                //limit on max upper bound
+                final double upperBoundWithoutGap = rangeBefore.getUpperBound();
+                chartPanel.getDomainAxis()
+                        .setRange(new Range(upperBoundWithoutGap - lengthAfter, upperBoundWithoutGap));
+            }
+
+        } else {
+            final double anchorLowerEdgeTolerance = rangeAfter.getLowerBound() + (lengthBefore * EDGE_ANCHOR_TOLERANCE);
+            if (anchor <= anchorLowerEdgeTolerance) {
+                if (rangeBefore.getLowerBound() <= minLowerBound) {
+                    //limit on min lower bound
+                    final double minLowerBoundWithGap = minLowerBound - gapAfter;
+                    chartPanel.getDomainAxis()
+                            .setRange(new Range(minLowerBoundWithGap, minLowerBoundWithGap + lengthAfter));
+                } else {
+                    //limit on lower bound
+                    final double minLowerBoundWithoutGap = rangeBefore.getLowerBound();
+                    chartPanel.getDomainAxis()
+                            .setRange(new Range(minLowerBoundWithoutGap, minLowerBoundWithoutGap + lengthAfter));
+                }
+            }
         }
     }
 
@@ -122,8 +169,11 @@ public class PlotZoomHelper {
                 range = array[i].beforeLimitRange(range, rangeChanged);
             }
         }
-        final double minLowerBound = (int) (0D - chartPanel.getAllowedRangeGap());
-        final double maxUpperBound = chartPanel.getMasterDataset().getItemCount(0) + chartPanel.getAllowedRangeGap();
+        final int length = (int) range.getLength();
+        final int gap = chartPanel.getAllowedRangeGap(length);
+        final List<? extends OHLCDataItem> data = chartPanel.getMasterDataset().getData();
+        final double minLowerBound = getMinLowerBoundWithGap(data, gap);
+        final double maxUpperBound = getMaxUpperBoundWithGap(data, gap);
         if (range.getLowerBound() < minLowerBound) {
             final double difference = minLowerBound - range.getLowerBound();
             range = new Range(minLowerBound, Doubles.min(range.getUpperBound() + difference, maxUpperBound));
@@ -149,6 +199,42 @@ public class PlotZoomHelper {
         }
     }
 
+    private double getMaxUpperBoundWithGap(final List<? extends OHLCDataItem> data, final int gap) {
+        final double maxUpperBound = getMaxUpperBound(data);
+        if (maxUpperBound >= data.size() - 1) {
+            return maxUpperBound + gap;
+        } else {
+            return maxUpperBound;
+        }
+    }
+
+    private double getMinLowerBoundWithGap(final List<? extends OHLCDataItem> data, final int gap) {
+        final double minLowerBound = getMinLowerBound(data);
+        if (minLowerBound <= 0) {
+            return -gap;
+        } else {
+            return minLowerBound;
+        }
+    }
+
+    private int getMaxUpperBound(final List<?> data) {
+        if (data instanceof IChartPanelAwareDatasetList) {
+            final IChartPanelAwareDatasetList cData = (IChartPanelAwareDatasetList) data;
+            return cData.getMaxUpperBound();
+        } else {
+            return data.size() - 1;
+        }
+    }
+
+    private int getMinLowerBound(final List<?> data) {
+        if (data instanceof IChartPanelAwareDatasetList) {
+            final IChartPanelAwareDatasetList cData = (IChartPanelAwareDatasetList) data;
+            return cData.getMinLowerBound();
+        } else {
+            return 0;
+        }
+    }
+
     private Range limitRangeZoom(final Range newRange, final MutableBoolean rangeChanged, final double minLowerBound,
             final double maxUpperBound) {
         Range range = newRange;
@@ -165,13 +251,22 @@ public class PlotZoomHelper {
             rangeChanged.setTrue();
         }
         if (itemCount >= MAX_ZOOM_ITEM_COUNT) {
-            final int gap = MAX_ZOOM_ITEM_COUNT / 2;
-            range = new Range(range.getCentralValue() - gap, range.getCentralValue() + gap);
-            if (range.getUpperBound() > maxUpperBound) {
+            if (range.getUpperBound() >= maxUpperBound) {
+                //limit on upper bound
                 range = new Range(maxUpperBound - MAX_ZOOM_ITEM_COUNT, maxUpperBound);
-            }
-            if (range.getLowerBound() < minLowerBound) {
-                range = new Range(minLowerBound, MAX_ZOOM_ITEM_COUNT);
+            } else if (range.getLowerBound() <= minLowerBound) {
+                //limit on lower bound
+                range = new Range(minLowerBound, minLowerBound + MAX_ZOOM_ITEM_COUNT);
+            } else {
+                //limit in the middle
+                final int gap = MAX_ZOOM_ITEM_COUNT / 2;
+                range = new Range(range.getCentralValue() - gap, range.getCentralValue() + gap);
+                if (range.getUpperBound() > maxUpperBound) {
+                    range = new Range(maxUpperBound - MAX_ZOOM_ITEM_COUNT, maxUpperBound);
+                }
+                if (range.getLowerBound() < minLowerBound) {
+                    range = new Range(minLowerBound, MAX_ZOOM_ITEM_COUNT);
+                }
             }
             rangeChanged.setTrue();
         }

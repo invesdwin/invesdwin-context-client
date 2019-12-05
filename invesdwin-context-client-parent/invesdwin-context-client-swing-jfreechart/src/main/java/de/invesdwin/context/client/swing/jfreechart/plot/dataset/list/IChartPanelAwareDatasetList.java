@@ -6,6 +6,10 @@ public interface IChartPanelAwareDatasetList {
 
     void setChartPanel(InteractiveChartPanel chartPanel);
 
+    int getMinLowerBound();
+
+    int getMaxUpperBound();
+
     void resetRange();
 
 }

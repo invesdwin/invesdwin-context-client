@@ -19,7 +19,6 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
-import java.util.ResourceBundle;
 
 import javax.annotation.concurrent.NotThreadSafe;
 import javax.swing.JPanel;
@@ -40,10 +39,12 @@ import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.PlotRenderingInfo;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.plot.Zoomable;
-import org.jfree.chart.util.ResourceBundleWrapper;
 import org.jfree.data.Range;
 
 import de.invesdwin.context.log.error.Err;
+import de.invesdwin.util.math.Integers;
+import de.invesdwin.util.math.decimal.scaled.Percent;
+import de.invesdwin.util.math.decimal.scaled.PercentScale;
 import de.invesdwin.util.swing.listener.MouseListenerSupport;
 import de.invesdwin.util.swing.listener.MouseMotionListenerSupport;
 
@@ -53,7 +54,6 @@ import de.invesdwin.util.swing.listener.MouseMotionListenerSupport;
  * The panel registers with the chart to receive notification of changes to any component of the chart. The chart is
  * redrawn automatically whenever this notification is received.
  */
-//CHECKSTYLE:OFF
 @NotThreadSafe
 public class CustomChartPanel extends JPanel implements ChartChangeListener, ChartProgressListener {
 
@@ -150,10 +150,6 @@ public class CustomChartPanel extends JPanel implements ChartChangeListener, Cha
     /** A horizontal trace line. */
     private transient Line2D horizontalTraceLine;
 
-    /** The resourceBundle for the localization. */
-    protected static ResourceBundle localizationResources = ResourceBundleWrapper
-            .getBundle("org.jfree.chart.LocalizationBundle");
-
     /**
      * Temporary storage for the width and height of the chart drawing area during panning.
      */
@@ -162,7 +158,8 @@ public class CustomChartPanel extends JPanel implements ChartChangeListener, Cha
     /** The last mouse position during panning. */
     private Point panLast;
 
-    private int allowedRangeGap = 5;
+    private double allowedRangeGapRate = 0.01;
+    private int allowedRangeGapMinimum = 2;
 
     /**
      * Constructs a panel that displays the specified chart.
@@ -227,9 +224,11 @@ public class CustomChartPanel extends JPanel implements ChartChangeListener, Cha
      *
      * @since 1.0.13
      */
+    //CHECKSTYLE:OFF
     public CustomChartPanel(final JFreeChart chart, final int width, final int height, final int minimumDrawWidth,
             final int minimumDrawHeight, final int maximumDrawWidth, final int maximumDrawHeight,
             final boolean useBuffer) {
+        //CHECKSTYLE:ON
 
         setChart(chart);
         this.info = new ChartRenderingInfo();
@@ -509,12 +508,14 @@ public class CustomChartPanel extends JPanel implements ChartChangeListener, Cha
         this.verticalTraceLine = line;
     }
 
-    public int getAllowedRangeGap() {
-        return allowedRangeGap;
+    public int getAllowedRangeGap(final double range) {
+        final int allowedRangeGap = (int) (allowedRangeGapRate * range);
+        return Integers.max(allowedRangeGapMinimum, allowedRangeGap);
     }
 
-    public void setAllowedRangeGap(final int allowedRangeGap) {
-        this.allowedRangeGap = allowedRangeGap;
+    public void setAllowedRangeGap(final int allowedRangeGapMinimum, final Percent allowedRangeGapPercent) {
+        this.allowedRangeGapMinimum = 5;
+        this.allowedRangeGapRate = allowedRangeGapPercent.getValue(PercentScale.RATE);
     }
 
     /**
@@ -619,8 +620,10 @@ public class CustomChartPanel extends JPanel implements ChartChangeListener, Cha
      * @param g
      *            the graphics device for drawing on.
      */
+    //CHECKSTYLE:OFF
     @Override
     public void paintComponent(final Graphics g) {
+        //CHECKSTYLE:ON
         try {
             super.paintComponent(g);
             if (this.chart == null) {
@@ -852,9 +855,8 @@ public class CustomChartPanel extends JPanel implements ChartChangeListener, Cha
      */
     public Rectangle2D getScreenDataArea(final int x, final int y) {
         final PlotRenderingInfo plotInfo = this.info.getPlotInfo();
-        Rectangle2D result;
         if (plotInfo.getSubplotCount() == 0) {
-            result = getScreenDataArea();
+            return getScreenDataArea();
         } else {
             // get the origin of the zoom selection in the Java2D space used for
             // drawing the chart (that is, before any scaling to fit the panel)
@@ -863,9 +865,8 @@ public class CustomChartPanel extends JPanel implements ChartChangeListener, Cha
             if (subplotIndex == -1) {
                 return null;
             }
-            result = scale(plotInfo.getSubplotInfo(subplotIndex).getDataArea());
+            return scale(plotInfo.getSubplotInfo(subplotIndex).getDataArea());
         }
-        return result;
     }
 
     /**
@@ -1034,10 +1035,11 @@ public class CustomChartPanel extends JPanel implements ChartChangeListener, Cha
                 final XYPlot plot = chart.getXYPlot();
                 final ValueAxis domainAxis = plot.getDomainAxis();
                 final Range range = domainAxis.getRange();
-                if (wPercent > 0 && range.getUpperBound() >= plot.getDataset().getItemCount(0) + allowedRangeGap) {
+                final int gap = getAllowedRangeGap(range.getLength());
+                if (wPercent > 0 && range.getUpperBound() >= plot.getDataset().getItemCount(0) + gap) {
                     return;
                 }
-                if (wPercent < 0 && range.getLowerBound() <= 0 - allowedRangeGap) {
+                if (wPercent < 0 && range.getLowerBound() <= 0 - gap) {
                     return;
                 }
                 final boolean old = chart.getPlot().isNotify();

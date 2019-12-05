@@ -148,8 +148,6 @@ public class InteractiveChartPanel extends JPanel {
 
         };
 
-        chartPanel.setAllowedRangeGap(2);
-
         new JFreeChartLocaleChanger().process(chart);
 
         setLayout(new GridLayout());
@@ -159,7 +157,13 @@ public class InteractiveChartPanel extends JPanel {
             final IChartPanelAwareDatasetList cData = (IChartPanelAwareDatasetList) masterDataset.getData();
             cData.setChartPanel(this);
         }
-        resetRange(getInitialVisibleItemCount());
+        finalizer.executorUpdateLimit.execute(new Runnable() {
+            @Override
+            public void run() {
+                //prevent blocking component initialization
+                resetRange(getInitialVisibleItemCount());
+            }
+        });
     }
 
     public void initialize() {
@@ -200,8 +204,8 @@ public class InteractiveChartPanel extends JPanel {
         return plotPanHelper;
     }
 
-    public int getAllowedRangeGap() {
-        return chartPanel.getAllowedRangeGap();
+    public int getAllowedRangeGap(final double range) {
+        return chartPanel.getAllowedRangeGap(range);
     }
 
     public IndexedDateTimeOHLCDataset getMasterDataset() {
@@ -262,9 +266,11 @@ public class InteractiveChartPanel extends JPanel {
     }
 
     protected void doResetRange(final int visibleItemCount) {
-        final int minLowerBound = -chartPanel.getAllowedRangeGap();
-        final int lowerBound = masterDataset.getItemCount(0) - visibleItemCount;
-        final int upperBound = masterDataset.getItemCount(0) + chartPanel.getAllowedRangeGap();
+        final int gap = chartPanel.getAllowedRangeGap(visibleItemCount);
+        final int minLowerBound = -gap;
+        final int lastItemIndex = masterDataset.getItemCount(0) - 1;
+        final int lowerBound = lastItemIndex - visibleItemCount;
+        final int upperBound = lastItemIndex + gap;
         final Range range = new Range(Doubles.max(minLowerBound, lowerBound), upperBound);
         domainAxis.setRange(range);
     }
