@@ -92,9 +92,7 @@ public class PlotZoomHelper {
             plot.setNotify(false);
             plot.zoomDomainAxes(zoomFactor, pinfo, point, true);
 
-            final double anchor = plot.getDomainAxis()
-                    .java2DToValue(point.getX(), pinfo.getDataArea(), plot.getDomainAxisEdge());
-            applyEdgeAnchor(rangeBefore, lengthBefore, anchor);
+            applyEdgeAnchor(rangeBefore, lengthBefore, point.getX(), pinfo.getDataArea().getWidth());
             plot.setNotify(notifyState); // this generates the change event too
             chartPanel.update();
         } finally {
@@ -102,14 +100,15 @@ public class PlotZoomHelper {
         }
     }
 
-    private void applyEdgeAnchor(final Range rangeBefore, final int lengthBefore, final double anchor) {
+    private void applyEdgeAnchor(final Range rangeBefore, final int lengthBefore, final double anchor,
+            final double width) {
         final Range rangeAfter = chartPanel.getDomainAxis().getRange();
         final double lengthAfter = rangeAfter.getLength();
         final List<? extends OHLCDataItem> data = chartPanel.getMasterDataset().getData();
         final double minLowerBound = getMinLowerBound(data);
         final double maxUpperBound = getMaxUpperBound(data);
-        final double anchorUpperEdgeTolerance = rangeAfter.getUpperBound() - (lengthBefore * (EDGE_ANCHOR_TOLERANCE));
         final int gapAfter = chartPanel.getAllowedRangeGap(lengthAfter);
+        final double anchorUpperEdgeTolerance = width - (width * EDGE_ANCHOR_TOLERANCE);
         if (anchor >= anchorUpperEdgeTolerance) {
             if (rangeBefore.getUpperBound() >= maxUpperBound) {
                 //limit on max upper bound
@@ -124,7 +123,7 @@ public class PlotZoomHelper {
             }
 
         } else {
-            final double anchorLowerEdgeTolerance = rangeAfter.getLowerBound() + (lengthBefore * EDGE_ANCHOR_TOLERANCE);
+            final double anchorLowerEdgeTolerance = width * EDGE_ANCHOR_TOLERANCE;
             if (anchor <= anchorLowerEdgeTolerance) {
                 if (rangeBefore.getLowerBound() <= minLowerBound) {
                     //limit on min lower bound
