@@ -1,6 +1,8 @@
 package de.invesdwin.context.client.swing.impl.content;
 
 import java.awt.GridLayout;
+import java.awt.KeyEventDispatcher;
+import java.awt.KeyboardFocusManager;
 import java.awt.event.KeyEvent;
 
 import javax.annotation.concurrent.NotThreadSafe;
@@ -33,6 +35,10 @@ public class ContentPaneView extends AView<ContentPaneView, JPanel> {
     private CControl control;
     private CWorkingArea defaultWorkingArea;
     private CContentArea contentArea;
+    private boolean controlDown;
+    private boolean metaDown;
+    private boolean shiftDown;
+    private boolean altDown;
 
     @Override
     protected JPanel initComponent() {
@@ -77,6 +83,44 @@ public class ContentPaneView extends AView<ContentPaneView, JPanel> {
         final JPanel panel = new JPanel();
         panel.setLayout(new GridLayout());
         panel.add(contentArea);
+
+        final KeyboardFocusManager manager = KeyboardFocusManager.getCurrentKeyboardFocusManager();
+        manager.addKeyEventDispatcher(new KeyEventDispatcher() {
+            @Override
+            public boolean dispatchKeyEvent(final KeyEvent e) {
+                switch (e.getID()) {
+                case KeyEvent.KEY_PRESSED:
+                    updateKeyDown(e, true);
+                    break;
+                case KeyEvent.KEY_RELEASED:
+                    updateKeyDown(e, false);
+                    break;
+                default:
+                    break;
+                }
+                return false;
+            }
+
+            private void updateKeyDown(final KeyEvent e, final boolean state) {
+                switch (e.getKeyCode()) {
+                case KeyEvent.VK_META:
+                    metaDown = state;
+                    break;
+                case KeyEvent.VK_CONTROL:
+                    controlDown = state;
+                    break;
+                case KeyEvent.VK_SHIFT:
+                    shiftDown = state;
+                    break;
+                case KeyEvent.VK_ALT:
+                    altDown = state;
+                    break;
+                default:
+                    break;
+                }
+            }
+        });
+
         return panel;
     }
 
@@ -143,5 +187,21 @@ public class ContentPaneView extends AView<ContentPaneView, JPanel> {
 
     public CWorkingArea getDefaultWorkingArea() {
         return defaultWorkingArea;
+    }
+
+    public boolean isControlDown() {
+        return controlDown;
+    }
+
+    public boolean isShiftDown() {
+        return shiftDown;
+    }
+
+    public boolean isAltDown() {
+        return altDown;
+    }
+
+    public boolean isMetaDown() {
+        return metaDown;
     }
 }

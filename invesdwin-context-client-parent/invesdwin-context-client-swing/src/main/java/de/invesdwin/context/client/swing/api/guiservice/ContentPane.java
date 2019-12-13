@@ -139,4 +139,20 @@ public class ContentPane {
         content.requestFocus();
     }
 
+    public boolean isControlDown() {
+        return contentPaneView.isControlDown();
+    }
+
+    public boolean isShiftDown() {
+        return contentPaneView.isShiftDown();
+    }
+
+    public boolean isAltDown() {
+        return contentPaneView.isAltDown();
+    }
+
+    public boolean isMetaDown() {
+        return contentPaneView.isMetaDown();
+    }
+
 }

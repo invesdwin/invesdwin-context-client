@@ -60,4 +60,12 @@ public interface IGuiService {
      */
     Window getWindow();
 
+    boolean isControlDown();
+
+    boolean isAltDown();
+
+    boolean isShiftDown();
+
+    boolean isMetaDown();
+
 }

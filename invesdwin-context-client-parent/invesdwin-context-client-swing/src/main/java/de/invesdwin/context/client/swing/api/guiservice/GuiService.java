@@ -162,4 +162,24 @@ public class GuiService implements IGuiService {
         SubmitAllViewsHelper.submitAllViews(component);
     }
 
+    @Override
+    public boolean isControlDown() {
+        return getContentPane().isControlDown();
+    }
+
+    @Override
+    public boolean isShiftDown() {
+        return getContentPane().isShiftDown();
+    }
+
+    @Override
+    public boolean isAltDown() {
+        return getContentPane().isAltDown();
+    }
+
+    @Override
+    public boolean isMetaDown() {
+        return getContentPane().isMetaDown();
+    }
+
 }
