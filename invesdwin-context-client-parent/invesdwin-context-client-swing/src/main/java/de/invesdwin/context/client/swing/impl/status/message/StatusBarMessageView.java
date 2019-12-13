@@ -13,6 +13,7 @@ import de.invesdwin.aspects.EventDispatchThreadUtil;
 import de.invesdwin.context.client.swing.api.view.AView;
 import de.invesdwin.util.lang.Strings;
 import de.invesdwin.util.swing.Components;
+import de.invesdwin.util.swing.MouseEnteredListener;
 import de.invesdwin.util.time.duration.Duration;
 
 @SuppressWarnings("serial")
@@ -20,6 +21,7 @@ import de.invesdwin.util.time.duration.Duration;
 public class StatusBarMessageView extends AView<StatusBarMessageView, JPanel> {
 
     private JLabel lblMessage;
+    private MouseEnteredListener lblMessage_mouseEnteredListener;
 
     /**
      * @wbp.parser.entryPoint
@@ -48,6 +50,8 @@ public class StatusBarMessageView extends AView<StatusBarMessageView, JPanel> {
             }
         });
 
+        lblMessage_mouseEnteredListener = MouseEnteredListener.get(lblMessage);
+
         component.add(lblMessage, BorderLayout.CENTER);
         component.setVisible(false);
         return component;
@@ -62,12 +66,14 @@ public class StatusBarMessageView extends AView<StatusBarMessageView, JPanel> {
                         lblMessage.setForeground(color);
                         if (Strings.isNotBlank(text)) {
                             lblMessage.setText(text);
-                            Components.setToolTipText(lblMessage, text);
+                            Components.setToolTipText(lblMessage, text,
+                                    lblMessage_mouseEnteredListener.isMouseEntered());
                             StatusBarMessageTimeoutThread.startInstance(timeout);
                             getComponent().setVisible(true);
                         } else {
                             lblMessage.setText(null);
-                            Components.setToolTipText(lblMessage, null);
+                            Components.setToolTipText(lblMessage, null,
+                                    lblMessage_mouseEnteredListener.isMouseEntered());
                             StatusBarMessageTimeoutThread.stopInstance();
                             getComponent().setVisible(false);
                         }

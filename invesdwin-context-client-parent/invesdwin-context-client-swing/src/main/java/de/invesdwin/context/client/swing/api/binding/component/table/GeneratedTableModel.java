@@ -153,4 +153,10 @@ public class GeneratedTableModel extends AbstractTableModel {
         return rows;
     }
 
+    public String getTooltipAt(final int rowIndex, final int columnIndex) {
+        final ITableColumnBeanPathElement column = columns.get(columnIndex);
+        final Object row = rows.get(rowIndex);
+        return bindingGroup.i18n(column.getTooltip(row));
+    }
+
 }

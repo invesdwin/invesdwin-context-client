@@ -6,12 +6,14 @@ import java.util.Optional;
 import javax.annotation.concurrent.NotThreadSafe;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
+import javax.swing.table.TableCellRenderer;
 
 import de.invesdwin.context.client.swing.api.binding.BindingGroup;
 import de.invesdwin.context.client.swing.api.binding.component.AComponentBinding;
 import de.invesdwin.context.client.swing.api.view.AModel;
 import de.invesdwin.norva.beanpath.spi.element.ATableBeanPathElement;
 import de.invesdwin.norva.beanpath.spi.element.simple.modifier.IBeanPathPropertyModifier;
+import de.invesdwin.util.swing.Components;
 
 @NotThreadSafe
 public class TableChoiceBinding extends AComponentBinding<JTable, List<?>> {
@@ -48,6 +50,14 @@ public class TableChoiceBinding extends AComponentBinding<JTable, List<?>> {
         if (selectionBinding != null) {
             bindingGroup.addBinding(selectionBinding);
         }
+
+        final TableCellRenderer defaultRenderer = component.getDefaultRenderer(Object.class);
+        for (final Class<?> type : new Class<?>[] { Object.class, Number.class, String.class }) {
+            component.setDefaultRenderer(type, new GeneratedTableCellRenderer(tableModel, defaultRenderer));
+            component.setDefaultEditor(type, null);
+        }
+        component.setDefaultRenderer(Boolean.class,
+                new GeneratedTableCellRenderer(tableModel, component.getDefaultRenderer(Boolean.class)));
     }
 
     protected TableSelectionBinding configureSelectionMode(final JTable component) {
@@ -97,6 +107,9 @@ public class TableChoiceBinding extends AComponentBinding<JTable, List<?>> {
         tableModel.fromModelToComponent(modelValue);
         if (selectionBinding != null) {
             selectionBinding.update();
+        }
+        if (mouseEnteredListener.isMouseEntered()) {
+            Components.updateToolTip(component);
         }
         return Optional.ofNullable(modelValue);
     }

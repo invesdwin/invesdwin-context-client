@@ -23,6 +23,7 @@ import de.invesdwin.norva.beanpath.spi.element.AActionBeanPathElement;
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.lang.Strings;
 import de.invesdwin.util.swing.Components;
+import de.invesdwin.util.swing.MouseEnteredListener;
 
 @NotThreadSafe
 public class SubmitButtonBinding implements IComponentBinding {
@@ -33,6 +34,7 @@ public class SubmitButtonBinding implements IComponentBinding {
     private final Runnable submitRunnable;
     private final Border originalBorder;
     private String showingInvalidMessage;
+    private final MouseEnteredListener mouseEnteredListener;
 
     public SubmitButtonBinding(final AbstractButton component, final AActionBeanPathElement element,
             final BindingGroup bindingGroup) {
@@ -47,6 +49,7 @@ public class SubmitButtonBinding implements IComponentBinding {
             }
         });
         this.originalBorder = component.getBorder();
+        this.mouseEnteredListener = MouseEnteredListener.get(component);
     }
 
     private Runnable newSubmitRunnable() {
@@ -209,10 +212,11 @@ public class SubmitButtonBinding implements IComponentBinding {
             } else {
                 combinedTooltip = showingInvalidMessage;
             }
-            Components.setToolTipText(component, combinedTooltip);
+            Components.setToolTipText(component, combinedTooltip, mouseEnteredListener.isMouseEntered());
         } else {
             Components.setBorder(component, originalBorder);
-            Components.setToolTipText(component, bindingGroup.i18n(element.getTooltip(target)));
+            Components.setToolTipText(component, bindingGroup.i18n(element.getTooltip(target)),
+                    mouseEnteredListener.isMouseEntered());
         }
     }
 

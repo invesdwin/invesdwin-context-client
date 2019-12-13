@@ -26,6 +26,7 @@ import de.invesdwin.context.client.swing.api.task.EstimatedRemainingDurationTask
 import de.invesdwin.context.client.swing.api.view.AView;
 import de.invesdwin.util.lang.Strings;
 import de.invesdwin.util.swing.Components;
+import de.invesdwin.util.swing.MouseEnteredListener;
 import de.invesdwin.util.time.duration.Duration;
 import de.invesdwin.util.time.fdate.FTimeUnit;
 
@@ -37,8 +38,11 @@ public class StatusBarTaskView extends AView<StatusBarTaskView, JPanel> implemen
     private static final Duration ETA_THRESHOLD = new Duration(10, FTimeUnit.SECONDS);
     private TaskMonitor taskMonitor;
     private JLabel lblForegroundTask;
+    private MouseEnteredListener lblForegroundTask_mouseEnteredListener;
     private JLabel lblTasks;
+    private MouseEnteredListener lblTasks_mouseEnteredListener;
     private JProgressBar pgbForegroundTask;
+    private MouseEnteredListener pgbForegroundTask_mouseEnteredListener;
     private JPanel pnlProgress;
 
     /**
@@ -55,6 +59,7 @@ public class StatusBarTaskView extends AView<StatusBarTaskView, JPanel> implemen
         lblForegroundTask = new JLabel("");
         lblForegroundTask.setVerticalAlignment(SwingConstants.BOTTOM);
         component.add(lblForegroundTask, BorderLayout.WEST);
+        lblForegroundTask_mouseEnteredListener = MouseEnteredListener.get(lblForegroundTask);
 
         pnlProgress = new JPanel();
         pnlProgress.setMinimumSize(new Dimension(0, 0));
@@ -64,10 +69,12 @@ public class StatusBarTaskView extends AView<StatusBarTaskView, JPanel> implemen
         pgbForegroundTask = new JProgressBar();
         pnlProgress.add(pgbForegroundTask, BorderLayout.SOUTH);
         pgbForegroundTask.setMinimumSize(new Dimension(0, 0));
+        pgbForegroundTask_mouseEnteredListener = MouseEnteredListener.get(pgbForegroundTask);
 
         lblTasks = new JLabel("");
         lblTasks.setVerticalAlignment(SwingConstants.BOTTOM);
         component.add(lblTasks, BorderLayout.EAST);
+        lblTasks_mouseEnteredListener = MouseEnteredListener.get(lblTasks);
 
         calculateProgressbarPreferredSize();
         final List<Task<?, ?>> tasks = (List) taskMonitor.getTasks();
@@ -117,7 +124,8 @@ public class StatusBarTaskView extends AView<StatusBarTaskView, JPanel> implemen
                 tooltip.append("<hr>");
                 tooltip.append(task.getDescription());
             }
-            Components.setToolTipText(lblForegroundTask, tooltip.toString());
+            Components.setToolTipText(lblForegroundTask, tooltip.toString(),
+                    lblForegroundTask_mouseEnteredListener.isMouseEntered());
 
             if (task.isProgressPropertyValid()) {
                 pgbForegroundTask.setIndeterminate(false);
@@ -128,10 +136,11 @@ public class StatusBarTaskView extends AView<StatusBarTaskView, JPanel> implemen
             pnlProgress.setVisible(true);
         } else {
             lblForegroundTask.setText(null);
-            Components.setToolTipText(lblForegroundTask, null);
+            Components.setToolTipText(lblForegroundTask, null, lblForegroundTask_mouseEnteredListener.isMouseEntered());
             pnlProgress.setVisible(false);
         }
-        Components.setToolTipText(pgbForegroundTask, lblForegroundTask.getToolTipText());
+        Components.setToolTipText(pgbForegroundTask, lblForegroundTask.getToolTipText(),
+                pgbForegroundTask_mouseEnteredListener.isMouseEntered());
     }
 
     private Task<?, ?> determineForegroundTask(final Task<?, ?> foregroundTask, final List<Task<?, ?>> tasks) {
@@ -170,13 +179,13 @@ public class StatusBarTaskView extends AView<StatusBarTaskView, JPanel> implemen
                     tooltip.append("<br>");
                 }
             }
-            Components.setToolTipText(lblTasks, tooltip.toString());
+            Components.setToolTipText(lblTasks, tooltip.toString(), lblTasks_mouseEnteredListener.isMouseEntered());
         } else if (tasks.size() == 1) {
             lblTasks.setText(" ");
-            Components.setToolTipText(lblTasks, null);
+            Components.setToolTipText(lblTasks, null, lblTasks_mouseEnteredListener.isMouseEntered());
         } else {
             lblTasks.setText(null);
-            Components.setToolTipText(lblTasks, null);
+            Components.setToolTipText(lblTasks, null, lblTasks_mouseEnteredListener.isMouseEntered());
         }
     }
 

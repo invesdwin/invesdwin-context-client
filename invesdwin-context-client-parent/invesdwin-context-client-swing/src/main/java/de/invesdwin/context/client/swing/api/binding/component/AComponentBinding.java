@@ -20,6 +20,7 @@ import de.invesdwin.norva.beanpath.spi.element.simple.modifier.IBeanPathProperty
 import de.invesdwin.norva.beanpath.spi.element.utility.ValidateBeanPathElement;
 import de.invesdwin.util.lang.Strings;
 import de.invesdwin.util.swing.Components;
+import de.invesdwin.util.swing.MouseEnteredListener;
 
 @NotThreadSafe
 public abstract class AComponentBinding<C extends JComponent, V> implements IComponentBinding {
@@ -36,12 +37,13 @@ public abstract class AComponentBinding<C extends JComponent, V> implements ICom
     protected final BindingGroup bindingGroup;
     protected final Runnable eagerSubmitRunnable;
     protected final Border originalBorder;
+    protected final MouseEnteredListener mouseEnteredListener;
     protected Optional<V> prevModelValue;
-    protected boolean submitted = false;
-    protected String invalidMessage = null;
-    protected String showingInvalidMessage = null;
-    protected boolean updating = false;
-    private boolean frozen;
+    protected boolean submitted;
+    protected String invalidMessage;
+    protected String showingInvalidMessage;
+    protected boolean updating;
+    protected boolean frozen;
 
     public AComponentBinding(final C component, final APropertyBeanPathElement element,
             final BindingGroup bindingGroup) {
@@ -51,6 +53,7 @@ public abstract class AComponentBinding<C extends JComponent, V> implements ICom
         this.bindingGroup = bindingGroup;
         this.eagerSubmitRunnable = newEagerSubmitRunnable();
         this.originalBorder = component.getBorder();
+        this.mouseEnteredListener = MouseEnteredListener.get(component);
     }
 
     protected BindingGroup getBindingGroup() {
@@ -288,7 +291,7 @@ public abstract class AComponentBinding<C extends JComponent, V> implements ICom
     }
 
     protected void setToolTipText(final String toolTipText) {
-        Components.setToolTipText(component, toolTipText);
+        Components.setToolTipText(component, toolTipText, mouseEnteredListener.isMouseEntered());
     }
 
     protected void setEnabled(final boolean enabled) {

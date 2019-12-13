@@ -14,6 +14,7 @@ import de.invesdwin.util.math.decimal.scaled.ByteSizeScale;
 import de.invesdwin.util.math.decimal.scaled.Percent;
 import de.invesdwin.util.math.decimal.scaled.PercentScale;
 import de.invesdwin.util.swing.Components;
+import de.invesdwin.util.swing.MouseEnteredListener;
 import de.invesdwin.util.time.duration.Duration;
 import de.invesdwin.util.time.fdate.FTimeUnit;
 
@@ -29,6 +30,8 @@ import de.invesdwin.util.time.fdate.FTimeUnit;
 public class HeapIndicator extends JProgressBar {
 
     private static final int TIMER_INTERVAL_IN_MS = new Duration(1, FTimeUnit.SECONDS).intValue(FTimeUnit.MILLISECONDS);
+
+    private final MouseEnteredListener mouseEnteredListener;
 
     public HeapIndicator() {
         super(0, 100);
@@ -50,6 +53,7 @@ public class HeapIndicator extends JProgressBar {
             }
         });
         t.start();
+        this.mouseEnteredListener = MouseEnteredListener.get(this);
         update();
     }
 
@@ -68,7 +72,7 @@ public class HeapIndicator extends JProgressBar {
 
         setValue(usedPercentage);
         setString(textToShow);
-        Components.setToolTipText(this, toolTipToShow);
+        Components.setToolTipText(this, toolTipToShow, mouseEnteredListener.isMouseEntered());
     }
 
     private String toGigaBytes(final ByteSize byteSize) {
