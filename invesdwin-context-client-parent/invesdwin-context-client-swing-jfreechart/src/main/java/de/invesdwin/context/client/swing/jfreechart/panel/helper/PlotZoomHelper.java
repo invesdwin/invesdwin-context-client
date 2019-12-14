@@ -1,22 +1,34 @@
 package de.invesdwin.context.client.swing.jfreechart.panel.helper;
 
+import java.awt.Font;
+import java.awt.Graphics2D;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
 import java.util.List;
 import java.util.Set;
 
 import javax.annotation.concurrent.NotThreadSafe;
+import javax.swing.Timer;
 
 import org.apache.commons.lang3.mutable.MutableBoolean;
 import org.jfree.chart.ChartRenderingInfo;
+import org.jfree.chart.annotations.XYAnnotation;
+import org.jfree.chart.annotations.XYTitleAnnotation;
 import org.jfree.chart.axis.NumberAxis;
+import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.plot.PlotRenderingInfo;
 import org.jfree.chart.plot.XYPlot;
+import org.jfree.chart.title.TextTitle;
+import org.jfree.chart.ui.RectangleAnchor;
 import org.jfree.data.Range;
 import org.jfree.data.xy.OHLCDataItem;
 
 import de.invesdwin.context.client.swing.jfreechart.panel.InteractiveChartPanel;
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.listener.IRangeListener;
+import de.invesdwin.context.client.swing.jfreechart.plot.annotation.priceline.XYPriceLineAnnotation;
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.list.IChartPanelAwareDatasetList;
 import de.invesdwin.util.collections.factory.ILockCollectionFactory;
 import de.invesdwin.util.collections.fast.IFastIterableSet;
@@ -28,8 +40,10 @@ import de.invesdwin.util.time.fdate.FTimeUnit;
 @NotThreadSafe
 public class PlotZoomHelper {
 
-    public static final int MAX_ZOOM_ITEM_COUNT = 10_000;
+    public static final int MAX_ZOOM_ITEM_COUNT = 100_000;
     private static final int MIN_ZOOM_ITEM_COUNT = 10;
+    private static final Duration ZOOM_ANNOTATION_TIMEOUT = new Duration(500, FTimeUnit.MILLISECONDS);
+    private static final Font ZOOM_ANNOTATION_FONT = XYPriceLineAnnotation.FONT;
 
     private static final double ZOOM_FACTOR = 0.1D;
     private static final double ZOOM_OUT_FACTOR = 1D + ZOOM_FACTOR;
@@ -39,12 +53,48 @@ public class PlotZoomHelper {
     private Instant lastZoomable = new Instant();
 
     private final InteractiveChartPanel chartPanel;
+    private final XYAnnotation zoomAnnotation;
+    private final TextTitle zoomTitle;
+    private final Timer zoomTitleTimer;
 
     private final IFastIterableSet<IRangeListener> rangeListeners = ILockCollectionFactory.getInstance(false)
             .newFastIterableLinkedSet();
 
     public PlotZoomHelper(final InteractiveChartPanel chartPanel) {
         this.chartPanel = chartPanel;
+        this.zoomTitle = new TextTitle("", ZOOM_ANNOTATION_FONT);
+        this.zoomAnnotation = new XYTitleAnnotation(0.99, 0.9875, zoomTitle, RectangleAnchor.TOP_RIGHT) {
+
+            @Override
+            public void draw(final Graphics2D g2, final XYPlot plot, final Rectangle2D dataArea,
+                    final ValueAxis domainAxis, final ValueAxis rangeAxis, final int rendererIndex,
+                    final PlotRenderingInfo info) {
+                if (lastZoomable.isGreaterThan(ZOOM_ANNOTATION_TIMEOUT)) {
+                    return;
+                }
+                final double length = plot.getDomainAxis().getRange().getLength();
+                if (length >= MAX_ZOOM_ITEM_COUNT || length >= chartPanel.getMasterDataset().getData().size()) {
+                    zoomTitle.setText("Zoom: MAX");
+                } else if (length <= MIN_ZOOM_ITEM_COUNT) {
+                    zoomTitle.setText("Zoom: MIN");
+                } else {
+                    return;
+                }
+                super.draw(g2, plot, dataArea, domainAxis, rangeAxis, rendererIndex, info);
+            }
+        };
+        zoomTitleTimer = new Timer(ZOOM_ANNOTATION_TIMEOUT.intValue(FTimeUnit.MILLISECONDS) * 2, new ActionListener() {
+            @Override
+            public void actionPerformed(final ActionEvent e) {
+                chartPanel.repaint();
+            }
+        });
+        zoomTitleTimer.setRepeats(false);
+    }
+
+    public void init() {
+        final XYPlot plot = this.chartPanel.getCombinedPlot().getMainPlot();
+        plot.addAnnotation(zoomAnnotation);
     }
 
     public void mouseWheelMoved(final MouseWheelEvent e) {
@@ -68,6 +118,7 @@ public class PlotZoomHelper {
                 return;
             }
             lastZoomable = new Instant();
+            zoomTitleTimer.restart();
         }
         final XYPlot plot = (XYPlot) this.chartPanel.getChart().getPlot();
 
@@ -82,6 +133,7 @@ public class PlotZoomHelper {
         final int lengthBefore = (int) rangeBefore.getLength();
         if (lengthBefore >= MAX_ZOOM_ITEM_COUNT && zoomFactor == ZOOM_OUT_FACTOR
                 || lengthBefore <= MIN_ZOOM_ITEM_COUNT && zoomFactor == ZOOM_IN_FACTOR) {
+            chartPanel.repaint();
             return;
         }
 

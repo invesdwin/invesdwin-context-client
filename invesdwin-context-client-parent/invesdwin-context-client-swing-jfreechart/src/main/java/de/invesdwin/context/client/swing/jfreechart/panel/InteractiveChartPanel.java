@@ -149,6 +149,7 @@ public class InteractiveChartPanel extends JPanel {
         };
 
         new JFreeChartLocaleChanger().process(chart);
+        plotZoomHelper.init();
 
         setLayout(new GridLayout());
         add(chartPanel);
@@ -322,7 +323,7 @@ public class InteractiveChartPanel extends JPanel {
                                 } finally {
                                     decrementUpdatingCount();
                                 }
-                                updateCrosshair();
+                                repaint();
                             }
 
                         });
@@ -335,7 +336,7 @@ public class InteractiveChartPanel extends JPanel {
         }
     }
 
-    private void updateCrosshair() {
+    public void repaint() {
         Components.triggerMouseMoved(InteractiveChartPanel.this, mouseMotionListener);
     }
 
