@@ -32,6 +32,7 @@ import de.invesdwin.context.client.swing.jfreechart.plot.annotation.priceline.XY
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.list.IChartPanelAwareDatasetList;
 import de.invesdwin.util.collections.factory.ILockCollectionFactory;
 import de.invesdwin.util.collections.fast.IFastIterableSet;
+import de.invesdwin.util.lang.Strings;
 import de.invesdwin.util.math.Doubles;
 import de.invesdwin.util.time.Instant;
 import de.invesdwin.util.time.duration.Duration;
@@ -78,6 +79,7 @@ public class PlotZoomHelper {
                 } else if (length <= MIN_ZOOM_ITEM_COUNT) {
                     zoomTitle.setText("Zoom: MIN");
                 } else {
+                    zoomTitle.setText("");
                     return;
                 }
                 super.draw(g2, plot, dataArea, domainAxis, rangeAxis, rendererIndex, info);
@@ -86,7 +88,9 @@ public class PlotZoomHelper {
         zoomTitleTimer = new Timer(ZOOM_ANNOTATION_TIMEOUT.intValue(FTimeUnit.MILLISECONDS) * 2, new ActionListener() {
             @Override
             public void actionPerformed(final ActionEvent e) {
-                chartPanel.repaint();
+                if (Strings.isNotBlank(zoomTitle.getText())) {
+                    chartPanel.repaint();
+                }
             }
         });
         zoomTitleTimer.setRepeats(false);
@@ -195,15 +199,21 @@ public class PlotZoomHelper {
     public void zoomOut() {
         final ChartRenderingInfo info = this.chartPanel.getChartPanel().getChartRenderingInfo();
         final PlotRenderingInfo pinfo = info.getPlotInfo();
-        handleZoomable(new Point2D.Double(pinfo.getDataArea().getMaxX() - 1, pinfo.getDataArea().getCenterY()),
-                ZOOM_OUT_FACTOR);
+        Point2D point = chartPanel.getPlotCrosshairHelper().getCrosshairLastMousePoint();
+        if (point == null) {
+            point = new Point2D.Double(pinfo.getDataArea().getMaxX() - 1, pinfo.getDataArea().getCenterY());
+        }
+        handleZoomable(point, ZOOM_OUT_FACTOR);
     }
 
     public void zoomIn() {
         final ChartRenderingInfo info = this.chartPanel.getChartPanel().getChartRenderingInfo();
         final PlotRenderingInfo pinfo = info.getPlotInfo();
-        handleZoomable(new Point2D.Double(pinfo.getDataArea().getMaxX() - 1, pinfo.getDataArea().getCenterY()),
-                ZOOM_IN_FACTOR);
+        Point2D point = chartPanel.getPlotCrosshairHelper().getCrosshairLastMousePoint();
+        if (point == null) {
+            point = new Point2D.Double(pinfo.getDataArea().getMaxX() - 1, pinfo.getDataArea().getCenterY());
+        }
+        handleZoomable(point, ZOOM_IN_FACTOR);
     }
 
     public Set<IRangeListener> getRangeListeners() {

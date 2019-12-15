@@ -9,12 +9,10 @@ import java.util.ListIterator;
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
-import de.invesdwin.util.collections.fast.concurrent.SynchronizedList;
-
 @ThreadSafe
 public abstract class ALazyDatasetList<E> implements List<E> {
 
-    @GuardedBy("self")
+    @GuardedBy("no synchronization for performance reasons, get handles exceptions")
     private List<E> data;
 
     public ALazyDatasetList() {
@@ -26,9 +24,9 @@ public abstract class ALazyDatasetList<E> implements List<E> {
             return data;
         }
         if (data != null) {
-            data = new SynchronizedList<E>(new ArrayList<>(data.size()));
+            data = new ArrayList<>(data.size());
         } else {
-            data = new SynchronizedList<E>(new ArrayList<>());
+            data = new ArrayList<>();
         }
         return data;
     }
@@ -123,19 +121,21 @@ public abstract class ALazyDatasetList<E> implements List<E> {
 
     @Override
     public E get(final int index) {
-        final E value = getSynchronized(index);
-        if (value == null) {
-            return dummyValue();
-        }
-        return value;
-    }
-
-    private E getSynchronized(final int index) {
-        synchronized (data) {
-            try {
-                return data.get(Math.min(index, data.size() - 1));
-            } catch (final IndexOutOfBoundsException e) {
+        try {
+            if (index < 0) {
+                return data.get(0);
+            }
+            return data.get(index);
+        } catch (final Throwable e) {
+            final int size = data.size();
+            if (size == 0) {
                 return dummyValue();
+            } else {
+                try {
+                    return data.get(size - 1);
+                } catch (final Throwable e1) {
+                    return dummyValue();
+                }
             }
         }
     }

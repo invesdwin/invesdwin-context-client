@@ -183,6 +183,14 @@ public class PlotCrosshairHelper {
         crosshairLastMouseY = -1;
     }
 
+    public Point2D getCrosshairLastMousePoint() {
+        if (crosshairLastMouseX <= -1) {
+            return null;
+        } else {
+            return new Point2D.Double(crosshairLastMouseX, crosshairLastMouseY);
+        }
+    }
+
     private void disableCrosshair(final XYPlot subplot) {
         disableRangeCrosshair(subplot);
         subplot.setDomainCrosshairLockedOnData(false);
