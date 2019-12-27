@@ -58,6 +58,9 @@ public class HeapIndicator extends JProgressBar {
     }
 
     private void update() {
+        if (!isShowing()) {
+            return;
+        }
         final Runtime jvmRuntime = Runtime.getRuntime();
         final ByteSize totalMemory = new ByteSize(jvmRuntime.totalMemory(), ByteSizeScale.BYTES);
         final ByteSize maxMemory = new ByteSize(jvmRuntime.maxMemory(), ByteSizeScale.BYTES);
