@@ -1,6 +1,5 @@
 package de.invesdwin.context.client.wicket.generated.markup.internal;
 
-import java.awt.Dimension;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -18,6 +17,7 @@ import de.invesdwin.norva.beanpath.annotation.Disabled;
 import de.invesdwin.norva.beanpath.annotation.Eager;
 import de.invesdwin.norva.beanpath.annotation.Forced;
 import de.invesdwin.norva.beanpath.annotation.ModalCloser;
+import de.invesdwin.nowicket.component.modal.ModalConfig;
 import de.invesdwin.nowicket.component.modal.panel.ModalMessage;
 import de.invesdwin.nowicket.generated.guiservice.GuiService;
 import de.invesdwin.nowicket.generated.markup.annotation.GeneratedMarkup;
@@ -215,7 +215,7 @@ public class AnotherSampleModel extends AValueObject {
     }
 
     public void showUnorderedListModal() {
-        GuiService.get().showModalPanel(new UnorderedListModel(), new Dimension(800, 600));
+        GuiService.get().showModalPanel(new UnorderedListModel(), new ModalConfig(800, 600));
     }
 
     @Forced
