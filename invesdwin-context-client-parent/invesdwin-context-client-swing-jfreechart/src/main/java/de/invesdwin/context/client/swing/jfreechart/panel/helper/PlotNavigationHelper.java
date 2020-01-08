@@ -351,11 +351,12 @@ public class PlotNavigationHelper {
 
     @SuppressWarnings("unchecked")
     private void hideNote() {
-        if (noteShowingOnPlot != null) {
-            final List<XYAnnotation> existingAnnotations = noteShowingOnPlot.getAnnotations();
+        final XYPlot noteShowingOnPlotCopy = noteShowingOnPlot;
+        if (noteShowingOnPlotCopy != null) {
+            final List<XYAnnotation> existingAnnotations = noteShowingOnPlotCopy.getAnnotations();
             for (final XYAnnotation annotation : existingAnnotations) {
                 if (annotation instanceof XYNoteAnnotation) {
-                    noteShowingOnPlot.removeAnnotation(annotation);
+                    noteShowingOnPlotCopy.removeAnnotation(annotation);
                 }
             }
             noteShowingIconAnnotation = null;
