@@ -128,7 +128,9 @@ public class PlotNavigationHelper {
         final int mouseY = e.getY();
         final XYNoteIconAnnotation highlightedNoteIconAnnotation = findHighlightedNoteIconAnnotation(mouseX, mouseY);
         if (highlightedNoteIconAnnotation != null && !dragging) {
-            if (noteShowingIconAnnotation == null || noteShowingIconAnnotation != highlightedNoteIconAnnotation) {
+            final XYNoteIconAnnotation noteShowingIconAnnotationCopy = noteShowingIconAnnotation;
+            if (noteShowingIconAnnotationCopy == null
+                    || noteShowingIconAnnotationCopy != highlightedNoteIconAnnotation) {
                 mouseExited();
                 final CustomCombinedDomainXYPlot combinedPlot = chartPanel.getCombinedPlot();
                 final List<XYPlot> subplots = combinedPlot.getSubplots();
