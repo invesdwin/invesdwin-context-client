@@ -19,6 +19,7 @@ import de.invesdwin.context.client.swing.api.binding.component.AComponentBinding
 import de.invesdwin.context.client.swing.api.binding.component.IComponentBinding;
 import de.invesdwin.context.client.swing.api.binding.component.button.ISubmitButtonExceptionHandler;
 import de.invesdwin.context.client.swing.api.binding.component.button.SubmitButtonBinding;
+import de.invesdwin.context.client.swing.api.guiservice.GuiService;
 import de.invesdwin.context.client.swing.api.view.AModel;
 import de.invesdwin.context.client.swing.api.view.AView;
 import de.invesdwin.norva.beanpath.impl.object.BeanObjectContext;
@@ -220,17 +221,7 @@ public class BindingGroup implements IComponentBinding {
     }
 
     public String i18n(final String value, final String defaultValue) {
-        if (Strings.isBlank(value)) {
-            return value;
-        }
-        String i18n = getModel().getResourceMap().getString(value);
-        if (i18n == null) {
-            i18n = getView().getResourceMap().getString(value);
-        }
-        if (i18n == null) {
-            i18n = defaultValue;
-        }
-        return i18n;
+        return GuiService.i18n(view, value, defaultValue);
     }
 
     public SubmitButtonBinding getDefaultCloseOperation() {

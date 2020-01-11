@@ -3,16 +3,16 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-	<bean class="de.invesdwin.context.client.swing.impl.app.SelectAllActionWorkaround" />
-	<bean class="de.invesdwin.context.client.swing.impl.app.UndoRedoActions" />
-	<bean class="de.invesdwin.context.client.swing.impl.content.ContentPaneView" />
-	<bean class="de.invesdwin.context.client.swing.impl.menu.MenuBarView" />
-	<bean class="de.invesdwin.context.client.swing.impl.splash.ConfiguredSplashScreen"/>
-	<bean class="de.invesdwin.context.client.swing.impl.status.message.StatusBarMessageView" />
-	<bean class="de.invesdwin.context.client.swing.impl.status.task.StatusBarTaskView" />
-	<bean class="de.invesdwin.context.client.swing.impl.status.task.StatusBarTaskInfoMonitor" />
-	<bean class="de.invesdwin.context.client.swing.impl.status.heap.HeapIndicatorView" />
-	<bean class="de.invesdwin.context.client.swing.impl.status.StatusBarView" />
+	<bean class="de.invesdwin.context.client.swing.frame.app.SelectAllActionWorkaround" />
+	<bean class="de.invesdwin.context.client.swing.frame.app.UndoRedoActions" />
+	<bean class="de.invesdwin.context.client.swing.frame.content.ContentPaneView" />
+	<bean class="de.invesdwin.context.client.swing.frame.menu.MenuBarView" />
+	<bean class="de.invesdwin.context.client.swing.frame.splash.ConfiguredSplashScreen"/>
+	<bean class="de.invesdwin.context.client.swing.frame.status.message.StatusBarMessageView" />
+	<bean class="de.invesdwin.context.client.swing.frame.status.task.StatusBarTaskView" />
+	<bean class="de.invesdwin.context.client.swing.frame.status.task.StatusBarTaskInfoMonitor" />
+	<bean class="de.invesdwin.context.client.swing.frame.status.heap.HeapIndicatorView" />
+	<bean class="de.invesdwin.context.client.swing.frame.status.StatusBarView" />
 	<bean class="de.invesdwin.context.client.swing.api.guiservice.ContentPane" />
 	<bean class="de.invesdwin.context.client.swing.api.guiservice.StatusBar" />
 	<bean class="de.invesdwin.context.client.swing.api.guiservice.GuiService" />

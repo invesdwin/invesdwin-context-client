@@ -10,7 +10,7 @@ import org.jdesktop.application.Application.ExitListener;
 
 import de.invesdwin.aspects.annotation.EventDispatchThread;
 import de.invesdwin.aspects.annotation.EventDispatchThread.InvocationType;
-import de.invesdwin.context.client.swing.impl.app.DelegateRichApplication;
+import de.invesdwin.context.client.swing.frame.app.DelegateRichApplication;
 import de.invesdwin.context.log.Log;
 import de.invesdwin.context.log.error.Err;
 import de.invesdwin.util.swing.listener.WindowListenerSupport;

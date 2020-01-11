@@ -176,19 +176,22 @@ public final class GeneratedBindingGroup {
 
     protected IComponentBinding bindJMenuItem(final JMenuItem component) {
         //prefer action over element for menu items
-        final Action action = view.getActionMap().get(component.getName());
+        final String beanPath = component.getName();
+        final Action action = view.getActionMap().get(beanPath);
         if (action != null) {
             return new ActionButtonBinding(component, action);
         }
 
-        final AActionBeanPathElement element = bindingGroup.getModelContext()
-                .getElementRegistry()
-                .getElement(component.getName());
+        final AActionBeanPathElement element = bindingGroup.getModelContext().getElementRegistry().getElement(beanPath);
         if (element != null) {
             return new SubmitButtonBinding(component, element, bindingGroup);
         }
 
         //allow menus not to be bound
+        if (beanPath != null) {
+            view.getResourceMap().injectComponent(component);
+        }
+
         return null;
     }
 

@@ -6,7 +6,7 @@ import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
 
 import de.invesdwin.context.beans.init.AMain;
-import de.invesdwin.context.client.swing.impl.app.DelegateRichApplication;
+import de.invesdwin.context.client.swing.frame.app.DelegateRichApplication;
 
 @Immutable
 public class Main extends AMain {

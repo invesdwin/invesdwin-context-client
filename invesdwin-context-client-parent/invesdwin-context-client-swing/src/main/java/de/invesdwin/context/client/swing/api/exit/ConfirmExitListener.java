@@ -7,7 +7,7 @@ import javax.annotation.concurrent.Immutable;
 import org.jdesktop.application.ResourceMap;
 
 import de.invesdwin.context.client.swing.api.guiservice.GuiService;
-import de.invesdwin.context.client.swing.impl.app.DelegateRichApplication;
+import de.invesdwin.context.client.swing.frame.app.DelegateRichApplication;
 import de.invesdwin.util.swing.Dialogs;
 
 @Immutable

@@ -7,7 +7,7 @@ import javax.swing.ActionMap;
 import org.jdesktop.application.Application;
 import org.jdesktop.application.ResourceMap;
 
-import de.invesdwin.context.client.swing.impl.RichApplicationProperties;
+import de.invesdwin.context.client.swing.frame.RichApplicationProperties;
 import de.invesdwin.context.log.Log;
 import de.invesdwin.norva.beanpath.annotation.Hidden;
 import de.invesdwin.util.assertions.Assertions;

@@ -10,6 +10,7 @@ import javax.swing.JComponent;
 import de.invesdwin.aspects.EventDispatchThreadUtil;
 import de.invesdwin.context.client.swing.api.binding.BindingGroup;
 import de.invesdwin.context.client.swing.api.binding.GeneratedBindingGroup;
+import de.invesdwin.context.client.swing.api.guiservice.GuiService;
 import de.invesdwin.context.client.swing.api.view.listener.BroadcastingViewListener;
 import de.invesdwin.context.client.swing.api.view.listener.IViewListener;
 import de.invesdwin.context.client.swing.util.AViewVisitor;
@@ -138,7 +139,7 @@ public abstract class AView<M extends AModel, C extends JComponent> extends AMod
             }
         }
         //fallback to static title from properties file
-        final String title = getResourceMap().getString(KEY_VIEW_TITLE);
+        final String title = GuiService.i18n(this, KEY_VIEW_TITLE, getClass().getSimpleName());
         return title;
     }
 

@@ -18,13 +18,16 @@ import org.jdesktop.application.ApplicationContext;
 import org.jdesktop.application.ResourceMap;
 import org.jdesktop.application.TaskService;
 
+import com.jgoodies.common.base.Strings;
+
 import de.invesdwin.aspects.annotation.EventDispatchThread;
 import de.invesdwin.aspects.annotation.EventDispatchThread.InvocationType;
 import de.invesdwin.context.beans.init.MergedContext;
 import de.invesdwin.context.client.swing.api.binding.component.button.SubmitButtonBinding;
 import de.invesdwin.context.client.swing.api.guiservice.dialog.DialogDockable;
+import de.invesdwin.context.client.swing.api.view.AModel;
 import de.invesdwin.context.client.swing.api.view.AView;
-import de.invesdwin.context.client.swing.impl.content.DockableIdGenerator;
+import de.invesdwin.context.client.swing.frame.content.DockableIdGenerator;
 import de.invesdwin.context.client.swing.util.SubmitAllViewsHelper;
 import de.invesdwin.context.client.swing.util.UpdateAllViewsHelper;
 import de.invesdwin.util.swing.Dialogs;
@@ -180,6 +183,85 @@ public class GuiService implements IGuiService {
     @Override
     public boolean isMetaDown() {
         return getContentPane().isMetaDown();
+    }
+
+    public static String i18n(final Class<?> clazz, final String value) {
+        return i18n(clazz, value, value);
+    }
+
+    public static String i18n(final Class<?> clazz, final String value, final String defaultValue) {
+        if (Strings.isBlank(value)) {
+            return value;
+        }
+        final ResourceMap resourceMap = Application.getInstance().getContext().getResourceMap(clazz);
+        String i18n = resourceMap.getString(value);
+        if (i18n == null && defaultValue != value) {
+            i18n = resourceMap.getString(defaultValue);
+        }
+        if (i18n == null) {
+            i18n = defaultValue;
+        }
+        return i18n;
+    }
+
+    public static String i18n(final AView<?, ?> view, final String value) {
+        return i18n(view, value, value);
+    }
+
+    public static String i18n(final AView<?, ?> view, final String value, final String defaultValue) {
+        if (Strings.isBlank(value)) {
+            return value;
+        }
+        String i18n = view.getModel().getResourceMap().getString(value);
+        if (i18n == null) {
+            i18n = view.getResourceMap().getString(value);
+            if (i18n == null && defaultValue != value) {
+                i18n = view.getModel().getResourceMap().getString(defaultValue);
+                if (i18n == null) {
+                    i18n = view.getResourceMap().getString(defaultValue);
+                }
+            }
+        }
+        if (i18n == null) {
+            i18n = defaultValue;
+        }
+        return i18n;
+    }
+
+    public static String i18n(final AModel model, final String value) {
+        return i18n(model, value, value);
+    }
+
+    public static String i18n(final AModel model, final String value, final String defaultValue) {
+        if (Strings.isBlank(value)) {
+            return value;
+        }
+        String i18n = model.getResourceMap().getString(value);
+        if (i18n == null && defaultValue != value) {
+            i18n = model.getResourceMap().getString(defaultValue);
+        }
+        if (i18n == null) {
+            i18n = defaultValue;
+        }
+        return i18n;
+    }
+
+    public static String i18n(final ResourceMap resourceMap, final String value) {
+        return i18n(resourceMap, value, value);
+    }
+
+    public static String i18n(final ResourceMap resourceMap, final String value, final String defaultValue) {
+        if (Strings.isBlank(value)) {
+            return value;
+        }
+        String i18n = resourceMap.getString(value);
+        if (i18n == null && defaultValue != value) {
+            i18n = resourceMap.getString(defaultValue);
+        }
+        if (i18n == null) {
+            i18n = defaultValue;
+        }
+        return i18n;
     }
 
 }
