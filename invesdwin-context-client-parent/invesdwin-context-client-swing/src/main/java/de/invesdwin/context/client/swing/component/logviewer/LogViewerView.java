@@ -11,7 +11,6 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
-import javax.swing.DefaultBoundedRangeModel;
 import javax.swing.JEditorPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollBar;
@@ -150,20 +149,6 @@ public class LogViewerView extends AView<LogViewerView, JPanel> {
 
         this.scrollPane = new JScrollPane();
         panel.add(scrollPane, BorderLayout.CENTER);
-        scrollPane.getVerticalScrollBar().setModel(new DefaultBoundedRangeModel() {
-
-            @Override
-            public void setRangeProperties(final int newValue, final int newExtent, final int newMin, final int newMax,
-                    final boolean adjusting) {
-                synchronized (updatingLock) {
-                    super.setRangeProperties(newValue, newExtent, newMin, newMax, adjusting);
-                    if (updating && newValue != newMax && determineTrailingEnd() && !determineTrailingStart()) {
-                        scrollPane.getVerticalScrollBar().setValue(newMax);
-                    }
-                }
-            }
-        });
-
         this.editor = Dialogs.newHtmlMessagePane();
         scrollPane.setViewportView(editor);
 
@@ -175,7 +160,7 @@ public class LogViewerView extends AView<LogViewerView, JPanel> {
             @Override
             public void keyReleased(final KeyEvent e) {
                 //any key restores trailing
-                editor.setCaretPosition(0);
+                editor.setCaretPosition(editor.getDocument().getLength());
             }
 
         });
@@ -222,16 +207,11 @@ public class LogViewerView extends AView<LogViewerView, JPanel> {
         } else {
             from = logTo;
         }
-        if (editor.getDocument().getLength() == 0) {
-            initLogReverse(from);
-        } else {
-            tailLog(from);
-        }
+        tailLog(from);
     }
 
-    private void initLogReverse(final FDate from) {
-        final ICloseableIterable<LogViewerEntry> entries = source.getLogViewerEntriesReverse(from,
-                getMaxInitialTrailingMessages());
+    private void tailLog(final FDate from) {
+        final ICloseableIterable<LogViewerEntry> entries = source.getLogViewerEntries(from, getMaxTrailingMessages());
         StringBuilder append = new StringBuilder();
         int count = 0;
         final MutableReference<TrailingState> trailingStateRef = new MutableReference<>();
@@ -250,7 +230,7 @@ public class LogViewerView extends AView<LogViewerView, JPanel> {
                     append.append(divStr);
                     count++;
                     if (count >= 100) {
-                        insertMessagesToDocument(append, trailingStateRef, false);
+                        appendMessagesToDocument(append, trailingStateRef);
                         if (Threads.isInterrupted()) {
                             return;
                         }
@@ -263,57 +243,19 @@ public class LogViewerView extends AView<LogViewerView, JPanel> {
             //end reached
         }
         if (count > 0) {
-            insertMessagesToDocument(append, trailingStateRef, false);
+            appendMessagesToDocument(append, trailingStateRef);
         }
     }
 
-    private void tailLog(final FDate from) {
-        final ICloseableIterable<LogViewerEntry> entries = source.getLogViewerEntries(from, null);
-        StringBuilder append = new StringBuilder();
-        int count = 0;
-        final MutableReference<TrailingState> trailingStateRef = new MutableReference<>();
-        try (ICloseableIterator<LogViewerEntry> iterator = entries.iterator()) {
-            while (true) {
-                final LogViewerEntry entry = iterator.next();
-                if (logTo == null || logTo.isBefore(entry.getTime())) {
-                    lastLogToMessages.clear();
-                    logTo = entry.getTime();
-                }
-                if (lastLogToMessages.add(entry.getMessage())) {
-                    final String divStr = entryToDiv(entry);
-                    if (append.length() > 0) {
-                        append.insert(0, divStr + "\n");
-                    } else {
-                        append.insert(0, divStr);
-                    }
-                    count++;
-                    if (count >= 100) {
-                        insertMessagesToDocument(append, trailingStateRef, true);
-                        if (Threads.isInterrupted()) {
-                            return;
-                        }
-                        append = new StringBuilder();
-                        count = 0;
-                    }
-                }
-            }
-        } catch (final NoSuchElementException e) {
-            //end reached
-        }
-        if (count > 0) {
-            insertMessagesToDocument(append, trailingStateRef, true);
-        }
-    }
-
-    protected Integer getMaxInitialTrailingMessages() {
-        return null;
+    protected Integer getMaxTrailingMessages() {
+        return 10000;
     }
 
     protected void onUpdate() {}
 
     @EventDispatchThread(InvocationType.INVOKE_AND_WAIT)
-    private void insertMessagesToDocument(final StringBuilder message,
-            final MutableReference<TrailingState> trailingStateRef, final boolean prepend) {
+    private void appendMessagesToDocument(final StringBuilder message,
+            final MutableReference<TrailingState> trailingStateRef) {
         if (message.length() > 0) {
             if (editor.getDocument().getLength() > 0) {
                 message.insert(0, "\n");
@@ -321,7 +263,7 @@ public class LogViewerView extends AView<LogViewerView, JPanel> {
             try {
                 TrailingState trailingState = trailingStateRef.get();
                 if (trailingState == null) {
-                    trailingState = new TrailingState(prepend);
+                    trailingState = new TrailingState();
                     trailingStateRef.set(trailingState);
                 }
                 synchronized (updatingLock) {
@@ -330,12 +272,7 @@ public class LogViewerView extends AView<LogViewerView, JPanel> {
                 }
                 //https://stackoverflow.com/questions/12916192/how-to-know-if-a-jscrollbar-has-reached-the-bottom-of-the-jscrollpane
                 final EditorKit kit = editor.getEditorKit();
-                final int position;
-                if (prepend) {
-                    position = 1;
-                } else {
-                    position = editor.getDocument().getLength();
-                }
+                final int position = editor.getDocument().getLength();
                 kit.read(new CharSequenceReader(message), editor.getDocument(), position);
                 trail(trailingState);
 
@@ -346,24 +283,10 @@ public class LogViewerView extends AView<LogViewerView, JPanel> {
     }
 
     private void trail(final TrailingState trailingState) {
-        if (trailingState.prepend) {
-            if (trailingState.selectionStart != trailingState.selectionEnd) {
-                editor.select(trailingState.getSelectionStartAdj(), trailingState.getSelectionEndAdj());
-            }
-        }
         updateScrollBarLater(trailingState);
     }
 
-    private boolean determineTrailingStart() {
-        if (editor.getDocument().getLength() == 0) {
-            return true;
-        }
-        final JScrollBar scrollBar = scrollPane.getVerticalScrollBar();
-        final boolean trailing = !scrollBar.isShowing() || scrollBar.getValue() <= scrollBar.getMinimum();
-        return trailing;
-    }
-
-    private boolean determineTrailingEnd() {
+    private boolean determineTrailing() {
         if (editor.getDocument().getLength() == 0) {
             return true;
         }
@@ -414,70 +337,15 @@ public class LogViewerView extends AView<LogViewerView, JPanel> {
 
     private void updateScrollBar(final TrailingState trailingState) {
         final JScrollBar scrollBar = scrollPane.getVerticalScrollBar();
-        if (trailingState.trailingStart) {
-            scrollBar.setValue(scrollBar.getMinimum());
-        } else if (trailingState.trailingEnd) {
+        if (trailingState.trailing) {
             scrollBar.setValue(scrollBar.getMaximum());
         } else {
-            scrollBar.setValue(trailingState.getScrollBarValueBeforeAdj());
+            scrollBar.setValue(trailingState.scrollBarValueBefore);
         }
     }
 
     private final class TrailingState {
-        private final boolean prepend;
-        private final boolean trailingStart = determineTrailingStart();
-        private final boolean trailingEnd = determineTrailingEnd();
-
-        private final int lengthBefore = editor.getDocument().getLength();
-        private final int selectionStart = editor.getSelectionStart();
-        private final int selectionEnd = editor.getSelectionEnd();
-
+        private final boolean trailing = determineTrailing();
         private final int scrollBarValueBefore = scrollPane.getVerticalScrollBar().getValue();
-        private final int scrollBarMaximumBefore = scrollPane.getVerticalScrollBar().getMaximum();
-
-        private TrailingState(final boolean prepend) {
-            this.prepend = prepend;
-        }
-
-        public int getSelectionStartAdj() {
-            if (selectionStart <= selectionEnd) {
-                return newSelectionStartAdj();
-            } else {
-                return newSelectionEndAdj();
-            }
-        }
-
-        public int getSelectionEndAdj() {
-            if (selectionStart <= selectionEnd) {
-                return newSelectionEndAdj();
-            } else {
-                return newSelectionStartAdj();
-            }
-        }
-
-        private int newSelectionStartAdj() {
-            if (prepend) {
-                return selectionStart + editor.getDocument().getLength() - lengthBefore;
-            } else {
-                return selectionStart;
-            }
-        }
-
-        private int newSelectionEndAdj() {
-            if (prepend) {
-                return selectionEnd + editor.getDocument().getLength() - lengthBefore;
-            } else {
-                return selectionEnd;
-            }
-        }
-
-        public int getScrollBarValueBeforeAdj() {
-            if (prepend) {
-                return scrollBarValueBefore + scrollPane.getVerticalScrollBar().getMaximum() - scrollBarMaximumBefore;
-            } else {
-                return scrollBarValueBefore;
-            }
-        }
-
     }
 }

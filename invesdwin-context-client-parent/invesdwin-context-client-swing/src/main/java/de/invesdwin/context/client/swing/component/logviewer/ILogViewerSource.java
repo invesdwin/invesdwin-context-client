@@ -8,6 +8,4 @@ public interface ILogViewerSource extends ISerializableValueObject {
 
     ICloseableIterable<LogViewerEntry> getLogViewerEntries(FDate from, Integer tailCount);
 
-    ICloseableIterable<LogViewerEntry> getLogViewerEntriesReverse(FDate from, Integer tailCount);
-
 }
