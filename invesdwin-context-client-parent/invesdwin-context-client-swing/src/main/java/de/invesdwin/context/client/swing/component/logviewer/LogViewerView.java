@@ -234,7 +234,7 @@ public class LogViewerView extends AView<LogViewerView, JPanel> {
     }
 
     protected Integer getMaxTrailingMessages() {
-        return 10000;
+        return 25000;
     }
 
     protected void onUpdate() {}
