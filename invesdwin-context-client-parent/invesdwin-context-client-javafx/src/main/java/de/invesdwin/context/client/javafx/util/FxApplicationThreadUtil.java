@@ -6,10 +6,12 @@ import java.util.concurrent.FutureTask;
 
 import javax.annotation.concurrent.Immutable;
 
+import com.sun.javafx.application.PlatformImpl;
+
 import de.invesdwin.util.concurrent.Executors;
 import de.invesdwin.util.concurrent.WrappedExecutorService;
 import de.invesdwin.util.concurrent.future.Futures;
-import javafx.application.Platform;
+import io.netty.util.concurrent.FastThreadLocal;
 import javafx.concurrent.Task;
 
 /**
@@ -20,6 +22,17 @@ import javafx.concurrent.Task;
 @Immutable
 public final class FxApplicationThreadUtil {
 
+    /**
+     * threadlocal makes this a lot faster
+     */
+    private static final FastThreadLocal<Boolean> IS_FX_APPLICATION_THREAD = new FastThreadLocal<Boolean>() {
+        @Override
+        protected Boolean initialValue() throws Exception {
+            //CHECKSTYLE:OFF
+            return PlatformImpl.isFxApplicationThread();
+            //CHECKSTYLE:ON
+        }
+    };
     /**
      * swingworker also has 10 as MAX_WORKER_THREADS
      */
@@ -81,7 +94,7 @@ public final class FxApplicationThreadUtil {
 
     public static void runLater(final Runnable runnable) {
         //CHECKSTYLE:OFF must only be called by this class anyway
-        Platform.runLater(runnable);
+        PlatformImpl.runLater(runnable);
         //CHECKSTYLE:ON
     }
 
@@ -98,9 +111,7 @@ public final class FxApplicationThreadUtil {
     }
 
     public static boolean isFxApplicationThread() {
-        //CHECKSTYLE:OFF
-        return Platform.isFxApplicationThread();
-        //CHECKSTYLE:ON
+        return IS_FX_APPLICATION_THREAD.get();
     }
 
 }
