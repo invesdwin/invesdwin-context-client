@@ -1,6 +1,7 @@
 package de.invesdwin.context.client.swing.component.logviewer;
 
 import java.awt.BorderLayout;
+import java.awt.event.KeyEvent;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.NoSuchElementException;
@@ -26,8 +27,11 @@ import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.collections.iterable.ICloseableIterable;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
 import de.invesdwin.util.concurrent.Executors;
+import de.invesdwin.util.concurrent.Threads;
 import de.invesdwin.util.concurrent.WrappedScheduledExecutorService;
+import de.invesdwin.util.concurrent.reference.MutableReference;
 import de.invesdwin.util.swing.Dialogs;
+import de.invesdwin.util.swing.listener.KeyListenerSupport;
 import de.invesdwin.util.time.duration.Duration;
 import de.invesdwin.util.time.fdate.FDate;
 import de.invesdwin.util.time.fdate.FDates;
@@ -135,6 +139,14 @@ public class LogViewerView extends AView<LogViewerView, JPanel> {
 
         this.editor = Dialogs.newHtmlMessagePane();
         scrollPane.setViewportView(editor);
+
+        this.editor.addKeyListener(new KeyListenerSupport() {
+            @Override
+            public void keyReleased(final KeyEvent e) {
+                //any key restores trailing
+                editor.setCaretPosition(editor.getDocument().getLength());
+            }
+        });
         return panel;
     }
 
@@ -182,11 +194,10 @@ public class LogViewerView extends AView<LogViewerView, JPanel> {
     }
 
     private void tailLog(final FDate from) {
-        final ICloseableIterable<LogViewerEntry> entries = source.getLogViewerEntries(from, null);
+        final ICloseableIterable<LogViewerEntry> entries = source.getLogViewerEntries(from, getMaxTrailingMessages());
         StringBuilder append = new StringBuilder();
         int count = 0;
-        final int caretPositionBefore = editor.getCaretPosition();
-        final boolean trailing = isTrailing();
+        final MutableReference<TrailingState> trailingStateRef = new MutableReference<>();
         try (ICloseableIterator<LogViewerEntry> iterator = entries.iterator()) {
             while (true) {
                 final LogViewerEntry entry = iterator.next();
@@ -202,13 +213,10 @@ public class LogViewerView extends AView<LogViewerView, JPanel> {
                     append.append(divStr);
                     count++;
                     if (count >= 100) {
-                        appendMessagesToDocument(append, caretPositionBefore, trailing);
+                        appendMessagesToDocument(append, trailingStateRef);
                         append = new StringBuilder();
                         count = 0;
-                        try {
-                            FTimeUnit.MILLISECONDS.sleep(1);
-                        } catch (final InterruptedException e) {
-                            //allow interrupt and slow down a bit
+                        if (Threads.isInterrupted()) {
                             return;
                         }
                     }
@@ -218,33 +226,38 @@ public class LogViewerView extends AView<LogViewerView, JPanel> {
             //end reached
         }
         if (count > 0) {
-            appendMessagesToDocument(append, caretPositionBefore, trailing);
-            try {
-                //allow interrupt and slow down a bit
-                FTimeUnit.MILLISECONDS.sleep(1);
-            } catch (final InterruptedException e) {
+            appendMessagesToDocument(append, trailingStateRef);
+            if (Threads.isInterrupted()) {
                 return;
             }
         }
     }
 
+    protected Integer getMaxTrailingMessages() {
+        return 10000;
+    }
+
     protected void onUpdate() {}
 
     @EventDispatchThread(InvocationType.INVOKE_AND_WAIT)
-    private void appendMessagesToDocument(final StringBuilder message, final int caretPositionBefore,
-            final boolean trailing) {
+    private void appendMessagesToDocument(final StringBuilder message,
+            final MutableReference<TrailingState> trailingStateRef) {
         if (message.length() > 0) {
             if (editor.getDocument().getLength() > 0) {
                 message.insert(0, "\n");
             }
             try {
+                TrailingState trailingState = trailingStateRef.get();
+                if (trailingState == null) {
+                    trailingState = new TrailingState();
+                    trailingStateRef.set(trailingState);
+                }
                 //https://stackoverflow.com/questions/12916192/how-to-know-if-a-jscrollbar-has-reached-the-bottom-of-the-jscrollpane
                 final EditorKit kit = editor.getEditorKit();
                 kit.read(new CharSequenceReader(message), editor.getDocument(), editor.getDocument().getLength());
-                if (!trailing) {
-                    editor.setCaretPosition(Math.min(caretPositionBefore, editor.getDocument().getLength()));
-                } else {
-                    editor.setCaretPosition(editor.getDocument().getLength());
+                if (!trailingState.trailing) {
+                    editor.setCaretPosition(
+                            Math.min(trailingState.caretPositionBefore, editor.getDocument().getLength()));
                 }
             } catch (final BadLocationException e) {
                 throw new RuntimeException(e);
@@ -256,9 +269,6 @@ public class LogViewerView extends AView<LogViewerView, JPanel> {
 
     private boolean isTrailing() {
         if (editor.getDocument().getLength() == 0) {
-            return true;
-        }
-        if (editor.getCaretPosition() >= editor.getDocument().getLength() - 100) {
             return true;
         }
         final JScrollBar scrollBar = scrollPane.getVerticalScrollBar();
@@ -289,5 +299,10 @@ public class LogViewerView extends AView<LogViewerView, JPanel> {
         message.append("</div>");
         final String messageStr = message.toString();
         return messageStr;
+    }
+
+    private class TrailingState {
+        private final int caretPositionBefore = editor.getCaretPosition();
+        private final boolean trailing = isTrailing();
     }
 }
