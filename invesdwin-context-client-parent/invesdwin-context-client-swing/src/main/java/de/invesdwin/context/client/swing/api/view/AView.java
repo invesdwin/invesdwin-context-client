@@ -22,6 +22,7 @@ import de.invesdwin.norva.beanpath.spi.element.IBeanPathElement;
 import de.invesdwin.norva.beanpath.spi.element.RootBeanPathElement;
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.collections.fast.IFastIterable;
+import de.invesdwin.util.lang.Objects;
 
 @ThreadSafe
 public abstract class AView<M extends AModel, C extends JComponent> extends AModel {
@@ -129,18 +130,30 @@ public abstract class AView<M extends AModel, C extends JComponent> extends AMod
     @Hidden(skip = true)
     public String getTitle() {
         //try norva title element if available
+        String visibleName = null;
         final BindingGroup bindingGroup = getBindingGroup();
         if (bindingGroup != null) {
             final BeanObjectContext modelContext = bindingGroup.getModelContext();
             if (modelContext != null) {
                 final IBeanPathElement rootElement = modelContext.getElementRegistry()
                         .getElement(RootBeanPathElement.ROOT_BEAN_PATH);
-                return bindingGroup.i18n(rootElement.getTitle(bindingGroup.getModel()));
+                final String title = rootElement.getTitle(bindingGroup.getModel());
+                if (!Objects.equals(title, rootElement.getVisibleName())) {
+                    return bindingGroup.i18n(title);
+                } else {
+                    visibleName = title;
+                }
             }
         }
+
         //fallback to static title from properties file
-        final String title = GuiService.i18n(this, KEY_VIEW_TITLE, getClass().getSimpleName());
-        return title;
+        final String classname = getClass().getSimpleName();
+        final String title = GuiService.i18n(this, KEY_VIEW_TITLE, classname);
+        if (Objects.equals(title, classname)) {
+            return visibleName;
+        } else {
+            return title;
+        }
     }
 
     @Hidden(skip = true)

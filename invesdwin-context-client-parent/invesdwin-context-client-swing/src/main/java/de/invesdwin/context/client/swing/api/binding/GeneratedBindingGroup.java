@@ -188,10 +188,6 @@ public final class GeneratedBindingGroup {
         }
 
         //allow menus not to be bound
-        if (beanPath != null) {
-            view.getResourceMap().injectComponent(component);
-        }
-
         return null;
     }
 

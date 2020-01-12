@@ -56,6 +56,7 @@ public class HeapIndicator extends JProgressBar {
         });
         this.mouseEnteredListener = MouseEnteredListener.get(this);
         update();
+        timer.start();
     }
 
     public Timer getTimer() {

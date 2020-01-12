@@ -1,25 +1,32 @@
 package de.invesdwin.context.client.swing.component.logviewer;
 
 import java.awt.BorderLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.NoSuchElementException;
 import java.util.Set;
+import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicLong;
 
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 import javax.swing.JEditorPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
-import javax.swing.Timer;
 import javax.swing.text.BadLocationException;
+import javax.swing.text.EditorKit;
+
+import org.apache.commons.io.input.CharSequenceReader;
 
 import de.invesdwin.aspects.annotation.EventDispatchThread;
 import de.invesdwin.aspects.annotation.EventDispatchThread.InvocationType;
 import de.invesdwin.context.client.swing.api.view.AView;
+import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.collections.iterable.ICloseableIterable;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
+import de.invesdwin.util.concurrent.Executors;
+import de.invesdwin.util.concurrent.WrappedScheduledExecutorService;
 import de.invesdwin.util.swing.Dialogs;
 import de.invesdwin.util.time.duration.Duration;
 import de.invesdwin.util.time.fdate.FDate;
@@ -29,7 +36,9 @@ import de.invesdwin.util.time.fdate.FTimeUnit;
 @ThreadSafe
 public class LogViewerView extends AView<LogViewerView, JPanel> {
 
-    private final Timer timer;
+    private static final AtomicLong ACTIVE_LOGS = new AtomicLong();
+    @GuardedBy("this.class")
+    private static WrappedScheduledExecutorService scheduledExecutor;
     @GuardedBy("this")
     private ILogViewerSource source;
     @GuardedBy("this")
@@ -39,42 +48,77 @@ public class LogViewerView extends AView<LogViewerView, JPanel> {
     @GuardedBy("this")
     private boolean background;
     private JEditorPane editor;
+    private volatile Future<?> updateFuture;
+    private volatile Future<?> initFuture;
+    private JScrollPane scrollPane;
 
     public LogViewerView(final ILogViewerSource source) {
         this.source = source;
-        this.timer = new Timer(getTimerInterval().intValue(FTimeUnit.MILLISECONDS), new ActionListener() {
-            @Override
-            public void actionPerformed(final ActionEvent e) {
-                update();
-            }
-        });
         init();
     }
 
-    @EventDispatchThread(InvocationType.INVOKE_AND_WAIT)
+    public static synchronized WrappedScheduledExecutorService getScheduledExecutor() {
+        if (scheduledExecutor == null) {
+            //reduce cpu load by using max 1 thread
+            scheduledExecutor = Executors.newScheduledThreadPool(LogViewerView.class.getSimpleName() + "_SCHEDULER", 1)
+                    .withDynamicThreadName(false);
+        }
+        return scheduledExecutor;
+    }
+
+    private static synchronized void maybeCloseScheduledExecutor() {
+        if (ACTIVE_LOGS.get() == 0L) {
+            if (scheduledExecutor != null) {
+                scheduledExecutor.shutdownNow();
+                scheduledExecutor = null;
+            }
+        }
+    }
+
     private void init() {
         lastLogToMessages.clear();
         background = false;
         if (editor != null) {
-            try {
-                editor.getDocument().remove(0, editor.getDocument().getLength());
-            } catch (final BadLocationException e) {
-                throw new RuntimeException(e);
-            }
+            initEditor();
         }
         logTo = null;
+    }
+
+    @EventDispatchThread(InvocationType.INVOKE_AND_WAIT)
+    private void initEditor() {
+        try {
+            editor.getDocument().remove(0, editor.getDocument().getLength());
+        } catch (final BadLocationException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public ILogViewerSource getSource() {
         return source;
     }
 
-    public synchronized void setSource(final ILogViewerSource source) {
-        this.source = source;
-        this.init();
+    public void setSource(final ILogViewerSource source) {
+        if (updateFuture != null) {
+            initFuture = getScheduledExecutor().submit(new Runnable() {
+                @Override
+                public void run() {
+                    synchronized (LogViewerView.this) {
+                        LogViewerView.this.source = source;
+                        init();
+                        update();
+                        initFuture = null;
+                    }
+                }
+            });
+        } else {
+            synchronized (this) {
+                LogViewerView.this.source = source;
+                init();
+            }
+        }
     }
 
-    private Duration getTimerInterval() {
+    protected Duration getRefreshInterval() {
         return new Duration(1, FTimeUnit.SECONDS);
     }
 
@@ -86,7 +130,7 @@ public class LogViewerView extends AView<LogViewerView, JPanel> {
         final JPanel panel = new JPanel();
         panel.setLayout(new BorderLayout(0, 0));
 
-        final JScrollPane scrollPane = new JScrollPane();
+        this.scrollPane = new JScrollPane();
         panel.add(scrollPane, BorderLayout.CENTER);
 
         this.editor = Dialogs.newHtmlMessagePane();
@@ -96,22 +140,35 @@ public class LogViewerView extends AView<LogViewerView, JPanel> {
 
     @Override
     protected void onOpen() {
-        timer.start();
+        Assertions.checkNull(updateFuture);
+        ACTIVE_LOGS.incrementAndGet();
+        final Duration refreshInterval = getRefreshInterval();
+        updateFuture = getScheduledExecutor().scheduleAtFixedRate(new Runnable() {
+            @Override
+            public void run() {
+                update();
+            }
+        }, 0, refreshInterval.longValue(), refreshInterval.getTimeUnit().timeUnitValue());
     }
 
     @Override
     protected void onClose() {
-        timer.stop();
+        Assertions.checkNotNull(updateFuture);
+        ACTIVE_LOGS.decrementAndGet();
+        if (initFuture != null) {
+            initFuture.cancel(true);
+            initFuture = null;
+        }
+        updateFuture.cancel(true);
+        updateFuture = null;
+        maybeCloseScheduledExecutor();
     }
 
-    private void update() {
+    private synchronized void update() {
         if (!getComponent().isShowing()) {
             return;
         }
-        tailLog();
-    }
-
-    protected synchronized void tailLog() {
+        onUpdate();
         if (source == null) {
             return;
         }
@@ -121,33 +178,96 @@ public class LogViewerView extends AView<LogViewerView, JPanel> {
         } else {
             from = logTo;
         }
-        final StringBuilder prepend = new StringBuilder();
+        tailLog(from);
+    }
+
+    private void tailLog(final FDate from) {
         final ICloseableIterable<LogViewerEntry> entries = source.getLogViewerEntries(from, null);
+        StringBuilder append = new StringBuilder();
+        int count = 0;
+        final int caretPositionBefore = editor.getCaretPosition();
+        final boolean trailing = isTrailing();
         try (ICloseableIterator<LogViewerEntry> iterator = entries.iterator()) {
             while (true) {
                 final LogViewerEntry entry = iterator.next();
-                final String messageStr = entryToString(entry);
-                if (lastLogToMessages.add(messageStr)) {
-                    if (prepend.length() > 0) {
-                        prepend.insert(0, "\n");
+                if (logTo == null || logTo.isBefore(entry.getTime())) {
+                    lastLogToMessages.clear();
+                    logTo = entry.getTime();
+                }
+                if (lastLogToMessages.add(entry.getMessage())) {
+                    final String divStr = entryToDiv(entry);
+                    if (append.length() > 0) {
+                        append.append("\n");
                     }
-                    prepend.insert(0, messageStr);
+                    append.append(divStr);
+                    count++;
+                    if (count >= 100) {
+                        appendMessagesToDocument(append, caretPositionBefore, trailing);
+                        append = new StringBuilder();
+                        count = 0;
+                        try {
+                            FTimeUnit.MILLISECONDS.sleep(1);
+                        } catch (final InterruptedException e) {
+                            //allow interrupt and slow down a bit
+                            return;
+                        }
+                    }
                 }
             }
         } catch (final NoSuchElementException e) {
             //end reached
         }
-        if (editor.getDocument().getLength() > 0) {
-            prepend.insert(0, "\n");
-        }
-        try {
-            editor.getDocument().insertString(0, prepend.toString(), null);
-        } catch (final BadLocationException e) {
-            throw new RuntimeException(e);
+        if (count > 0) {
+            appendMessagesToDocument(append, caretPositionBefore, trailing);
+            try {
+                //allow interrupt and slow down a bit
+                FTimeUnit.MILLISECONDS.sleep(1);
+            } catch (final InterruptedException e) {
+                return;
+            }
         }
     }
 
-    private String entryToString(final LogViewerEntry entry) {
+    protected void onUpdate() {}
+
+    @EventDispatchThread(InvocationType.INVOKE_AND_WAIT)
+    private void appendMessagesToDocument(final StringBuilder message, final int caretPositionBefore,
+            final boolean trailing) {
+        if (message.length() > 0) {
+            if (editor.getDocument().getLength() > 0) {
+                message.insert(0, "\n");
+            }
+            try {
+                //https://stackoverflow.com/questions/12916192/how-to-know-if-a-jscrollbar-has-reached-the-bottom-of-the-jscrollpane
+                final EditorKit kit = editor.getEditorKit();
+                kit.read(new CharSequenceReader(message), editor.getDocument(), editor.getDocument().getLength());
+                if (!trailing) {
+                    editor.setCaretPosition(Math.min(caretPositionBefore, editor.getDocument().getLength()));
+                } else {
+                    editor.setCaretPosition(editor.getDocument().getLength());
+                }
+            } catch (final BadLocationException e) {
+                throw new RuntimeException(e);
+            } catch (final IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
+    private boolean isTrailing() {
+        if (editor.getDocument().getLength() == 0) {
+            return true;
+        }
+        if (editor.getCaretPosition() >= editor.getDocument().getLength() - 100) {
+            return true;
+        }
+        final JScrollBar scrollBar = scrollPane.getVerticalScrollBar();
+        final boolean trailing = !scrollBar.isShowing()
+                || scrollBar.getValue() >= scrollBar.getMaximum() - scrollBar.getVisibleAmount();
+        return trailing;
+    }
+
+    private String entryToDiv(final LogViewerEntry entry) {
         final StringBuilder message = new StringBuilder();
         message.append("<div style=\"");
         if (entry.isError()) {
@@ -167,10 +287,6 @@ public class LogViewerView extends AView<LogViewerView, JPanel> {
         message.append(":</b> ");
         message.append(entry.getMessage().replace("'", "&#x27;"));
         message.append("</div>");
-        if (logTo == null || logTo.isBefore(entry.getTime())) {
-            lastLogToMessages.clear();
-            logTo = entry.getTime();
-        }
         final String messageStr = message.toString();
         return messageStr;
     }

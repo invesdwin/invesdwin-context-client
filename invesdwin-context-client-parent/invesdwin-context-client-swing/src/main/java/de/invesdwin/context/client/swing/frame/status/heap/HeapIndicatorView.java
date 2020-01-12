@@ -65,14 +65,4 @@ public class HeapIndicatorView extends AView<HeapIndicatorView, JPanel> {
         pgbHeapIndicator.setPreferredSize(pgbPreferredSize);
     }
 
-    @Override
-    protected void onOpen() {
-        pgbHeapIndicator.getTimer().start();
-    }
-
-    @Override
-    protected void onClose() {
-        pgbHeapIndicator.getTimer().stop();
-    }
-
 }
