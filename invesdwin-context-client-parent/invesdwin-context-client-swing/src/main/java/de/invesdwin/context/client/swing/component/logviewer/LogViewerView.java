@@ -32,6 +32,7 @@ import de.invesdwin.util.concurrent.Executors;
 import de.invesdwin.util.concurrent.Threads;
 import de.invesdwin.util.concurrent.WrappedScheduledExecutorService;
 import de.invesdwin.util.concurrent.reference.MutableReference;
+import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.swing.Dialogs;
 import de.invesdwin.util.swing.listener.KeyListenerSupport;
 import de.invesdwin.util.time.duration.Duration;
@@ -202,13 +203,7 @@ public class LogViewerView extends AView<LogViewerView, JPanel> {
         if (source == null) {
             return;
         }
-        final FDate from;
-        if (logTo == null) {
-            from = FDate.MIN_DATE;
-        } else {
-            from = logTo;
-        }
-        tailLog(from);
+        tailLog(logTo);
     }
 
     private void tailLog(final FDate from) {
@@ -219,7 +214,7 @@ public class LogViewerView extends AView<LogViewerView, JPanel> {
         try (ICloseableIterator<LogViewerEntry> iterator = entries.iterator()) {
             while (true) {
                 final LogViewerEntry entry = iterator.next();
-                if (logTo == null || logTo.isBefore(entry.getTime())) {
+                if (!Objects.equals(logTo, entry.getTime()) && (logTo == null || logTo.isBefore(entry.getTime()))) {
                     lastLogToMessages.clear();
                     logTo = entry.getTime();
                 }
@@ -312,9 +307,11 @@ public class LogViewerView extends AView<LogViewerView, JPanel> {
             message.append("background-color: white");
         }
         message.append("\">");
-        message.append("<b>");
-        message.append(FDates.toString(entry.getTime()));
-        message.append(":</b> ");
+        if (entry.getTime() != null) {
+            message.append("<b>");
+            message.append(FDates.toString(entry.getTime()));
+            message.append(":</b> ");
+        }
         message.append(entry.getMessage().replace("'", "&#x27;"));
         message.append("</div>");
         final String messageStr = message.toString();
