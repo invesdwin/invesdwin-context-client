@@ -9,8 +9,8 @@ import org.fife.ui.rsyntaxtextarea.parser.Parser;
 import de.invesdwin.context.client.swing.jfreechart.panel.InteractiveChartPanel;
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.SeriesRendererType;
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.IPlotSourceDataset;
-import de.invesdwin.context.client.swing.rsyntaxtextarea.expression.ExpressionCompletionCellRenderer;
 import de.invesdwin.context.client.swing.rsyntaxtextarea.expression.ExpressionValidatingParser;
+import de.invesdwin.context.client.swing.rsyntaxtextarea.expression.completion.ExpressionAutoCompletion;
 import de.invesdwin.util.math.expression.IExpression;
 import de.invesdwin.util.math.expression.tokenizer.ParseException;
 
@@ -40,11 +40,8 @@ public interface IExpressionSeriesProvider {
     default AutoCompletion newAutoCompletion() {
         final CompletionProvider provider = newCompletionProvider();
         provider.setParameterizedCompletionParams('(', ", ", ')');
-        final AutoCompletion ac = new AutoCompletion(new LanguageAwareCompletionProvider(provider));
-        ac.setListCellRenderer(new ExpressionCompletionCellRenderer());
-        ac.setShowDescWindow(true);
-        ac.setParameterAssistanceEnabled(true);
-        ac.setAutoCompleteSingleChoices(false);
+        final LanguageAwareCompletionProvider languageAwareProvider = new LanguageAwareCompletionProvider(provider);
+        final ExpressionAutoCompletion ac = new ExpressionAutoCompletion(languageAwareProvider);
         return ac;
     }
 

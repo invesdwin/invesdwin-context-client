@@ -25,6 +25,7 @@ import de.invesdwin.util.math.expression.AFunction;
 import de.invesdwin.util.math.expression.ExpressionParser;
 import de.invesdwin.util.math.expression.IFunctionParameterInfo;
 import de.invesdwin.util.math.expression.variable.IVariable;
+import de.invesdwin.util.swing.MultiLineToolTips;
 
 @NotThreadSafe
 public class ExpressionCompletionProvider extends DefaultCompletionProvider {
@@ -114,8 +115,13 @@ public class ExpressionCompletionProvider extends DefaultCompletionProvider {
     }
 
     public Parameter newParameter(final String expressionName, final String description, final String type) {
-        final Parameter p = new Parameter(type, expressionName);
-        p.setDescription(description);
+        return newParameter(expressionName, description, type, false);
+    }
+
+    public Parameter newParameter(final String expressionName, final String description, final String type,
+            final boolean endParam) {
+        final Parameter p = new Parameter(type, expressionName, endParam);
+        p.setDescription(MultiLineToolTips.splitToolTipText(description));
         return p;
     }
 
@@ -143,7 +149,7 @@ public class ExpressionCompletionProvider extends DefaultCompletionProvider {
         sb.append("</b>");
         if (Strings.isNotBlank(description)) {
             sb.append("<br><br>");
-            sb.append(description);
+            sb.append(MultiLineToolTips.splitToolTipText(description));
         }
         return sb.toString();
     }
