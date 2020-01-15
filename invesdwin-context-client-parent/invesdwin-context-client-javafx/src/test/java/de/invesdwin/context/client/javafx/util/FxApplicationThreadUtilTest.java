@@ -18,7 +18,7 @@ public class FxApplicationThreadUtilTest {
         protected Boolean initialValue() throws Exception {
             //CHECKSTYLE:OFF
             return Platform.isFxApplicationThread();
-            //CHECKSTYLE:OFF
+            //CHECKSTYLE:ON
         }
     };
 
@@ -39,7 +39,9 @@ public class FxApplicationThreadUtilTest {
     public void testPerformanceDirect() {
         final Instant start = new Instant();
         for (int i = 0; i < ITERATIONS;) {
+            //CHECKSTYLE:OFF
             if (!Platform.isFxApplicationThread()) {
+                //CHECKSTYLE:ON
                 i++;
             }
         }

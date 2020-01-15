@@ -7,10 +7,9 @@ import javax.swing.JFrame;
 
 import org.junit.Test;
 
-import com.sun.javafx.application.PlatformImpl;
-
 import de.invesdwin.aspects.EventDispatchThreadUtil;
 import de.invesdwin.context.client.javafx.component.swing.SwingWebViewPanel;
+import de.invesdwin.context.client.javafx.util.FxApplicationThreadUtil;
 import de.invesdwin.context.test.ATest;
 import de.invesdwin.util.time.fdate.FTimeUnit;
 
@@ -25,12 +24,18 @@ public class SwingWebViewPanelTest extends ATest {
                 final JFrame frame = new JFrame();
 
                 final SwingWebViewPanel panel = new SwingWebViewPanel();
-                PlatformImpl.runAndWait(new Runnable() {
-                    @Override
-                    public void run() {
-                        panel.getWebEngine().load("https://google.com");
-                    }
-                });
+                //CHECKSTYLE:OFF
+                try {
+                    FxApplicationThreadUtil.runAndWait(new Runnable() {
+                        //CHECKSTYLE:ON
+                        @Override
+                        public void run() {
+                            panel.getWebEngine().load("https://google.com");
+                        }
+                    });
+                } catch (final InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
                 frame.getContentPane().add(panel);
 
                 frame.setMinimumSize(new Dimension(640, 480));

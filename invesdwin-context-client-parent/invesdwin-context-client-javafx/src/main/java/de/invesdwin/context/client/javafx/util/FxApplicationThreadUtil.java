@@ -6,12 +6,11 @@ import java.util.concurrent.FutureTask;
 
 import javax.annotation.concurrent.Immutable;
 
-import com.sun.javafx.application.PlatformImpl;
-
 import de.invesdwin.util.concurrent.Executors;
 import de.invesdwin.util.concurrent.WrappedExecutorService;
 import de.invesdwin.util.concurrent.future.Futures;
 import io.netty.util.concurrent.FastThreadLocal;
+import javafx.application.Platform;
 import javafx.concurrent.Task;
 
 /**
@@ -29,7 +28,7 @@ public final class FxApplicationThreadUtil {
         @Override
         protected Boolean initialValue() throws Exception {
             //CHECKSTYLE:OFF
-            return PlatformImpl.isFxApplicationThread();
+            return Platform.isFxApplicationThread();
             //CHECKSTYLE:ON
         }
     };
@@ -94,7 +93,7 @@ public final class FxApplicationThreadUtil {
 
     public static void runLater(final Runnable runnable) {
         //CHECKSTYLE:OFF must only be called by this class anyway
-        PlatformImpl.runLater(runnable);
+        Platform.runLater(runnable);
         //CHECKSTYLE:ON
     }
 
