@@ -24,6 +24,7 @@ import de.invesdwin.context.log.error.hook.ErrHookManager;
 import de.invesdwin.context.log.error.hook.IErrHook;
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.shutdown.ShutdownHookManager;
+import de.invesdwin.util.swing.Dialogs;
 import de.invesdwin.util.swing.listener.WindowListenerSupport;
 
 @ThreadSafe
@@ -81,7 +82,6 @@ public final class GuiExceptionHandler implements IErrHook {
                         dialog.setTitle("Error");
                         dialog.setSize(new Dimension(800, dialog.getHeight()));
                         dialog.setMinimumSize(new Dimension(100, 100));
-                        dialog.setVisible(true);
                         dialog.addWindowListener(new WindowListenerSupport() {
                             @Override
                             public void windowClosed(final WindowEvent e) {
@@ -91,6 +91,8 @@ public final class GuiExceptionHandler implements IErrHook {
                                 }
                             }
                         });
+                        Dialogs.installEscapeCloseOperation(dialog);
+                        dialog.setVisible(true);
                     }
                 });
             } else {

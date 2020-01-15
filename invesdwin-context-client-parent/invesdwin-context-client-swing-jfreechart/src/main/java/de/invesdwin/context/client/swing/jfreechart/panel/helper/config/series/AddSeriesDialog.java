@@ -37,6 +37,7 @@ public class AddSeriesDialog extends JDialog {
                 close();
             }
         });
+        Dialogs.installEscapeCloseOperation(this);
 
         getRootPane().registerKeyboardAction(new ActionListener() {
             @Override

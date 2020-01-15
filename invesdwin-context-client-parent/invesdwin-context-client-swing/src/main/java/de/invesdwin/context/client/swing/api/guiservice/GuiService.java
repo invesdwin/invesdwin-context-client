@@ -103,6 +103,7 @@ public class GuiService implements IGuiService {
                 }
             });
         }
+        Dialogs.installEscapeCloseOperation(dialog);
         view.setDockable(dialog);
         dialog.pack();
         if (dimension != null) {
