@@ -42,6 +42,7 @@ import de.invesdwin.util.time.fdate.FTimeUnit;
 @ThreadSafe
 public class LogViewerView extends AView<LogViewerView, JPanel> {
 
+    private static final double DETECT_TRAILING_TOLERANCE_FACTOR = 1.05;
     private static final AtomicLong ACTIVE_LOGS = new AtomicLong();
     @GuardedBy("this.class")
     private static WrappedScheduledExecutorService scheduledExecutor;
@@ -291,8 +292,8 @@ public class LogViewerView extends AView<LogViewerView, JPanel> {
             return true;
         }
         final JScrollBar scrollBar = scrollPane.getVerticalScrollBar();
-        final boolean trailing = !scrollBar.isShowing()
-                || scrollBar.getValue() >= scrollBar.getMaximum() - scrollBar.getVisibleAmount();
+        final boolean trailing = !scrollBar.isShowing() || scrollBar.getValue() >= scrollBar.getMaximum()
+                - (scrollBar.getVisibleAmount() * DETECT_TRAILING_TOLERANCE_FACTOR);
         return trailing;
     }
 
@@ -326,6 +327,7 @@ public class LogViewerView extends AView<LogViewerView, JPanel> {
             public void run() {
                 synchronized (updatingLock) {
                     updating = false;
+                    getComponent().validate();
                     updateScrollBar(trailingState);
                     getComponent().setIgnoreRepaint(false);
                     getComponent().repaint();
