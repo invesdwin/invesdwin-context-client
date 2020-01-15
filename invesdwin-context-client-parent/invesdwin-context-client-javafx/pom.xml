@@ -10,6 +10,22 @@
 	<artifactId>invesdwin-context-client-javafx</artifactId>
 	<packaging>jar</packaging>
 
+	<properties>
+		<version.compiler>11</version.compiler>
+	</properties>
+	
+	<build>
+		<plugins>
+			<plugin>
+				<artifactId>maven-enforcer-plugin</artifactId>
+				<configuration>
+					<!-- StackOverflowException: at org.apache.maven.shared.dependency.graph.internal.Maven31DependencyGraphBuilder.buildDependencyNode (Maven31DependencyGraphBuilder.java:231) -->
+					<skip>true</skip>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
 	<dependencies>
 		<dependency>
 			<groupId>de.invesdwin</groupId>
