@@ -22,7 +22,8 @@ public final class JButtons {
     private JButtons() {}
 
     public static Dimension getDefaultSize(final JComponent button) {
-        final int width = Integers.max(DEFAULT_BUTTON_WIDTH.getPixelSize(button), button.getPreferredSize().width);
+        //+4 is required for GTK3 and does not hurt on other look and feels
+        final int width = Integers.max(DEFAULT_BUTTON_WIDTH.getPixelSize(button) + 4, button.getPreferredSize().width);
         final int height = Integers.max(DEFAULT_BUTTON_HEIGHT.getPixelSize(button), button.getPreferredSize().height);
         return new Dimension(width, height);
     }
