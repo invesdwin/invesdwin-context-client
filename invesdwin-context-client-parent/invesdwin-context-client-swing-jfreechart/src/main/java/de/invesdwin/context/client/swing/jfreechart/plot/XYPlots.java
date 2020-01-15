@@ -30,7 +30,7 @@ public final class XYPlots {
             return value;
         }
     };
-    public static final Font DEFAULT_FONT = new Font("Verdana", Font.PLAIN, 9);;
+    public static final Font DEFAULT_FONT = new Font("Verdana", Font.PLAIN, 9);
 
     private XYPlots() {}
 

@@ -14,6 +14,7 @@ import de.invesdwin.util.math.decimal.scaled.ByteSizeScale;
 import de.invesdwin.util.math.decimal.scaled.Percent;
 import de.invesdwin.util.math.decimal.scaled.PercentScale;
 import de.invesdwin.util.swing.Components;
+import de.invesdwin.util.swing.Fonts;
 import de.invesdwin.util.swing.MouseEnteredListener;
 import de.invesdwin.util.time.duration.Duration;
 import de.invesdwin.util.time.fdate.FTimeUnit;
@@ -39,6 +40,7 @@ public class HeapIndicator extends JProgressBar {
         super(0, 100);
         setStringPainted(true);
         setString("");
+        Fonts.resizeFont(this, 11); //fix gtk3 not drawing the text
         addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(final MouseEvent mev) {
