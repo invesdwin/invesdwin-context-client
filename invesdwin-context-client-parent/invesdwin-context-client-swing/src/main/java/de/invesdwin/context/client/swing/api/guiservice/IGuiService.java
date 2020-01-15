@@ -31,6 +31,8 @@ public interface IGuiService {
 
     boolean isModalViewShowing();
 
+    AView<?, ?> getModalViewShowing();
+
     ResourceMap getResourceMap(Class<?> clazz);
 
     /**

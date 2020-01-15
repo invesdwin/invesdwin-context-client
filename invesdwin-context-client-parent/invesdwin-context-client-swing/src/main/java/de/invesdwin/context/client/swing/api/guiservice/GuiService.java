@@ -122,6 +122,11 @@ public class GuiService implements IGuiService {
     }
 
     @Override
+    public AView<?, ?> getModalViewShowing() {
+        return dialogs.peek().getView();
+    }
+
+    @Override
     public Window getWindow() {
         if (dialogs.isEmpty()) {
             return Dialogs.getRootFrame();

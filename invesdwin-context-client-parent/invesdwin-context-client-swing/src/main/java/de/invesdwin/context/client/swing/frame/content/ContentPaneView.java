@@ -22,6 +22,7 @@ import bibliothek.gui.dock.common.intern.CommonDockable;
 import bibliothek.gui.dock.common.mode.ExtendedMode;
 import bibliothek.gui.dock.control.focus.DefaultFocusRequest;
 import de.invesdwin.aspects.EventDispatchThreadUtil;
+import de.invesdwin.context.client.swing.api.binding.component.button.SubmitButtonBinding;
 import de.invesdwin.context.client.swing.api.guiservice.ContentPane;
 import de.invesdwin.context.client.swing.api.guiservice.GuiService;
 import de.invesdwin.context.client.swing.api.view.AView;
@@ -62,6 +63,16 @@ public class ContentPaneView extends AView<ContentPaneView, JPanel> {
                             }
                         }
                     });
+                }
+                if (pressed && e.getKeyCode() == KeyEvent.VK_ESCAPE) {
+                    final AView<?, ?> modalView = GuiService.get().getModalViewShowing();
+                    if (modalView != null) {
+                        final SubmitButtonBinding defaultCloseOperation = modalView.getBindingGroup()
+                                .getDefaultCloseOperation();
+                        if (defaultCloseOperation != null) {
+                            defaultCloseOperation.doClick();
+                        }
+                    }
                 }
                 pressed = false;
             }
