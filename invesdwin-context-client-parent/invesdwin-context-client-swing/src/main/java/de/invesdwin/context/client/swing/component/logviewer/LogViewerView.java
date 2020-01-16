@@ -2,6 +2,9 @@ package de.invesdwin.context.client.swing.component.logviewer;
 
 import java.awt.BorderLayout;
 import java.awt.Graphics;
+import java.awt.event.AdjustmentEvent;
+import java.awt.event.AdjustmentListener;
+import java.awt.event.ComponentEvent;
 import java.awt.event.KeyEvent;
 import java.util.HashSet;
 import java.util.NoSuchElementException;
@@ -34,6 +37,7 @@ import de.invesdwin.util.concurrent.WrappedScheduledExecutorService;
 import de.invesdwin.util.concurrent.reference.MutableReference;
 import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.swing.Dialogs;
+import de.invesdwin.util.swing.listener.ComponentListenerSupport;
 import de.invesdwin.util.swing.listener.KeyListenerSupport;
 import de.invesdwin.util.time.duration.Duration;
 import de.invesdwin.util.time.fdate.FDate;
@@ -62,6 +66,8 @@ public class LogViewerView extends AView<LogViewerView, JPanel> {
     private final Object updatingLock = new Object();
     @GuardedBy("updatingLock")
     private boolean updating;
+    private boolean prevTrailing = true;
+    private boolean prevPrevTrailing = true;
 
     public LogViewerView(final ILogViewerSource source) {
         this.source = source;
@@ -153,6 +159,13 @@ public class LogViewerView extends AView<LogViewerView, JPanel> {
         panel.add(scrollPane, BorderLayout.CENTER);
         this.editor = Dialogs.newHtmlMessagePane();
         scrollPane.setViewportView(editor);
+        scrollPane.getVerticalScrollBar().addAdjustmentListener(new AdjustmentListener() {
+            @Override
+            public void adjustmentValueChanged(final AdjustmentEvent e) {
+                prevPrevTrailing = prevTrailing;
+                prevTrailing = determineTrailing();
+            }
+        });
 
         final DefaultCaret caret = (DefaultCaret) editor.getCaret();
         caret.setUpdatePolicy(DefaultCaret.NEVER_UPDATE);
@@ -166,6 +179,19 @@ public class LogViewerView extends AView<LogViewerView, JPanel> {
             }
 
         });
+
+        panel.addComponentListener(new ComponentListenerSupport() {
+            @Override
+            public void componentResized(final ComponentEvent e) {
+                if (prevTrailing || prevPrevTrailing) {
+                    prevPrevTrailing = true;
+                    prevTrailing = true;
+                    updateScrollBar(null);
+                }
+            }
+
+        });
+
         return panel;
     }
 
@@ -287,7 +313,7 @@ public class LogViewerView extends AView<LogViewerView, JPanel> {
             return true;
         }
         final JScrollBar scrollBar = scrollPane.getVerticalScrollBar();
-        final boolean trailing = !scrollBar.isShowing() || scrollBar.getValue() >= scrollBar.getMaximum()
+        final boolean trailing = scrollBar.getValue() >= scrollBar.getMaximum()
                 - (scrollBar.getVisibleAmount() * DETECT_TRAILING_TOLERANCE_FACTOR);
         return trailing;
     }
@@ -336,7 +362,7 @@ public class LogViewerView extends AView<LogViewerView, JPanel> {
 
     private void updateScrollBar(final TrailingState trailingState) {
         final JScrollBar scrollBar = scrollPane.getVerticalScrollBar();
-        if (trailingState.trailing) {
+        if (trailingState == null || trailingState.trailing) {
             scrollBar.setValue(scrollBar.getMaximum());
         } else {
             scrollBar.setValue(trailingState.scrollBarValueBefore);
