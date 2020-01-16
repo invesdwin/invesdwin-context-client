@@ -101,12 +101,12 @@ public class ExpressionSettingsPanel extends JPanel implements ISettingsPanelAct
                 Components.setToolTipText(lbl_expression,
                         "<html><b>Valid:</b><br><pre>  "
                                 + HtmlUtils.htmlEscape(parsedExpression.toString().replace("\n", "\n  ")) + "</pre>",
-                        false);
+                        false, AddSeriesPanel.SPACED_TOOLTIP_FORMATTER);
             } catch (final Throwable t) {
                 lbl_expression.setIcon(ICON_EXPRESSION_PENDING_INVALID);
-                Components.setToolTipText(lbl_expression, "<html><b>Error:</b><br><pre>  "
-                        + HtmlUtils.htmlEscape(Throwables.concatMessagesShort(t).replace("\n", "\n  ")) + "</pre>",
-                        false);
+                Components.setToolTipText(lbl_expression,
+                        "<html><b>Error:</b><br><pre>  " + AddSeriesPanel.prepareErrorMessageForTooltip(t) + "</pre>",
+                        false, AddSeriesPanel.SPACED_TOOLTIP_FORMATTER);
             }
         } else {
             lbl_expression.setIcon(ICON_EXPRESSION);

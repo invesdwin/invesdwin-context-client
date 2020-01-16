@@ -40,6 +40,7 @@ import de.invesdwin.util.swing.icon.ChangeColorImageFilter;
 import de.invesdwin.util.swing.listener.DocumentListenerSupport;
 import de.invesdwin.util.swing.listener.MouseListenerSupport;
 import de.invesdwin.util.swing.listener.MouseMotionListenerSupport;
+import de.invesdwin.util.swing.text.ToolTipFormatter;
 
 @NotThreadSafe
 public class AddSeriesPanel extends JPanel {
@@ -53,6 +54,9 @@ public class AddSeriesPanel extends JPanel {
     public static final Icon ICON_EXPRESSION_PENDING_VALID = ChangeColorImageFilter
             .apply(AddSeriesPanelLayout.ICON_EXPRESSION, COLOR_EXPRESSION_PENDING_VALID);
     public static final int TOOLTIP_WORD_WRAP_LIMIT = 120;
+    public static final ToolTipFormatter SPACED_TOOLTIP_FORMATTER = Components.getDefaultToolTipFormatter()
+            .clone()
+            .withLineBreak("<br>  ");
 
     private static final org.slf4j.ext.XLogger LOG = org.slf4j.ext.XLoggerFactory.getXLogger(AddSeriesPanel.class);
     private static final Cursor HAND_CURSOR = Cursor.getPredefinedCursor(Cursor.HAND_CURSOR);
@@ -247,12 +251,12 @@ public class AddSeriesPanel extends JPanel {
                 Components.setToolTipText(lbl_expression,
                         "<html><b>Valid:</b><br><pre>  "
                                 + HtmlUtils.htmlEscape(parsedExpression.toString().replace("\n", "\n  ")) + "</pre>",
-                        false);
+                        false, SPACED_TOOLTIP_FORMATTER);
             } catch (final Throwable t) {
                 lbl_expression.setIcon(AddSeriesPanel.ICON_EXPRESSION_PENDING_INVALID);
                 Components.setToolTipText(lbl_expression,
                         "<html><b>Error:</b><br><pre>  " + AddSeriesPanel.prepareErrorMessageForTooltip(t) + "</pre>",
-                        false);
+                        false, SPACED_TOOLTIP_FORMATTER);
             }
         } else {
             lbl_expression.setIcon(AddSeriesPanel.ICON_EXPRESSION);
