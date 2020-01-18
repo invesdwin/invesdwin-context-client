@@ -32,6 +32,9 @@ import de.invesdwin.util.math.expression.IExpression;
 @NotThreadSafe
 public class OrderPlottingDataset extends AbstractXYDataset implements IPlotSourceDataset, IIndexedDateTimeXYDataset {
 
+    public static final int MAX_ORDERS = 10_000;
+    private static final int TRIM_ORDERS = 12_000;
+
     private final String seriesKey;
     private String seriesTitle;
     private final IndexedDateTimeOHLCDataset masterDataset;
@@ -192,9 +195,16 @@ public class OrderPlottingDataset extends AbstractXYDataset implements IPlotSour
     public void addOrUpdate(final OrderPlottingDataItem item) {
         final long firstLoadedKeyMillis = (long) getXValueAsDateTime(0, 0);
         final long lastLoadedKeyMillis = (long) getXValueAsDateTime(0, getItemCount(0) - 1);
-        item.updateItemLoaded(firstLoadedKeyMillis, lastLoadedKeyMillis, this);
+        final boolean trailingLoaded = masterDataset.isTrailingLoaded();
+        item.updateItemLoaded(firstLoadedKeyMillis, lastLoadedKeyMillis, trailingLoaded, this);
         orderId_item.put(item.getOrderId(), item);
         lastTradeProfit = item.isProfit();
+        if (orderId_item.size() > TRIM_ORDERS) {
+            while (orderId_item.size() > MAX_ORDERS) {
+                final String first = orderId_item.keySet().iterator().next();
+                orderId_item.remove(first);
+            }
+        }
     }
 
     public void remove(final String orderId) {
@@ -346,8 +356,10 @@ public class OrderPlottingDataset extends AbstractXYDataset implements IPlotSour
         final long lastLoadedKeyMillis = (long) getXValueAsDateTime(0, getItemCount(0) - 1);
         if (forced || prevFirstLoadedKeyMillis != firstLoadedKeyMillis
                 || prevLastLoadedKeyMillis != lastLoadedKeyMillis) {
+            final boolean trailingLoaded = masterDataset.isTrailingLoaded();
             for (final OrderPlottingDataItem dataItem : orderId_item.values()) {
-                dataItem.updateItemLoaded(firstLoadedKeyMillis, lastLoadedKeyMillis, OrderPlottingDataset.this);
+                dataItem.updateItemLoaded(firstLoadedKeyMillis, lastLoadedKeyMillis, trailingLoaded,
+                        OrderPlottingDataset.this);
             }
             prevFirstLoadedKeyMillis = firstLoadedKeyMillis;
             prevLastLoadedKeyMillis = lastLoadedKeyMillis;

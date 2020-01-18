@@ -193,14 +193,14 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
     }
 
     private FDate getResetReferenceTime() {
-        if (lastUpdateTime != null && isTrailing(chartPanel.getDomainAxis().getRange())) {
+        if (lastUpdateTime != null && isTrailingRange(chartPanel.getDomainAxis().getRange())) {
             return lastUpdateTime;
         } else {
             return provider.getLastAvailableKey();
         }
     }
 
-    public boolean isTrailing(final Range range) {
+    public boolean isTrailingRange(final Range range) {
         return range.getUpperBound() >= (getData().size() - 1);
     }
 
@@ -294,7 +294,7 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
             //wait for lazy loading to finish
             return range;
         }
-        final boolean isTrailing = isTrailing(range);
+        final boolean isTrailing = isTrailingRange(range);
         Range updatedRange = range;
         final List<MasterOHLCDataItem> data = getData();
         final int preloadLowerBound = (int) (range.getLowerBound() - range.getLength());
@@ -349,6 +349,19 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
             }
         }
         return updatedRange;
+    }
+
+    @Override
+    public boolean isTrailingLoaded() {
+        final FDate lastLoadedKey = getLastLoadedKey();
+        if (lastLoadedKey == null) {
+            return false;
+        }
+        final FDate lastAvailableKey = provider.getLastAvailableKey();
+        if (lastAvailableKey == null) {
+            return false;
+        }
+        return lastAvailableKey.isBeforeOrEqualToNotNullSafe(lastLoadedKey);
     }
 
     private void loadItems(final List<MasterOHLCDataItem> data, final List<MasterOHLCDataItem> items,
@@ -533,7 +546,7 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
             return !data.isEmpty();
         }
         final Range rangeBefore = chartPanel.getDomainAxis().getRange();
-        final boolean isTrailing = isTrailing(rangeBefore);
+        final boolean isTrailing = isTrailingRange(rangeBefore);
         if (!isTrailing) {
             return false;
         }

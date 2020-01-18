@@ -83,8 +83,8 @@ public class OrderPlottingDataItem {
     }
 
     public void updateItemLoaded(final long firstLoadedKeyMillis, final long lastLoadedKeyMillis,
-            final OrderPlottingDataset dataset) {
-        if (getOpenTime().millisValue() > lastLoadedKeyMillis
+            final boolean trailingLoaded, final OrderPlottingDataset dataset) {
+        if (!trailingLoaded && getOpenTime().millisValue() > lastLoadedKeyMillis
                 || getCloseTime() != null && getCloseTime().millisValue() < firstLoadedKeyMillis) {
             if (itemLoaded) {
                 itemLoaded = false;

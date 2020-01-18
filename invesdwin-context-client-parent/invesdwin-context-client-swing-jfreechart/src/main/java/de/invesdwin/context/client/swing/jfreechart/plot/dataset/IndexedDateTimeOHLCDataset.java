@@ -10,6 +10,7 @@ import org.jfree.data.xy.OHLCDataItem;
 
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.series.expression.IExpressionSeriesProvider;
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.series.indicator.IIndicatorSeriesProvider;
+import de.invesdwin.context.client.swing.jfreechart.plot.dataset.list.IChartPanelAwareDatasetList;
 import de.invesdwin.context.jfreechart.dataset.ListOHLCDataset;
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.error.UnknownArgumentException;
@@ -30,7 +31,6 @@ public class IndexedDateTimeOHLCDataset extends ListOHLCDataset
     private IExpressionSeriesProvider expressionSeriesProvider;
     private String expressionSeriesArguments;
 
-    @SuppressWarnings("unchecked")
     public IndexedDateTimeOHLCDataset(final String seriesKey, final List<? extends OHLCDataItem> data) {
         super(seriesKey, data);
         Assertions.checkNotNull(seriesKey);
@@ -54,6 +54,17 @@ public class IndexedDateTimeOHLCDataset extends ListOHLCDataset
     public double getXValueAsDateTime(final int series, final int item) {
         final int usedItem = Integers.between(item, 0, getItemCount(series) - 1);
         return getData().get(usedItem).getDate().getTime();
+    }
+
+    public boolean isTrailingLoaded() {
+        final List<? extends OHLCDataItem> data = getData();
+        if (data instanceof IChartPanelAwareDatasetList) {
+            final IChartPanelAwareDatasetList cData = (IChartPanelAwareDatasetList) data;
+            return cData.isTrailingLoaded();
+        } else {
+            //we are always fully loaded if we don't have a lazy dataset
+            return true;
+        }
     }
 
     @Override
