@@ -18,9 +18,6 @@ import javax.swing.JPanel;
 import javax.swing.event.DocumentEvent;
 import javax.swing.table.DefaultTableModel;
 
-import org.apache.commons.text.WordUtils;
-import org.springframework.web.util.HtmlUtils;
-
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.PlotConfigurationHelper;
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.SeriesRendererType;
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.series.expression.IExpressionSeriesProvider;
@@ -250,7 +247,7 @@ public class AddSeriesPanel extends JPanel {
                 lbl_expression.setIcon(AddSeriesPanel.ICON_EXPRESSION_PENDING_VALID);
                 Components.setToolTipText(lbl_expression,
                         "<html><b>Valid:</b><br><pre>  "
-                                + HtmlUtils.htmlEscape(parsedExpression.toString().replace("\n", "\n  ")) + "</pre>",
+                                + Strings.escapeHtml4(parsedExpression.toString().replace("\n", "\n  ")) + "</pre>",
                         false, SPACED_TOOLTIP_FORMATTER);
             } catch (final Throwable t) {
                 lbl_expression.setIcon(AddSeriesPanel.ICON_EXPRESSION_PENDING_INVALID);
@@ -266,9 +263,9 @@ public class AddSeriesPanel extends JPanel {
 
     public static String prepareErrorMessageForTooltip(final Throwable t) {
         String message = Throwables.concatMessagesShort(t);
-        message = WordUtils.wrap(message, TOOLTIP_WORD_WRAP_LIMIT);
+        message = Strings.wrap(message, TOOLTIP_WORD_WRAP_LIMIT);
         message = message.replace("\n", "\n  ");
-        message = HtmlUtils.htmlEscape(message);
+        message = Strings.escapeHtml4(message);
         return message;
     }
 

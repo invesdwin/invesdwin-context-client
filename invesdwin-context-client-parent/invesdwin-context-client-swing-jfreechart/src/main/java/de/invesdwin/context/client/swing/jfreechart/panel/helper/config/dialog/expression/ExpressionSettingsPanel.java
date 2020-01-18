@@ -14,8 +14,6 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.DocumentEvent;
 
-import org.springframework.web.util.HtmlUtils;
-
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.PlotConfigurationHelper;
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.dialog.ISettingsPanelActions;
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.series.AddSeriesPanel;
@@ -100,7 +98,7 @@ public class ExpressionSettingsPanel extends JPanel implements ISettingsPanelAct
                 lbl_expression.setIcon(ICON_EXPRESSION_PENDING_VALID);
                 Components.setToolTipText(lbl_expression,
                         "<html><b>Valid:</b><br><pre>  "
-                                + HtmlUtils.htmlEscape(parsedExpression.toString().replace("\n", "\n  ")) + "</pre>",
+                                + Strings.escapeHtml4(parsedExpression.toString().replace("\n", "\n  ")) + "</pre>",
                         false, AddSeriesPanel.SPACED_TOOLTIP_FORMATTER);
             } catch (final Throwable t) {
                 lbl_expression.setIcon(ICON_EXPRESSION_PENDING_INVALID);
