@@ -6,7 +6,6 @@ import java.util.Set;
 import javax.annotation.concurrent.ThreadSafe;
 import javax.inject.Inject;
 
-import org.apache.commons.text.StringEscapeUtils;
 import org.jdesktop.application.Application;
 import org.jdesktop.application.TaskService;
 
@@ -18,6 +17,7 @@ import de.invesdwin.util.concurrent.Threads;
 import de.invesdwin.util.concurrent.taskinfo.ITaskInfoListener;
 import de.invesdwin.util.concurrent.taskinfo.TaskInfo;
 import de.invesdwin.util.concurrent.taskinfo.TaskInfoManager;
+import de.invesdwin.util.lang.Strings;
 import de.invesdwin.util.math.decimal.scaled.Percent;
 import de.invesdwin.util.math.decimal.scaled.PercentScale;
 import de.invesdwin.util.time.duration.Duration;
@@ -97,7 +97,7 @@ public class StatusBarTaskInfoMonitor implements IRichApplicationHook, ITaskInfo
             private void updateDescription(final TaskInfo taskInfo) {
                 final Set<String> descriptions = taskInfo.getDescriptions();
                 if (!descriptions.isEmpty()) {
-                    setDescription(StringEscapeUtils.escapeHtml4(descriptions.iterator().next()));
+                    setDescription(Strings.escapeHtml4(descriptions.iterator().next()));
                 } else {
                     setDescription(null);
                 }
