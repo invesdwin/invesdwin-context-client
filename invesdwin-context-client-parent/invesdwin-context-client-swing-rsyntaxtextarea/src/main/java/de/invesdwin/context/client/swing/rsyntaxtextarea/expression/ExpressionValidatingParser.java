@@ -54,16 +54,25 @@ public class ExpressionValidatingParser extends AbstractParser {
         try {
             parseExpression(expression.toString());
         } catch (final ParseException e) {
-            final IPosition position = e.getPosition();
-            final int line = position.getLineOffset();
-            final int offset = position.getIndexOffset();
-            final int length = Integers.max(1, position.getLength());
-            result.addNotice(new DefaultParserNotice(this, e.getOriginalMessage(), line, offset, length));
+            processParseException(e);
         } catch (final Throwable t) {
-            result.addNotice(
-                    new DefaultParserNotice(this, Throwables.concatMessagesShort(t), 1, 0, expression.length()));
+            final ParseException parseException = Throwables.getCauseByType(t, ParseException.class);
+            if (parseException != null) {
+                processParseException(parseException);
+            } else {
+                result.addNotice(
+                        new DefaultParserNotice(this, Throwables.concatMessagesShort(t), 1, 0, expression.length()));
+            }
         }
         return result;
+    }
+
+    private void processParseException(final ParseException e) {
+        final IPosition position = e.getPosition();
+        final int line = position.getLineOffset();
+        final int offset = position.getIndexOffset();
+        final int length = Integers.max(1, position.getLength());
+        result.addNotice(new DefaultParserNotice(this, e.getOriginalMessage(), line, offset, length));
     }
 
     protected void parseExpression(final String expression) throws ParseException {

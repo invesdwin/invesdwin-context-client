@@ -40,10 +40,10 @@
 			</properties>
 		</profile>
 		<profile>
-			<id>macosx64</id>
+			<id>mac64</id>
 			<activation>
 				<os>
-					<family>macosx</family>
+					<family>mac</family>
 					<arch>x86_64</arch>
 				</os>
 			</activation>
