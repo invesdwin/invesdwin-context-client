@@ -41,6 +41,7 @@ import de.invesdwin.context.client.swing.jfreechart.plot.XYPlots;
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.IndexedDateTimeOHLCDataset;
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.list.IChartPanelAwareDatasetList;
 import de.invesdwin.context.jfreechart.visitor.JFreeChartLocaleChanger;
+import de.invesdwin.context.log.error.Err;
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.concurrent.Executors;
 import de.invesdwin.util.concurrent.WrappedExecutorService;
@@ -307,6 +308,9 @@ public class InteractiveChartPanel extends JPanel {
                     incrementUpdatingCount();
                     try {
                         plotZoomHelper.limitRange(); //do this expensive task outside of EDT
+                    } catch (final Throwable t) {
+                        Err.process(new RuntimeException("Ignoring", t));
+                        return;
                     } finally {
                         decrementUpdatingCount();
                     }
@@ -320,6 +324,9 @@ public class InteractiveChartPanel extends JPanel {
                                     plotCrosshairHelper.disableCrosshair();
                                     configureRangeAxis();
                                     plotLegendHelper.update();
+                                } catch (final Throwable t) {
+                                    Err.process(new RuntimeException("Ignoring", t));
+                                    return;
                                 } finally {
                                     decrementUpdatingCount();
                                 }
@@ -336,6 +343,7 @@ public class InteractiveChartPanel extends JPanel {
         }
     }
 
+    @Override
     public void repaint() {
         Components.triggerMouseMoved(InteractiveChartPanel.this, mouseMotionListener);
     }
