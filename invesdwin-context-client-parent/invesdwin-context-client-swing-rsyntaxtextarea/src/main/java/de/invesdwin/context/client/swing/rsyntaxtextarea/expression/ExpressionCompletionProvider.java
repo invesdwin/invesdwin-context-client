@@ -33,6 +33,10 @@ public class ExpressionCompletionProvider extends DefaultCompletionProvider {
     private final Map<String, IAliasedCompletion> alias_completion = new HashMap<>();
     private final List<String> aliases = new ArrayList<>();
 
+    public ExpressionCompletionProvider() {
+        setAutoActivationRules(true, null);
+    }
+
     @Override
     protected boolean isValidChar(final char ch) {
         return super.isValidChar(ch) || ch == '#';

@@ -13,6 +13,9 @@ public class ExpressionAutoCompletion extends AutoCompletion {
     public ExpressionAutoCompletion(final CompletionProvider provider) {
         super(provider);
         setListCellRenderer(new ExpressionCompletionCellRenderer());
+        setAutoActivationEnabled(true);
+        setAutoActivationDelay(1000);
+        setAutoCompleteEnabled(true);
         setShowDescWindow(true);
         setParameterAssistanceEnabled(true);
         setAutoCompleteSingleChoices(false);
