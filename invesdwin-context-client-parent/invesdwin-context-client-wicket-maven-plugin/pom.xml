@@ -33,12 +33,12 @@
 		<repository>
 			<id>central</id>
 			<name>invesdwin.de-releases</name>
-			<url>http://invesdwin.de/artifactory/plugins-release-local</url>
+			<url>https://invesdwin.de/artifactory/plugins-release-local</url>
 		</repository>
 		<snapshotRepository>
 			<id>snapshots</id>
 			<name>invesdwin.de-snapshots</name>
-			<url>http://invesdwin.de/artifactory/plugins-snapshot-local</url>
+			<url>https://invesdwin.de/artifactory/plugins-snapshot-local</url>
 		</snapshotRepository>
 	</distributionManagement>
 </project>
