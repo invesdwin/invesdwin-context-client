@@ -5,7 +5,7 @@ This project provides frontend modules to create desktop and web clients for the
 
 Releases and snapshots are deployed to this maven repository:
 ```
-http://invesdwin.de/artifactory/invesdwin-oss-remote
+https://invesdwin.de/artifactory/invesdwin-oss-remote
 ```
 
 Dependency declaration:
