@@ -18,6 +18,8 @@ import javax.swing.JPanel;
 import javax.swing.event.DocumentEvent;
 import javax.swing.table.DefaultTableModel;
 
+import org.apache.commons.lang3.ArrayUtils;
+
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.PlotConfigurationHelper;
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.SeriesRendererType;
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.series.expression.IExpressionSeriesProvider;
@@ -53,7 +55,8 @@ public class AddSeriesPanel extends JPanel {
     public static final int TOOLTIP_WORD_WRAP_LIMIT = 120;
     public static final ToolTipFormatter SPACED_TOOLTIP_FORMATTER = Components.getDefaultToolTipFormatter()
             .clone()
-            .withLineBreak("<br>  ");
+            .withLineBreaks(ArrayUtils.addAll(new String[] { "<br>  " },
+                    Components.getDefaultToolTipFormatter().getLineBreaks()));
 
     private static final org.slf4j.ext.XLogger LOG = org.slf4j.ext.XLoggerFactory.getXLogger(AddSeriesPanel.class);
     private static final Cursor HAND_CURSOR = Cursor.getPredefinedCursor(Cursor.HAND_CURSOR);
