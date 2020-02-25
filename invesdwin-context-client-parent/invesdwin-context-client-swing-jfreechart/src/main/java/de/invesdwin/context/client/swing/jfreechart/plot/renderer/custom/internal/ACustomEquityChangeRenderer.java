@@ -38,7 +38,6 @@ import org.jfree.chart.util.PublicCloneable;
 import org.jfree.chart.util.SerialUtils;
 import org.jfree.chart.util.ShapeUtils;
 import org.jfree.data.Range;
-import org.jfree.data.xy.OHLCDataItem;
 import org.jfree.data.xy.XYDataset;
 
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.PriceInitialSettings;
@@ -46,6 +45,7 @@ import de.invesdwin.context.client.swing.jfreechart.plot.dataset.PlotSourceXYSer
 import de.invesdwin.context.client.swing.jfreechart.plot.renderer.IUpDownColorRenderer;
 import de.invesdwin.context.jfreechart.dataset.ListXYSeriesOHLC;
 import de.invesdwin.context.jfreechart.dataset.MutableXYDataItemOHLC;
+import de.invesdwin.context.jfreechart.dataset.TimeRangedOHLCDataItem;
 import de.invesdwin.util.lang.Colors;
 import de.invesdwin.util.math.Doubles;
 
@@ -322,15 +322,15 @@ public abstract class ACustomEquityChangeRenderer extends AbstractXYItemRenderer
         final ListXYSeriesOHLC cSeries = cDataset.getSeries(series);
         final List<MutableXYDataItemOHLC> data = cSeries.getData();
         final int item0 = Math.max(item1 - 1, 0);
-        final OHLCDataItem cItem0 = data.get(item0).getOHLC();
-        final OHLCDataItem cItem1 = data.get(item1).getOHLC();
+        final TimeRangedOHLCDataItem cItem0 = data.get(item0).getOHLC();
+        final TimeRangedOHLCDataItem cItem1 = data.get(item1).getOHLC();
 
         final double x1 = dataset.getXValue(series, item1);
         final double x0 = dataset.getXValue(series, item0);
         final int itemClose;
         final double xClose;
         final Paint lineColor;
-        if (Double.isNaN(cItem1.getClose().doubleValue())) {
+        if (Double.isNaN(cItem1.getClose())) {
             lineColor = Colors.INVISIBLE_COLOR;
             //workaround for in-progress-bar
             if (item1 == lastDatasetItem) {

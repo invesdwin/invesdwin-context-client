@@ -1,21 +1,21 @@
 package de.invesdwin.context.client.swing.jfreechart.plot.dataset;
 
-import java.util.Date;
 import java.util.List;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
 import org.jfree.chart.plot.XYPlot;
-import org.jfree.data.xy.OHLCDataItem;
 
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.series.expression.IExpressionSeriesProvider;
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.series.indicator.IIndicatorSeriesProvider;
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.list.IChartPanelAwareDatasetList;
 import de.invesdwin.context.jfreechart.dataset.ListOHLCDataset;
+import de.invesdwin.context.jfreechart.dataset.TimeRangedOHLCDataItem;
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.error.UnknownArgumentException;
 import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.math.expression.IExpression;
+import de.invesdwin.util.time.fdate.FDate;
 
 @NotThreadSafe
 public class IndexedDateTimeOHLCDataset extends ListOHLCDataset
@@ -31,7 +31,7 @@ public class IndexedDateTimeOHLCDataset extends ListOHLCDataset
     private IExpressionSeriesProvider expressionSeriesProvider;
     private String expressionSeriesArguments;
 
-    public IndexedDateTimeOHLCDataset(final String seriesKey, final List<? extends OHLCDataItem> data) {
+    public IndexedDateTimeOHLCDataset(final String seriesKey, final List<? extends TimeRangedOHLCDataItem> data) {
         super(seriesKey, data);
         Assertions.checkNotNull(seriesKey);
         this.seriesTitle = seriesKey;
@@ -53,11 +53,11 @@ public class IndexedDateTimeOHLCDataset extends ListOHLCDataset
     @Override
     public double getXValueAsDateTime(final int series, final int item) {
         final int usedItem = Integers.between(item, 0, getItemCount(series) - 1);
-        return getData().get(usedItem).getDate().getTime();
+        return getData().get(usedItem).getStartTime().millisValue();
     }
 
     public boolean isTrailingLoaded() {
-        final List<? extends OHLCDataItem> data = getData();
+        final List<? extends TimeRangedOHLCDataItem> data = getData();
         if (data instanceof IChartPanelAwareDatasetList) {
             final IChartPanelAwareDatasetList cData = (IChartPanelAwareDatasetList) data;
             return cData.isTrailingLoaded();
@@ -68,17 +68,17 @@ public class IndexedDateTimeOHLCDataset extends ListOHLCDataset
     }
 
     @Override
-    public int getDateTimeAsItemIndex(final int series, final Date time) {
+    public int getDateTimeAsItemIndex(final int series, final FDate time) {
         return bisect(getData(), time);
     }
 
-    private static int bisect(final List<? extends OHLCDataItem> keys, final Date skippingKeysAbove) {
+    private static int bisect(final List<? extends TimeRangedOHLCDataItem> keys, final FDate skippingKeysAbove) {
         int lo = 0;
         int hi = keys.size();
         while (lo < hi) {
             final int mid = (lo + hi) / 2;
             //if (x < list.get(mid)) {
-            final Date midKey = keys.get(mid).getDate();
+            final FDate midKey = keys.get(mid).getStartTime();
             final int compareTo = midKey.compareTo(skippingKeysAbove);
             switch (compareTo) {
             case -1:
@@ -99,8 +99,8 @@ public class IndexedDateTimeOHLCDataset extends ListOHLCDataset
         if (lo >= keys.size()) {
             lo = lo - 1;
         }
-        final Date loTime = keys.get(lo).getDate();
-        if (loTime.after(skippingKeysAbove)) {
+        final FDate loTime = keys.get(lo).getStartTime();
+        if (loTime.isAfterNotNullSafe(skippingKeysAbove)) {
             final int index = lo - 1;
             return index;
         } else {

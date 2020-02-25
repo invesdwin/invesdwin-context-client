@@ -8,7 +8,6 @@ import java.io.File;
 import java.io.FileReader;
 import java.text.DateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -24,7 +23,6 @@ import javax.swing.UnsupportedLookAndFeelException;
 import org.fife.ui.autocomplete.CompletionProvider;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYItemRenderer;
-import org.jfree.data.xy.OHLCDataItem;
 
 import de.invesdwin.aspects.EventDispatchThreadUtil;
 import de.invesdwin.context.client.swing.jfreechart.panel.basis.CustomCombinedDomainXYPlot;
@@ -46,6 +44,7 @@ import de.invesdwin.context.client.swing.jfreechart.plot.dataset.list.MasterLazy
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.list.SlaveLazyDatasetList;
 import de.invesdwin.context.client.swing.rsyntaxtextarea.expression.ExpressionCompletionProvider;
 import de.invesdwin.context.client.swing.rsyntaxtextarea.expression.completion.IAliasedCompletion;
+import de.invesdwin.context.jfreechart.dataset.TimeRangedOHLCDataItem;
 import de.invesdwin.context.log.error.Err;
 import de.invesdwin.context.system.properties.SystemProperties;
 import de.invesdwin.util.assertions.Assertions;
@@ -69,23 +68,23 @@ public class LazyCandlestickDemo extends JFrame {
 
     private static final String PRICE_PLOT_PANE_ID = "Price";
     private static final UniqueNameGenerator SERIES_ID_GENERATOR = new UniqueNameGenerator();
-    private final List<OHLCDataItem> dataItems;
-    private final AHistoricalCache<OHLCDataItem> dataItemsCache;
+    private final List<TimeRangedOHLCDataItem> dataItems;
+    private final AHistoricalCache<TimeRangedOHLCDataItem> dataItemsCache;
 
     public LazyCandlestickDemo() {
         super("CandlestickDemo");
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         dataItems = loadDataItems();
-        dataItemsCache = new AIterableGapHistoricalCache<OHLCDataItem>() {
+        dataItemsCache = new AIterableGapHistoricalCache<TimeRangedOHLCDataItem>() {
 
             @Override
-            protected FDate innerExtractKey(final FDate key, final OHLCDataItem value) {
-                return FDate.valueOf(value.getDate());
+            protected FDate innerExtractKey(final FDate key, final TimeRangedOHLCDataItem value) {
+                return value.getStartTime();
             }
 
             @Override
-            protected Iterable<OHLCDataItem> createDelegate() {
+            protected Iterable<TimeRangedOHLCDataItem> createDelegate() {
                 return dataItems;
             }
         };
@@ -102,8 +101,8 @@ public class LazyCandlestickDemo extends JFrame {
         chartPanel.initialize();
     }
 
-    private static List<OHLCDataItem> loadDataItems() {
-        final List<OHLCDataItem> dataItems = new ArrayList<OHLCDataItem>();
+    private static List<TimeRangedOHLCDataItem> loadDataItems() {
+        final List<TimeRangedOHLCDataItem> dataItems = new ArrayList<TimeRangedOHLCDataItem>();
         try {
             /*
              * String strUrl=
@@ -120,7 +119,7 @@ public class LazyCandlestickDemo extends JFrame {
             while ((inputLine = in.readLine()) != null) {
                 final StringTokenizer st = new StringTokenizer(inputLine, ",");
 
-                final Date date = df.parse(st.nextToken());
+                final FDate date = FDate.valueOf(df.parse(st.nextToken()));
                 final double open = Double.parseDouble(st.nextToken());
                 final double high = Double.parseDouble(st.nextToken());
                 final double low = Double.parseDouble(st.nextToken());
@@ -129,7 +128,8 @@ public class LazyCandlestickDemo extends JFrame {
                 final double adjClose = Double.parseDouble(st.nextToken());
                 final double volume = Double.parseDouble(st.nextToken());
 
-                final OHLCDataItem item = new OHLCDataItem(date, open, high, low, adjClose, volume);
+                final TimeRangedOHLCDataItem item = new TimeRangedOHLCDataItem(date, date, open, high, low, adjClose,
+                        volume);
                 dataItems.add(item);
             }
             in.close();
@@ -142,7 +142,7 @@ public class LazyCandlestickDemo extends JFrame {
     protected IndexedDateTimeOHLCDataset getDataSet() {
 
         //This is where we go get the data, replace with your own data source
-        final List<? extends OHLCDataItem> data = getData();
+        final List<? extends TimeRangedOHLCDataItem> data = getData();
 
         //Create a dataset, an Open, High, Low, Close dataset
         final IndexedDateTimeOHLCDataset result = new IndexedDateTimeOHLCDataset("MSFT", data);
@@ -153,27 +153,27 @@ public class LazyCandlestickDemo extends JFrame {
     }
 
     //This method uses yahoo finance to get the OHLC data
-    protected List<? extends OHLCDataItem> getData() {
+    protected List<? extends TimeRangedOHLCDataItem> getData() {
         final IMasterLazyDatasetProvider provider = new IMasterLazyDatasetProvider() {
-            private final IHistoricalCacheQuery<OHLCDataItem> query = dataItemsCache.query();
+            private final IHistoricalCacheQuery<TimeRangedOHLCDataItem> query = dataItemsCache.query();
 
             @Override
-            public FDate getFirstAvailableKey() {
-                return FDate.valueOf(dataItems.get(0).getDate());
+            public FDate getFirstAvailableEndTime() {
+                return dataItems.get(0).getEndTime();
             }
 
             @Override
-            public FDate getLastAvailableKey() {
-                return FDate.valueOf(dataItems.get(dataItems.size() - 1).getDate());
+            public FDate getLastAvailableEndTime() {
+                return dataItems.get(dataItems.size() - 1).getEndTime();
             }
 
             @Override
-            public ICloseableIterable<OHLCDataItem> getPreviousValues(final FDate key, final int count) {
+            public ICloseableIterable<TimeRangedOHLCDataItem> getPreviousValues(final FDate key, final int count) {
                 return query.getPreviousValues(key, count);
             }
 
             @Override
-            public ICloseableIterable<? extends OHLCDataItem> getValues(final FDate from, final FDate to) {
+            public ICloseableIterable<? extends TimeRangedOHLCDataItem> getValues(final FDate from, final FDate to) {
                 return query.getValues(from, to);
             }
 
@@ -255,15 +255,16 @@ public class LazyCandlestickDemo extends JFrame {
         private IndexedDateTimeXYSeries newSeriesMaster(final InteractiveChartPanel chartPanel,
                 final String expressionStr, final String seriesId) {
             final IExpression expression = parseExpression(expressionStr);
-            final IHistoricalCacheQuery<OHLCDataItem> sourceQuery = dataItemsCache.query();
+            final IHistoricalCacheQuery<TimeRangedOHLCDataItem> sourceQuery = dataItemsCache.query();
             final ISlaveLazyDatasetProvider provider = new ISlaveLazyDatasetProvider() {
 
                 @Override
-                public OHLCDataItem getValue(final FDate key) {
-                    final OHLCDataItem ohlc = sourceQuery.getValue(key);
-                    final FDate time = new FDate(ohlc.getDate());
+                public TimeRangedOHLCDataItem getValue(final FDate key) {
+                    final TimeRangedOHLCDataItem ohlc = sourceQuery.getValue(key);
+                    final FDate time = ohlc.getEndTime();
                     final double value = expression.evaluateDouble(time);
-                    return new OHLCDataItem(time.dateValue(), Double.NaN, Double.NaN, Double.NaN, value, Double.NaN);
+                    return new TimeRangedOHLCDataItem(ohlc.getStartTime(), ohlc.getEndTime(), Double.NaN, Double.NaN,
+                            Double.NaN, value, Double.NaN);
                 }
 
             };
@@ -376,14 +377,14 @@ public class LazyCandlestickDemo extends JFrame {
             final double finalAdditon = addition;
             final OhlcValueType ohlcValueType = OhlcValueType.parseString(args[3].toString());
 
-            final IHistoricalCacheQuery<OHLCDataItem> sourceQuery = dataItemsCache.query();
+            final IHistoricalCacheQuery<TimeRangedOHLCDataItem> sourceQuery = dataItemsCache.query();
             final ISlaveLazyDatasetProvider provider = new ISlaveLazyDatasetProvider() {
                 @Override
-                public OHLCDataItem getValue(final FDate key) {
-                    final OHLCDataItem ohlcItem = sourceQuery.getPreviousValue(key, lagBars);
-                    final FDate time = new FDate(ohlcItem.getDate());
+                public TimeRangedOHLCDataItem getValue(final FDate key) {
+                    final TimeRangedOHLCDataItem ohlcItem = sourceQuery.getPreviousValue(key, lagBars);
                     final double value = ohlcValueType.getValue(ohlcItem) + finalAdditon;
-                    return new OHLCDataItem(time.dateValue(), Double.NaN, Double.NaN, Double.NaN, value, Double.NaN);
+                    return new TimeRangedOHLCDataItem(ohlcItem.getStartTime(), ohlcItem.getEndTime(), Double.NaN,
+                            Double.NaN, Double.NaN, value, Double.NaN);
                 }
             };
             final IndexedDateTimeXYSeries series = new IndexedDateTimeXYSeries(getExpressionName(),
@@ -556,30 +557,30 @@ public class LazyCandlestickDemo extends JFrame {
     private enum OhlcValueType {
         Open {
             @Override
-            public double getValue(final OHLCDataItem item) {
-                return item.getOpen().doubleValue();
+            public double getValue(final TimeRangedOHLCDataItem item) {
+                return item.getOpen();
             }
         },
         High {
             @Override
-            public double getValue(final OHLCDataItem item) {
-                return item.getHigh().doubleValue();
+            public double getValue(final TimeRangedOHLCDataItem item) {
+                return item.getHigh();
             }
         },
         Low {
             @Override
-            public double getValue(final OHLCDataItem item) {
-                return item.getLow().doubleValue();
+            public double getValue(final TimeRangedOHLCDataItem item) {
+                return item.getLow();
             }
         },
         Close {
             @Override
-            public double getValue(final OHLCDataItem item) {
-                return item.getClose().doubleValue();
+            public double getValue(final TimeRangedOHLCDataItem item) {
+                return item.getClose();
             }
         };
 
-        public abstract double getValue(OHLCDataItem item);
+        public abstract double getValue(TimeRangedOHLCDataItem item);
 
         public static OhlcValueType parseString(final String str) {
             final String strClean = str.trim().toLowerCase();

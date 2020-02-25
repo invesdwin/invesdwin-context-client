@@ -1,11 +1,10 @@
 package de.invesdwin.context.client.swing.jfreechart.plot.dataset.list;
 
-import org.jfree.data.xy.OHLCDataItem;
-
+import de.invesdwin.context.jfreechart.dataset.TimeRangedOHLCDataItem;
 import de.invesdwin.util.time.fdate.FDate;
 
 public interface ISlaveLazyDatasetProvider {
 
-    OHLCDataItem getValue(FDate key);
+    TimeRangedOHLCDataItem getValue(FDate key);
 
 }

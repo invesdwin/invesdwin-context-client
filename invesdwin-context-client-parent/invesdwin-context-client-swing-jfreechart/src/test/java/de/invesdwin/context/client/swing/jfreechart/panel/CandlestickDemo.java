@@ -8,7 +8,6 @@ import java.io.File;
 import java.io.FileReader;
 import java.text.DateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -24,7 +23,6 @@ import javax.swing.UnsupportedLookAndFeelException;
 import org.fife.ui.autocomplete.CompletionProvider;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYItemRenderer;
-import org.jfree.data.xy.OHLCDataItem;
 
 import de.invesdwin.aspects.EventDispatchThreadUtil;
 import de.invesdwin.context.client.swing.jfreechart.panel.basis.CustomCombinedDomainXYPlot;
@@ -43,6 +41,7 @@ import de.invesdwin.context.client.swing.jfreechart.plot.dataset.PlotSourceXYSer
 import de.invesdwin.context.client.swing.rsyntaxtextarea.expression.ExpressionCompletionProvider;
 import de.invesdwin.context.client.swing.rsyntaxtextarea.expression.completion.IAliasedCompletion;
 import de.invesdwin.context.jfreechart.dataset.MutableXYDataItemOHLC;
+import de.invesdwin.context.jfreechart.dataset.TimeRangedOHLCDataItem;
 import de.invesdwin.context.log.error.Err;
 import de.invesdwin.context.system.properties.SystemProperties;
 import de.invesdwin.util.assertions.Assertions;
@@ -82,7 +81,7 @@ public class CandlestickDemo extends JFrame {
     protected IndexedDateTimeOHLCDataset getDataSet() {
 
         //This is where we go get the data, replace with your own data source
-        final List<OHLCDataItem> data = getData();
+        final List<TimeRangedOHLCDataItem> data = getData();
 
         //Create a dataset, an Open, High, Low, Close dataset
         final IndexedDateTimeOHLCDataset result = new IndexedDateTimeOHLCDataset("MSFT", data);
@@ -93,8 +92,8 @@ public class CandlestickDemo extends JFrame {
     }
 
     //This method uses yahoo finance to get the OHLC data
-    protected List<OHLCDataItem> getData() {
-        final List<OHLCDataItem> dataItems = new ArrayList<OHLCDataItem>();
+    protected List<TimeRangedOHLCDataItem> getData() {
+        final List<TimeRangedOHLCDataItem> dataItems = new ArrayList<TimeRangedOHLCDataItem>();
         try {
             /*
              * String strUrl=
@@ -111,7 +110,7 @@ public class CandlestickDemo extends JFrame {
             while ((inputLine = in.readLine()) != null) {
                 final StringTokenizer st = new StringTokenizer(inputLine, ",");
 
-                final Date date = df.parse(st.nextToken());
+                final FDate date = FDate.valueOf(df.parse(st.nextToken()));
                 final double open = Double.parseDouble(st.nextToken());
                 final double high = Double.parseDouble(st.nextToken());
                 final double low = Double.parseDouble(st.nextToken());
@@ -119,7 +118,8 @@ public class CandlestickDemo extends JFrame {
                 final double adjClose = Double.parseDouble(st.nextToken());
                 final double volume = Double.parseDouble(st.nextToken());
 
-                final OHLCDataItem item = new OHLCDataItem(date, open, high, low, adjClose, volume);
+                final TimeRangedOHLCDataItem item = new TimeRangedOHLCDataItem(date, date, open, high, low, adjClose,
+                        volume);
                 dataItems.add(item);
             }
             in.close();
@@ -205,12 +205,13 @@ public class CandlestickDemo extends JFrame {
 
             final IExpression expression = parseExpression(expressionStr);
             final List<MutableXYDataItemOHLC> list = series.getData();
-            final List<? extends OHLCDataItem> ohlc = chartPanel.getMasterDataset().getData();
+            final List<? extends TimeRangedOHLCDataItem> ohlc = chartPanel.getMasterDataset().getData();
             for (int i = 0; i < ohlc.size(); i++) {
-                final FDate time = new FDate(ohlc.get(i).getDate());
-                final double value = expression.evaluateDouble(time);
+                final TimeRangedOHLCDataItem ohlcItem = ohlc.get(i);
+                final double value = expression.evaluateDouble(ohlcItem.getEndTime());
                 final MutableXYDataItemOHLC item = new MutableXYDataItemOHLC(
-                        new OHLCDataItem(time.dateValue(), Double.NaN, Double.NaN, Double.NaN, value, Double.NaN));
+                        new TimeRangedOHLCDataItem(ohlcItem.getStartTime(), ohlcItem.getEndTime(), Double.NaN,
+                                Double.NaN, Double.NaN, value, Double.NaN));
                 final int index = list.size();
                 final double xValueAsDateTime = chartPanel.getMasterDataset().getXValueAsDateTime(0, index);
                 if (xValueAsDateTime != item.getXValue()) {
@@ -330,14 +331,15 @@ public class CandlestickDemo extends JFrame {
             final IndexedDateTimeXYSeries series = new IndexedDateTimeXYSeries(getExpressionName(), new ArrayList<>());
 
             final List<MutableXYDataItemOHLC> list = series.getData();
-            final List<? extends OHLCDataItem> ohlc = chartPanel.getMasterDataset().getData();
+            final List<? extends TimeRangedOHLCDataItem> ohlc = chartPanel.getMasterDataset().getData();
             for (int i = 0; i < ohlc.size(); i++) {
-                final FDate time = new FDate(ohlc.get(i).getDate());
+                final TimeRangedOHLCDataItem ohlcItem = ohlc.get(i);
                 final int lagIndex = Integers.max(i - lagBars, 0);
-                final OHLCDataItem ohlcItem = ohlc.get(lagIndex);
-                final double value = ohlcValueType.getValue(ohlcItem) + addition;
+                final TimeRangedOHLCDataItem ohlcLagItem = ohlc.get(lagIndex);
+                final double value = ohlcValueType.getValue(ohlcLagItem) + addition;
                 final MutableXYDataItemOHLC item = new MutableXYDataItemOHLC(
-                        new OHLCDataItem(time.dateValue(), Double.NaN, Double.NaN, Double.NaN, value, Double.NaN));
+                        new TimeRangedOHLCDataItem(ohlcItem.getStartTime(), ohlcItem.getEndTime(), Double.NaN,
+                                Double.NaN, Double.NaN, value, Double.NaN));
                 final int index = list.size();
                 final double xValueAsDateTime = chartPanel.getMasterDataset().getXValueAsDateTime(0, index);
                 if (xValueAsDateTime != item.getXValue()) {
@@ -516,30 +518,30 @@ public class CandlestickDemo extends JFrame {
     private enum OhlcValueType {
         Open {
             @Override
-            public double getValue(final OHLCDataItem item) {
-                return item.getOpen().doubleValue();
+            public double getValue(final TimeRangedOHLCDataItem item) {
+                return item.getOpen();
             }
         },
         High {
             @Override
-            public double getValue(final OHLCDataItem item) {
-                return item.getHigh().doubleValue();
+            public double getValue(final TimeRangedOHLCDataItem item) {
+                return item.getHigh();
             }
         },
         Low {
             @Override
-            public double getValue(final OHLCDataItem item) {
-                return item.getLow().doubleValue();
+            public double getValue(final TimeRangedOHLCDataItem item) {
+                return item.getLow();
             }
         },
         Close {
             @Override
-            public double getValue(final OHLCDataItem item) {
-                return item.getClose().doubleValue();
+            public double getValue(final TimeRangedOHLCDataItem item) {
+                return item.getClose();
             }
         };
 
-        public abstract double getValue(OHLCDataItem item);
+        public abstract double getValue(TimeRangedOHLCDataItem item);
 
         public static OhlcValueType parseString(final String str) {
             final String strClean = str.trim().toLowerCase();

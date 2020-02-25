@@ -8,7 +8,6 @@ import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
-import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -236,13 +235,13 @@ public class InteractiveChartPanel extends JPanel {
 
     public void resetRange(final int visibleItemCount) {
         if (masterDataset.getItemCount(0) > 0) {
-            final Date firstItemDate = masterDataset.getData().get(0).getDate();
-            final Date lastItemDate = masterDataset.getData().get(masterDataset.getItemCount(0) - 1).getDate();
+            final FDate firstItemDate = masterDataset.getData().get(0).getStartTime();
+            final FDate lastItemDate = masterDataset.getData().get(masterDataset.getItemCount(0) - 1).getStartTime();
             beforeResetRange();
             doResetRange(visibleItemCount);
             update();
-            final Date newFirstItemDate = masterDataset.getData().get(0).getDate();
-            final Date newLastItemDate = masterDataset.getData().get(masterDataset.getItemCount(0) - 1).getDate();
+            final FDate newFirstItemDate = masterDataset.getData().get(0).getStartTime();
+            final FDate newLastItemDate = masterDataset.getData().get(masterDataset.getItemCount(0) - 1).getStartTime();
             if (!newFirstItemDate.equals(firstItemDate) || !newLastItemDate.equals(lastItemDate)) {
                 finalizer.executorUpdateLimit.execute(new Runnable() {
                     @Override

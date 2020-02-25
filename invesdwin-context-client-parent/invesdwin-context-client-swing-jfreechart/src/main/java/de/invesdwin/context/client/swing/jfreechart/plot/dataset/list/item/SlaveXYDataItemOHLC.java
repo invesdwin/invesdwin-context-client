@@ -2,11 +2,10 @@ package de.invesdwin.context.client.swing.jfreechart.plot.dataset.list.item;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
-import org.jfree.data.xy.OHLCDataItem;
-
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.list.ISlaveLazyDatasetProvider;
 import de.invesdwin.context.jfreechart.dataset.MutableOHLCDataItem;
 import de.invesdwin.context.jfreechart.dataset.MutableXYDataItemOHLC;
+import de.invesdwin.context.jfreechart.dataset.TimeRangedOHLCDataItem;
 import de.invesdwin.util.time.fdate.FDate;
 
 @NotThreadSafe
@@ -15,7 +14,7 @@ public class SlaveXYDataItemOHLC extends MutableXYDataItemOHLC {
     public static final SlaveXYDataItemOHLC DUMMY_VALUE = new SlaveXYDataItemOHLC(null,
             MasterOHLCDataItem.DUMMY_VALUE) {
         @Override
-        public void setOHLC(final OHLCDataItem ohlc) {
+        public void setOHLC(final TimeRangedOHLCDataItem ohlc) {
             throw new UnsupportedOperationException();
         }
 
@@ -45,7 +44,7 @@ public class SlaveXYDataItemOHLC extends MutableXYDataItemOHLC {
         this(provider, MutableOHLCDataItem.DUMMY_VALUE);
     }
 
-    public SlaveXYDataItemOHLC(final ISlaveLazyDatasetProvider provider, final OHLCDataItem prevValue) {
+    public SlaveXYDataItemOHLC(final ISlaveLazyDatasetProvider provider, final TimeRangedOHLCDataItem prevValue) {
         super(prevValue != null ? prevValue : MutableOHLCDataItem.DUMMY_VALUE);
         this.provider = provider;
     }
@@ -66,7 +65,7 @@ public class SlaveXYDataItemOHLC extends MutableXYDataItemOHLC {
     }
 
     private void innerLoadValue(final FDate key, final ISlaveLazyDatasetProvider providerCopy) {
-        final OHLCDataItem value = providerCopy.getValue(key);
+        final TimeRangedOHLCDataItem value = providerCopy.getValue(key);
         if (value == null) {
             setOHLC(MutableOHLCDataItem.DUMMY_VALUE);
         } else {

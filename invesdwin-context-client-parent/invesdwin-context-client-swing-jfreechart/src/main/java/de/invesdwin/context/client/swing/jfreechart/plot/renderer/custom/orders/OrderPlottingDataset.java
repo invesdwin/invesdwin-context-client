@@ -1,6 +1,5 @@
 package de.invesdwin.context.client.swing.jfreechart.plot.renderer.custom.orders;
 
-import java.util.Date;
 import java.util.Map;
 
 import javax.annotation.concurrent.NotThreadSafe;
@@ -28,6 +27,7 @@ import de.invesdwin.util.collections.iterable.WrapperCloseableIterable;
 import de.invesdwin.util.concurrent.Executors;
 import de.invesdwin.util.concurrent.WrappedExecutorService;
 import de.invesdwin.util.math.expression.IExpression;
+import de.invesdwin.util.time.fdate.FDate;
 
 @NotThreadSafe
 public class OrderPlottingDataset extends AbstractXYDataset implements IPlotSourceDataset, IIndexedDateTimeXYDataset {
@@ -188,7 +188,7 @@ public class OrderPlottingDataset extends AbstractXYDataset implements IPlotSour
     }
 
     @Override
-    public int getDateTimeAsItemIndex(final int series, final Date time) {
+    public int getDateTimeAsItemIndex(final int series, final FDate time) {
         return masterDataset.getDateTimeAsItemIndex(series, time);
     }
 

@@ -1,7 +1,6 @@
 package de.invesdwin.context.client.swing.jfreechart.plot.dataset.list;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import javax.annotation.concurrent.ThreadSafe;
@@ -103,8 +102,7 @@ public class SlaveLazyDatasetList extends ALazyDatasetList<SlaveXYDataItemOHLC> 
                     final List<SlaveXYDataItemOHLC> data = getData();
                     for (int i = 0; i < master.size(); i++) {
                         final MasterOHLCDataItem masterItem = master.get(i);
-                        final Date date = masterItem.getDate();
-                        final FDate key = FDate.valueOf(date);
+                        final FDate key = masterItem.getEndTime();
                         final SlaveXYDataItemOHLC slaveItem = data.get(i);
                         slaveItem.loadValue(key);
                     }
