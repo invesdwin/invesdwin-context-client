@@ -62,6 +62,7 @@ import de.invesdwin.util.math.expression.eval.BooleanExpression;
 import de.invesdwin.util.math.expression.eval.ConstantExpression;
 import de.invesdwin.util.math.expression.eval.EnumerationExpression;
 import de.invesdwin.util.time.fdate.FDate;
+import de.invesdwin.util.time.range.TimeRange;
 
 @NotThreadSafe
 public class LazyCandlestickDemo extends JFrame {
@@ -158,13 +159,15 @@ public class LazyCandlestickDemo extends JFrame {
             private final IHistoricalCacheQuery<TimeRangedOHLCDataItem> query = dataItemsCache.query();
 
             @Override
-            public FDate getFirstAvailableEndTime() {
-                return dataItems.get(0).getEndTime();
+            public TimeRange getFirstAvailableKey() {
+                final TimeRangedOHLCDataItem item = dataItems.get(0);
+                return new TimeRange(item.getStartTime(), item.getEndTime());
             }
 
             @Override
-            public FDate getLastAvailableEndTime() {
-                return dataItems.get(dataItems.size() - 1).getEndTime();
+            public TimeRange getLastAvailableKey() {
+                final TimeRangedOHLCDataItem item = dataItems.get(dataItems.size() - 1);
+                return new TimeRange(item.getStartTime(), item.getEndTime());
             }
 
             @Override

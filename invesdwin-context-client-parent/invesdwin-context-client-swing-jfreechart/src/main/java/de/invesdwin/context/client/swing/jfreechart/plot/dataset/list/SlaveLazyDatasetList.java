@@ -8,6 +8,7 @@ import javax.annotation.concurrent.ThreadSafe;
 import de.invesdwin.context.client.swing.jfreechart.panel.InteractiveChartPanel;
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.list.item.MasterOHLCDataItem;
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.list.item.SlaveXYDataItemOHLC;
+import de.invesdwin.context.log.error.Err;
 import de.invesdwin.util.concurrent.priority.IPriorityRunnable;
 import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.time.fdate.FDate;
@@ -99,12 +100,16 @@ public class SlaveLazyDatasetList extends ALazyDatasetList<SlaveXYDataItemOHLC> 
             master.getExecutor().execute(new IPriorityRunnable() {
                 @Override
                 public void run() {
-                    final List<SlaveXYDataItemOHLC> data = getData();
-                    for (int i = 0; i < master.size(); i++) {
-                        final MasterOHLCDataItem masterItem = master.get(i);
-                        final FDate key = masterItem.getEndTime();
-                        final SlaveXYDataItemOHLC slaveItem = data.get(i);
-                        slaveItem.loadValue(key);
+                    try {
+                        final List<SlaveXYDataItemOHLC> data = getData();
+                        for (int i = 0; i < master.size(); i++) {
+                            final MasterOHLCDataItem masterItem = master.get(i);
+                            final FDate key = masterItem.getEndTime();
+                            final SlaveXYDataItemOHLC slaveItem = data.get(i);
+                            slaveItem.loadValue(key);
+                        }
+                    } catch (final Throwable t) {
+                        Err.process(new RuntimeException("Ignoring, chart might have been closed", t));
                     }
                 }
 

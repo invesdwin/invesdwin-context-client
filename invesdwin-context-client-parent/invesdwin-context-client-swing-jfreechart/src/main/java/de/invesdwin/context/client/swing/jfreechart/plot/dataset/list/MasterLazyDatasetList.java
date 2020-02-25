@@ -20,12 +20,14 @@ import de.invesdwin.context.client.swing.jfreechart.panel.helper.PlotZoomHelper;
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.listener.IRangeListener;
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.list.item.MasterOHLCDataItem;
 import de.invesdwin.context.jfreechart.dataset.TimeRangedOHLCDataItem;
+import de.invesdwin.context.log.error.Err;
 import de.invesdwin.util.collections.iterable.ICloseableIterable;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
 import de.invesdwin.util.concurrent.WrappedExecutorService;
 import de.invesdwin.util.concurrent.priority.IPriorityRunnable;
 import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.time.fdate.FDate;
+import de.invesdwin.util.time.range.TimeRange;
 
 @ThreadSafe
 public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> implements IChartPanelAwareDatasetList {
@@ -43,7 +45,7 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
     private final IMasterLazyDatasetProvider provider;
     private final Set<ISlaveLazyDatasetListener> slaveDatasetListeners;
     private final Set<IRangeListener> rangeListeners;
-    private final FDate firstAvailableKey;
+    private final TimeRange firstAvailableKey;
     private InteractiveChartPanel chartPanel;
     @GuardedBy("this")
     private FDate lastUpdateTime;
@@ -63,7 +65,7 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
                 .<IRangeListener, Boolean> build()
                 .asMap();
         this.rangeListeners = Collections.newSetFromMap(limitRangeListeners);
-        this.firstAvailableKey = provider.getFirstAvailableEndTime();
+        this.firstAvailableKey = provider.getFirstAvailableKey();
         this.executor = executor;
     }
 
@@ -84,23 +86,27 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
 
     @Override
     public synchronized void resetRange() {
-        if (getData().isEmpty() || getLastLoadedKey().isBefore(getResetReferenceTime())) {
+        if (getData().isEmpty() || getLastLoadedItem().getStartTime().isBefore(getResetReferenceTime())) {
             newData();
             final Runnable task = newSyncTask(new Runnable() {
                 @Override
                 public void run() {
-                    chartPanel.incrementUpdatingCount(); //prevent flickering
                     try {
-                        loadInitialDataMaster();
-                        minLowerBound = 0;
-                        maxUpperBound = getData().size() - 1;
-                        if (!slaveDatasetListeners.isEmpty()) {
-                            for (final ISlaveLazyDatasetListener slave : slaveDatasetListeners) {
-                                slave.loadIinitialItems(false);
+                        chartPanel.incrementUpdatingCount(); //prevent flickering
+                        try {
+                            loadInitialDataMaster();
+                            minLowerBound = 0;
+                            maxUpperBound = getData().size() - 1;
+                            if (!slaveDatasetListeners.isEmpty()) {
+                                for (final ISlaveLazyDatasetListener slave : slaveDatasetListeners) {
+                                    slave.loadIinitialItems(false);
+                                }
                             }
+                        } finally {
+                            chartPanel.decrementUpdatingCount();
                         }
-                    } finally {
-                        chartPanel.decrementUpdatingCount();
+                    } catch (final Throwable t) {
+                        Err.process(new RuntimeException("Ignoring, chart might have been closed", t));
                     }
                 }
             });
@@ -109,13 +115,17 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
                 executor.execute(new IPriorityRunnable() {
                     @Override
                     public void run() {
-                        final List<MasterOHLCDataItem> data = getData();
-                        for (int i = 0; i < data.size(); i++) {
-                            final FDate key = data.get(i).getEndTime();
-                            data.get(i).loadSlaveItems(key);
-                        }
-                        for (final ISlaveLazyDatasetListener slave : slaveDatasetListeners) {
-                            slave.afterLoadItems(true);
+                        try {
+                            final List<MasterOHLCDataItem> data = getData();
+                            for (int i = 0; i < data.size(); i++) {
+                                final FDate key = data.get(i).getEndTime();
+                                data.get(i).loadSlaveItems(key);
+                            }
+                            for (final ISlaveLazyDatasetListener slave : slaveDatasetListeners) {
+                                slave.afterLoadItems(true);
+                            }
+                        } catch (final Throwable t) {
+                            Err.process(new RuntimeException("Ignoring, chart might have been closed", t));
                         }
                     }
 
@@ -135,18 +145,22 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
         final Runnable task = newSyncTask(new Runnable() {
             @Override
             public void run() {
-                chartPanel.incrementUpdatingCount(); //prevent flickering
                 try {
-                    reloadDataMaster();
-                    minLowerBound = 0;
-                    maxUpperBound = getData().size() - 1;
-                    if (!slaveDatasetListeners.isEmpty()) {
-                        for (final ISlaveLazyDatasetListener slave : slaveDatasetListeners) {
-                            slave.loadIinitialItems(false);
+                    chartPanel.incrementUpdatingCount(); //prevent flickering
+                    try {
+                        reloadDataMaster();
+                        minLowerBound = 0;
+                        maxUpperBound = getData().size() - 1;
+                        if (!slaveDatasetListeners.isEmpty()) {
+                            for (final ISlaveLazyDatasetListener slave : slaveDatasetListeners) {
+                                slave.loadIinitialItems(false);
+                            }
                         }
+                    } finally {
+                        chartPanel.decrementUpdatingCount();
                     }
-                } finally {
-                    chartPanel.decrementUpdatingCount();
+                } catch (final Throwable t) {
+                    Err.process(new RuntimeException("Ignoring, chart might have been closed", t));
                 }
             }
         });
@@ -155,13 +169,17 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
             executor.execute(new IPriorityRunnable() {
                 @Override
                 public void run() {
-                    final List<MasterOHLCDataItem> data = getData();
-                    for (int i = 0; i < data.size(); i++) {
-                        final FDate key = data.get(i).getEndTime();
-                        data.get(i).loadSlaveItems(key);
-                    }
-                    for (final ISlaveLazyDatasetListener slave : slaveDatasetListeners) {
-                        slave.afterLoadItems(true);
+                    try {
+                        final List<MasterOHLCDataItem> data = getData();
+                        for (int i = 0; i < data.size(); i++) {
+                            final FDate key = data.get(i).getEndTime();
+                            data.get(i).loadSlaveItems(key);
+                        }
+                        for (final ISlaveLazyDatasetListener slave : slaveDatasetListeners) {
+                            slave.afterLoadItems(true);
+                        }
+                    } catch (final Throwable t) {
+                        Err.process(new RuntimeException("Ignoring, chart might have been closed", t));
                     }
                 }
 
@@ -179,7 +197,7 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
 
     private void reloadDataMaster() {
         final ICloseableIterable<? extends TimeRangedOHLCDataItem> initialValues = provider
-                .getValues(getFirstLoadedKey(), getLastLoadedKey());
+                .getValues(getFirstLoadedItem().getEndTime(), getLastLoadedItem().getEndTime());
         final List<MasterOHLCDataItem> data = newData();
         try (ICloseableIterator<? extends TimeRangedOHLCDataItem> it = initialValues.iterator()) {
             while (true) {
@@ -195,7 +213,7 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
         if (lastUpdateTime != null && isTrailingRange(chartPanel.getDomainAxis().getRange())) {
             return lastUpdateTime;
         } else {
-            return provider.getLastAvailableEndTime();
+            return provider.getLastAvailableKey().getFrom();
         }
     }
 
@@ -206,7 +224,7 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
     private void loadInitialDataMaster() {
         final int initialVisibleItemCount = chartPanel.getInitialVisibleItemCount() * PRELOAD_RANGE_MULTIPLIER;
         final ICloseableIterable<? extends TimeRangedOHLCDataItem> initialValues = provider
-                .getPreviousValues(provider.getLastAvailableEndTime(), initialVisibleItemCount);
+                .getPreviousValues(provider.getLastAvailableKey().getTo(), initialVisibleItemCount);
         final List<MasterOHLCDataItem> data = getData();
         try (ICloseableIterator<? extends TimeRangedOHLCDataItem> it = initialValues.iterator()) {
             while (true) {
@@ -298,8 +316,8 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
         final List<MasterOHLCDataItem> data = getData();
         final int preloadLowerBound = (int) (range.getLowerBound() - range.getLength());
         if (preloadLowerBound < 0) {
-            final FDate firstLoadedKey = getFirstLoadedKey();
-            if (firstAvailableKey.isBefore(firstLoadedKey)) {
+            final FDate firstLoadedKeyFrom = getFirstLoadedItem().getStartTime();
+            if (firstAvailableKey.getFrom().isBefore(firstLoadedKeyFrom)) {
                 //prepend a whole screen additional to the requested items
                 final int prependCount = Integers.min(MAX_STEP_ITEM_COUNT,
                         Integers.abs(preloadLowerBound) * STEP_ITEM_COUNT_MULTIPLIER);
@@ -317,7 +335,7 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
                 rangeChanged.setTrue();
 
                 final ICloseableIterable<? extends TimeRangedOHLCDataItem> masterPrependValues = provider
-                        .getPreviousValues(firstLoadedKey.addMilliseconds(-1), prependCount);
+                        .getPreviousValues(firstLoadedKeyFrom.addMilliseconds(-1), prependCount);
                 loadItems(data, prependItems, masterPrependValues);
             }
         }
@@ -325,8 +343,8 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
         if (!isTrailing) {
             final int preloadUpperBound = (int) (range.getUpperBound() + range.getLength());
             if (preloadUpperBound > data.size()) {
-                final FDate lastLoadedKey = getLastLoadedKey();
-                if (provider.getLastAvailableEndTime().isAfter(lastLoadedKey)) {
+                final FDate lastLoadedKeyFrom = getLastLoadedItem().getStartTime();
+                if (provider.getLastAvailableKey().getFrom().isAfter(lastLoadedKeyFrom)) {
                     //append a whole screen additional to the requested items
                     final int appendCount = Integers.min(MAX_STEP_ITEM_COUNT,
                             (preloadUpperBound - data.size()) * STEP_ITEM_COUNT_MULTIPLIER);
@@ -352,15 +370,15 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
 
     @Override
     public boolean isTrailingLoaded() {
-        final FDate lastLoadedKey = getLastLoadedKey();
-        if (lastLoadedKey == null) {
+        final FDate lastLoadedKeyFrom = getLastLoadedItem().getStartTime();
+        if (lastLoadedKeyFrom == null) {
             return false;
         }
-        final FDate lastAvailableKey = provider.getLastAvailableEndTime();
-        if (lastAvailableKey == null) {
+        final FDate lastAvailableKeyFrom = provider.getLastAvailableKey().getFrom();
+        if (lastAvailableKeyFrom == null) {
             return false;
         }
-        return lastAvailableKey.isBeforeOrEqualToNotNullSafe(lastLoadedKey);
+        return lastAvailableKeyFrom.isBeforeOrEqualToNotNullSafe(lastLoadedKeyFrom);
     }
 
     private void loadItems(final List<MasterOHLCDataItem> data, final List<MasterOHLCDataItem> items,
@@ -369,47 +387,51 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
         executor.execute(new IPriorityRunnable() {
             @Override
             public void run() {
-                int nextItemsIndex = 0;
-                try (ICloseableIterator<? extends TimeRangedOHLCDataItem> it = masterValues.iterator()) {
-                    while (true) {
-                        final TimeRangedOHLCDataItem next = it.next();
-                        final FDate key = next.getEndTime();
-                        final MasterOHLCDataItem appendItem = items.get(nextItemsIndex);
-                        appendItem.setOHLC(next);
-                        appendItem.loadSlaveItems(key);
-                        nextItemsIndex++;
-                    }
-                } catch (final NoSuchElementException e) {
-                    //end reached
-                }
-                chartPanel.incrementUpdatingCount();
                 try {
-                    final int tooManyAfter = items.size() - nextItemsIndex;
-                    if (tooManyAfter > 0) {
-                        final int removeMasterIndex = data.indexOf(items.get(nextItemsIndex));
-                        if (removeMasterIndex >= 0) {
-                            synchronized (MasterLazyDatasetList.this) {
-                                for (int i = 0; i < tooManyAfter; i++) {
-                                    data.remove(removeMasterIndex);
-                                }
-                                if (!slaveDatasetListeners.isEmpty()) {
-                                    for (final ISlaveLazyDatasetListener slave : slaveDatasetListeners) {
-                                        slave.removeMiddleItems(removeMasterIndex, tooManyAfter);
+                    int nextItemsIndex = 0;
+                    try (ICloseableIterator<? extends TimeRangedOHLCDataItem> it = masterValues.iterator()) {
+                        while (true) {
+                            final TimeRangedOHLCDataItem next = it.next();
+                            final FDate key = next.getEndTime();
+                            final MasterOHLCDataItem appendItem = items.get(nextItemsIndex);
+                            appendItem.setOHLC(next);
+                            appendItem.loadSlaveItems(key);
+                            nextItemsIndex++;
+                        }
+                    } catch (final NoSuchElementException e) {
+                        //end reached
+                    }
+                    chartPanel.incrementUpdatingCount();
+                    try {
+                        final int tooManyAfter = items.size() - nextItemsIndex;
+                        if (tooManyAfter > 0) {
+                            final int removeMasterIndex = data.indexOf(items.get(nextItemsIndex));
+                            if (removeMasterIndex >= 0) {
+                                synchronized (MasterLazyDatasetList.this) {
+                                    for (int i = 0; i < tooManyAfter; i++) {
+                                        data.remove(removeMasterIndex);
+                                    }
+                                    if (!slaveDatasetListeners.isEmpty()) {
+                                        for (final ISlaveLazyDatasetListener slave : slaveDatasetListeners) {
+                                            slave.removeMiddleItems(removeMasterIndex, tooManyAfter);
+                                        }
                                     }
                                 }
                             }
                         }
-                    }
-                    if (!slaveDatasetListeners.isEmpty()) {
-                        for (final ISlaveLazyDatasetListener slave : slaveDatasetListeners) {
-                            slave.afterLoadItems(true);
+                        if (!slaveDatasetListeners.isEmpty()) {
+                            for (final ISlaveLazyDatasetListener slave : slaveDatasetListeners) {
+                                slave.afterLoadItems(true);
+                            }
                         }
+                        minLowerBound = 0;
+                        maxUpperBound = data.size() - 1;
+                        chartPanel.update();
+                    } finally {
+                        chartPanel.decrementUpdatingCount();
                     }
-                    minLowerBound = 0;
-                    maxUpperBound = data.size() - 1;
-                    chartPanel.update();
-                } finally {
-                    chartPanel.decrementUpdatingCount();
+                } catch (final Throwable t) {
+                    Err.process(new RuntimeException("Ignoring, chart might have been closed", t));
                 }
             }
 
@@ -468,20 +490,20 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
         }
     }
 
-    public synchronized FDate getFirstLoadedKey() {
-        return innerGetLoadedKey(0);
+    public synchronized TimeRangedOHLCDataItem getFirstLoadedItem() {
+        return innerGetLoadedItem(0);
     }
 
-    public synchronized FDate getLastLoadedKey() {
-        return innerGetLoadedKey(getData().size() - 1);
+    public synchronized TimeRangedOHLCDataItem getLastLoadedItem() {
+        return innerGetLoadedItem(getData().size() - 1);
     }
 
-    public synchronized FDate getLoadedKey(final int i) {
-        return innerGetLoadedKey(Integers.min(i, getData().size() - 1));
+    public synchronized TimeRangedOHLCDataItem getLoadedItem(final int i) {
+        return innerGetLoadedItem(Integers.min(i, getData().size() - 1));
     }
 
-    private FDate innerGetLoadedKey(final int i) {
-        return getData().get(i).getEndTime();
+    private MasterOHLCDataItem innerGetLoadedItem(final int i) {
+        return getData().get(i);
     }
 
     private final class LimitRangeListenerImpl implements IRangeListener {
@@ -526,8 +548,12 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
         executor.execute(new Runnable() { //show task info and load data async
             @Override
             public void run() {
-                //sync slave data with master
-                slaveDatasetListener.loadIinitialItems(true);
+                try {
+                    //sync slave data with master
+                    slaveDatasetListener.loadIinitialItems(true);
+                } catch (final Throwable t) {
+                    Err.process(new RuntimeException("Ignoring, chart might have been closed", t));
+                }
             }
         });
     }
@@ -596,7 +622,7 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
              * the NaN bar will always be appended without the real value appearing
              */
             appendSlaves(appendCount);
-            lastUpdateTime = getLastLoadedKey();
+            lastUpdateTime = getLastLoadedItem().getStartTime();
 
             if (appendCount > 0) {
                 //trail range

@@ -308,7 +308,7 @@ public class InteractiveChartPanel extends JPanel {
                     try {
                         plotZoomHelper.limitRange(); //do this expensive task outside of EDT
                     } catch (final Throwable t) {
-                        Err.process(new RuntimeException("Ignoring", t));
+                        Err.process(new RuntimeException("Ignoring, chart might have been closed", t));
                         return;
                     } finally {
                         decrementUpdatingCount();

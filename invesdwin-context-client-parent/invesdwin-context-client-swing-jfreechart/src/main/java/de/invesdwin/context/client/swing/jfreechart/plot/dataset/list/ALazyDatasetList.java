@@ -123,16 +123,31 @@ public abstract class ALazyDatasetList<E> implements List<E> {
     public E get(final int index) {
         try {
             if (index < 0) {
-                return data.get(0);
+                final E value = data.get(0);
+                if (value == null) {
+                    return dummyValue();
+                } else {
+                    return value;
+                }
             }
-            return data.get(index);
+            final E value = data.get(index);
+            if (value == null) {
+                return dummyValue();
+            } else {
+                return value;
+            }
         } catch (final Throwable e) {
             final int size = data.size();
             if (size == 0) {
                 return dummyValue();
             } else {
                 try {
-                    return data.get(size - 1);
+                    final E value = data.get(size - 1);
+                    if (value == null) {
+                        return dummyValue();
+                    } else {
+                        return value;
+                    }
                 } catch (final Throwable e1) {
                     return dummyValue();
                 }
