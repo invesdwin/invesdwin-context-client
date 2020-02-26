@@ -281,7 +281,6 @@
 				<version>${version.docking-frames}</version>
 			</dependency>
 			<dependency>
-			<dependency>
 				<groupId>com.jgoodies</groupId>
 				<artifactId>jgoodies-forms</artifactId>
 				<version>${version.jgoodies-forms}</version>
