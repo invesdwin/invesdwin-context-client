@@ -33,7 +33,6 @@
 		<module>invesdwin-context-client-wicket-saml</module>
 		<module>invesdwin-context-client-wicket-kerberos</module>
 		<module>invesdwin-context-client-wicket-cas</module>
-		<module>invesdwin-context-client-vaadin</module>
 		<module>invesdwin-context-client-swt</module>
 		<module>invesdwin-context-client-swt-provided</module>
 		<module>invesdwin-context-client-javafx</module>
@@ -46,7 +45,7 @@
 		<project.version.invesdwin-context-security>1.0.1-SNAPSHOT</project.version.invesdwin-context-security>
 		<project.version.invesdwin-context-client>${project.version}</project.version.invesdwin-context-client>
 
-		<version.docking-frames>1.1.2-P20c</version.docking-frames>
+		<version.docking-frames>1.1.3p1</version.docking-frames>
 		<version.spring-richclient>1.1.0</version.spring-richclient>
 		<version.assertj-swing>3.8.0</version.assertj-swing>
 		<version.bsaf>1.9.2</version.bsaf>
@@ -60,9 +59,6 @@
 		<version.jgoodies-looks>2.7.0</version.jgoodies-looks>
 		<version.miglayout>5.2</version.miglayout>
 		<version.designgridlayout>1.11</version.designgridlayout>
-
-		<version.vaadin>8.1.1</version.vaadin>
-		<version.vaadstrap>0.2.1</version.vaadstrap>
 
 		<version.eclipse-swt>3.111.0</version.eclipse-swt>
 		<version.eclipse-jface>3.16.0</version.eclipse-jface>
@@ -279,31 +275,6 @@
 				<version>${version.jcalendar}</version>
 			</dependency>
 
-			<dependency>
-				<groupId>com.vaadin</groupId>
-				<artifactId>vaadin-server</artifactId>
-				<version>${version.vaadin}</version>
-			</dependency>
-			<dependency>
-				<groupId>com.vaadin</groupId>
-				<artifactId>vaadin-push</artifactId>
-				<version>${version.vaadin}</version>
-			</dependency>
-			<dependency>
-				<groupId>com.vaadin</groupId>
-				<artifactId>vaadin-themes</artifactId>
-				<version>${version.vaadin}</version>
-			</dependency>
-			<dependency>
-				<groupId>com.sebworks</groupId>
-				<artifactId>vaadstrap</artifactId>
-				<version>${version.vaadstrap}</version>
-			</dependency>
-			<dependency>
-				<groupId>org.dockingframes</groupId>
-				<artifactId>docking-frames-common</artifactId>
-				<version>${version.docking-frames}</version>
-			</dependency>
 			<dependency>
 				<groupId>com.jgoodies</groupId>
 				<artifactId>jgoodies-forms</artifactId>
