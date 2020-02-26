@@ -24,12 +24,12 @@ import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.title.TextTitle;
 import org.jfree.chart.ui.RectangleAnchor;
 import org.jfree.data.Range;
-import org.jfree.data.xy.OHLCDataItem;
 
 import de.invesdwin.context.client.swing.jfreechart.panel.InteractiveChartPanel;
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.listener.IRangeListener;
 import de.invesdwin.context.client.swing.jfreechart.plot.annotation.priceline.XYPriceLineAnnotation;
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.list.IChartPanelAwareDatasetList;
+import de.invesdwin.context.jfreechart.dataset.TimeRangedOHLCDataItem;
 import de.invesdwin.util.collections.factory.ILockCollectionFactory;
 import de.invesdwin.util.collections.fast.IFastIterableSet;
 import de.invesdwin.util.lang.Strings;
@@ -160,7 +160,7 @@ public class PlotZoomHelper {
             final double width) {
         final Range rangeAfter = chartPanel.getDomainAxis().getRange();
         final double lengthAfter = rangeAfter.getLength();
-        final List<? extends OHLCDataItem> data = chartPanel.getMasterDataset().getData();
+        final List<? extends TimeRangedOHLCDataItem> data = chartPanel.getMasterDataset().getData();
         final double minLowerBound = getMinLowerBound(data);
         final double maxUpperBound = getMaxUpperBound(data);
         final int gapAfter = chartPanel.getAllowedRangeGap(lengthAfter);
@@ -232,7 +232,7 @@ public class PlotZoomHelper {
         }
         final int length = (int) range.getLength();
         final int gap = chartPanel.getAllowedRangeGap(length);
-        final List<? extends OHLCDataItem> data = chartPanel.getMasterDataset().getData();
+        final List<? extends TimeRangedOHLCDataItem> data = chartPanel.getMasterDataset().getData();
         final double minLowerBound = getMinLowerBoundWithGap(data, gap);
         final double maxUpperBound = getMaxUpperBoundWithGap(data, gap);
         if (range.getLowerBound() < minLowerBound) {
@@ -260,7 +260,7 @@ public class PlotZoomHelper {
         }
     }
 
-    private double getMaxUpperBoundWithGap(final List<? extends OHLCDataItem> data, final int gap) {
+    private double getMaxUpperBoundWithGap(final List<? extends TimeRangedOHLCDataItem> data, final int gap) {
         final double maxUpperBound = getMaxUpperBound(data);
         if (maxUpperBound >= data.size() - 1) {
             return maxUpperBound + gap;
@@ -269,7 +269,7 @@ public class PlotZoomHelper {
         }
     }
 
-    private double getMinLowerBoundWithGap(final List<? extends OHLCDataItem> data, final int gap) {
+    private double getMinLowerBoundWithGap(final List<? extends TimeRangedOHLCDataItem> data, final int gap) {
         final double minLowerBound = getMinLowerBound(data);
         if (minLowerBound <= 0) {
             return -gap;
