@@ -29,6 +29,7 @@ import de.invesdwin.context.client.swing.jfreechart.plot.XYPlots;
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.IPlotSourceDataset;
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.IndexedDateTimeOHLCDataset;
 import de.invesdwin.util.lang.Colors;
+import de.invesdwin.util.math.Doubles;
 import de.invesdwin.util.math.decimal.scaled.Percent;
 
 @NotThreadSafe
@@ -109,6 +110,9 @@ public class XYPriceLineAnnotation extends AbstractXYAnnotation implements IPric
             maxPriceColor = Colors.setTransparency((Color) renderer.getItemPaint(0, lastItem), TRANSPARENCY);
         }
         final double y = rangeAxis.valueToJava2D(maxPrice, dataArea, rangeEdge);
+        if (Doubles.isNaN(y)) {
+            return;
+        }
 
         float j2DX1 = 0.0f;
         float j2DX2 = 0.0f;
