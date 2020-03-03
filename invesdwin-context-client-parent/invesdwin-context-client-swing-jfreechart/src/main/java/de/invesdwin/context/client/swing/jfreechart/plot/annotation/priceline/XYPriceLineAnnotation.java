@@ -105,14 +105,17 @@ public class XYPriceLineAnnotation extends AbstractXYAnnotation implements IPric
 
         final double lastPriceTime = masterDataset.getXValueAsDateTime(0, lastItem);
         if (lastPriceTime >= maxPriceTime) {
-            maxPrice = dataset.getYValue(0, lastItem);
-            maxPriceTime = lastPriceTime;
-            maxPriceColor = Colors.setTransparency((Color) renderer.getItemPaint(0, lastItem), TRANSPARENCY);
+            final double lastPrice = dataset.getYValue(0, lastItem);
+            if (!Doubles.isNaN(lastPrice)) {
+                maxPrice = lastPrice;
+                maxPriceTime = lastPriceTime;
+                maxPriceColor = Colors.setTransparency((Color) renderer.getItemPaint(0, lastItem), TRANSPARENCY);
+            }
         }
-        final double y = rangeAxis.valueToJava2D(maxPrice, dataArea, rangeEdge);
-        if (Doubles.isNaN(y)) {
+        if (!Doubles.isNaN(maxPrice)) {
             return;
         }
+        final double y = rangeAxis.valueToJava2D(maxPrice, dataArea, rangeEdge);
 
         float j2DX1 = 0.0f;
         float j2DX2 = 0.0f;
