@@ -14,4 +14,6 @@ public interface IChartPanelAwareDatasetList {
 
     boolean isTrailingLoaded();
 
+    void reloadData();
+
 }

@@ -283,6 +283,13 @@ public class InteractiveChartPanel extends JPanel {
         }
     }
 
+    public void reloadData() {
+        if (masterDataset.getData() instanceof IChartPanelAwareDatasetList) {
+            final IChartPanelAwareDatasetList cData = (IChartPanelAwareDatasetList) masterDataset.getData();
+            cData.reloadData();
+        }
+    }
+
     public int getInitialVisibleItemCount() {
         return 200;
     }

@@ -138,6 +138,7 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
         }
     }
 
+    @Override
     public synchronized void reloadData() {
         if (getData().isEmpty()) {
             return;

@@ -439,7 +439,11 @@ public class PlotNavigationHelper {
             final XYIconAnnotationEntity l = (XYIconAnnotationEntity) entityForPoint;
             final XYIconAnnotation iconAnnotation = getIconAnnotation(l);
             if (iconAnnotation == reset) {
-                chartPanel.resetRange(chartPanel.getInitialVisibleItemCount());
+                if (e.isControlDown()) {
+                    chartPanel.reloadData();
+                } else {
+                    chartPanel.resetRange(chartPanel.getInitialVisibleItemCount());
+                }
             } else if (iconAnnotation == configure) {
                 chartPanel.getPlotConfigurationHelper().displayPopupMenu(mouseX, mouseY);
             }

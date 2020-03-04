@@ -267,6 +267,9 @@ public class PlotConfigurationHelper {
                                 + "<br>By holding down the control key on your keyboard you can make the panning faster.</li>");
                 sb.append(
                         "<li><b>Zooming</b>: Use your scroll wheel or +/- keys to zoom. When using the mouse to scroll, the mouse pointer will be used as an anchor.</li>");
+                sb.append(
+                        "<li><b>Resetting</b>: Click the reset button to reset the zoom and scroll back to the end of the chart."
+                                + "<br>CTRL+Click for forcing a reload of data of the currently visible chart data while keeping the scroll and zoom position.</li>");
                 sb.append("</ul></li>");
                 sb.append(
                         "<li><b>Exporting</b>: Right click anywhere on the chart to get a context menu that allows you to export the chart image to clipboard or to a file."
