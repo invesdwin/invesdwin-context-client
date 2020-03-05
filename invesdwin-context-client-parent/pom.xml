@@ -6,7 +6,7 @@
 	<parent>
 		<groupId>de.invesdwin</groupId>
 		<artifactId>invesdwin-context-parent</artifactId>
-		<version>1.0.2-SNAPSHOT</version>
+		<version>1.0.2</version>
 		<relativePath />
 	</parent>
 	<artifactId>invesdwin-context-client-parent</artifactId>
@@ -39,10 +39,10 @@
 	</modules>
 
 	<properties>
-		<project.version.invesdwin-context>1.0.2-SNAPSHOT</project.version.invesdwin-context>
-		<project.version.invesdwin-context-integration>1.0.1-SNAPSHOT</project.version.invesdwin-context-integration>
-		<project.version.invesdwin-context-persistence>1.0.2-SNAPSHOT</project.version.invesdwin-context-persistence>
-		<project.version.invesdwin-context-security>1.0.1-SNAPSHOT</project.version.invesdwin-context-security>
+		<project.version.invesdwin-context>1.0.2</project.version.invesdwin-context>
+		<project.version.invesdwin-context-integration>1.0.1</project.version.invesdwin-context-integration>
+		<project.version.invesdwin-context-persistence>1.0.2</project.version.invesdwin-context-persistence>
+		<project.version.invesdwin-context-security>1.0.1</project.version.invesdwin-context-security>
 		<project.version.invesdwin-context-client>${project.version}</project.version.invesdwin-context-client>
 
 		<version.docking-frames>1.1.3p1</version.docking-frames>
