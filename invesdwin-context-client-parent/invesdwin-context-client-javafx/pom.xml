@@ -17,6 +17,16 @@
 	<build>
 		<plugins>
 			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<configuration>
+					<excludes>
+						<!-- disabled, no automated testing atm -->
+						<exclude>**/*</exclude>
+					</excludes>
+				</configuration>
+			</plugin>
+			<plugin>
 				<artifactId>maven-enforcer-plugin</artifactId>
 				<configuration>
 					<!-- StackOverflowException: at org.apache.maven.shared.dependency.graph.internal.Maven31DependencyGraphBuilder.buildDependencyNode (Maven31DependencyGraphBuilder.java:231) -->
