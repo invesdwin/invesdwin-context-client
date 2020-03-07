@@ -317,8 +317,8 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
         final List<MasterOHLCDataItem> data = getData();
         final int preloadLowerBound = (int) (range.getLowerBound() - range.getLength());
         if (preloadLowerBound < 0) {
-            final FDate firstLoadedKeyFrom = getFirstLoadedItem().getStartTime();
-            if (firstAvailableKey.getFrom().isBefore(firstLoadedKeyFrom)) {
+            final TimeRangedOHLCDataItem firstLoadedItem = getFirstLoadedItem();
+            if (firstAvailableKey.getFrom().isBefore(firstLoadedItem.getStartTime())) {
                 //prepend a whole screen additional to the requested items
                 final int prependCount = Integers.min(MAX_STEP_ITEM_COUNT,
                         Integers.abs(preloadLowerBound) * STEP_ITEM_COUNT_MULTIPLIER);
@@ -336,7 +336,7 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
                 rangeChanged.setTrue();
 
                 final ICloseableIterable<? extends TimeRangedOHLCDataItem> masterPrependValues = provider
-                        .getPreviousValues(firstLoadedKeyFrom.addMilliseconds(-1), prependCount);
+                        .getPreviousValues(firstLoadedItem.getEndTime().addMilliseconds(-1), prependCount);
                 loadItems(data, prependItems, masterPrependValues);
             }
         }
@@ -344,8 +344,8 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
         if (!isTrailing) {
             final int preloadUpperBound = (int) (range.getUpperBound() + range.getLength());
             if (preloadUpperBound > data.size()) {
-                final FDate lastLoadedKeyFrom = getLastLoadedItem().getStartTime();
-                if (provider.getLastAvailableKey().getFrom().isAfter(lastLoadedKeyFrom)) {
+                final TimeRangedOHLCDataItem lastLoadedItem = getLastLoadedItem();
+                if (provider.getLastAvailableKey().getFrom().isAfter(lastLoadedItem.getStartTime())) {
                     //append a whole screen additional to the requested items
                     final int appendCount = Integers.min(MAX_STEP_ITEM_COUNT,
                             (preloadUpperBound - data.size()) * STEP_ITEM_COUNT_MULTIPLIER);
