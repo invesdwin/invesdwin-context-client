@@ -1,7 +1,6 @@
 package de.invesdwin.context.client.swing.api.binding.component.button;
 
 import java.awt.Component;
-import java.util.MissingResourceException;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
@@ -9,6 +8,7 @@ import de.invesdwin.context.client.swing.api.guiservice.GuiService;
 import de.invesdwin.context.client.swing.util.Views;
 import de.invesdwin.norva.beanpath.spi.element.IBeanPathElement;
 import de.invesdwin.util.lang.Strings;
+import de.invesdwin.util.swing.Components;
 import de.invesdwin.util.swing.Dialogs;
 
 @NotThreadSafe
@@ -28,12 +28,7 @@ public class DefaultSubmitButtonExceptionHandler implements ISubmitButtonExcepti
                 final String title = GuiService.get()
                         .getResourceMap(DefaultSubmitButtonExceptionHandler.class)
                         .getString(DefaultSubmitButtonExceptionHandler.class.getSimpleName() + ".exception.title");
-                String message;
-                try {
-                    message = t.getMessage();
-                } catch (final MissingResourceException e) {
-                    message = t.getMessage();
-                }
+                final String message = Components.getDefaultToolTipFormatter().format(t.getMessage());
                 showExceptionMessage(element, component, t, title, message);
             } else {
                 propagateException(t);
