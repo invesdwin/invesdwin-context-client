@@ -61,7 +61,8 @@ public class TableSelectionBinding extends AComponentBinding<JTable, List<?>> {
             selectionModel.clearSelection();
             for (int i = 0; i < selectedIndexesInModel.size(); i++) {
                 final int selectedIndexInModel = selectedIndexesInModel.get(i);
-                selectionModel.addSelectionInterval(selectedIndexInModel, selectedIndexInModel);
+                final int selectedIndexInView = component.convertRowIndexToView(selectedIndexInModel);
+                selectionModel.addSelectionInterval(selectedIndexInView, selectedIndexInView);
             }
         } finally {
             selectionModel.setValueIsAdjusting(false);
@@ -75,7 +76,9 @@ public class TableSelectionBinding extends AComponentBinding<JTable, List<?>> {
         final List<Integer> selectedIndexesInTable = getSelectedIndexesInTable();
         final List<Object> selectedValuesInTable = new ArrayList<>(selectedIndexesInTable.size());
         for (int i = 0; i < selectedIndexesInTable.size(); i++) {
-            selectedValuesInTable.add(tableModel.getRows().get(selectedIndexesInTable.get(i)));
+            final int selectedIndexInView = selectedIndexesInTable.get(i);
+            final int selectedIndexInModel = component.convertRowIndexToModel(selectedIndexInView);
+            selectedValuesInTable.add(tableModel.getRows().get(selectedIndexInModel));
         }
         return selectedValuesInTable;
     }
