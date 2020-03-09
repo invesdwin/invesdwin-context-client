@@ -78,7 +78,7 @@ public class ExpressionCompletionProvider extends DefaultCompletionProvider {
                         for (int i = 0; i < parameters.length; i++) {
                             final IFunctionParameterInfo parameter = parameters[i];
                             final Parameter p = newParameter(parameter.getExpressionNameWithDetails(),
-                                    parameter.getDescriptionWithDetails(), parameter.getType().toString());
+                                    parameter.getDescriptionWithDetails(), parameter.getTypeWithDetails().toString());
                             params.add(p);
                         }
                         c.setParams(params);
