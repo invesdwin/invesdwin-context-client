@@ -1,6 +1,7 @@
 package de.invesdwin.context.client.swing.api.binding.component;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -83,11 +84,15 @@ public class ListBinding extends AComponentBinding<JList, List<?>> {
     @Override
     protected List<?> fromComponentToModel() {
         final int[] selectedIndices = component.getSelectedIndices();
-        final List<Object> selectedValues = new ArrayList<>(selectedIndices.length);
-        for (int i = 0; i < selectedIndices.length; i++) {
-            selectedValues.add(prevChoices.get(selectedIndices[i]));
+        if (selectedIndices.length == 0) {
+            return Collections.emptyList();
+        } else {
+            final List<Object> selectedValues = new ArrayList<>(selectedIndices.length);
+            for (int i = 0; i < selectedIndices.length; i++) {
+                selectedValues.add(prevChoices.get(selectedIndices[i]));
+            }
+            return selectedValues;
         }
-        return selectedValues;
     }
 
     @Override

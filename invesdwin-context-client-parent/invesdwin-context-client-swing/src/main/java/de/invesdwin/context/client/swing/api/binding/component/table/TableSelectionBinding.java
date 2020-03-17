@@ -1,6 +1,7 @@
 package de.invesdwin.context.client.swing.api.binding.component.table;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -74,13 +75,17 @@ public class TableSelectionBinding extends AComponentBinding<JTable, List<?>> {
     @Override
     protected List<?> fromComponentToModel() {
         final List<Integer> selectedIndexesInTable = getSelectedIndexesInTable();
-        final List<Object> selectedValuesInTable = new ArrayList<>(selectedIndexesInTable.size());
-        for (int i = 0; i < selectedIndexesInTable.size(); i++) {
-            final int selectedIndexInView = selectedIndexesInTable.get(i);
-            final int selectedIndexInModel = component.convertRowIndexToModel(selectedIndexInView);
-            selectedValuesInTable.add(tableModel.getRows().get(selectedIndexInModel));
+        if (selectedIndexesInTable.isEmpty()) {
+            return Collections.emptyList();
+        } else {
+            final List<Object> selectedValuesInTable = new ArrayList<>(selectedIndexesInTable.size());
+            for (int i = 0; i < selectedIndexesInTable.size(); i++) {
+                final int selectedIndexInView = selectedIndexesInTable.get(i);
+                final int selectedIndexInModel = component.convertRowIndexToModel(selectedIndexInView);
+                selectedValuesInTable.add(tableModel.getRows().get(selectedIndexInModel));
+            }
+            return selectedValuesInTable;
         }
-        return selectedValuesInTable;
     }
 
     @Override
