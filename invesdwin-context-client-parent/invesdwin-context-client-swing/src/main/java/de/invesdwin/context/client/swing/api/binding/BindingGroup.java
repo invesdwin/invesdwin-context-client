@@ -17,6 +17,7 @@ import de.invesdwin.context.beans.validator.BeanValidator;
 import de.invesdwin.context.client.swing.api.annotation.DefaultCloseOperation;
 import de.invesdwin.context.client.swing.api.binding.component.AComponentBinding;
 import de.invesdwin.context.client.swing.api.binding.component.IComponentBinding;
+import de.invesdwin.context.client.swing.api.binding.component.RootTitleBinding;
 import de.invesdwin.context.client.swing.api.binding.component.button.ISubmitButtonExceptionHandler;
 import de.invesdwin.context.client.swing.api.binding.component.button.SubmitButtonBinding;
 import de.invesdwin.context.client.swing.api.guiservice.GuiService;
@@ -51,6 +52,7 @@ public class BindingGroup implements IComponentBinding {
     private final ISubmitButtonExceptionHandler submitButtonExceptionHandler;
     private String invalidMessage = null;
     private SubmitButtonBinding defaultCloseOperation;
+    private RootTitleBinding rootTitleBinding;
 
     public BindingGroup(final AView<?, ?> view, final BeanObjectContext modelContext,
             final ISubmitButtonExceptionHandler submitButtonExceptionHandler) {
@@ -74,6 +76,9 @@ public class BindingGroup implements IComponentBinding {
     public void addBinding(final IComponentBinding binding) {
         beanPath_binding.get(binding.getBeanPath()).add(binding);
         bindings.add(binding);
+        if (binding instanceof RootTitleBinding) {
+            rootTitleBinding = (RootTitleBinding) binding;
+        }
         if (binding instanceof SubmitButtonBinding) {
             final SubmitButtonBinding cBinding = (SubmitButtonBinding) binding;
             if (cBinding.isDefaultCloseOperation()) {
@@ -226,6 +231,10 @@ public class BindingGroup implements IComponentBinding {
 
     public SubmitButtonBinding getDefaultCloseOperation() {
         return defaultCloseOperation;
+    }
+
+    public RootTitleBinding getRootTitleBinding() {
+        return rootTitleBinding;
     }
 
 }

@@ -25,6 +25,16 @@ public class ContentPaneDockable extends DefaultSingleCDockable implements IDock
     }
 
     @Override
+    public void setTitle(final String title) {
+        setTitleText(title);
+    }
+
+    @Override
+    public String getTitle() {
+        return getTitleText();
+    }
+
+    @Override
     public JComponent getComponent() {
         return (JComponent) getContentPane().getComponent(0);
     }

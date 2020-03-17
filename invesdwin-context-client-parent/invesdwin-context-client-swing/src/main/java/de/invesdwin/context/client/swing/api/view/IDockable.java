@@ -4,6 +4,10 @@ import javax.swing.JComponent;
 
 public interface IDockable {
 
+    String getTitle();
+
+    void setTitle(String title);
+
     String getUniqueId();
 
     JComponent getComponent();
