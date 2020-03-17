@@ -5,23 +5,21 @@ import javax.annotation.concurrent.NotThreadSafe;
 import de.invesdwin.aspects.EventDispatchThreadUtil;
 import de.invesdwin.context.client.swing.api.binding.BindingGroup;
 import de.invesdwin.context.client.swing.api.view.IDockable;
-import de.invesdwin.norva.beanpath.spi.element.IBeanPathElement;
+import de.invesdwin.norva.beanpath.spi.element.RootBeanPathElement;
 import de.invesdwin.util.lang.Objects;
 
 @NotThreadSafe
 public class RootTitleBinding implements IComponentBinding {
 
     private final BindingGroup bindingGroup;
-    private final IBeanPathElement element;
 
-    public RootTitleBinding(final BindingGroup bindingGroup, final IBeanPathElement element) {
+    public RootTitleBinding(final BindingGroup bindingGroup) {
         this.bindingGroup = bindingGroup;
-        this.element = element;
     }
 
     @Override
     public String getBeanPath() {
-        return element.getBeanPath();
+        return RootBeanPathElement.ROOT_BEAN_PATH;
     }
 
     @Override

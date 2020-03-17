@@ -42,7 +42,6 @@ import de.invesdwin.norva.beanpath.spi.element.AChoiceBeanPathElement;
 import de.invesdwin.norva.beanpath.spi.element.APropertyBeanPathElement;
 import de.invesdwin.norva.beanpath.spi.element.ATableBeanPathElement;
 import de.invesdwin.norva.beanpath.spi.element.IBeanPathElement;
-import de.invesdwin.norva.beanpath.spi.element.RootBeanPathElement;
 import de.invesdwin.norva.beanpath.spi.element.utility.ContainerTitleBeanPathElement;
 import de.invesdwin.util.error.UnknownArgumentException;
 import de.invesdwin.util.lang.Strings;
@@ -130,19 +129,10 @@ public final class GeneratedBindingGroup {
                 bindingGroup.addBinding(binding);
             }
         }
-        maybeBindRootTitle();
+        bindingGroup.addBinding(new RootTitleBinding(bindingGroup));
         bindingGroup.finishBinding();
         bindingGroup.update();
         return bindingGroup;
-    }
-
-    private void maybeBindRootTitle() {
-        final IBeanPathElement rootElement = bindingGroup.getModelContext()
-                .getElementRegistry()
-                .getElement(RootBeanPathElement.ROOT_BEAN_PATH);
-        if (rootElement.getTitleElement() != null || rootElement.getContainerTitleElement() != null) {
-            bindingGroup.addBinding(new RootTitleBinding(bindingGroup, rootElement));
-        }
     }
 
     private IComponentBinding bindJSpinner(final JSpinner component) {
