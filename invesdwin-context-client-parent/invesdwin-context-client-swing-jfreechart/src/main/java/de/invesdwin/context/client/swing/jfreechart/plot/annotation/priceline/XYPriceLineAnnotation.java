@@ -112,7 +112,7 @@ public class XYPriceLineAnnotation extends AbstractXYAnnotation implements IPric
                 maxPriceColor = Colors.setTransparency((Color) renderer.getItemPaint(0, lastItem), TRANSPARENCY);
             }
         }
-        if (!Doubles.isNaN(maxPrice)) {
+        if (Doubles.isNaN(maxPrice)) {
             return;
         }
         final double y = rangeAxis.valueToJava2D(maxPrice, dataArea, rangeEdge);
