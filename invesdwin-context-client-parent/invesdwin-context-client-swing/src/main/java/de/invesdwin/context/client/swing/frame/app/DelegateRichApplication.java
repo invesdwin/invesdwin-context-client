@@ -92,6 +92,7 @@ public class DelegateRichApplication extends SingleFrameApplication {
 
         //Replace default TaskService our own
         ctx.removeTaskService(ctx.getTaskService());
+        MergedContext.autowire(this); //make sure mergedContext is initialized
         ctx.addTaskService(MergedContext.getInstance().getBean(DefaultTaskService.class));
         Assertions.assertThat(ctx.getTaskService()).isInstanceOf(DefaultTaskService.class);
 
