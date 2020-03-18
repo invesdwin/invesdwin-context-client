@@ -24,7 +24,6 @@ import de.invesdwin.context.client.swing.api.menu.OpenViewMenuItem;
 import de.invesdwin.context.client.swing.api.view.AView;
 import de.invesdwin.util.swing.Dialogs;
 
-@SuppressWarnings("serial")
 @ThreadSafe
 public class MenuBarView extends AView<MenuBarView, JMenuBar> {
 
