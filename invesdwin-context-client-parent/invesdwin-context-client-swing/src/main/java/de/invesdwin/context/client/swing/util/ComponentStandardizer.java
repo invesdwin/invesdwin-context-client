@@ -37,6 +37,7 @@ public class ComponentStandardizer extends AComponentVisitor {
         if (component instanceof JComboBox) {
             final JComboBox<?> combobox = (JComboBox<?>) component;
             JComboBoxes.enableAutoComplete(combobox);
+            JComboBoxes.preventScrollWheelFromClosingPopup(combobox);
         }
     }
 
