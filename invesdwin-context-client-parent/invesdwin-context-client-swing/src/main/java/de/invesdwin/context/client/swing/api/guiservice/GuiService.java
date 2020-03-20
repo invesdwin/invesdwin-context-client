@@ -70,11 +70,22 @@ public class GuiService implements IGuiService {
     }
 
     @Override
-    public void hideModalView() {
+    public boolean hideModalView(final AView<?, ?> view) {
+        if (getModalViewShowing() == view) {
+            return hideModalView();
+        }
+        return false;
+    }
+
+    @Override
+    public boolean hideModalView() {
         if (isModalViewShowing()) {
             final DialogDockable dialog = dialogs.pop();
             dialog.getView().setDockable(null);
             dialog.dispose();
+            return true;
+        } else {
+            return false;
         }
     }
 
@@ -123,7 +134,15 @@ public class GuiService implements IGuiService {
     }
 
     @Override
+    public boolean isModalViewShowing(final AView<?, ?> view) {
+        return getModalViewShowing() == view;
+    }
+
+    @Override
     public AView<?, ?> getModalViewShowing() {
+        if (dialogs.isEmpty()) {
+            return null;
+        }
         return dialogs.peek().getView();
     }
 

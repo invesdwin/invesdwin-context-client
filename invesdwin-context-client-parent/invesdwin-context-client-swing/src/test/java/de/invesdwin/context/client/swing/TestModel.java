@@ -15,8 +15,8 @@ import de.invesdwin.aspects.EventDispatchThreadUtil;
 import de.invesdwin.context.client.swing.api.annotation.DefaultCloseOperation;
 import de.invesdwin.context.client.swing.api.guiservice.GuiService;
 import de.invesdwin.context.client.swing.api.guiservice.StatusBar;
-import de.invesdwin.context.client.swing.api.guiservice.dialog.ModalMessage;
-import de.invesdwin.context.client.swing.api.guiservice.dialog.ModalMessageView;
+import de.invesdwin.context.client.swing.api.guiservice.dialog.OkModalMessage;
+import de.invesdwin.context.client.swing.api.guiservice.dialog.OkModalMessageView;
 import de.invesdwin.context.client.swing.api.task.ATask;
 import de.invesdwin.context.client.swing.api.view.AModel;
 import de.invesdwin.context.client.swing.api.view.AView;
@@ -193,7 +193,7 @@ public class TestModel extends AModel {
 
         @ModalOpener
         public AView<?, ?> doNothing() {
-            return new ModalMessageView(new ModalMessage("Title", "Doing nothing!"));
+            return new OkModalMessageView(new OkModalMessage("Title", "Doing nothing!"));
         }
 
         //        public void doNothing() {

@@ -7,16 +7,16 @@ import de.invesdwin.context.client.swing.api.view.AModel;
 import de.invesdwin.norva.beanpath.annotation.ModalCloser;
 
 @NotThreadSafe
-public class ModalMessage extends AModel {
+public class OkModalMessage extends AModel {
 
     private final String title;
     private String message;
 
-    public ModalMessage(final String message) {
+    public OkModalMessage(final String message) {
         this(null, message);
     }
 
-    public ModalMessage(final String title, final String message) {
+    public OkModalMessage(final String title, final String message) {
         this.title = title;
         this.message = message;
     }
@@ -29,17 +29,9 @@ public class ModalMessage extends AModel {
         this.message = message;
     }
 
-    @ModalCloser
-    public void ok() {}
-
     @DefaultCloseOperation
-    public void cancel() {}
-
-    /**
-     * override this method to make the cancel button visible
-     */
-    public boolean hideCancel() {
-        return true;
+    @ModalCloser
+    public void ok() {
     }
 
     public String title() {

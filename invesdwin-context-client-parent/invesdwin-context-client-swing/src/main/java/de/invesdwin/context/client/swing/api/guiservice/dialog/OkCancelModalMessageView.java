@@ -14,9 +14,9 @@ import de.invesdwin.context.client.swing.api.view.AView;
 import de.invesdwin.util.swing.Dialogs;
 
 @NotThreadSafe
-public class ModalMessageView extends AView<ModalMessage, JPanel> {
+public class OkCancelModalMessageView extends AView<OkModalMessage, JPanel> {
 
-    public ModalMessageView(final ModalMessage model) {
+    public OkCancelModalMessageView(final OkModalMessage model) {
         super(model);
     }
 
@@ -45,11 +45,13 @@ public class ModalMessageView extends AView<ModalMessage, JPanel> {
                         RowSpec.decode("bottom:default"), }));
         final JButton btnOk = new JButton("ok");
         btnOk.setName("ok");
+        btnOk.setDefaultCapable(true);
         buttonPanel.add(btnOk, "3, 2");
 
         panel.add(buttonPanel, "3, 6, fill, top");
 
         final JButton btnCancel = new JButton("cancel");
+        btnCancel.setDefaultCapable(false);
         btnCancel.setName("cancel");
         buttonPanel.add(btnCancel, "5, 2");
 

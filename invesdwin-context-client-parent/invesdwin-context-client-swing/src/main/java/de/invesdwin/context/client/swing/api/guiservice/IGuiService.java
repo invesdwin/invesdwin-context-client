@@ -17,7 +17,9 @@ public interface IGuiService {
 
     TaskService getTaskService();
 
-    void hideModalView();
+    boolean hideModalView();
+
+    boolean hideModalView(AView<?, ?> view);
 
     void showModalView(AView<?, ?> view);
 
@@ -30,6 +32,8 @@ public interface IGuiService {
     void showView(AView<?, ?> view);
 
     boolean isModalViewShowing();
+
+    boolean isModalViewShowing(AView<?, ?> view);
 
     AView<?, ?> getModalViewShowing();
 
