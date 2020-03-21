@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>de.invesdwin</groupId>
@@ -70,6 +72,10 @@
 		<version.rstaui>3.0.0</version.rstaui>
 
 		<version.javafx>13.0.1</version.javafx>
+
+		<version.mp3spi>1.9.5.4</version.mp3spi>
+		<version.vorbisspi>1.0.3.3</version.vorbisspi>
+		<version.jaad>0.8.5</version.jaad>
 	</properties>
 
 	<dependencyManagement>
@@ -382,6 +388,22 @@
 				<groupId>org.openjfx</groupId>
 				<artifactId>javafx-swing</artifactId>
 				<version>${version.javafx}</version>
+			</dependency>
+
+			<dependency>
+				<groupId>com.googlecode.soundlibs</groupId>
+				<artifactId>mp3spi</artifactId>
+				<version>${version.mp3spi}</version>
+			</dependency>
+			<dependency>
+				<groupId>com.googlecode.soundlibs</groupId>
+				<artifactId>vorbisspi</artifactId>
+				<version>${version.vorbisspi}</version>
+			</dependency>
+			<dependency>
+				<groupId>net.sourceforge.jaadec</groupId>
+				<artifactId>jaad</artifactId>
+				<version>${version.jaad}</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
