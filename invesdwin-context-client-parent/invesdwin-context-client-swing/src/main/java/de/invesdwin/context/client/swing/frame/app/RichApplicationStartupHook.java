@@ -19,9 +19,7 @@ import de.invesdwin.context.beans.init.MergedContext;
 import de.invesdwin.context.client.swing.api.IRichApplication;
 import de.invesdwin.context.client.swing.api.guiservice.ContentPane;
 import de.invesdwin.context.client.swing.api.hook.IRichApplicationHook;
-import de.invesdwin.context.client.swing.api.view.AView;
 import de.invesdwin.context.client.swing.frame.content.ContentPaneView;
-import de.invesdwin.context.client.swing.frame.content.WorkingAreaLocation;
 import de.invesdwin.context.client.swing.frame.menu.MenuBarView;
 import de.invesdwin.context.client.swing.frame.splash.ConfiguredSplashScreen;
 import de.invesdwin.context.client.swing.frame.status.StatusBarView;
@@ -107,10 +105,7 @@ public class RichApplicationStartupHook implements IStartupHook {
         final FrameView frameView = application.getMainView();
         Dialogs.setRootFrame(frameView.getFrame());
         frameView.setComponent(contentPaneView.getComponent());
-        final AView<?, ?> initialView = delegate.getInitialView();
-        if (initialView != null) {
-            contentPane.showView(initialView, WorkingAreaLocation.Center);
-        }
+        delegate.showInitialViews(contentPane);
         frameView.setMenuBar(menuBarView.getComponent());
         frameView.setStatusBar(statusBarView.getComponent());
 

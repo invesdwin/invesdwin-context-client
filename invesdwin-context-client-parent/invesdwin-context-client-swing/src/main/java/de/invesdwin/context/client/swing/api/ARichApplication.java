@@ -6,8 +6,8 @@ import java.util.Locale;
 import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.context.client.swing.api.exit.AMainFrameCloseOperation;
+import de.invesdwin.context.client.swing.api.guiservice.ContentPane;
 import de.invesdwin.context.client.swing.api.menu.IMenuBarConfig;
-import de.invesdwin.context.client.swing.api.view.AView;
 
 @Immutable
 public abstract class ARichApplication implements IRichApplication {
@@ -41,8 +41,7 @@ public abstract class ARichApplication implements IRichApplication {
     }
 
     @Override
-    public AView<?, ?> getInitialView() {
-        return null;
+    public void showInitialViews(final ContentPane contentPane) {
     }
 
     @Override
@@ -56,12 +55,15 @@ public abstract class ARichApplication implements IRichApplication {
     }
 
     @Override
-    public void initializeDone() {}
+    public void initializeDone() {
+    }
 
     @Override
-    public void startupDone() {}
+    public void startupDone() {
+    }
 
     @Override
-    public void shutdownDone() {}
+    public void shutdownDone() {
+    }
 
 }

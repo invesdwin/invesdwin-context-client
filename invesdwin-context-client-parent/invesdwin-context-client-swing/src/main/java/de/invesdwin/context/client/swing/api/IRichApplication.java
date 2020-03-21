@@ -4,8 +4,8 @@ import java.awt.Dimension;
 import java.util.Locale;
 
 import de.invesdwin.context.client.swing.api.exit.AMainFrameCloseOperation;
+import de.invesdwin.context.client.swing.api.guiservice.ContentPane;
 import de.invesdwin.context.client.swing.api.menu.IMenuBarConfig;
-import de.invesdwin.context.client.swing.api.view.AView;
 
 public interface IRichApplication {
 
@@ -19,7 +19,7 @@ public interface IRichApplication {
 
     boolean isKeepSplashVisible();
 
-    AView<?, ?> getInitialView();
+    void showInitialViews(ContentPane contentPane);
 
     Dimension getInitialFrameSize();
 
