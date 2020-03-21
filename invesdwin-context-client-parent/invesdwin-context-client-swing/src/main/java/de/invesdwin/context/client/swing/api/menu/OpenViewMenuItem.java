@@ -17,7 +17,7 @@ import com.jgoodies.common.base.Strings;
 import de.invesdwin.context.client.swing.api.guiservice.ContentPane;
 import de.invesdwin.context.client.swing.api.guiservice.GuiService;
 import de.invesdwin.context.client.swing.api.view.AView;
-import de.invesdwin.context.client.swing.frame.content.WorkingAreaLocation;
+import de.invesdwin.context.client.swing.frame.content.IWorkingAreaLocation;
 import de.invesdwin.norva.beanpath.BeanPathObjects;
 import de.invesdwin.norva.beanpath.annotation.Title;
 import de.invesdwin.util.assertions.Assertions;
@@ -38,7 +38,7 @@ public class OpenViewMenuItem<V extends AView<?, ?>> extends JMenuItem {
     private boolean cachingEnabled = true;
 
     private final Class<V> viewClass;
-    private final WorkingAreaLocation location;
+    private final IWorkingAreaLocation location;
     private V cachedViewInstance;
 
     @Inject
@@ -46,7 +46,7 @@ public class OpenViewMenuItem<V extends AView<?, ?>> extends JMenuItem {
     @Inject
     private ContentPane contentPane;
 
-    public OpenViewMenuItem(final Class<V> viewClass, final WorkingAreaLocation location) {
+    public OpenViewMenuItem(final Class<V> viewClass, final IWorkingAreaLocation location) {
         super();
         this.viewClass = viewClass;
         this.location = location;

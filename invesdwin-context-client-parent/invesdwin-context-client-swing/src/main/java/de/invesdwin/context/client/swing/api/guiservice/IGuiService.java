@@ -8,7 +8,7 @@ import org.jdesktop.application.ResourceMap;
 import org.jdesktop.application.TaskService;
 
 import de.invesdwin.context.client.swing.api.view.AView;
-import de.invesdwin.context.client.swing.frame.content.WorkingAreaLocation;
+import de.invesdwin.context.client.swing.frame.content.IWorkingAreaLocation;
 
 public interface IGuiService {
 
@@ -30,7 +30,7 @@ public interface IGuiService {
      * If a view is already visible with an equal model, then that is being replaced with the new view. Otherwise this
      * view is just displayed in a new dockable.
      */
-    void showView(AView<?, ?> view, WorkingAreaLocation location);
+    void showView(AView<?, ?> view, IWorkingAreaLocation location);
 
     boolean isModalViewShowing();
 

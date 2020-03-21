@@ -17,7 +17,7 @@ import de.invesdwin.aspects.annotation.EventDispatchThread;
 import de.invesdwin.aspects.annotation.EventDispatchThread.InvocationType;
 import de.invesdwin.context.client.swing.api.view.AView;
 import de.invesdwin.context.client.swing.api.view.IDockable;
-import de.invesdwin.context.client.swing.frame.content.WorkingAreaLocation;
+import de.invesdwin.context.client.swing.frame.content.IWorkingAreaLocation;
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.collections.loadingcache.ALoadingCache;
 import de.invesdwin.util.lang.Objects;
@@ -101,7 +101,7 @@ public class ContentPane {
     }
 
     @EventDispatchThread(InvocationType.INVOKE_AND_WAIT)
-    public void showView(final AView<?, ?> view, final WorkingAreaLocation location) {
+    public void showView(final AView<?, ?> view, final IWorkingAreaLocation location) {
         if (containsView(view)) {
             final IDockable dockable = view.getDockable();
             dockable.requestFocus();
@@ -129,7 +129,7 @@ public class ContentPane {
     /**
      * Throws an exception if the View has already been added.
      */
-    private void addView(final AView<?, ?> view, final WorkingAreaLocation location) {
+    private void addView(final AView<?, ?> view, final IWorkingAreaLocation location) {
         Assertions.assertThat(containsView(view))
                 .as("View [%s] is already being displayed.", view.getDockableUniqueId())
                 .isFalse();

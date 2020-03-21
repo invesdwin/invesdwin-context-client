@@ -16,13 +16,11 @@ import bibliothek.gui.Dockable;
 import bibliothek.gui.dock.common.CContentArea;
 import bibliothek.gui.dock.common.CControl;
 import bibliothek.gui.dock.common.CGrid;
-import bibliothek.gui.dock.common.CLocation;
 import bibliothek.gui.dock.common.CWorkingArea;
 import bibliothek.gui.dock.common.intern.CDockable;
 import bibliothek.gui.dock.common.intern.CommonDockable;
 import bibliothek.gui.dock.common.mode.ExtendedMode;
 import bibliothek.gui.dock.control.focus.DefaultFocusRequest;
-import bibliothek.util.Filter;
 import de.invesdwin.aspects.EventDispatchThreadUtil;
 import de.invesdwin.context.client.swing.api.guiservice.ContentPane;
 import de.invesdwin.context.client.swing.api.guiservice.GuiService;
@@ -126,7 +124,7 @@ public class ContentPaneView extends AView<ContentPaneView, JPanel> {
         return panel;
     }
 
-    public IDockable addView(final AView<?, ?> view, final WorkingAreaLocation location) {
+    public IDockable addView(final AView<?, ?> view, final IWorkingAreaLocation location) {
         if (control == null) {
             Assertions.checkNotNull(getComponent());
         }
@@ -144,25 +142,11 @@ public class ContentPaneView extends AView<ContentPaneView, JPanel> {
         return dockable;
     }
 
-    private void setLocation(final ContentPaneDockable dockable, final WorkingAreaLocation location) {
+    private void setLocation(final ContentPaneDockable dockable, final IWorkingAreaLocation location) {
         if (location == null) {
             dockable.setLocationsAsideFocused();
         } else {
-            final boolean found = dockable.setLocationsAside(new Filter<CDockable>() {
-                @Override
-                public boolean includes(final CDockable d) {
-                    if (d != dockable && d instanceof ContentPaneDockable) {
-                        final ContentPaneDockable c = (ContentPaneDockable) d;
-                        if (c.getLocation() == location) {
-                            return true;
-                        }
-                    }
-                    return false;
-                }
-            });
-            if (!found) {
-                dockable.setLocation(location.create(CLocation.working(workingArea)));
-            }
+            location.setLocation(dockable, workingArea);
         }
     }
 

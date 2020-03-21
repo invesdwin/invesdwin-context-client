@@ -28,7 +28,7 @@ import de.invesdwin.context.client.swing.api.guiservice.dialog.DialogDockable;
 import de.invesdwin.context.client.swing.api.view.AModel;
 import de.invesdwin.context.client.swing.api.view.AView;
 import de.invesdwin.context.client.swing.frame.content.DockableIdGenerator;
-import de.invesdwin.context.client.swing.frame.content.WorkingAreaLocation;
+import de.invesdwin.context.client.swing.frame.content.IWorkingAreaLocation;
 import de.invesdwin.context.client.swing.util.SubmitAllViewsHelper;
 import de.invesdwin.context.client.swing.util.UpdateAllViewsHelper;
 import de.invesdwin.util.swing.Dialogs;
@@ -157,7 +157,7 @@ public class GuiService implements IGuiService {
     }
 
     @Override
-    public void showView(final AView<?, ?> view, final WorkingAreaLocation location) {
+    public void showView(final AView<?, ?> view, final IWorkingAreaLocation location) {
         getContentPane().showView(view, location);
     }
 
