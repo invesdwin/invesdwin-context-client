@@ -139,6 +139,12 @@ public class ContentPaneView extends AView<ContentPaneView, JPanel> {
                 view.getComponent(), location);
         dockable.setTitleToolTip(view.getDescription());
         workingArea.add(dockable);
+        setLocation(dockable, location);
+        dockable.setVisible(true);
+        return dockable;
+    }
+
+    private void setLocation(final ContentPaneDockable dockable, final WorkingAreaLocation location) {
         if (location == null) {
             dockable.setLocationsAsideFocused();
         } else {
@@ -158,8 +164,6 @@ public class ContentPaneView extends AView<ContentPaneView, JPanel> {
                 dockable.setLocation(location.create(CLocation.working(workingArea)));
             }
         }
-        dockable.setVisible(true);
-        return dockable;
     }
 
     public boolean removeView(final AView<?, ?> view) {
