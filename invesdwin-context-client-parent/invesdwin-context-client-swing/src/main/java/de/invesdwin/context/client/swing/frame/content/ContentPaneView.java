@@ -16,11 +16,13 @@ import bibliothek.gui.Dockable;
 import bibliothek.gui.dock.common.CContentArea;
 import bibliothek.gui.dock.common.CControl;
 import bibliothek.gui.dock.common.CGrid;
+import bibliothek.gui.dock.common.CLocation;
 import bibliothek.gui.dock.common.CWorkingArea;
 import bibliothek.gui.dock.common.intern.CDockable;
 import bibliothek.gui.dock.common.intern.CommonDockable;
 import bibliothek.gui.dock.common.mode.ExtendedMode;
 import bibliothek.gui.dock.control.focus.DefaultFocusRequest;
+import bibliothek.util.Filter;
 import de.invesdwin.aspects.EventDispatchThreadUtil;
 import de.invesdwin.context.client.swing.api.guiservice.ContentPane;
 import de.invesdwin.context.client.swing.api.guiservice.GuiService;
@@ -33,7 +35,7 @@ import de.invesdwin.util.swing.listener.KeyListenerSupport;
 public class ContentPaneView extends AView<ContentPaneView, JPanel> {
 
     private CControl control;
-    private CWorkingArea defaultWorkingArea;
+    private CWorkingArea workingArea;
     private CContentArea contentArea;
     private boolean controlDown;
     private boolean metaDown;
@@ -74,8 +76,8 @@ public class ContentPaneView extends AView<ContentPaneView, JPanel> {
             }
         });
         final CGrid grid = new CGrid(control);
-        this.defaultWorkingArea = control.createWorkingArea(ContentPane.class.getSimpleName());
-        grid.add(1, 1, 1, 1, defaultWorkingArea);
+        this.workingArea = control.createWorkingArea(ContentPaneView.class.getSimpleName());
+        grid.add(1, 1, 1, 1, workingArea);
         this.contentArea = control.getContentArea();
         contentArea.deploy(grid);
         control.getController().setTheme(new CustomTheme());
@@ -124,7 +126,7 @@ public class ContentPaneView extends AView<ContentPaneView, JPanel> {
         return panel;
     }
 
-    public IDockable addView(final AView<?, ?> view) {
+    public IDockable addView(final AView<?, ?> view, final WorkingAreaLocation location) {
         if (control == null) {
             Assertions.checkNotNull(getComponent());
         }
@@ -134,9 +136,29 @@ public class ContentPaneView extends AView<ContentPaneView, JPanel> {
             title = uniqueId;
         }
         final ContentPaneDockable dockable = new ContentPaneDockable(uniqueId, view.getIcon(), title,
-                view.getComponent());
+                view.getComponent(), location);
         dockable.setTitleToolTip(view.getDescription());
-        defaultWorkingArea.show(dockable);
+        workingArea.add(dockable);
+        if (location == null) {
+            dockable.setLocationsAsideFocused();
+        } else {
+            final boolean found = dockable.setLocationsAside(new Filter<CDockable>() {
+                @Override
+                public boolean includes(final CDockable d) {
+                    if (d != dockable && d instanceof ContentPaneDockable) {
+                        final ContentPaneDockable c = (ContentPaneDockable) d;
+                        if (c.getLocation() == location) {
+                            return true;
+                        }
+                    }
+                    return false;
+                }
+            });
+            if (!found) {
+                dockable.setLocation(location.create(CLocation.working(workingArea)));
+            }
+        }
+        dockable.setVisible(true);
         return dockable;
     }
 
@@ -185,8 +207,8 @@ public class ContentPaneView extends AView<ContentPaneView, JPanel> {
         return contentArea;
     }
 
-    public CWorkingArea getDefaultWorkingArea() {
-        return defaultWorkingArea;
+    public CWorkingArea getWorkingArea() {
+        return workingArea;
     }
 
     public boolean isControlDown() {

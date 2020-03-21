@@ -8,6 +8,7 @@ import org.junit.Test;
 
 import de.invesdwin.context.client.swing.api.guiservice.ContentPane;
 import de.invesdwin.context.client.swing.api.guiservice.GuiService;
+import de.invesdwin.context.client.swing.frame.content.WorkingAreaLocation;
 import de.invesdwin.context.client.swing.test.FrameFixtureStub;
 import de.invesdwin.context.test.ATest;
 import de.invesdwin.context.test.TestContext;
@@ -32,7 +33,7 @@ public class TestModelViewTest extends ATest {
     public void setUp() throws Exception {
         super.setUp();
         view = new TestModelView(new TestModel("Test Model"));
-        contentPane.showView(view);
+        contentPane.showView(view, WorkingAreaLocation.Center);
     }
 
     @Test

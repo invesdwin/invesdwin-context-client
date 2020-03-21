@@ -17,6 +17,7 @@ import de.invesdwin.aspects.annotation.EventDispatchThread;
 import de.invesdwin.aspects.annotation.EventDispatchThread.InvocationType;
 import de.invesdwin.context.client.swing.api.view.AView;
 import de.invesdwin.context.client.swing.api.view.IDockable;
+import de.invesdwin.context.client.swing.frame.content.WorkingAreaLocation;
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.collections.loadingcache.ALoadingCache;
 import de.invesdwin.util.lang.Objects;
@@ -100,7 +101,7 @@ public class ContentPane {
     }
 
     @EventDispatchThread(InvocationType.INVOKE_AND_WAIT)
-    public void showView(final AView<?, ?> view) {
+    public void showView(final AView<?, ?> view, final WorkingAreaLocation location) {
         if (containsView(view)) {
             final IDockable dockable = view.getDockable();
             dockable.requestFocus();
@@ -111,7 +112,7 @@ public class ContentPane {
                 final IDockable dockable = view.getDockable();
                 dockable.requestFocus();
             } else {
-                addView(view);
+                addView(view, location);
             }
         }
     }
@@ -128,11 +129,11 @@ public class ContentPane {
     /**
      * Throws an exception if the View has already been added.
      */
-    private void addView(final AView<?, ?> view) {
+    private void addView(final AView<?, ?> view, final WorkingAreaLocation location) {
         Assertions.assertThat(containsView(view))
                 .as("View [%s] is already being displayed.", view.getDockableUniqueId())
                 .isFalse();
-        final IDockable content = contentPaneView.addView(view);
+        final IDockable content = contentPaneView.addView(view, location);
         Assertions.assertThat(id_visibleView.put(content.getUniqueId(), view)).isNull();
         Assertions.assertThat(class_id_visibleView.get(view.getClass()).put(content.getUniqueId(), view)).isNull();
         view.setDockable(content);

@@ -18,10 +18,17 @@ import de.invesdwin.util.swing.AComponentFinder;
 public class ContentPaneDockable extends DefaultSingleCDockable implements IDockable {
 
     private AView<?, ?> view;
+    private final WorkingAreaLocation location;
 
-    public ContentPaneDockable(final String id, final Icon icon, final String title, final JComponent component) {
+    public ContentPaneDockable(final String id, final Icon icon, final String title, final JComponent component,
+            final WorkingAreaLocation location) {
         super(id, icon, title, component);
+        this.location = location;
         setCloseable(true);
+    }
+
+    public WorkingAreaLocation getLocation() {
+        return location;
     }
 
     @Override

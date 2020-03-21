@@ -21,6 +21,7 @@ import de.invesdwin.context.client.swing.api.guiservice.ContentPane;
 import de.invesdwin.context.client.swing.api.hook.IRichApplicationHook;
 import de.invesdwin.context.client.swing.api.view.AView;
 import de.invesdwin.context.client.swing.frame.content.ContentPaneView;
+import de.invesdwin.context.client.swing.frame.content.WorkingAreaLocation;
 import de.invesdwin.context.client.swing.frame.menu.MenuBarView;
 import de.invesdwin.context.client.swing.frame.splash.ConfiguredSplashScreen;
 import de.invesdwin.context.client.swing.frame.status.StatusBarView;
@@ -108,7 +109,7 @@ public class RichApplicationStartupHook implements IStartupHook {
         frameView.setComponent(contentPaneView.getComponent());
         final AView<?, ?> initialView = delegate.getInitialView();
         if (initialView != null) {
-            contentPane.showView(initialView);
+            contentPane.showView(initialView, WorkingAreaLocation.Center);
         }
         frameView.setMenuBar(menuBarView.getComponent());
         frameView.setStatusBar(statusBarView.getComponent());

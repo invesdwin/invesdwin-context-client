@@ -140,7 +140,7 @@ public class SubmitButtonBinding implements IComponentBinding {
             if (element.isModalOpener()) {
                 GuiService.get().showModalView(view);
             } else {
-                GuiService.get().showView(view);
+                GuiService.get().showView(view, null);
             }
         }
     }
