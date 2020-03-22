@@ -2,6 +2,7 @@ package de.invesdwin.context.client.swing.frame;
 
 import java.awt.Toolkit;
 import java.beans.Beans;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -10,6 +11,7 @@ import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
 import org.jdesktop.application.Application;
+import org.jdesktop.application.ApplicationContext;
 import org.jdesktop.application.ResourceManager;
 import org.jdesktop.application.ResourceMap;
 import org.jdesktop.application.utils.PlatformType;
@@ -17,8 +19,10 @@ import org.springframework.beans.factory.config.BeanDefinition;
 
 import com.jgoodies.common.base.Strings;
 
+import de.invesdwin.context.ContextProperties;
 import de.invesdwin.context.beans.init.MergedContext;
 import de.invesdwin.context.client.swing.api.IRichApplication;
+import de.invesdwin.context.client.swing.api.guiservice.GuiService;
 import de.invesdwin.context.client.swing.frame.app.DelegateRichApplication;
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.lang.Reflections;
@@ -32,7 +36,8 @@ public final class RichApplicationProperties {
     private static volatile Class<? extends IRichApplication> delegateClass;
     private static volatile String[] initializationArgs;
 
-    private RichApplicationProperties() {}
+    private RichApplicationProperties() {
+    }
 
     public static synchronized Application getDesignTimeApplication() {
         if (designTimeApplication == null) {
@@ -145,6 +150,13 @@ public final class RichApplicationProperties {
                 //ignore, might not be X-Windows
             }
         }
+    }
+
+    public static File getStorageDirectory() {
+        final ApplicationContext context = Application.getInstance().getContext();
+        final String applicationId = GuiService.i18n(context.getResourceMap(), "Application.id",
+                context.getApplicationClass().getSimpleName());
+        return new File(ContextProperties.getHomeDirectory(), applicationId);
     }
 
 }
