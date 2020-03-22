@@ -121,7 +121,8 @@ public class RichApplicationStartupHook implements IStartupHook {
      * JFrame.MAXIMIZED_BOTH seems not to work properly.
      */
     private void setInitialFrameSize(final FrameView frameView) {
-        if (delegate.getInitialFrameSize() == null) {
+        final Dimension size = delegate.getInitialFrameSize();
+        if (size == null) {
             final GraphicsConfiguration config = frameView.getFrame().getGraphicsConfiguration();
             final Insets screenInsets = Toolkit.getDefaultToolkit().getScreenInsets(config);
             final int left = screenInsets.left;
@@ -135,7 +136,7 @@ public class RichApplicationStartupHook implements IStartupHook {
             frameView.getFrame().setSize(width, height);
             frameView.getFrame().setLocation(0, 0);
         } else {
-            frameView.getFrame().setSize(delegate.getInitialFrameSize());
+            frameView.getFrame().setSize(size);
             frameView.getFrame().setLocationRelativeTo(null);
         }
     }

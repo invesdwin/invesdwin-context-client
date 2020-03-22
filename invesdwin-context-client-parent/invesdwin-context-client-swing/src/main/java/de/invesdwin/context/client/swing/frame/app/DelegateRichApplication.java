@@ -2,6 +2,7 @@ package de.invesdwin.context.client.swing.frame.app;
 
 import java.awt.Dimension;
 import java.awt.event.WindowListener;
+import java.io.File;
 import java.util.Locale;
 import java.util.Map;
 
@@ -15,6 +16,7 @@ import javax.swing.UnsupportedLookAndFeelException;
 import org.jdesktop.application.Application;
 import org.jdesktop.application.ApplicationContext;
 import org.jdesktop.application.FrameView;
+import org.jdesktop.application.LocalStorage;
 import org.jdesktop.application.ProxyActions;
 import org.jdesktop.application.SingleFrameApplication;
 import org.springframework.context.i18n.LocaleContextHolder;
@@ -22,10 +24,12 @@ import org.springframework.context.i18n.LocaleContextHolder;
 import de.invesdwin.aspects.EventDispatchThreadUtil;
 import de.invesdwin.aspects.annotation.EventDispatchThread;
 import de.invesdwin.aspects.annotation.EventDispatchThread.InvocationType;
+import de.invesdwin.context.ContextProperties;
 import de.invesdwin.context.beans.hook.StartupHookManager;
 import de.invesdwin.context.beans.init.MergedContext;
 import de.invesdwin.context.client.swing.api.IRichApplication;
 import de.invesdwin.context.client.swing.api.exit.AMainFrameCloseOperation;
+import de.invesdwin.context.client.swing.api.guiservice.GuiService;
 import de.invesdwin.context.client.swing.api.hook.IRichApplicationHook;
 import de.invesdwin.context.client.swing.error.GuiExceptionHandler;
 import de.invesdwin.context.client.swing.frame.RichApplicationProperties;
@@ -95,6 +99,7 @@ public class DelegateRichApplication extends SingleFrameApplication {
         MergedContext.autowire(this); //make sure mergedContext is initialized
         ctx.addTaskService(MergedContext.getInstance().getBean(DefaultTaskService.class));
         Assertions.assertThat(ctx.getTaskService()).isInstanceOf(DefaultTaskService.class);
+        initLocalStorageDirectory(ctx);
 
         final IRichApplication delegate = RichApplicationProperties.getDelegate();
         configureLookAndFeel(delegate);
@@ -106,6 +111,16 @@ public class DelegateRichApplication extends SingleFrameApplication {
         for (final IRichApplicationHook hook : hooks.values()) {
             hook.initializeDone();
         }
+    }
+
+    private void initLocalStorageDirectory(final ApplicationContext ctx) {
+        final File appDir = new File(ContextProperties.getHomeDirectory(),
+                DelegateRichApplication.class.getSimpleName());
+        final String storageDir = new File(appDir, LocalStorage.class.getSimpleName()).getAbsolutePath();
+        final String applicationId = GuiService.i18n(getContext().getResourceMap(), "Application.id",
+                getContext().getApplicationClass().getSimpleName());
+        final File directory = new File(storageDir, applicationId);
+        ctx.getLocalStorage().setDirectory(directory);
     }
 
     @Override
