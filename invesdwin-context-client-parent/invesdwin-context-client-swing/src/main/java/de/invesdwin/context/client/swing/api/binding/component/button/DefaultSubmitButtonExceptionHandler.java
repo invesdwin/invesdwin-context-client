@@ -50,7 +50,8 @@ public class DefaultSubmitButtonExceptionHandler implements ISubmitButtonExcepti
 
     protected void showExceptionMessage(final IBeanPathElement element, final Component component, final Throwable t,
             final String title, final String message) {
-        Dialogs.showMessageDialog(Views.getRootComponentInDockable(component), message, title, Dialogs.ERROR_MESSAGE);
+        Dialogs.showMessageDialog(Views.getRootComponentInDockable(component),
+                Strings.prependIfMissingIgnoreCase(message, "<html>"), title, Dialogs.ERROR_MESSAGE);
     }
 
     public void logShowExceptionMessage(final Throwable t) {
