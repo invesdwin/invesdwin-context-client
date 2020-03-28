@@ -9,6 +9,7 @@ import java.awt.Stroke;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
+import java.math.RoundingMode;
 import java.util.List;
 
 import javax.annotation.concurrent.NotThreadSafe;
@@ -25,6 +26,7 @@ import org.jfree.chart.ui.TextAnchor;
 import de.invesdwin.context.client.swing.jfreechart.panel.InteractiveChartPanel;
 import de.invesdwin.context.client.swing.jfreechart.plot.annotation.priceline.XYPriceLineAnnotation;
 import de.invesdwin.util.lang.Colors;
+import de.invesdwin.util.math.Doubles;
 
 @NotThreadSafe
 public class PlotCrosshairHelper {
@@ -99,9 +101,10 @@ public class PlotCrosshairHelper {
             // all subplots have the domain crosshair
             // the x coordinate is the same for all subplots
             final Rectangle2D dataArea = plotInfo.getDataArea();
-            final int xx = (int) chartPanel.getCombinedPlot()
+            final double xxDouble = chartPanel.getCombinedPlot()
                     .getDomainAxis()
                     .java2DToValue(java2DPoint.getX(), dataArea, chartPanel.getCombinedPlot().getDomainAxisEdge());
+            final int xx = (int) Doubles.round(xxDouble, 0, RoundingMode.HALF_UP);
 
             final Rectangle2D panelArea = chartPanel.getChartPanel().getScreenDataArea(mouseX, mouseY);
 
