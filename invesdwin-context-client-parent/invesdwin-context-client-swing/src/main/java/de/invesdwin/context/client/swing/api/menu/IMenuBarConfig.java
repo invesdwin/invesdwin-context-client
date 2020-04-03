@@ -20,7 +20,7 @@ public interface IMenuBarConfig {
     /**
      * Null elements add a JSeparator.
      */
-    List<OpenViewMenuItem<?>> getOpenViewMenuItems();
+    List<JMenuItem> getViewMenuItems();
 
     /**
      * No null elements supported.

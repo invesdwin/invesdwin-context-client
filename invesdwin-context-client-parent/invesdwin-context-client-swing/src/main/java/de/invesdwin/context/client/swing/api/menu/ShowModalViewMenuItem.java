@@ -1,5 +1,6 @@
 package de.invesdwin.context.client.swing.api.menu;
 
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 
 import javax.annotation.concurrent.NotThreadSafe;
@@ -14,10 +15,8 @@ import org.springframework.context.ApplicationContext;
 
 import com.jgoodies.common.base.Strings;
 
-import de.invesdwin.context.client.swing.api.guiservice.ContentPane;
 import de.invesdwin.context.client.swing.api.guiservice.GuiService;
 import de.invesdwin.context.client.swing.api.view.AView;
-import de.invesdwin.context.client.swing.frame.content.IWorkingAreaLocation;
 import de.invesdwin.norva.beanpath.BeanPathObjects;
 import de.invesdwin.norva.beanpath.annotation.Title;
 import de.invesdwin.util.assertions.Assertions;
@@ -33,23 +32,21 @@ import de.invesdwin.util.swing.Components;
  */
 @NotThreadSafe
 @Configurable
-public class OpenViewMenuItem<V extends AView<?, ?>> extends JMenuItem {
+public class ShowModalViewMenuItem<V extends AView<?, ?>> extends JMenuItem {
 
     private boolean cachingEnabled = true;
 
     private final Class<V> viewClass;
-    private final IWorkingAreaLocation location;
+    private final Dimension dimension;
     private V cachedViewInstance;
 
     @Inject
     private ApplicationContext appCtx;
-    @Inject
-    private ContentPane contentPane;
 
-    public OpenViewMenuItem(final Class<V> viewClass, final IWorkingAreaLocation location) {
+    public ShowModalViewMenuItem(final Class<V> viewClass, final Dimension dimension) {
         super();
         this.viewClass = viewClass;
-        this.location = location;
+        this.dimension = dimension;
         initialize();
     }
 
@@ -86,15 +83,15 @@ public class OpenViewMenuItem<V extends AView<?, ?>> extends JMenuItem {
                     if (cachedViewInstance == null) {
                         cachedViewInstance = createView();
                     }
-                    contentPane.showView(cachedViewInstance, location);
+                    GuiService.get().showModalView(cachedViewInstance, dimension);
                 } else {
-                    contentPane.showView(createView(), location);
+                    GuiService.get().showModalView(createView(), dimension);
                 }
             }
         });
     }
 
-    public OpenViewMenuItem<V> withCachingEnabled(final boolean cachingEnabled) {
+    public ShowModalViewMenuItem<V> withCachingEnabled(final boolean cachingEnabled) {
         this.cachingEnabled = cachingEnabled;
         return this;
     }

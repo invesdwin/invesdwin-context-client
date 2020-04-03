@@ -20,7 +20,7 @@ public class MenuBarConfigSupport implements IMenuBarConfig {
     }
 
     @Override
-    public List<OpenViewMenuItem<?>> getOpenViewMenuItems() {
+    public List<JMenuItem> getViewMenuItems() {
         return null;
     }
 

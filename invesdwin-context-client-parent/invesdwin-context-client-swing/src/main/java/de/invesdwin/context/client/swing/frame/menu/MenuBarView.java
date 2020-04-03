@@ -20,7 +20,6 @@ import de.invesdwin.context.client.swing.api.IRichApplication;
 import de.invesdwin.context.client.swing.api.guiservice.GuiService;
 import de.invesdwin.context.client.swing.api.menu.IMenuBarConfig;
 import de.invesdwin.context.client.swing.api.menu.MenuBarConfigSupport;
-import de.invesdwin.context.client.swing.api.menu.OpenViewMenuItem;
 import de.invesdwin.context.client.swing.api.view.AView;
 import de.invesdwin.util.swing.Dialogs;
 
@@ -110,16 +109,16 @@ public class MenuBarView extends AView<MenuBarView, JMenuBar> {
     }
 
     private void addViewMenu(final IMenuBarConfig menuBarConfig, final JMenuBar menuBar) {
-        final List<OpenViewMenuItem<?>> openViewMenuItems = menuBarConfig.getOpenViewMenuItems();
-        if (openViewMenuItems != null && openViewMenuItems.size() > 0) {
+        final List<JMenuItem> viewMenuItems = menuBarConfig.getViewMenuItems();
+        if (viewMenuItems != null && viewMenuItems.size() > 0) {
             final JMenu mnView = new JMenu();
             mnView.setName("view");
             menuBar.add(mnView);
-            for (final OpenViewMenuItem<?> openViewMenuItem : openViewMenuItems) {
-                if (openViewMenuItem == null) {
+            for (final JMenuItem viewMenuItem : viewMenuItems) {
+                if (viewMenuItem == null) {
                     mnView.add(new JSeparator());
                 } else {
-                    mnView.add(openViewMenuItem);
+                    mnView.add(viewMenuItem);
                 }
             }
         }
