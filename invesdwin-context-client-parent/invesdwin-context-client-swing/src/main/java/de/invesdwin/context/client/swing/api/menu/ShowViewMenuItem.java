@@ -33,20 +33,20 @@ import de.invesdwin.util.swing.Components;
  */
 @NotThreadSafe
 @Configurable
-public class ShowViewMenuItem<V extends AView<?, ?>> extends JMenuItem {
+public class ShowViewMenuItem extends JMenuItem {
 
-    private boolean cachingEnabled = true;
+    private boolean caching = false;
 
-    private final Class<V> viewClass;
+    private final Class<? extends AView<?, ?>> viewClass;
     private final IWorkingAreaLocation location;
-    private V cachedViewInstance;
+    private AView<?, ?> cachedViewInstance;
 
     @Inject
     private ApplicationContext appCtx;
     @Inject
     private ContentPane contentPane;
 
-    public ShowViewMenuItem(final Class<V> viewClass, final IWorkingAreaLocation location) {
+    public ShowViewMenuItem(final Class<? extends AView<?, ?>> viewClass, final IWorkingAreaLocation location) {
         super();
         this.viewClass = viewClass;
         this.location = location;
@@ -82,7 +82,7 @@ public class ShowViewMenuItem<V extends AView<?, ?>> extends JMenuItem {
         setAction(new AbstractAction(viewTitle, viewIcon) {
             @Override
             public void actionPerformed(final ActionEvent e) {
-                if (cachingEnabled) {
+                if (caching) {
                     if (cachedViewInstance == null) {
                         cachedViewInstance = createView();
                     }
@@ -94,21 +94,25 @@ public class ShowViewMenuItem<V extends AView<?, ?>> extends JMenuItem {
         });
     }
 
-    public ShowViewMenuItem<V> withCachingEnabled(final boolean cachingEnabled) {
-        this.cachingEnabled = cachingEnabled;
+    public ShowViewMenuItem withCaching() {
+        return withCaching(true);
+    }
+
+    public ShowViewMenuItem withCaching(final boolean caching) {
+        this.caching = caching;
         return this;
     }
 
-    public boolean isCachingEnabled() {
-        return cachingEnabled;
+    public boolean isCaching() {
+        return caching;
     }
 
-    protected V createView() {
-        final V viewBean = appCtx.getBean(viewClass);
+    protected AView<?, ?> createView() {
+        final AView<?, ?> viewBean = appCtx.getBean(viewClass);
         if (viewBean != null) {
             return viewBean;
         }
-        final V viewInstance = Reflections.constructor().in(viewClass).newInstance();
+        final AView<?, ?> viewInstance = Reflections.constructor().in(viewClass).newInstance();
         Assertions.assertThat(viewInstance).isNotNull();
         return viewInstance;
     }
