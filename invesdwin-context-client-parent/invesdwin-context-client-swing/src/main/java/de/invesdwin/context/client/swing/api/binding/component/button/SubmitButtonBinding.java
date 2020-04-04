@@ -154,7 +154,7 @@ public class SubmitButtonBinding implements IComponentBinding {
     }
 
     protected void handleButtonException(final Component component, final Throwable t) {
-        bindingGroup.getSubmitButtonExceptionHandler().handleSubmitButtonException(element, component, t);
+        bindingGroup.getSubmitButtonExceptionHandler().handleSubmitButtonException(component, t);
     }
 
     protected boolean isModifiable() {

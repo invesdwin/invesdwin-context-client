@@ -64,6 +64,10 @@ public final class GeneratedBindingGroup {
     }
 
     protected DefaultSubmitButtonExceptionHandler newSubmitButtonExceptionHandler() {
+        return newDefaultSubmitButtonExceptionHandler();
+    }
+
+    public static DefaultSubmitButtonExceptionHandler newDefaultSubmitButtonExceptionHandler() {
         return new DefaultSubmitButtonExceptionHandler();
     }
 

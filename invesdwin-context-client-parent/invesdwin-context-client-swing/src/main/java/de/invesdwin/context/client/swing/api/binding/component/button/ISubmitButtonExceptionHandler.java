@@ -3,10 +3,8 @@ package de.invesdwin.context.client.swing.api.binding.component.button;
 import java.awt.Component;
 import java.io.Serializable;
 
-import de.invesdwin.norva.beanpath.spi.element.IBeanPathElement;
-
 public interface ISubmitButtonExceptionHandler extends Serializable {
 
-    void handleSubmitButtonException(IBeanPathElement element, Component component, Throwable t);
+    void handleSubmitButtonException(Component component, Throwable t);
 
 }

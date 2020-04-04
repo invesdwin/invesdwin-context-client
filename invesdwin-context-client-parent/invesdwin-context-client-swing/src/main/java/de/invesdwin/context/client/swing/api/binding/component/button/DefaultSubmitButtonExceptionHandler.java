@@ -6,7 +6,6 @@ import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.context.client.swing.api.guiservice.GuiService;
 import de.invesdwin.context.client.swing.util.Views;
-import de.invesdwin.norva.beanpath.spi.element.IBeanPathElement;
 import de.invesdwin.util.lang.Strings;
 import de.invesdwin.util.swing.Components;
 import de.invesdwin.util.swing.Dialogs;
@@ -18,8 +17,7 @@ public class DefaultSubmitButtonExceptionHandler implements ISubmitButtonExcepti
             .getXLogger(DefaultSubmitButtonExceptionHandler.class);
 
     @Override
-    public void handleSubmitButtonException(final IBeanPathElement element, final Component component,
-            final Throwable t) {
+    public void handleSubmitButtonException(final Component component, final Throwable t) {
         if (shouldSwallowException(t)) {
             LOG.catching(org.slf4j.ext.XLogger.Level.WARN, new RuntimeException("Button exception swallowed...", t));
         } else {
@@ -29,7 +27,7 @@ public class DefaultSubmitButtonExceptionHandler implements ISubmitButtonExcepti
                         .getResourceMap(DefaultSubmitButtonExceptionHandler.class)
                         .getString(DefaultSubmitButtonExceptionHandler.class.getSimpleName() + ".exception.title");
                 final String message = Components.getDefaultToolTipFormatter().format(t.getMessage());
-                showExceptionMessage(element, component, t, title, message);
+                showExceptionMessage(component, t, title, message);
             } else {
                 propagateException(t);
             }
@@ -48,10 +46,14 @@ public class DefaultSubmitButtonExceptionHandler implements ISubmitButtonExcepti
         return t instanceof Exception && !(t instanceof RuntimeException) && Strings.isBlank(t.getMessage());
     }
 
-    protected void showExceptionMessage(final IBeanPathElement element, final Component component, final Throwable t,
-            final String title, final String message) {
-        Dialogs.showMessageDialog(Views.getRootComponentInDockable(component),
-                Strings.prependIfMissingIgnoreCase(message, "<html>"), title, Dialogs.ERROR_MESSAGE);
+    protected void showExceptionMessage(final Component component, final Throwable t, final String title,
+            final String message) {
+        Component root = Views.getRootComponentInDockable(component);
+        if (root == null) {
+            root = Dialogs.getRootFrame();
+        }
+        Dialogs.showMessageDialog(root, Strings.prependIfMissingIgnoreCase(message, "<html>"), title,
+                Dialogs.ERROR_MESSAGE);
     }
 
     public void logShowExceptionMessage(final Throwable t) {

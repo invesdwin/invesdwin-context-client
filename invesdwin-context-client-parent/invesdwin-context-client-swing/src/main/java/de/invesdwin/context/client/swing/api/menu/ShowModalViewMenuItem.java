@@ -15,6 +15,8 @@ import org.springframework.context.ApplicationContext;
 
 import com.jgoodies.common.base.Strings;
 
+import de.invesdwin.context.client.swing.api.binding.GeneratedBindingGroup;
+import de.invesdwin.context.client.swing.api.binding.component.button.ISubmitButtonExceptionHandler;
 import de.invesdwin.context.client.swing.api.guiservice.GuiService;
 import de.invesdwin.context.client.swing.api.view.AView;
 import de.invesdwin.norva.beanpath.BeanPathObjects;
@@ -79,16 +81,25 @@ public class ShowModalViewMenuItem extends JMenuItem {
         setAction(new AbstractAction(viewTitle, viewIcon) {
             @Override
             public void actionPerformed(final ActionEvent e) {
-                if (caching) {
-                    if (cachedViewInstance == null) {
-                        cachedViewInstance = createView();
+                try {
+                    if (caching) {
+                        if (cachedViewInstance == null) {
+                            cachedViewInstance = createView();
+                        }
+                        GuiService.get().showModalView(cachedViewInstance, dimension);
+                    } else {
+                        GuiService.get().showModalView(createView(), dimension);
                     }
-                    GuiService.get().showModalView(cachedViewInstance, dimension);
-                } else {
-                    GuiService.get().showModalView(createView(), dimension);
+                } catch (final Throwable t) {
+                    newSubmitButtonExceptionHandler().handleSubmitButtonException(ShowModalViewMenuItem.this, t);
                 }
             }
+
         });
+    }
+
+    protected ISubmitButtonExceptionHandler newSubmitButtonExceptionHandler() {
+        return GeneratedBindingGroup.newDefaultSubmitButtonExceptionHandler();
     }
 
     public ShowModalViewMenuItem withCaching() {

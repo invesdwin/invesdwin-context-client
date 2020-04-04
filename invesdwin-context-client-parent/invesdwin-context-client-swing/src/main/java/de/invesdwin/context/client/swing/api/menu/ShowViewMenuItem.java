@@ -14,6 +14,8 @@ import org.springframework.context.ApplicationContext;
 
 import com.jgoodies.common.base.Strings;
 
+import de.invesdwin.context.client.swing.api.binding.GeneratedBindingGroup;
+import de.invesdwin.context.client.swing.api.binding.component.button.ISubmitButtonExceptionHandler;
 import de.invesdwin.context.client.swing.api.guiservice.ContentPane;
 import de.invesdwin.context.client.swing.api.guiservice.GuiService;
 import de.invesdwin.context.client.swing.api.view.AView;
@@ -82,16 +84,24 @@ public class ShowViewMenuItem extends JMenuItem {
         setAction(new AbstractAction(viewTitle, viewIcon) {
             @Override
             public void actionPerformed(final ActionEvent e) {
-                if (caching) {
-                    if (cachedViewInstance == null) {
-                        cachedViewInstance = createView();
+                try {
+                    if (caching) {
+                        if (cachedViewInstance == null) {
+                            cachedViewInstance = createView();
+                        }
+                        contentPane.showView(cachedViewInstance, location);
+                    } else {
+                        contentPane.showView(createView(), location);
                     }
-                    contentPane.showView(cachedViewInstance, location);
-                } else {
-                    contentPane.showView(createView(), location);
+                } catch (final Throwable t) {
+                    newSubmitButtonExceptionHandler().handleSubmitButtonException(ShowViewMenuItem.this, t);
                 }
             }
         });
+    }
+
+    protected ISubmitButtonExceptionHandler newSubmitButtonExceptionHandler() {
+        return GeneratedBindingGroup.newDefaultSubmitButtonExceptionHandler();
     }
 
     public ShowViewMenuItem withCaching() {
