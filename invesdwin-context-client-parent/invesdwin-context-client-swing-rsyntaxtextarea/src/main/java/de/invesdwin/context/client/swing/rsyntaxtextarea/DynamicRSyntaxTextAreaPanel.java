@@ -79,6 +79,7 @@ public class DynamicRSyntaxTextAreaPanel extends JPanel {
                         textArea.setRows(lineCount);
                         scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
                     } else {
+                        textArea.setRows(getMaxRows());
                         scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
                     }
                     Components.packHeight(window);
