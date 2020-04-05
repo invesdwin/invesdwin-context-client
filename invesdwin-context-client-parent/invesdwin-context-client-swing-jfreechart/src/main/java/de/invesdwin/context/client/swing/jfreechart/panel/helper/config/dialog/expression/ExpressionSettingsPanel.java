@@ -92,7 +92,8 @@ public class ExpressionSettingsPanel extends JPanel implements ISettingsPanelAct
 
     public static void validateExpressionEdit(final JLabel lbl_expression, final String newExpression,
             final IExpressionSeriesProvider provider, final String originalExpression) {
-        if (provider != null && hasChanges(originalExpression, newExpression) && Strings.isNotBlank(newExpression)) {
+        if (provider != null && hasChanges(originalExpression, newExpression)
+                && provider.shouldValidateExpression(newExpression)) {
             try {
                 final IExpression parsedExpression = provider.parseExpression(newExpression);
                 lbl_expression.setIcon(ICON_EXPRESSION_PENDING_VALID);

@@ -239,7 +239,7 @@ public class AddSeriesPanel extends JPanel {
 
     public static void validateExpressionAdd(final JLabel lbl_expression, final String expression,
             final IExpressionSeriesProvider provider) {
-        if (Strings.isNotBlank(expression)) {
+        if (provider.shouldValidateExpression(expression)) {
             try {
                 final IExpression parsedExpression = provider.parseExpression(expression);
                 if (parsedExpression == null) {

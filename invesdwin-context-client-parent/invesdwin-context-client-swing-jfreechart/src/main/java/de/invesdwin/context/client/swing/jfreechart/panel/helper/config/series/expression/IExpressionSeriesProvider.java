@@ -11,6 +11,7 @@ import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.SeriesRe
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.IPlotSourceDataset;
 import de.invesdwin.context.client.swing.rsyntaxtextarea.expression.ExpressionValidatingParser;
 import de.invesdwin.context.client.swing.rsyntaxtextarea.expression.completion.ExpressionAutoCompletion;
+import de.invesdwin.util.lang.Strings;
 import de.invesdwin.util.math.expression.IExpression;
 import de.invesdwin.util.math.expression.tokenizer.ParseException;
 
@@ -57,6 +58,10 @@ public interface IExpressionSeriesProvider {
 
     default String getTitle(final String expression) {
         return expression.toString();
+    }
+
+    default boolean shouldValidateExpression(final String expression) {
+        return Strings.isNotBlank(expression);
     }
 
 }
