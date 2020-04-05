@@ -15,6 +15,7 @@ import org.springframework.context.ApplicationContext;
 
 import com.jgoodies.common.base.Strings;
 
+import de.invesdwin.context.beans.init.ApplicationContexts;
 import de.invesdwin.context.client.swing.api.binding.GeneratedBindingGroup;
 import de.invesdwin.context.client.swing.api.binding.component.button.ISubmitButtonExceptionHandler;
 import de.invesdwin.context.client.swing.api.guiservice.GuiService;
@@ -54,28 +55,7 @@ public class ShowModalViewMenuItem extends JMenuItem {
 
     private void initialize() {
         final ResourceMap resourceMap = GuiService.get().getResourceMap(viewClass);
-        String viewTitle = resourceMap.getString(AView.KEY_VIEW_TITLE);
-        if (Strings.isBlank(viewTitle)) {
-            final Class<?>[] generics = Reflections.resolveTypeArguments(viewClass, AView.class);
-            final Class<?> modelClass = generics[0];
-            Title titleAnnotation = Reflections.getAnnotation(modelClass, Title.class);
-            if (titleAnnotation == null) {
-                titleAnnotation = Reflections.getAnnotation(viewClass, Title.class);
-            }
-            if (titleAnnotation != null) {
-                viewTitle = GuiService.i18n(resourceMap, titleAnnotation.value());
-            } else {
-                final String viewClassName = viewClass.getSimpleName();
-                viewTitle = GuiService.i18n(resourceMap, viewClassName);
-                if (Objects.equals(viewTitle, viewClassName)) {
-                    viewTitle = BeanPathObjects.toVisibleName(modelClass.getSimpleName());
-                    //might happen with anonymous classes
-                    if (Strings.isBlank(viewTitle) || modelClass == Object.class) {
-                        viewTitle = BeanPathObjects.toVisibleName(viewClassName);
-                    }
-                }
-            }
-        }
+        final String viewTitle = getTitle(resourceMap);
         Components.setToolTipText(this, resourceMap.getString(AView.KEY_VIEW_DESCRIPTION), false);
         final Icon viewIcon = resourceMap.getIcon(AView.KEY_VIEW_ICON);
         setAction(new AbstractAction(viewTitle, viewIcon) {
@@ -98,6 +78,32 @@ public class ShowModalViewMenuItem extends JMenuItem {
         });
     }
 
+    protected String getTitle(final ResourceMap resourceMap) {
+        String viewTitle = resourceMap.getString(AView.KEY_VIEW_TITLE);
+        if (Strings.isBlank(viewTitle)) {
+            final Class<?>[] generics = Reflections.resolveTypeArguments(viewClass, AView.class);
+            final Class<?> modelClass = generics[0];
+            Title titleAnnotation = Reflections.getAnnotation(modelClass, Title.class);
+            if (titleAnnotation == null) {
+                titleAnnotation = Reflections.getAnnotation(viewClass, Title.class);
+            }
+            if (titleAnnotation != null) {
+                viewTitle = GuiService.i18n(resourceMap, titleAnnotation.value());
+            } else {
+                final String viewClassName = viewClass.getSimpleName();
+                viewTitle = GuiService.i18n(resourceMap, viewClassName);
+                if (Objects.equals(viewTitle, viewClassName)) {
+                    viewTitle = BeanPathObjects.toVisibleName(modelClass.getSimpleName());
+                    //might happen with anonymous classes
+                    if (Strings.isBlank(viewTitle) || modelClass == Object.class) {
+                        viewTitle = BeanPathObjects.toVisibleName(viewClassName);
+                    }
+                }
+            }
+        }
+        return viewTitle;
+    }
+
     protected ISubmitButtonExceptionHandler newSubmitButtonExceptionHandler() {
         return GeneratedBindingGroup.newDefaultSubmitButtonExceptionHandler();
     }
@@ -116,7 +122,7 @@ public class ShowModalViewMenuItem extends JMenuItem {
     }
 
     protected AView<?, ?> createView() {
-        final AView<?, ?> viewBean = appCtx.getBean(viewClass);
+        final AView<?, ?> viewBean = ApplicationContexts.getBeanIfExists(appCtx, viewClass);
         if (viewBean != null) {
             return viewBean;
         }

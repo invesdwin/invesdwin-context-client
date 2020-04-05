@@ -14,6 +14,7 @@ import org.springframework.context.ApplicationContext;
 
 import com.jgoodies.common.base.Strings;
 
+import de.invesdwin.context.beans.init.ApplicationContexts;
 import de.invesdwin.context.client.swing.api.binding.GeneratedBindingGroup;
 import de.invesdwin.context.client.swing.api.binding.component.button.ISubmitButtonExceptionHandler;
 import de.invesdwin.context.client.swing.api.guiservice.ContentPane;
@@ -57,6 +58,29 @@ public class ShowViewMenuItem extends JMenuItem {
 
     private void initialize() {
         final ResourceMap resourceMap = GuiService.get().getResourceMap(viewClass);
+        final String viewTitle = getTitle(resourceMap);
+        Components.setToolTipText(this, resourceMap.getString(AView.KEY_VIEW_DESCRIPTION), false);
+        final Icon viewIcon = resourceMap.getIcon(AView.KEY_VIEW_ICON);
+        setAction(new AbstractAction(viewTitle, viewIcon) {
+            @Override
+            public void actionPerformed(final ActionEvent e) {
+                try {
+                    if (caching) {
+                        if (cachedViewInstance == null) {
+                            cachedViewInstance = createView();
+                        }
+                        contentPane.showView(cachedViewInstance, location);
+                    } else {
+                        contentPane.showView(createView(), location);
+                    }
+                } catch (final Throwable t) {
+                    newSubmitButtonExceptionHandler().handleSubmitButtonException(ShowViewMenuItem.this, t);
+                }
+            }
+        });
+    }
+
+    protected String getTitle(final ResourceMap resourceMap) {
         String viewTitle = resourceMap.getString(AView.KEY_VIEW_TITLE);
         if (Strings.isBlank(viewTitle)) {
             final Class<?>[] generics = Reflections.resolveTypeArguments(viewClass, AView.class);
@@ -79,25 +103,7 @@ public class ShowViewMenuItem extends JMenuItem {
                 }
             }
         }
-        Components.setToolTipText(this, resourceMap.getString(AView.KEY_VIEW_DESCRIPTION), false);
-        final Icon viewIcon = resourceMap.getIcon(AView.KEY_VIEW_ICON);
-        setAction(new AbstractAction(viewTitle, viewIcon) {
-            @Override
-            public void actionPerformed(final ActionEvent e) {
-                try {
-                    if (caching) {
-                        if (cachedViewInstance == null) {
-                            cachedViewInstance = createView();
-                        }
-                        contentPane.showView(cachedViewInstance, location);
-                    } else {
-                        contentPane.showView(createView(), location);
-                    }
-                } catch (final Throwable t) {
-                    newSubmitButtonExceptionHandler().handleSubmitButtonException(ShowViewMenuItem.this, t);
-                }
-            }
-        });
+        return viewTitle;
     }
 
     protected ISubmitButtonExceptionHandler newSubmitButtonExceptionHandler() {
@@ -118,7 +124,7 @@ public class ShowViewMenuItem extends JMenuItem {
     }
 
     protected AView<?, ?> createView() {
-        final AView<?, ?> viewBean = appCtx.getBean(viewClass);
+        final AView<?, ?> viewBean = ApplicationContexts.getBeanIfExists(appCtx, viewClass);
         if (viewBean != null) {
             return viewBean;
         }
