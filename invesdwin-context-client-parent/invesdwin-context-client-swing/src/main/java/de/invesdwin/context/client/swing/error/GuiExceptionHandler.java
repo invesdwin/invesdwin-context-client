@@ -23,7 +23,9 @@ import de.invesdwin.context.log.error.LoggedRuntimeException;
 import de.invesdwin.context.log.error.hook.ErrHookManager;
 import de.invesdwin.context.log.error.hook.IErrHook;
 import de.invesdwin.util.assertions.Assertions;
+import de.invesdwin.util.error.Throwables;
 import de.invesdwin.util.shutdown.ShutdownHookManager;
+import de.invesdwin.util.swing.Components;
 import de.invesdwin.util.swing.Dialogs;
 import de.invesdwin.util.swing.listener.WindowListenerSupport;
 
@@ -64,7 +66,8 @@ public final class GuiExceptionHandler implements IErrHook {
             basicErrorMessage.append(resourceMap.getString("errorInfo.text"));
             basicErrorMessage.append("<br>");
             basicErrorMessage.append("<br><b>");
-            basicErrorMessage.append(exc.toString());
+            basicErrorMessage.append(Components.getDefaultToolTipFormatter()
+                    .format(Throwables.concatMessages(exc).replace("\n", "<br>")));
             basicErrorMessage.append("</b>");
 
             /*
