@@ -37,6 +37,7 @@ import de.invesdwin.context.log.error.Err;
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.lang.Reflections;
 import de.invesdwin.util.swing.Dialogs;
+import de.invesdwin.util.swing.Frames;
 import de.invesdwin.util.time.duration.Duration;
 import de.invesdwin.util.time.fdate.FTimeUnit;
 
@@ -161,6 +162,13 @@ public class DelegateRichApplication extends SingleFrameApplication {
                 break;
             }
         }
+        EventDispatchThreadUtil.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                //repeat later (might be needed on windows)
+                Frames.setInitialFrameSize(frameView.getFrame(), application.getInitialFrameSize());
+            }
+        });
     }
 
     @Override

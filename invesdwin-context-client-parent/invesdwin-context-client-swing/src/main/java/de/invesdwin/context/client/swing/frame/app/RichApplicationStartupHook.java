@@ -1,9 +1,5 @@
 package de.invesdwin.context.client.swing.frame.app;
 
-import java.awt.Dimension;
-import java.awt.GraphicsConfiguration;
-import java.awt.Insets;
-import java.awt.Toolkit;
 import java.util.Map;
 
 import javax.annotation.concurrent.NotThreadSafe;
@@ -25,6 +21,7 @@ import de.invesdwin.context.client.swing.frame.splash.ConfiguredSplashScreen;
 import de.invesdwin.context.client.swing.frame.status.StatusBarView;
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.swing.Dialogs;
+import de.invesdwin.util.swing.Frames;
 
 /**
  * This class handles the initilization and displaying of the MainFrame.
@@ -110,35 +107,7 @@ public class RichApplicationStartupHook implements IStartupHook {
         frameView.setStatusBar(statusBarView.getComponent());
 
         frameView.getFrame().pack();
-        setInitialFrameSize(frameView);
-    }
-
-    /**
-     * To set the size to the maximum seems to be the only reliable way to maximize a window
-     * 
-     * http://stackoverflow.com/questions/479523/java-swing-maximize-window
-     * 
-     * JFrame.MAXIMIZED_BOTH seems not to work properly.
-     */
-    private void setInitialFrameSize(final FrameView frameView) {
-        final Dimension size = delegate.getInitialFrameSize();
-        if (size == null) {
-            final GraphicsConfiguration config = frameView.getFrame().getGraphicsConfiguration();
-            final Insets screenInsets = Toolkit.getDefaultToolkit().getScreenInsets(config);
-            final int left = screenInsets.left;
-            final int right = screenInsets.right;
-            final int top = screenInsets.top;
-            final int bottom = screenInsets.bottom;
-
-            final Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-            final int width = screenSize.width - left - right;
-            final int height = screenSize.height - top - bottom;
-            frameView.getFrame().setSize(width, height);
-            frameView.getFrame().setLocation(0, 0);
-        } else {
-            frameView.getFrame().setSize(size);
-            frameView.getFrame().setLocationRelativeTo(null);
-        }
+        Frames.setInitialFrameSize(frameView.getFrame(), delegate.getInitialFrameSize());
     }
 
 }
