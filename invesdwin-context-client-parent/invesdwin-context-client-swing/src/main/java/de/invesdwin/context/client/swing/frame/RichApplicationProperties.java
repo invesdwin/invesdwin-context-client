@@ -126,7 +126,8 @@ public final class RichApplicationProperties {
         //Use the interface implementation properties first in chain
         if (forceDelegateClass || delegateClass != null || MergedContext.isBootstrapRunning()
                 || MergedContext.isBootstrapFinished()) {
-            if (!applicationBundleNames.contains(getDelegateClass().getName())) {
+            final String delegateClassName = getDelegateClass().getName();
+            if (!applicationBundleNames.contains(delegateClassName)) {
                 applicationBundleNames.add(0, getDelegateClass().getName());
             }
         }
