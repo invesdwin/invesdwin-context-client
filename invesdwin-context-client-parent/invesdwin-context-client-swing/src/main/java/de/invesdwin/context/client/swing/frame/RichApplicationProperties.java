@@ -66,11 +66,11 @@ public final class RichApplicationProperties {
         RichApplicationProperties.hideSplashOnStartup = hideSplashOnStartup;
     }
 
-    public static Class<? extends IRichApplication> getDelegateClass() {
+    public static Class<? extends IRichApplication> getDelegateClass(final boolean force) {
         if (delegateClass == null) {
             delegateClass = getDelegateClassFromServiceLoader();
             if (delegateClass == null) {
-                delegateClass = getDelegateClassFromMergedContext();
+                delegateClass = getDelegateClassFromMergedContext(force);
             }
             if (designTimeApplication != null) {
                 initApplicatonBundleNames(designTimeApplication, true);
@@ -79,9 +79,13 @@ public final class RichApplicationProperties {
         return delegateClass;
     }
 
-    private static Class<? extends IRichApplication> getDelegateClassFromMergedContext() {
+    private static Class<? extends IRichApplication> getDelegateClassFromMergedContext(final boolean force) {
         if (MergedContext.getInstance() == null) {
-            MergedContext.autowire(null);
+            if (force) {
+                MergedContext.autowire(null);
+            } else {
+                return null;
+            }
         }
         final String[] beanNames = MergedContext.getInstance().getBeanNamesForType(IRichApplication.class);
         Assertions.assertThat(beanNames.length)
@@ -94,25 +98,25 @@ public final class RichApplicationProperties {
 
     private static Class<? extends IRichApplication> getDelegateClassFromServiceLoader() {
         final ServiceLoader<IRichApplication> loader = ServiceLoader.load(IRichApplication.class);
-        final List<IRichApplication> factories = new ArrayList<>();
-        for (final IRichApplication factory : loader) {
-            factories.add(factory);
+        final List<IRichApplication> services = new ArrayList<>();
+        for (final IRichApplication service : loader) {
+            services.add(service);
         }
-        if (factories.isEmpty()) {
+        if (services.isEmpty()) {
             return null;
         } else {
-            final IRichApplication firstFactory = factories.get(0);
-            if (factories.size() > 1) {
+            final IRichApplication firstService = services.get(0);
+            if (services.size() > 1) {
                 LOG.error("More than one %s service provider available, using first one: ",
-                        IRichApplication.class.getSimpleName(), firstFactory.getClass().getName());
+                        IRichApplication.class.getSimpleName(), firstService.getClass().getName());
             }
-            return firstFactory.getClass();
+            return firstService.getClass();
         }
     }
 
     public static boolean hasDelegateClass() {
         try {
-            return getDelegateClass() != null;
+            return getDelegateClass(true) != null;
         } catch (final Throwable t) {
             return false;
         }
@@ -122,7 +126,7 @@ public final class RichApplicationProperties {
         if (MergedContext.getInstance() == null) {
             MergedContext.autowire(null);
         }
-        return MergedContext.getInstance().getBean(RichApplicationProperties.getDelegateClass());
+        return MergedContext.getInstance().getBean(RichApplicationProperties.getDelegateClass(true));
     }
 
     public static void setDelegateClass(final Class<? extends IRichApplication> delegateClass) {
@@ -157,12 +161,9 @@ public final class RichApplicationProperties {
         }
 
         //Use the interface implementation properties first in chain
-        if (forceDelegateClass || delegateClass != null || MergedContext.isBootstrapRunning()
-                || MergedContext.isBootstrapFinished()) {
-            final String delegateClassName = getDelegateClass().getName();
-            if (!applicationBundleNames.contains(delegateClassName)) {
-                applicationBundleNames.add(0, getDelegateClass().getName());
-            }
+        final String delegateClassName = getDelegateClass(forceDelegateClass).getName();
+        if (!applicationBundleNames.contains(delegateClassName)) {
+            applicationBundleNames.add(0, delegateClassName);
         }
         resourceManager.setApplicationBundleNames(applicationBundleNames);
 

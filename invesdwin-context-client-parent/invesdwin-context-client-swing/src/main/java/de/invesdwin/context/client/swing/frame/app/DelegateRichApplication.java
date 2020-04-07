@@ -150,7 +150,7 @@ public class DelegateRichApplication extends SingleFrameApplication {
         frame.repaint(); //to be safe we call a repaint so that the temporary grey area on the top is less likely to occur
         show(frameView);
         final IRichApplication application = MergedContext.getInstance()
-                .getBean(RichApplicationProperties.getDelegateClass());
+                .getBean(RichApplicationProperties.getDelegateClass(true));
         final AMainFrameCloseOperation closeOperation = application.getMainFrameCloseOperation();
         closeOperation.configureFrame();
         final WindowListener[] listeners = frame.getWindowListeners();
