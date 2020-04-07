@@ -6,6 +6,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.ServiceLoader;
 
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
@@ -15,7 +16,6 @@ import org.jdesktop.application.ApplicationContext;
 import org.jdesktop.application.ResourceManager;
 import org.jdesktop.application.ResourceMap;
 import org.jdesktop.application.utils.PlatformType;
-import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.beans.factory.config.BeanDefinition;
 
 import com.jgoodies.common.base.Strings;
@@ -25,12 +25,15 @@ import de.invesdwin.context.beans.init.MergedContext;
 import de.invesdwin.context.client.swing.api.IRichApplication;
 import de.invesdwin.context.client.swing.api.guiservice.GuiService;
 import de.invesdwin.context.client.swing.frame.app.DelegateRichApplication;
+import de.invesdwin.context.log.Log;
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.lang.Reflections;
 
 @ThreadSafe
 public final class RichApplicationProperties {
 
+    private static final Log LOG = new Log(RichApplicationProperties.class);
+    private static final String UNDEFINED_APPLICATION_ID = "[Application.name]";
     @GuardedBy("this.class")
     private static Application designTimeApplication;
     private static volatile boolean hideSplashOnStartup;
@@ -65,22 +68,46 @@ public final class RichApplicationProperties {
 
     public static Class<? extends IRichApplication> getDelegateClass() {
         if (delegateClass == null) {
-            if (MergedContext.getInstance() == null) {
-                MergedContext.autowire(null);
+            delegateClass = getDelegateClassFromServiceLoader();
+            if (delegateClass == null) {
+                delegateClass = getDelegateClassFromMergedContext();
             }
-            final ListableBeanFactory context = MergedContext.getInstance();
-            final String[] beanNames = context.getBeanNamesForType(IRichApplication.class);
-            Assertions.assertThat(beanNames.length)
-                    .as("Exactly one bean of type [%s] must exist: %s", IRichApplication.class.getSimpleName(),
-                            Arrays.toString(beanNames))
-                    .isEqualTo(1);
-            final BeanDefinition beanDefinition = MergedContext.getInstance().getBeanDefinition(beanNames[0]);
-            delegateClass = Reflections.classForName(beanDefinition.getBeanClassName());
             if (designTimeApplication != null) {
                 initApplicatonBundleNames(designTimeApplication, true);
             }
         }
         return delegateClass;
+    }
+
+    private static Class<? extends IRichApplication> getDelegateClassFromMergedContext() {
+        if (MergedContext.getInstance() == null) {
+            MergedContext.autowire(null);
+        }
+        final String[] beanNames = MergedContext.getInstance().getBeanNamesForType(IRichApplication.class);
+        Assertions.assertThat(beanNames.length)
+                .as("Exactly one bean of type [%s] must exist: %s", IRichApplication.class.getSimpleName(),
+                        Arrays.toString(beanNames))
+                .isEqualTo(1);
+        final BeanDefinition beanDefinition = MergedContext.getInstance().getBeanDefinition(beanNames[0]);
+        return Reflections.classForName(beanDefinition.getBeanClassName());
+    }
+
+    private static Class<? extends IRichApplication> getDelegateClassFromServiceLoader() {
+        final ServiceLoader<IRichApplication> loader = ServiceLoader.load(IRichApplication.class);
+        final List<IRichApplication> factories = new ArrayList<>();
+        for (final IRichApplication factory : loader) {
+            factories.add(factory);
+        }
+        if (factories.isEmpty()) {
+            return null;
+        } else {
+            final IRichApplication firstFactory = factories.get(0);
+            if (factories.size() > 1) {
+                LOG.error("More than one %s service provider available, using first one: ",
+                        IRichApplication.class.getSimpleName(), firstFactory.getClass().getName());
+            }
+            return firstFactory.getClass();
+        }
     }
 
     public static boolean hasDelegateClass() {
@@ -100,6 +127,9 @@ public final class RichApplicationProperties {
 
     public static void setDelegateClass(final Class<? extends IRichApplication> delegateClass) {
         RichApplicationProperties.delegateClass = delegateClass;
+        if (designTimeApplication != null) {
+            initApplicatonBundleNames(designTimeApplication, false);
+        }
     }
 
     public static String[] getInitializationArgs() {
@@ -114,6 +144,7 @@ public final class RichApplicationProperties {
         setHideSplashOnStartup(false);
         setDelegateClass(null);
         setInitializationArgs(null);
+        designTimeApplication = null;
     }
 
     public static void initApplicatonBundleNames(final Application application, final boolean forceDelegateClass) {
@@ -156,9 +187,13 @@ public final class RichApplicationProperties {
     }
 
     public static File getStorageDirectory() {
-        final ApplicationContext context = Application.getInstance().getContext();
+        //use design time application so that the resource bundle is properly initialized
+        final ApplicationContext context = getDesignTimeApplication().getContext();
         final String applicationId = GuiService.i18n(context.getResourceMap(), "Application.id",
                 context.getApplicationClass().getSimpleName());
+        if (UNDEFINED_APPLICATION_ID.equals(applicationId)) {
+            throw new IllegalStateException("Please override Application.id: " + applicationId);
+        }
         return new File(ContextProperties.getHomeDirectory(), applicationId);
     }
 
