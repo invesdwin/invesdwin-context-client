@@ -213,10 +213,10 @@ public class DelegateRichApplication extends SingleFrameApplication {
                 //use GTK in XFCE
                 lookAndFeel = GTK_LAF;
             }
-            if (lookAndFeel.equals(WIN_LAF)) {
-                //use a better windows L&F
-                lookAndFeel = com.jgoodies.looks.windows.WindowsLookAndFeel.class.getCanonicalName();
-            }
+            //            if (lookAndFeel.equals(WIN_LAF)) {
+            //                //use a better windows L&F
+            //                lookAndFeel = com.jgoodies.looks.windows.WindowsLookAndFeel.class.getCanonicalName();
+            //            }
         }
         try {
             UIManager.setLookAndFeel(lookAndFeel);
