@@ -10,7 +10,7 @@ import de.invesdwin.context.client.swing.api.guiservice.ContentPane;
 import de.invesdwin.context.client.swing.api.menu.IMenuBarConfig;
 
 @Immutable
-public abstract class ARichApplication implements IRichApplication {
+public class RichApplicationSupport implements IRichApplication {
 
     @Override
     public Locale getLocaleOverride() {

@@ -15,6 +15,7 @@ import org.jdesktop.application.ApplicationContext;
 import org.jdesktop.application.ResourceManager;
 import org.jdesktop.application.ResourceMap;
 import org.jdesktop.application.utils.PlatformType;
+import org.springframework.beans.factory.ListableBeanFactory;
 import org.springframework.beans.factory.config.BeanDefinition;
 
 import com.jgoodies.common.base.Strings;
@@ -67,7 +68,8 @@ public final class RichApplicationProperties {
             if (MergedContext.getInstance() == null) {
                 MergedContext.autowire(null);
             }
-            final String[] beanNames = MergedContext.getInstance().getBeanNamesForType(IRichApplication.class);
+            final ListableBeanFactory context = MergedContext.getInstance();
+            final String[] beanNames = context.getBeanNamesForType(IRichApplication.class);
             Assertions.assertThat(beanNames.length)
                     .as("Exactly one bean of type [%s] must exist: %s", IRichApplication.class.getSimpleName(),
                             Arrays.toString(beanNames))

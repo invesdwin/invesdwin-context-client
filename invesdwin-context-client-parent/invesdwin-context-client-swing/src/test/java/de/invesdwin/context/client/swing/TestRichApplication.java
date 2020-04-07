@@ -4,10 +4,10 @@ import java.awt.Dimension;
 
 import javax.annotation.concurrent.Immutable;
 
-import de.invesdwin.context.client.swing.api.ARichApplication;
+import de.invesdwin.context.client.swing.api.RichApplicationSupport;
 
 @Immutable
-public class TestRichApplication extends ARichApplication {
+public class TestRichApplication extends RichApplicationSupport {
 
     @Override
     public Dimension getInitialFrameSize() {
