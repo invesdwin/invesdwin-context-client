@@ -146,13 +146,13 @@ public class DelegateRichApplication extends SingleFrameApplication {
         final FrameView frameView = getMainView();
         final JFrame frame = frameView.getFrame();
         frame.setMinimumSize(new Dimension(100, 100));
-        frame.setVisible(true);
-        frame.repaint(); //to be safe we call a repaint so that the temporary grey area on the top is less likely to occur
-        show(frameView);
         final IRichApplication application = MergedContext.getInstance()
                 .getBean(RichApplicationProperties.getDelegateClass(true));
+        show(frameView);
         //set initial size again (show overrides this from storage, often wrong)
-        Frames.setInitialFrameSize(frameView.getFrame(), application.getInitialFrameSize());
+        Frames.setInitialFrameSize(frame, application.getInitialFrameSize());
+        frame.setVisible(true);
+        frame.repaint(); //to be safe we call a repaint so that the temporary grey area on the top is less likely to occur
         final AMainFrameCloseOperation closeOperation = application.getMainFrameCloseOperation();
         closeOperation.configureFrame();
         final WindowListener[] listeners = frame.getWindowListeners();
@@ -167,7 +167,7 @@ public class DelegateRichApplication extends SingleFrameApplication {
             @Override
             public void run() {
                 //repeat later (might be needed on windows)
-                Frames.setInitialFrameSize(frameView.getFrame(), application.getInitialFrameSize());
+                Frames.setInitialFrameSize(frame, application.getInitialFrameSize());
             }
         });
     }
