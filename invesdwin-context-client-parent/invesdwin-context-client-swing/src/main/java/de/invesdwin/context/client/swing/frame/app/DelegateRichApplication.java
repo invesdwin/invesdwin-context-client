@@ -151,6 +151,8 @@ public class DelegateRichApplication extends SingleFrameApplication {
         show(frameView);
         final IRichApplication application = MergedContext.getInstance()
                 .getBean(RichApplicationProperties.getDelegateClass(true));
+        //set initial size again (show overrides this from storage, often wrong)
+        Frames.setInitialFrameSize(frameView.getFrame(), application.getInitialFrameSize());
         final AMainFrameCloseOperation closeOperation = application.getMainFrameCloseOperation();
         closeOperation.configureFrame();
         final WindowListener[] listeners = frame.getWindowListeners();
