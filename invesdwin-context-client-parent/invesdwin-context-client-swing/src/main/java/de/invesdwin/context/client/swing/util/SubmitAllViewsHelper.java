@@ -1,12 +1,15 @@
 package de.invesdwin.context.client.swing.util;
 
 import java.awt.Component;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.annotation.concurrent.Immutable;
 
 import com.jgoodies.common.base.Strings;
 
+import de.invesdwin.context.client.swing.api.binding.BindingGroup;
 import de.invesdwin.context.client.swing.api.guiservice.GuiService;
 import de.invesdwin.context.client.swing.api.view.AView;
 
@@ -41,9 +44,11 @@ public class SubmitAllViewsHelper extends UpdateAllViewsHelper {
 
     protected String validate(final List<AView<?, ?>> views) {
         String combinedInvalidMessage = null;
+        final Set<String> duplicateMessageFilter = new HashSet<>();
         for (int i = 0; i < views.size(); i++) {
-            final String invalidMessage = views.get(i).getBindingGroup().validate();
-            if (Strings.isNotBlank(invalidMessage)) {
+            final BindingGroup bindingGroup = views.get(i).getBindingGroup();
+            final String invalidMessage = bindingGroup.validate();
+            if (Strings.isNotBlank(invalidMessage) && duplicateMessageFilter.add(invalidMessage)) {
                 if (combinedInvalidMessage != null) {
                     combinedInvalidMessage += "\n";
                     combinedInvalidMessage += invalidMessage;

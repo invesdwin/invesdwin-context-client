@@ -2,7 +2,10 @@ package de.invesdwin.context.client.swing.util;
 
 import java.awt.Component;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.IdentityHashMap;
 import java.util.List;
+import java.util.Set;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
@@ -26,11 +29,14 @@ public class UpdateAllViewsHelper {
 
     protected List<AView<?, ?>> getViews(final Component component) {
         final List<AView<?, ?>> views = new ArrayList<>();
+        final Set<AView<?, ?>> duplicateViewsFilter = Collections.newSetFromMap(new IdentityHashMap<>());
         new AViewVisitor() {
             @Override
             protected void visit(final AView<?, ?> view) {
-                if (shouldAddView(view)) {
-                    views.add(view);
+                if (duplicateViewsFilter.add(view)) {
+                    if (shouldAddView(view)) {
+                        views.add(view);
+                    }
                 }
             }
 
