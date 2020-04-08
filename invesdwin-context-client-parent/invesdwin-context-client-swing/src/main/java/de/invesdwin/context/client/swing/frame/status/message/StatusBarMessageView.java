@@ -65,7 +65,7 @@ public class StatusBarMessageView extends AView<StatusBarMessageView, JPanel> {
                     public void run() {
                         lblMessage.setForeground(color);
                         if (Strings.isNotBlank(text)) {
-                            final String adjText = Strings.putPrefixIgnoreCase("<html>", text.replace("\n", "<br>"));
+                            final String adjText = Strings.putPrefixIgnoreCase(text.replace("\n", "<br>"), "<html>");
                             lblMessage.setText(adjText);
                             Components.setToolTipText(lblMessage, adjText,
                                     lblMessage_mouseEnteredListener.isMouseEntered());
