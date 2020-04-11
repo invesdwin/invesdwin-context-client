@@ -49,7 +49,7 @@ public final class RichApplicationProperties {
             Beans.setDesignTime(true);
             try {
                 //maybe initialize DesignTimeApplication to grant access to resourcemap and other stuff when application itself is not needed actually here
-                designTimeApplication = Application.getInstance();
+                designTimeApplication = DelegateRichApplication.getInstance();
                 initApplicatonBundleNames(designTimeApplication, false);
             } finally {
                 Beans.setDesignTime(prevDesignTime);

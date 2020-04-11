@@ -10,7 +10,6 @@ import javax.swing.event.CaretListener;
 import javax.swing.text.Caret;
 import javax.swing.text.JTextComponent;
 
-import org.jdesktop.application.Application;
 import org.jdesktop.application.ApplicationAction;
 
 import de.invesdwin.context.beans.hook.IStartupHook;
@@ -34,29 +33,30 @@ public class SelectAllActionWorkaround implements IStartupHook {
     private final CaretListener caretListener = new CaretListener() {
         @Override
         public void caretUpdate(final CaretEvent e) {
-            final JComponent newOwner = Application.getInstance().getContext().getFocusOwner();
+            final JComponent newOwner = DelegateRichApplication.getInstance().getContext().getFocusOwner();
             updateFocusOwner(newOwner, newOwner);
         }
     };
 
     @Override
     public void startup() {
-        selectAllAction = (ApplicationAction) Application.getInstance().getContext().getActionMap().get("select-all");
+        final DelegateRichApplication application = DelegateRichApplication.getInstance();
+        selectAllAction = (ApplicationAction) application.getContext().getActionMap().get("select-all");
         if (selectAllAction != null) {
             selectAllAction.addPropertyChangeListener(new PropertyChangeListener() {
                 @Override
                 public void propertyChange(final PropertyChangeEvent evt) {
                     if ("enabled".equals(evt.getPropertyName())) {
-                        final JComponent newOwner = Application.getInstance().getContext().getFocusOwner();
+                        final JComponent newOwner = application.getContext().getFocusOwner();
                         updateFocusOwner(newOwner, newOwner);
                     }
                 }
             });
         }
 
-        Application.getInstance().getContext().addPropertyChangeListener("focusOwner", focusOwnerPCL);
-        if (Application.getInstance().getContext().getFocusOwner() instanceof JTextComponent) {
-            final JTextComponent text = (JTextComponent) Application.getInstance().getContext().getFocusOwner();
+        application.getContext().addPropertyChangeListener("focusOwner", focusOwnerPCL);
+        if (application.getContext().getFocusOwner() instanceof JTextComponent) {
+            final JTextComponent text = (JTextComponent) application.getContext().getFocusOwner();
             updateFocusOwner(null, text);
         }
     }

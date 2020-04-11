@@ -14,7 +14,6 @@ import javax.swing.JProgressBar;
 import javax.swing.SwingConstants;
 import javax.swing.border.Border;
 
-import org.jdesktop.application.Application;
 import org.jdesktop.application.ApplicationContext;
 import org.jdesktop.application.Task;
 import org.jdesktop.application.TaskMonitor;
@@ -24,6 +23,7 @@ import de.invesdwin.aspects.annotation.EventDispatchThread.InvocationType;
 import de.invesdwin.context.client.swing.api.hook.IRichApplicationHook;
 import de.invesdwin.context.client.swing.api.task.EstimatedRemainingDurationTaskListener;
 import de.invesdwin.context.client.swing.api.view.AView;
+import de.invesdwin.context.client.swing.frame.app.DelegateRichApplication;
 import de.invesdwin.util.lang.Strings;
 import de.invesdwin.util.swing.Components;
 import de.invesdwin.util.swing.MouseEnteredListener;
@@ -215,7 +215,7 @@ public class StatusBarTaskView extends AView<StatusBarTaskView, JPanel> implemen
 
     @Override
     public void initializeDone() {
-        final ApplicationContext context = Application.getInstance().getContext();
+        final ApplicationContext context = DelegateRichApplication.getInstance().getContext();
         context.addPropertyChangeListener("taskServices", new PropertyChangeListener() {
             @Override
             public void propertyChange(final PropertyChangeEvent evt) {
@@ -226,10 +226,12 @@ public class StatusBarTaskView extends AView<StatusBarTaskView, JPanel> implemen
     }
 
     @Override
-    public void startupDone() {}
+    public void startupDone() {
+    }
 
     @Override
-    public void shutdownDone() {}
+    public void shutdownDone() {
+    }
 
     private void updateTaskMonitor(final ApplicationContext context) {
         this.taskMonitor = new TaskMonitor(context);

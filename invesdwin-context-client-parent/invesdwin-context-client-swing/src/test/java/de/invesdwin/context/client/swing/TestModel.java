@@ -20,6 +20,7 @@ import de.invesdwin.context.client.swing.api.guiservice.dialog.OkModalMessageVie
 import de.invesdwin.context.client.swing.api.task.ATask;
 import de.invesdwin.context.client.swing.api.view.AModel;
 import de.invesdwin.context.client.swing.api.view.AView;
+import de.invesdwin.context.client.swing.frame.app.DelegateRichApplication;
 import de.invesdwin.context.log.error.Err;
 import de.invesdwin.norva.beanpath.annotation.ColumnOrder;
 import de.invesdwin.norva.beanpath.annotation.Forced;
@@ -110,7 +111,7 @@ public class TestModel extends AModel {
     public void next() {
         statusBar.message("Next has been clicked!");
 
-        final ATask<Object, Object> popupTask = new ATask<Object, Object>(Application.getInstance()) {
+        final ATask<Object, Object> popupTask = new ATask<Object, Object>(DelegateRichApplication.getInstance()) {
 
             {
                 setTitle("Popup Task");
@@ -137,7 +138,9 @@ public class TestModel extends AModel {
                     @Override
                     public void run() {
                         for (int i = 1; i <= 3; i++) {
-                            GuiService.get().getTaskService().execute(new ProgressTask(Application.getInstance(), i));
+                            GuiService.get()
+                                    .getTaskService()
+                                    .execute(new ProgressTask(DelegateRichApplication.getInstance(), i));
                             try {
                                 TimeUnit.SECONDS.sleep(i);
                             } catch (final InterruptedException e) {

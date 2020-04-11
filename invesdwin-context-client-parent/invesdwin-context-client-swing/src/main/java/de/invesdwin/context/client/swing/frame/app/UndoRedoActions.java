@@ -15,7 +15,6 @@ import javax.swing.text.JTextComponent;
 import javax.swing.undo.UndoManager;
 
 import org.jdesktop.application.Action;
-import org.jdesktop.application.Application;
 
 import de.invesdwin.aspects.annotation.EventDispatchThread;
 import de.invesdwin.aspects.annotation.EventDispatchThread.InvocationType;
@@ -37,7 +36,8 @@ public class UndoRedoActions extends AValueObject implements IStartupHook {
     private static final String KEY_UNDO_MANAGER = UndoRedoActions.class.getSimpleName() + ".undoManager";
     private final javax.swing.Action markerAction = new javax.swing.AbstractAction() {
         @Override
-        public void actionPerformed(final ActionEvent e) {}
+        public void actionPerformed(final ActionEvent e) {
+        }
     };
     private final PropertyChangeListener focusOwnerPCL = new PropertyChangeListener() {
         @Override
@@ -68,7 +68,7 @@ public class UndoRedoActions extends AValueObject implements IStartupHook {
          */
         @EventDispatchThread(InvocationType.INVOKE_LATER)
         private void updateLater() {
-            final JComponent focusOwner = Application.getInstance().getContext().getFocusOwner();
+            final JComponent focusOwner = DelegateRichApplication.getInstance().getContext().getFocusOwner();
             if (focusOwner instanceof JTextComponent) {
                 final JTextComponent text = (JTextComponent) focusOwner;
                 updateUndoRedoActions(text);
@@ -85,9 +85,10 @@ public class UndoRedoActions extends AValueObject implements IStartupHook {
      */
     @Override
     public void startup() {
-        Application.getInstance().getContext().addPropertyChangeListener("focusOwner", focusOwnerPCL);
-        if (Application.getInstance().getContext().getFocusOwner() instanceof JTextComponent) {
-            final JTextComponent text = (JTextComponent) Application.getInstance().getContext().getFocusOwner();
+        final DelegateRichApplication application = DelegateRichApplication.getInstance();
+        application.getContext().addPropertyChangeListener("focusOwner", focusOwnerPCL);
+        if (application.getContext().getFocusOwner() instanceof JTextComponent) {
+            final JTextComponent text = (JTextComponent) application.getContext().getFocusOwner();
             updateFocusOwner(null, text);
         }
     }
@@ -119,7 +120,7 @@ public class UndoRedoActions extends AValueObject implements IStartupHook {
         final ActionMap actionMap = text.getActionMap();
         if (actionMap.get(KEY_MARKER_ACTION) == null) {
             actionMap.put(KEY_MARKER_ACTION, markerAction);
-            final ActionMap undoRedoActions = Application.getInstance().getContext().getActionMap(this);
+            final ActionMap undoRedoActions = DelegateRichApplication.getInstance().getContext().getActionMap(this);
             for (final Object key : undoRedoActions.keys()) {
                 final javax.swing.Action action = undoRedoActions.get(key);
                 actionMap.put(key, action);
@@ -159,14 +160,14 @@ public class UndoRedoActions extends AValueObject implements IStartupHook {
 
     @Action(enabledProperty = "undoEnabled")
     public void undo() {
-        final JTextComponent text = (JTextComponent) Application.getInstance().getContext().getFocusOwner();
+        final JTextComponent text = (JTextComponent) DelegateRichApplication.getInstance().getContext().getFocusOwner();
         final UndoManager undoManager = (UndoManager) text.getDocument().getProperty(KEY_UNDO_MANAGER);
         undoManager.undo();
     }
 
     @Action(enabledProperty = "redoEnabled")
     public void redo() {
-        final JTextComponent text = (JTextComponent) Application.getInstance().getContext().getFocusOwner();
+        final JTextComponent text = (JTextComponent) DelegateRichApplication.getInstance().getContext().getFocusOwner();
         final UndoManager undoManager = (UndoManager) text.getDocument().getProperty(KEY_UNDO_MANAGER);
         undoManager.redo();
     }

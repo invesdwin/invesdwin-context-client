@@ -13,7 +13,6 @@ import javax.annotation.concurrent.ThreadSafe;
 import javax.inject.Inject;
 import javax.swing.JDialog;
 
-import org.jdesktop.application.Application;
 import org.jdesktop.application.ApplicationContext;
 import org.jdesktop.application.ResourceMap;
 import org.jdesktop.application.TaskService;
@@ -27,6 +26,7 @@ import de.invesdwin.context.client.swing.api.binding.component.button.SubmitButt
 import de.invesdwin.context.client.swing.api.guiservice.dialog.DialogDockable;
 import de.invesdwin.context.client.swing.api.view.AModel;
 import de.invesdwin.context.client.swing.api.view.AView;
+import de.invesdwin.context.client.swing.frame.app.DelegateRichApplication;
 import de.invesdwin.context.client.swing.frame.content.DockableIdGenerator;
 import de.invesdwin.context.client.swing.frame.content.IWorkingAreaLocation;
 import de.invesdwin.context.client.swing.util.SubmitAllViewsHelper;
@@ -65,7 +65,7 @@ public class GuiService implements IGuiService {
     @Override
     public TaskService getTaskService() {
         if (taskService == null) {
-            taskService = Application.getInstance().getContext().getTaskService();
+            taskService = DelegateRichApplication.getInstance().getContext().getTaskService();
         }
         return taskService;
     }
@@ -164,7 +164,7 @@ public class GuiService implements IGuiService {
     @Override
     public ResourceMap getResourceMap(final Class<?> clazz) {
         if (applicationContext == null) {
-            applicationContext = Application.getInstance().getContext();
+            applicationContext = DelegateRichApplication.getInstance().getContext();
         }
         return applicationContext.getResourceMap(clazz);
     }
@@ -219,7 +219,7 @@ public class GuiService implements IGuiService {
         if (Strings.isBlank(value)) {
             return value;
         }
-        final ResourceMap resourceMap = Application.getInstance().getContext().getResourceMap(clazz);
+        final ResourceMap resourceMap = DelegateRichApplication.getInstance().getContext().getResourceMap(clazz);
         String i18n = resourceMap.getString(value);
         if (i18n == null && defaultValue != value) {
             i18n = resourceMap.getString(defaultValue);

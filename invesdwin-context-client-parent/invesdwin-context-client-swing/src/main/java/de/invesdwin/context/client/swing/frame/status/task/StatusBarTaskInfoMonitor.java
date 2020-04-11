@@ -6,13 +6,13 @@ import java.util.Set;
 import javax.annotation.concurrent.ThreadSafe;
 import javax.inject.Inject;
 
-import org.jdesktop.application.Application;
 import org.jdesktop.application.TaskService;
 
 import com.github.benmanes.caffeine.cache.Caffeine;
 
 import de.invesdwin.context.client.swing.api.hook.IRichApplicationHook;
 import de.invesdwin.context.client.swing.api.task.ATask;
+import de.invesdwin.context.client.swing.frame.app.DelegateRichApplication;
 import de.invesdwin.util.concurrent.Threads;
 import de.invesdwin.util.concurrent.taskinfo.ITaskInfoListener;
 import de.invesdwin.util.concurrent.taskinfo.TaskInfo;
@@ -42,7 +42,8 @@ public class StatusBarTaskInfoMonitor implements IRichApplicationHook, ITaskInfo
     }
 
     @Override
-    public void startupDone() {}
+    public void startupDone() {
+    }
 
     @Override
     public void shutdownDone() {
@@ -51,7 +52,7 @@ public class StatusBarTaskInfoMonitor implements IRichApplicationHook, ITaskInfo
 
     @Override
     public void onTaskInfoAdded(final String name) {
-        final ATask<Object, Object> task = new ATask<Object, Object>(Application.getInstance()) {
+        final ATask<Object, Object> task = new ATask<Object, Object>(DelegateRichApplication.getInstance()) {
 
             {
                 setTitle(name);

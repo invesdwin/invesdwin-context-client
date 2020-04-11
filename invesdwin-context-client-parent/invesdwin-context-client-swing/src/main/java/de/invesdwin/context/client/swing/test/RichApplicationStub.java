@@ -27,7 +27,8 @@ public class RichApplicationStub extends StubSupport {
     private ContentPane contentPane;
 
     @Override
-    public void setUpContext(final ATest test, final TestContext ctx) throws Exception {}
+    public void setUpContext(final ATest test, final TestContext ctx) throws Exception {
+    }
 
     @Override
     public void setUpOnce(final ATest test, final TestContext ctx) throws Exception {

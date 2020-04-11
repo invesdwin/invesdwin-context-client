@@ -9,9 +9,6 @@ import javax.annotation.concurrent.NotThreadSafe;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
-import org.jdesktop.application.Application;
-import org.jdesktop.application.SingleFrameApplication;
-
 import bibliothek.gui.Dockable;
 import bibliothek.gui.dock.common.CContentArea;
 import bibliothek.gui.dock.common.CControl;
@@ -26,6 +23,7 @@ import de.invesdwin.context.client.swing.api.guiservice.ContentPane;
 import de.invesdwin.context.client.swing.api.guiservice.GuiService;
 import de.invesdwin.context.client.swing.api.view.AView;
 import de.invesdwin.context.client.swing.api.view.IDockable;
+import de.invesdwin.context.client.swing.frame.app.DelegateRichApplication;
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.swing.listener.KeyListenerSupport;
 
@@ -42,7 +40,7 @@ public class ContentPaneView extends AView<ContentPaneView, JPanel> {
 
     @Override
     protected JPanel initComponent() {
-        final SingleFrameApplication app = (SingleFrameApplication) Application.getInstance();
+        final DelegateRichApplication app = DelegateRichApplication.getInstance();
         final JFrame frame = app.getMainFrame();
         this.control = new CControl(frame);
         control.addGlobalKeyListener(new KeyListenerSupport() {

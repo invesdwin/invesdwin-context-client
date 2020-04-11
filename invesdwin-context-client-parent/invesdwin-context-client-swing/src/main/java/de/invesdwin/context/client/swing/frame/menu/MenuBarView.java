@@ -12,15 +12,14 @@ import javax.swing.JMenuItem;
 import javax.swing.JSeparator;
 
 import org.jdesktop.application.Action;
-import org.jdesktop.application.Application;
 import org.jdesktop.application.ResourceMap;
-import org.jdesktop.application.SingleFrameApplication;
 
 import de.invesdwin.context.client.swing.api.IRichApplication;
 import de.invesdwin.context.client.swing.api.guiservice.GuiService;
 import de.invesdwin.context.client.swing.api.menu.IMenuBarConfig;
 import de.invesdwin.context.client.swing.api.menu.MenuBarConfigSupport;
 import de.invesdwin.context.client.swing.api.view.AView;
+import de.invesdwin.context.client.swing.frame.app.DelegateRichApplication;
 import de.invesdwin.util.swing.Dialogs;
 
 @ThreadSafe
@@ -155,7 +154,7 @@ public class MenuBarView extends AView<MenuBarView, JMenuBar> {
 
     @Action
     public void about() {
-        final SingleFrameApplication app = (SingleFrameApplication) Application.getInstance();
+        final DelegateRichApplication app = DelegateRichApplication.getInstance();
         final ResourceMap resourceMap = app.getContext().getResourceMap();
         final Icon icon = resourceMap.getIcon("Application.icon");
         final String title = (String) getActionMap().get("about").getValue(javax.swing.Action.NAME);

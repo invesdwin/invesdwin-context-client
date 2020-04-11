@@ -5,7 +5,6 @@ import java.util.Map;
 import javax.annotation.concurrent.NotThreadSafe;
 import javax.inject.Inject;
 
-import org.jdesktop.application.Application;
 import org.jdesktop.application.Application.ExitListener;
 import org.jdesktop.application.FrameView;
 
@@ -50,7 +49,7 @@ public class RichApplicationStartupHook implements IStartupHook {
         //Dependency Injection must be invoked manually here
         MergedContext.autowire(this);
 
-        final DelegateRichApplication application = (DelegateRichApplication) Application.getInstance();
+        final DelegateRichApplication application = DelegateRichApplication.getInstance();
         //Set exit listener
         for (final ExitListener exitListener : exitListeners) {
             application.addExitListener(exitListener);
