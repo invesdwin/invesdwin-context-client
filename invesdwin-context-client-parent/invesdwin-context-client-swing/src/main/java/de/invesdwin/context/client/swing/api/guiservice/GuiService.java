@@ -280,6 +280,9 @@ public class GuiService implements IGuiService {
         if (Strings.isBlank(value)) {
             return value;
         }
+        if (resourceMap == null) {
+            return defaultValue;
+        }
         String i18n = resourceMap.getString(value);
         if (i18n == null && defaultValue != value) {
             i18n = resourceMap.getString(defaultValue);
