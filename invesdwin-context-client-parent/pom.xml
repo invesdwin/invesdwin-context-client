@@ -47,7 +47,7 @@
 
 		<version.docking-frames>1.1.3p1</version.docking-frames>
 		<version.spring-richclient>1.1.0</version.spring-richclient>
-		<version.assertj-swing>3.8.0</version.assertj-swing>
+		<version.assertj-swing>3.9.2</version.assertj-swing>
 		<version.bsaf>1.9.2</version.bsaf>
 		<version.swingx>1.6.5-1</version.swingx>
 		<version.jide-oss>3.5.8</version.jide-oss>
