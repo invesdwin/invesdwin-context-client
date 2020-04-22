@@ -47,7 +47,8 @@
 
 		<version.docking-frames>1.1.3p1</version.docking-frames>
 		<version.spring-richclient>1.1.0</version.spring-richclient>
-		<version.assertj-swing>3.9.2</version.assertj-swing>
+		<!-- can be replaced in next version as soon as this is merged: https://github.com/joel-costigliola/assertj-swing/pull/248 -->
+		<version.assertj-swing>3.10.0-inv</version.assertj-swing>
 		<version.bsaf>1.9.2</version.bsaf>
 		<version.swingx>1.6.5-1</version.swingx>
 		<version.jide-oss>3.5.8</version.jide-oss>
