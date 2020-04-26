@@ -145,6 +145,9 @@ public class DelegateRichApplication extends SingleFrameApplication {
     public void showMainFrame() {
         final FrameView frameView = getMainView();
         final JFrame frame = frameView.getFrame();
+        if (frame.isVisible()) {
+            return;
+        }
         frame.setMinimumSize(new Dimension(100, 100));
         final IRichApplication application = MergedContext.getInstance()
                 .getBean(RichApplicationProperties.getDelegateClass(true));
