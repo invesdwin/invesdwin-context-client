@@ -21,9 +21,12 @@ import de.invesdwin.context.client.swing.rsyntaxtextarea.expression.completion.A
 import de.invesdwin.context.client.swing.rsyntaxtextarea.expression.completion.AliasedVariableCompletion;
 import de.invesdwin.context.client.swing.rsyntaxtextarea.expression.completion.IAliasedCompletion;
 import de.invesdwin.util.lang.Strings;
-import de.invesdwin.util.math.expression.AFunction;
 import de.invesdwin.util.math.expression.ExpressionParser;
 import de.invesdwin.util.math.expression.IFunctionParameterInfo;
+import de.invesdwin.util.math.expression.function.AFunction;
+import de.invesdwin.util.math.expression.function.DummyPreviousKeyFunction;
+import de.invesdwin.util.math.expression.function.IFunctionFactory;
+import de.invesdwin.util.math.expression.function.IPreviousKeyFunction;
 import de.invesdwin.util.math.expression.variable.IVariable;
 import de.invesdwin.util.swing.Components;
 
@@ -62,7 +65,11 @@ public class ExpressionCompletionProvider extends DefaultCompletionProvider {
             }
         }
 
-        for (final AFunction f : ExpressionParser.getDefaultFunctions()) {
+        for (final IFunctionFactory factory : ExpressionParser.getDefaultFunctions()) {
+            final AFunction f = factory.newFunction(getPreviousKeyFunction());
+            if (f == null) {
+                continue;
+            }
             final String expressionName = f.getExpressionName();
             final String name = f.getName();
             if (duplicateExpressionFilter.add(expressionName)) {
@@ -98,6 +105,13 @@ public class ExpressionCompletionProvider extends DefaultCompletionProvider {
             }
         }
         addCompletions(name_completion.values(), alias_completion);
+    }
+
+    /**
+     * return null here to disable functions that require previous key lookups
+     */
+    protected IPreviousKeyFunction getPreviousKeyFunction() {
+        return DummyPreviousKeyFunction.INSTANCE;
     }
 
     @SuppressWarnings("unchecked")
