@@ -64,6 +64,9 @@ public final class GuiExceptionHandler implements IErrHook {
     }
 
     public Future<Void> handleException(final LoggedRuntimeException exc, final boolean forced) {
+        if (exc == null) {
+            return ImmutableFuture.of(null);
+        }
         if (!forced) {
             for (final IGuiExceptionHandlerHook hook : hooks) {
                 if (hook.shouldHideException(exc)) {

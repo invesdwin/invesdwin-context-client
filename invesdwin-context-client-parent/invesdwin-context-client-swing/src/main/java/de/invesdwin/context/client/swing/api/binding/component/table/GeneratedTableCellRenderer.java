@@ -28,6 +28,7 @@ public class GeneratedTableCellRenderer implements TableCellRenderer {
             Components.setForeground(prevComponent, null);
             Components.setBackground(prevComponent, null);
             Components.setToolTipText(prevComponent, null, false);
+            Components.setText(prevComponent, null);
         }
         final JComponent component = (JComponent) delegate.getTableCellRendererComponent(table, value, isSelected,
                 hasFocus, row, column);
