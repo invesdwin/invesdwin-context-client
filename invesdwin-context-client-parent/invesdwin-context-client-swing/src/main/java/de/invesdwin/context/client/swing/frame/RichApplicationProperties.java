@@ -27,6 +27,7 @@ import de.invesdwin.context.client.swing.api.guiservice.GuiService;
 import de.invesdwin.context.client.swing.frame.app.DelegateRichApplication;
 import de.invesdwin.context.log.Log;
 import de.invesdwin.util.assertions.Assertions;
+import de.invesdwin.util.error.Throwables;
 import de.invesdwin.util.lang.Reflections;
 
 @ThreadSafe
@@ -39,6 +40,7 @@ public final class RichApplicationProperties {
     private static volatile boolean hideSplashOnStartup;
     private static volatile Class<? extends IRichApplication> delegateClass;
     private static volatile String[] initializationArgs;
+    private static Boolean windowBuilder;
 
     private RichApplicationProperties() {
     }
@@ -196,6 +198,20 @@ public final class RichApplicationProperties {
             throw new IllegalStateException("Please override Application.id: " + applicationId);
         }
         return new File(ContextProperties.getHomeDirectory(), applicationId);
+    }
+
+    /**
+     * This is used to detect if the widgets are running from SWT designer, because in this case we have to skip some
+     * initialization code.
+     * 
+     * https://stackoverflow.com/questions/3844608/detect-window-builder/4030788#4030788
+     */
+    public static boolean isWindowBuilder() {
+        if (windowBuilder == null) {
+            final String s = Throwables.getFullStackTrace(new RuntimeException("Just to get the Stacktrace."));
+            windowBuilder = s.contains("org.eclipse.wb.");
+        }
+        return windowBuilder;
     }
 
 }

@@ -46,9 +46,13 @@ public final class ConfiguredSplashScreen implements SplashScreen, FactoryBean<C
     private static ProgressSplashScreen splashScreen;
     protected boolean showing;
 
-    private ConfiguredSplashScreen() {}
+    private ConfiguredSplashScreen() {
+    }
 
     public void splash(final boolean force) {
+        if (RichApplicationProperties.isWindowBuilder()) {
+            return;
+        }
         synchronized (ConfiguredSplashScreen.class) {
             if (splashScreen == null || force) {
                 dispose();
