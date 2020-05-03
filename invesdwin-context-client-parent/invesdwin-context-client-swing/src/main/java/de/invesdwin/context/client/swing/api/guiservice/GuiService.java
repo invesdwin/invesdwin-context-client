@@ -19,6 +19,7 @@ import org.jdesktop.application.TaskService;
 
 import com.jgoodies.common.base.Strings;
 
+import de.invesdwin.aspects.EventDispatchThreadUtil;
 import de.invesdwin.aspects.annotation.EventDispatchThread;
 import de.invesdwin.aspects.annotation.EventDispatchThread.InvocationType;
 import de.invesdwin.context.beans.init.MergedContext;
@@ -127,6 +128,13 @@ public class GuiService implements IGuiService {
         dialog.setLocationRelativeTo(window);
         //this call blocks for modal dialogs, which is expected
         dialog.setVisible(true);
+        EventDispatchThreadUtil.invokeLater(new Runnable() {
+            @Override
+            public void run() {
+                //make sure task bar does not get in front on windows
+                dialog.setLocationRelativeTo(window);
+            }
+        });
     }
 
     @Override
