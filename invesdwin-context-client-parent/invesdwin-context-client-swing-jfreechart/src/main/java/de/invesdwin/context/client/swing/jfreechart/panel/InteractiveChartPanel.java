@@ -412,67 +412,87 @@ public class InteractiveChartPanel extends JPanel {
 
         @Override
         public void mouseExited(final MouseEvent e) {
-            if (plotConfigurationHelper.isShowing()) {
-                return;
+            try {
+                if (plotConfigurationHelper.isShowing()) {
+                    return;
+                }
+                InteractiveChartPanel.this.mouseExited();
+            } catch (final Throwable t) {
+                Err.process(new Exception("Ignoring", t));
             }
-            InteractiveChartPanel.this.mouseExited();
         }
 
         @Override
         public void mousePressed(final MouseEvent e) {
-            chartPanel.requestFocusInWindow();
+            try {
+                chartPanel.requestFocusInWindow();
 
-            plotConfigurationHelper.mousePressed(e);
-            if (plotConfigurationHelper.isShowing()) {
-                return;
-            }
-
-            plotResizeHelper.mousePressed(e);
-            plotLegendHelper.mousePressed(e);
-            plotNavigationHelper.mousePressed(e);
-            if (new Duration(lastVerticalScroll).isGreaterThan(SCROLL_LOCK_DURATION)) {
-                if (e.getButton() == 4) {
-                    plotPanHelper.panLeft();
-                    lastHorizontalScroll = new FDate();
-                } else if (e.getButton() == 5) {
-                    plotPanHelper.panRight();
-                    lastHorizontalScroll = new FDate();
+                plotConfigurationHelper.mousePressed(e);
+                if (plotConfigurationHelper.isShowing()) {
+                    return;
                 }
+
+                plotResizeHelper.mousePressed(e);
+                plotLegendHelper.mousePressed(e);
+                plotNavigationHelper.mousePressed(e);
+                if (new Duration(lastVerticalScroll).isGreaterThan(SCROLL_LOCK_DURATION)) {
+                    if (e.getButton() == 4) {
+                        plotPanHelper.panLeft();
+                        lastHorizontalScroll = new FDate();
+                    } else if (e.getButton() == 5) {
+                        plotPanHelper.panRight();
+                        lastHorizontalScroll = new FDate();
+                    }
+                }
+            } catch (final Throwable t) {
+                Err.process(new Exception("Ignoring", t));
             }
         }
 
         @Override
         public void mouseReleased(final MouseEvent e) {
-            plotConfigurationHelper.mouseReleased(e);
-            if (plotConfigurationHelper.isShowing()) {
-                return;
+            try {
+                plotConfigurationHelper.mouseReleased(e);
+                if (plotConfigurationHelper.isShowing()) {
+                    return;
+                }
+                plotLegendHelper.mouseReleased(e);
+                plotResizeHelper.mouseReleased(e);
+                plotNavigationHelper.mouseReleased(e);
+            } catch (final Throwable t) {
+                Err.process(new Exception("Ignoring", t));
             }
-            plotLegendHelper.mouseReleased(e);
-            plotResizeHelper.mouseReleased(e);
-            plotNavigationHelper.mouseReleased(e);
         }
     }
 
     private final class KeyListenerImpl extends KeyListenerSupport {
         @Override
         public void keyPressed(final KeyEvent e) {
-            plotPanHelper.keyPressed(e);
-            if (e.getKeyCode() == KeyEvent.VK_PLUS || e.getKeyCode() == KeyEvent.VK_ADD) {
-                plotZoomHelper.zoomIn();
-            } else if (e.getKeyCode() == KeyEvent.VK_MINUS || e.getKeyCode() == KeyEvent.VK_SUBTRACT) {
-                plotZoomHelper.zoomOut();
-            } else if (e.getKeyCode() == KeyEvent.VK_RIGHT || e.getKeyCode() == KeyEvent.VK_KP_RIGHT
-                    || e.getKeyCode() == KeyEvent.VK_NUMPAD6) {
-                plotPanHelper.panRight();
-            } else if (e.getKeyCode() == KeyEvent.VK_LEFT || e.getKeyCode() == KeyEvent.VK_KP_LEFT
-                    || e.getKeyCode() == KeyEvent.VK_NUMPAD4) {
-                plotPanHelper.panLeft();
+            try {
+                plotPanHelper.keyPressed(e);
+                if (e.getKeyCode() == KeyEvent.VK_PLUS || e.getKeyCode() == KeyEvent.VK_ADD) {
+                    plotZoomHelper.zoomIn();
+                } else if (e.getKeyCode() == KeyEvent.VK_MINUS || e.getKeyCode() == KeyEvent.VK_SUBTRACT) {
+                    plotZoomHelper.zoomOut();
+                } else if (e.getKeyCode() == KeyEvent.VK_RIGHT || e.getKeyCode() == KeyEvent.VK_KP_RIGHT
+                        || e.getKeyCode() == KeyEvent.VK_NUMPAD6) {
+                    plotPanHelper.panRight();
+                } else if (e.getKeyCode() == KeyEvent.VK_LEFT || e.getKeyCode() == KeyEvent.VK_KP_LEFT
+                        || e.getKeyCode() == KeyEvent.VK_NUMPAD4) {
+                    plotPanHelper.panLeft();
+                }
+            } catch (final Throwable t) {
+                Err.process(new Exception("Ignoring", t));
             }
         }
 
         @Override
         public void keyReleased(final KeyEvent e) {
-            plotPanHelper.keyReleased(e);
+            try {
+                plotPanHelper.keyReleased(e);
+            } catch (final Throwable t) {
+                Err.process(new Exception("Ignoring", t));
+            }
         }
 
     }
@@ -481,34 +501,42 @@ public class InteractiveChartPanel extends JPanel {
 
         @Override
         public void mouseDragged(final MouseEvent e) {
-            if (plotConfigurationHelper.isShowing() || isUpdating()) {
-                return;
-            }
+            try {
+                if (plotConfigurationHelper.isShowing() || isUpdating()) {
+                    return;
+                }
 
-            plotResizeHelper.mouseDragged(e);
-            plotLegendHelper.mouseDragged(e);
-            if (plotLegendHelper.isHighlighting()) {
-                plotNavigationHelper.mouseExited();
-            } else {
-                plotNavigationHelper.mouseDragged(e);
+                plotResizeHelper.mouseDragged(e);
+                plotLegendHelper.mouseDragged(e);
+                if (plotLegendHelper.isHighlighting()) {
+                    plotNavigationHelper.mouseExited();
+                } else {
+                    plotNavigationHelper.mouseDragged(e);
+                }
+                update();
+            } catch (final Throwable t) {
+                Err.process(new Exception("Ignoring", t));
             }
-            update();
         }
 
         @Override
         public void mouseMoved(final MouseEvent e) {
-            if (plotConfigurationHelper.isShowing()) {
-                //keep the crosshair as it is when making a right click screenshot
-                return;
+            try {
+                if (plotConfigurationHelper.isShowing()) {
+                    //keep the crosshair as it is when making a right click screenshot
+                    return;
+                }
+                if (plotLegendHelper.isHighlighting() || plotNavigationHelper.isHighlighting()) {
+                    plotCrosshairHelper.disableCrosshair();
+                } else {
+                    plotCrosshairHelper.mouseMoved(e);
+                }
+                plotLegendHelper.mouseMoved(e);
+                plotResizeHelper.mouseMoved(e);
+                plotNavigationHelper.mouseMoved(e);
+            } catch (final Throwable t) {
+                Err.process(new Exception("Ignoring", t));
             }
-            if (plotLegendHelper.isHighlighting() || plotNavigationHelper.isHighlighting()) {
-                plotCrosshairHelper.disableCrosshair();
-            } else {
-                plotCrosshairHelper.mouseMoved(e);
-            }
-            plotLegendHelper.mouseMoved(e);
-            plotResizeHelper.mouseMoved(e);
-            plotNavigationHelper.mouseMoved(e);
         }
 
     }
@@ -516,19 +544,23 @@ public class InteractiveChartPanel extends JPanel {
     private final class MouseWheelListenerImpl extends MouseWheelListenerSupport {
         @Override
         public void mouseWheelMoved(final MouseWheelEvent e) {
-            if (new Duration(lastHorizontalScroll).isGreaterThan(SCROLL_LOCK_DURATION)) {
-                if (e.isShiftDown()) {
-                    if (e.getWheelRotation() > 0) {
-                        plotPanHelper.panLeft();
+            try {
+                if (new Duration(lastHorizontalScroll).isGreaterThan(SCROLL_LOCK_DURATION)) {
+                    if (e.isShiftDown()) {
+                        if (e.getWheelRotation() > 0) {
+                            plotPanHelper.panLeft();
+                        } else {
+                            plotPanHelper.panRight();
+                        }
                     } else {
-                        plotPanHelper.panRight();
+                        plotZoomHelper.mouseWheelMoved(e);
                     }
-                } else {
-                    plotZoomHelper.mouseWheelMoved(e);
+                    lastVerticalScroll = new FDate();
                 }
-                lastVerticalScroll = new FDate();
+                chartPanel.requestFocusInWindow();
+            } catch (final Throwable t) {
+                Err.process(new Exception("Ignoring", t));
             }
-            chartPanel.requestFocusInWindow();
         }
     }
 
@@ -545,9 +577,13 @@ public class InteractiveChartPanel extends JPanel {
     }
 
     public void mouseExited() {
-        plotCrosshairHelper.disableCrosshair();
-        plotLegendHelper.disableHighlighting();
-        plotNavigationHelper.mouseExited();
+        try {
+            plotCrosshairHelper.disableCrosshair();
+            plotLegendHelper.disableHighlighting();
+            plotNavigationHelper.mouseExited();
+        } catch (final Throwable t) {
+            Err.process(new Exception("Ignoring", t));
+        }
     }
 
     public XYPlot getOhlcPlot() {
