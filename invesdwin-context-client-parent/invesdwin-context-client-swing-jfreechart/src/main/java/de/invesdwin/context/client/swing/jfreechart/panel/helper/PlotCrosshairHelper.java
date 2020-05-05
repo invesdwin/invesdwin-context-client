@@ -81,11 +81,11 @@ public class PlotCrosshairHelper {
         rangeCrosshairMarkerLeft.setLabelOffset(new RectangleInsets(0, 2, 1, 0));
     }
 
-    public double getDomainCrosshairMarkerValue() {
+    public synchronized double getDomainCrosshairMarkerValue() {
         return domainCrosshairMarker.getValue();
     }
 
-    public void updateCrosshair(final int mouseX, final int mouseY) {
+    public synchronized void updateCrosshair(final int mouseX, final int mouseY) {
         final Point mousePoint = new Point(mouseX, mouseY);
 
         // convert the Java2D coordinate to axis coordinates...
@@ -170,7 +170,7 @@ public class PlotCrosshairHelper {
         }
     }
 
-    public void disableCrosshair() {
+    public synchronized void disableCrosshair() {
         final List<XYPlot> subplotsList = chartPanel.getCombinedPlot().getSubplots();
         for (int i = 0; i < subplotsList.size(); i++) {
             final XYPlot subplot = subplotsList.get(i);
@@ -186,7 +186,7 @@ public class PlotCrosshairHelper {
         crosshairLastMouseY = -1;
     }
 
-    public Point2D getCrosshairLastMousePoint() {
+    public synchronized Point2D getCrosshairLastMousePoint() {
         if (crosshairLastMouseX <= -1) {
             return null;
         } else {
@@ -207,13 +207,13 @@ public class PlotCrosshairHelper {
         subplot.removeRangeMarker(rangeCrosshairMarkerLeft);
     }
 
-    public void datasetChanged() {
+    public synchronized void datasetChanged() {
         if (crosshairLastMouseX >= 0 && crosshairLastMouseY >= 0) {
             updateCrosshair(crosshairLastMouseX, crosshairLastMouseY);
         }
     }
 
-    public void mouseMoved(final MouseEvent e) {
+    public synchronized void mouseMoved(final MouseEvent e) {
         final int mouseX = e.getX();
         final int mouseY = e.getY();
         updateCrosshair(mouseX, mouseY);

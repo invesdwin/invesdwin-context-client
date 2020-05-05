@@ -522,7 +522,7 @@ public class InteractiveChartPanel extends JPanel {
         @Override
         public void mouseMoved(final MouseEvent e) {
             try {
-                if (plotConfigurationHelper.isShowing()) {
+                if (plotConfigurationHelper.isShowing() || isUpdating()) {
                     //keep the crosshair as it is when making a right click screenshot
                     return;
                 }
