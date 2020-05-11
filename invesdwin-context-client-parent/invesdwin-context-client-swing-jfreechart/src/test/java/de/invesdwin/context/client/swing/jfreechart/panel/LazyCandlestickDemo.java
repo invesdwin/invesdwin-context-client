@@ -53,6 +53,7 @@ import de.invesdwin.util.collections.loadingcache.historical.AHistoricalCache;
 import de.invesdwin.util.collections.loadingcache.historical.AIterableGapHistoricalCache;
 import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCacheQuery;
 import de.invesdwin.util.concurrent.Executors;
+import de.invesdwin.util.concurrent.WrappedExecutorService;
 import de.invesdwin.util.error.UnknownArgumentException;
 import de.invesdwin.util.lang.Reflections;
 import de.invesdwin.util.lang.UniqueNameGenerator;
@@ -181,8 +182,9 @@ public class LazyCandlestickDemo extends JFrame {
             }
 
         };
-        return new MasterLazyDatasetList(provider,
-                Executors.newDisabledExecutor(LazyCandlestickDemo.class.getSimpleName()));
+        final WrappedExecutorService executor = Executors
+                .newDisabledExecutor(LazyCandlestickDemo.class.getSimpleName());
+        return new MasterLazyDatasetList(provider, executor, executor);
     }
 
     //CHECKSTYLE:OFF

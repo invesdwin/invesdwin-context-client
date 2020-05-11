@@ -42,6 +42,7 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
     private static final int MAX_ITEM_COUNT = MAX_STEP_ITEM_COUNT * 5;
     private static final int TRIM_ITEM_COUNT = MAX_STEP_ITEM_COUNT * 7;
     private final WrappedExecutorService executor;
+    private final WrappedExecutorService loadSlaveItemsExecutor;
     private final IMasterLazyDatasetProvider provider;
     private final Set<ISlaveLazyDatasetListener> slaveDatasetListeners;
     private final Set<IRangeListener> rangeListeners;
@@ -52,7 +53,8 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
     private volatile int minLowerBound;
     private volatile int maxUpperBound;
 
-    public MasterLazyDatasetList(final IMasterLazyDatasetProvider provider, final WrappedExecutorService executor) {
+    public MasterLazyDatasetList(final IMasterLazyDatasetProvider provider, final WrappedExecutorService executor,
+            final WrappedExecutorService loadSlaveItemsExecutor) {
         this.provider = provider;
 
         final ConcurrentMap<ISlaveLazyDatasetListener, Boolean> slaveDatasetListeners = Caffeine.newBuilder()
@@ -67,6 +69,7 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
         this.rangeListeners = Collections.newSetFromMap(limitRangeListeners);
         this.firstAvailableKey = provider.getFirstAvailableKey();
         this.executor = executor;
+        this.loadSlaveItemsExecutor = loadSlaveItemsExecutor;
     }
 
     @Override
@@ -143,7 +146,7 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
         if (getData().isEmpty()) {
             return;
         }
-        final Runnable task = newSyncTask(new Runnable() {
+        executor.execute(new Runnable() {
             @Override
             public void run() {
                 try {
@@ -163,33 +166,32 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
                 } catch (final Throwable t) {
                     Err.process(new RuntimeException("Ignoring, chart might have been closed", t));
                 }
+                if (!slaveDatasetListeners.isEmpty()) {
+                    executor.execute(new IPriorityRunnable() {
+                        @Override
+                        public void run() {
+                            try {
+                                final List<MasterOHLCDataItem> data = getData();
+                                for (int i = 0; i < data.size(); i++) {
+                                    final FDate key = data.get(i).getEndTime();
+                                    data.get(i).loadSlaveItems(key);
+                                }
+                                for (final ISlaveLazyDatasetListener slave : slaveDatasetListeners) {
+                                    slave.afterLoadItems(true);
+                                }
+                            } catch (final Throwable t) {
+                                Err.process(new RuntimeException("Ignoring, chart might have been closed", t));
+                            }
+                        }
+
+                        @Override
+                        public double getPriority() {
+                            return 0;
+                        }
+                    });
+                }
             }
         });
-        task.run();
-        if (!slaveDatasetListeners.isEmpty()) {
-            executor.execute(new IPriorityRunnable() {
-                @Override
-                public void run() {
-                    try {
-                        final List<MasterOHLCDataItem> data = getData();
-                        for (int i = 0; i < data.size(); i++) {
-                            final FDate key = data.get(i).getEndTime();
-                            data.get(i).loadSlaveItems(key);
-                        }
-                        for (final ISlaveLazyDatasetListener slave : slaveDatasetListeners) {
-                            slave.afterLoadItems(true);
-                        }
-                    } catch (final Throwable t) {
-                        Err.process(new RuntimeException("Ignoring, chart might have been closed", t));
-                    }
-                }
-
-                @Override
-                public double getPriority() {
-                    return 0;
-                }
-            });
-        }
     }
 
     protected Runnable newSyncTask(final Runnable syncTask) {
@@ -390,13 +392,14 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
             public void run() {
                 try {
                     int nextItemsIndex = 0;
+                    final List<MasterOHLCDataItem> loadedItems = new ArrayList<>();
                     try (ICloseableIterator<? extends TimeRangedOHLCDataItem> it = masterValues.iterator()) {
                         while (true) {
                             final TimeRangedOHLCDataItem next = it.next();
                             final FDate key = next.getEndTime();
                             final MasterOHLCDataItem appendItem = items.get(nextItemsIndex);
                             appendItem.setOHLC(next);
-                            appendItem.loadSlaveItems(key);
+                            loadedItems.add(appendItem);
                             nextItemsIndex++;
                         }
                     } catch (final NoSuchElementException e) {
@@ -431,6 +434,7 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
                     } finally {
                         chartPanel.decrementUpdatingCount();
                     }
+                    maybeLoadSlaveItems(priority, loadedItems);
                 } catch (final Throwable t) {
                     Err.process(new RuntimeException("Ignoring, chart might have been closed", t));
                 }
@@ -442,6 +446,29 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
             }
 
         });
+    }
+
+    private void maybeLoadSlaveItems(final double priority, final List<MasterOHLCDataItem> loadedItems) {
+        if (!loadedItems.isEmpty()) {
+            loadSlaveItemsExecutor.execute(new IPriorityRunnable() {
+
+                @Override
+                public void run() {
+                    for (int i = 0; i < loadedItems.size(); i++) {
+                        final MasterOHLCDataItem loadedItem = loadedItems.get(i);
+                        final FDate key = loadedItem.getEndTime();
+                        loadedItem.loadSlaveItems(key);
+                    }
+                    chartPanel.update();
+                }
+
+                @Override
+                public double getPriority() {
+                    return priority;
+                }
+
+            });
+        }
     }
 
     private List<MasterOHLCDataItem> appendMaster(final int appendCount) {
