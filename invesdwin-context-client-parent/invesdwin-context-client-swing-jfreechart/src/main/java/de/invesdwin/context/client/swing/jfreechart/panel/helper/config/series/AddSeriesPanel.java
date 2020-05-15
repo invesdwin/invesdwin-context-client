@@ -6,8 +6,10 @@ import java.awt.Cursor;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
 
@@ -25,6 +27,7 @@ import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.SeriesRe
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.series.expression.IExpressionSeriesProvider;
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.series.indicator.IIndicatorSeriesProvider;
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.IPlotSourceDataset;
+import de.invesdwin.util.collections.loadingcache.ALoadingCache;
 import de.invesdwin.util.concurrent.reference.MutableReference;
 import de.invesdwin.util.error.Throwables;
 import de.invesdwin.util.lang.Strings;
@@ -57,6 +60,10 @@ public class AddSeriesPanel extends JPanel {
             .clone()
             .withLineBreaks(ArrayUtils.addAll(new String[] { "<br>  " },
                     Components.getDefaultToolTipFormatter().getLineBreaks()));
+
+    private static final int MIN_SERIES_PROVIDER_RANK = 1;
+    private static final int MIDDLE_SERIES_PROVIDER_RANK = 2;
+    private static final int MAX_SERIES_PROVIDER_RANK = 3;
 
     private static final org.slf4j.ext.XLogger LOG = org.slf4j.ext.XLoggerFactory.getXLogger(AddSeriesPanel.class);
     private static final Cursor HAND_CURSOR = Cursor.getPredefinedCursor(Cursor.HAND_CURSOR);
@@ -350,8 +357,21 @@ public class AddSeriesPanel extends JPanel {
         } else {
             final String searchString = search.trim();
             final Pattern searchPattern = Pattern.compile(searchString);
+            final ALoadingCache<Integer, List<IIndicatorSeriesProvider>> rank_seriesProviders = new ALoadingCache<Integer, List<IIndicatorSeriesProvider>>() {
+                @Override
+                protected List<IIndicatorSeriesProvider> loadValue(final Integer key) {
+                    return new ArrayList<>();
+                }
+            };
             for (final IIndicatorSeriesProvider seriesProvider : seriesProviders) {
-                if (matches(seriesProvider, searchString, searchPattern)) {
+                final Integer rank = matches(seriesProvider, searchString, searchPattern);
+                if (rank != null) {
+                    rank_seriesProviders.get(rank).add(seriesProvider);
+                }
+            }
+            for (int i = MIN_SERIES_PROVIDER_RANK; i <= MAX_SERIES_PROVIDER_RANK; i++) {
+                final List<IIndicatorSeriesProvider> seriesProviers = rank_seriesProviders.get(i);
+                for (final IIndicatorSeriesProvider seriesProvider : seriesProviers) {
                     model.addRow(new Object[] { seriesProvider.getName(),
                             seriesProvider.getExpressionString(seriesProvider.getDefaultValues()) });
                 }
@@ -360,16 +380,16 @@ public class AddSeriesPanel extends JPanel {
         return model;
     }
 
-    private boolean matches(final IIndicatorSeriesProvider seriesProvider, final String searchString,
+    private Integer matches(final IIndicatorSeriesProvider seriesProvider, final String searchString,
             final Pattern searchPattern) {
-        if (matches(searchString, searchPattern, seriesProvider.getName())) {
-            return true;
+        if (matches(searchString, searchPattern, seriesProvider.getExpressionName())) {
+            return MIN_SERIES_PROVIDER_RANK;
+        } else if (matches(searchString, searchPattern, seriesProvider.getName())) {
+            return MIDDLE_SERIES_PROVIDER_RANK;
         } else if (matches(searchString, searchPattern, seriesProvider.getDescription())) {
-            return true;
-        } else if (matches(searchString, searchPattern, seriesProvider.getExpressionName())) {
-            return true;
+            return MAX_SERIES_PROVIDER_RANK;
         }
-        return false;
+        return null;
     }
 
     private boolean matches(final String searchString, final Pattern searchPattern, final String value) {
