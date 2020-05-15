@@ -237,13 +237,19 @@ public class PlotZoomHelper {
         final double maxUpperBound = getMaxUpperBoundWithGap(data, gap);
         if (range.getLowerBound() < minLowerBound) {
             final double difference = minLowerBound - range.getLowerBound();
-            range = new Range(minLowerBound, Doubles.min(range.getUpperBound() + difference, maxUpperBound));
-            rangeChanged.setTrue();
+            final double max = Doubles.min(range.getUpperBound() + difference, maxUpperBound);
+            if (minLowerBound < max) {
+                range = new Range(minLowerBound, max);
+                rangeChanged.setTrue();
+            }
         }
         if (range.getUpperBound() > maxUpperBound) {
             final double difference = range.getUpperBound() - maxUpperBound;
-            range = new Range(Doubles.max(minLowerBound, range.getLowerBound() - difference), maxUpperBound);
-            rangeChanged.setTrue();
+            final double min = Doubles.max(minLowerBound, range.getLowerBound() - difference);
+            if (min < maxUpperBound) {
+                range = new Range(min, maxUpperBound);
+                rangeChanged.setTrue();
+            }
         }
         range = limitRangeZoom(range, rangeChanged, minLowerBound, maxUpperBound);
         if (!rangeListeners.isEmpty()) {
