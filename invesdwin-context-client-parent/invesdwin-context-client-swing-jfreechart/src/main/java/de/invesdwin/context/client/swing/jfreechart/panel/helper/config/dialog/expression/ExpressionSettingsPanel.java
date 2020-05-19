@@ -34,6 +34,7 @@ public class ExpressionSettingsPanel extends JPanel implements ISettingsPanelAct
 
     public static final Icon ICON_EXPRESSION = AddSeriesPanel.ICON_EXPRESSION;
     public static final Icon ICON_EXPRESSION_PENDING_INVALID = AddSeriesPanel.ICON_EXPRESSION_PENDING_INVALID;
+    public static final Icon ICON_EXPRESSION_PENDING_VALIDATING = AddSeriesPanel.ICON_EXPRESSION_PENDING_VALIDATING;
     public static final Icon ICON_EXPRESSION_PENDING_VALID = AddSeriesPanel.ICON_EXPRESSION_PENDING_VALID;
 
     private static final org.slf4j.ext.XLogger LOG = org.slf4j.ext.XLoggerFactory.getXLogger(AddSeriesPanel.class);
@@ -95,6 +96,7 @@ public class ExpressionSettingsPanel extends JPanel implements ISettingsPanelAct
         if (provider != null && hasChanges(originalExpression, newExpression)
                 && provider.shouldValidateExpression(newExpression)) {
             try {
+                System.out.println("TODO: async with orange indicator");
                 final IExpression parsedExpression = provider.parseExpression(newExpression);
                 lbl_expression.setIcon(ICON_EXPRESSION_PENDING_VALID);
                 Components.setToolTipText(lbl_expression,

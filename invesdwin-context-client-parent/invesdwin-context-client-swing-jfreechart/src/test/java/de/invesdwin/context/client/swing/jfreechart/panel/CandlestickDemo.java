@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.StringTokenizer;
+import java.util.concurrent.ExecutorService;
 
 import javax.annotation.concurrent.NotThreadSafe;
 import javax.swing.JFrame;
@@ -184,6 +185,12 @@ public class CandlestickDemo extends JFrame {
             }
 
             return dataset;
+        }
+
+        @Override
+        public ExecutorService getValidatingExecutor() {
+            //synchronous
+            return null;
         }
 
         @Override

@@ -34,6 +34,7 @@ import de.invesdwin.util.lang.Strings;
 import de.invesdwin.util.math.expression.AExpressionVisitor;
 import de.invesdwin.util.math.expression.ExpressionVisitorSupport;
 import de.invesdwin.util.math.expression.IExpression;
+import de.invesdwin.util.math.expression.eval.IParsedExpression;
 import de.invesdwin.util.math.expression.eval.operation.BinaryOperation;
 import de.invesdwin.util.math.expression.eval.operation.BinaryOperation.Op;
 import de.invesdwin.util.swing.Components;
@@ -48,11 +49,14 @@ import de.invesdwin.util.swing.text.ToolTipFormatter;
 public class AddSeriesPanel extends JPanel {
 
     public static final Color COLOR_EXPRESSION_PENDING_INVALID = Color.RED;
+    public static final Color COLOR_EXPRESSION_PENDING_VALIDATING = Color.ORANGE;
     public static final Color COLOR_EXPRESSION_PENDING_VALID = Color.GREEN.darker();
 
     public static final Icon ICON_EXPRESSION = AddSeriesPanelLayout.ICON_EXPRESSION;
     public static final Icon ICON_EXPRESSION_PENDING_INVALID = ChangeColorImageFilter
             .apply(AddSeriesPanelLayout.ICON_EXPRESSION, COLOR_EXPRESSION_PENDING_INVALID);
+    public static final Icon ICON_EXPRESSION_PENDING_VALIDATING = ChangeColorImageFilter
+            .apply(AddSeriesPanelLayout.ICON_EXPRESSION, COLOR_EXPRESSION_PENDING_VALIDATING);
     public static final Icon ICON_EXPRESSION_PENDING_VALID = ChangeColorImageFilter
             .apply(AddSeriesPanelLayout.ICON_EXPRESSION, COLOR_EXPRESSION_PENDING_VALID);
     public static final int TOOLTIP_WORD_WRAP_LIMIT = 120;
@@ -162,27 +166,38 @@ public class AddSeriesPanel extends JPanel {
 
             private void addExpressionDebugViaVisitor(final IExpressionSeriesProvider provider,
                     final IExpression originalExpression) {
-                final Set<String> duplicateExpressionFilter = new HashSet<>();
+                final ALoadingCache<String, Set<String>> duplicateExpressionFilter = new ALoadingCache<String, Set<String>>() {
+                    @Override
+                    protected Set<String> loadValue(final String key) {
+                        return new HashSet<>();
+                    }
+                };
                 final MutableReference<SeriesRendererType> originalRendererType = new MutableReference<SeriesRendererType>(
                         SeriesRendererType.Line);
                 final AExpressionVisitor visitor = new AExpressionVisitor() {
 
                     @Override
+                    protected boolean isDrawableOnly() {
+                        return true;
+                    }
+
+                    @Override
                     protected void visitOther(final IExpression expression) {
-                        final String plotPaneId = provider.getPlotPaneId(expression);
-                        addExpressionDebug(expression, plotPaneId, duplicateExpressionFilter, SeriesRendererType.Line);
+                        final String rangeAxisIdPrefix = "";
+                        addExpressionDebug(null, rangeAxisIdPrefix, expression, duplicateExpressionFilter,
+                                SeriesRendererType.Line);
                     }
 
                     @Override
                     protected boolean visitMath(final BinaryOperation expression) {
-                        final String plotPaneId = provider.getPlotPaneId(expression);
+                        final String rangeAxisIdPrefix = "";
                         final SeriesRendererType seriesType;
                         if (expression.getOp() == Op.NOT) {
                             seriesType = SeriesRendererType.Step;
                         } else {
                             seriesType = SeriesRendererType.Line;
                         }
-                        addExpressionDebug(expression, plotPaneId, duplicateExpressionFilter, seriesType);
+                        addExpressionDebug(null, rangeAxisIdPrefix, expression, duplicateExpressionFilter, seriesType);
                         return false;
                     }
 
@@ -190,18 +205,15 @@ public class AddSeriesPanel extends JPanel {
                     protected boolean visitComparison(final BinaryOperation expression) {
                         final String plotPaneId = provider.getPlotPaneId(expression);
                         final String rangeAxisIdPrefixLeftRight = "X: ";
-                        prefixRangeAxisId(rangeAxisIdPrefixLeftRight, addExpressionDebug(expression.getLeft(),
-                                plotPaneId, duplicateExpressionFilter, SeriesRendererType.Line));
-                        prefixRangeAxisId(rangeAxisIdPrefixLeftRight, addExpressionDebug(expression.getRight(),
-                                plotPaneId, duplicateExpressionFilter, SeriesRendererType.Line));
-                        addExpressionDebug(expression, plotPaneId, duplicateExpressionFilter, SeriesRendererType.Step);
+                        final IParsedExpression left = expression.getLeft();
+                        addExpressionDebug(plotPaneId, rangeAxisIdPrefixLeftRight, left, duplicateExpressionFilter,
+                                SeriesRendererType.Line);
+                        final IParsedExpression right = expression.getRight();
+                        addExpressionDebug(plotPaneId, rangeAxisIdPrefixLeftRight, right, duplicateExpressionFilter,
+                                SeriesRendererType.Line);
+                        addExpressionDebug(plotPaneId, "", expression, duplicateExpressionFilter,
+                                SeriesRendererType.Step);
                         return false;
-                    }
-
-                    private void prefixRangeAxisId(final String prefix, final IPlotSourceDataset dataset) {
-                        if (dataset != null) {
-                            dataset.setRangeAxisId(prefix + dataset.getRangeAxisId());
-                        }
                     }
 
                     @Override
@@ -212,8 +224,8 @@ public class AddSeriesPanel extends JPanel {
 
                 };
                 visitor.process(originalExpression);
-                final String plotPaneId = provider.getPlotPaneId(originalExpression);
-                addExpressionDebug(originalExpression, plotPaneId, duplicateExpressionFilter,
+                final String originalRangeAxisIdPrefix = "";
+                addExpressionDebug(null, originalRangeAxisIdPrefix, originalExpression, duplicateExpressionFilter,
                         originalRendererType.get());
             }
         });
@@ -222,7 +234,6 @@ public class AddSeriesPanel extends JPanel {
             protected void update(final DocumentEvent e) {
                 validateExpressionAdd(plotConfigurationHelper);
             }
-
         });
 
         if (dialog != null) {
@@ -248,6 +259,7 @@ public class AddSeriesPanel extends JPanel {
             final IExpressionSeriesProvider provider) {
         if (provider.shouldValidateExpression(expression)) {
             try {
+                System.out.println("TODO: async with orange indicator");
                 final IExpression parsedExpression = provider.parseExpression(expression);
                 if (parsedExpression == null) {
                     lbl_expression.setIcon(AddSeriesPanel.ICON_EXPRESSION);
@@ -291,22 +303,37 @@ public class AddSeriesPanel extends JPanel {
         Dialogs.showMessageDialog(layout, "Expression should not be blank.", "Error", Dialogs.ERROR_MESSAGE);
     }
 
-    private IPlotSourceDataset addExpressionDebug(final IExpression expression, final String plotPaneId,
-            final Set<String> duplicateExpressionFilter, final SeriesRendererType rendererType) {
-        final String expressionStr = expression.toString();
-        try {
-            if (!duplicateExpressionFilter.add(expressionStr)) {
+    private IPlotSourceDataset addExpressionDebug(final String plotPaneId, final String rangeAxisIdPrefix,
+            final IExpression expression, final ALoadingCache<String, Set<String>> duplicateExpressionFilter,
+            final SeriesRendererType rendererType) {
+        final IExpression drawable = AExpressionVisitor.getDrawable(expression);
+        if (drawable != null) {
+            final String expressionStr = drawable.toString();
+            try {
+                final IExpressionSeriesProvider provider = plotConfigurationHelper.getExpressionSeriesProvider();
+                final String usedPlotPaneId;
+                if (plotPaneId == null) {
+                    usedPlotPaneId = provider.getPlotPaneId(expression);
+                } else {
+                    usedPlotPaneId = plotPaneId;
+                }
+                final String expressionTitle = provider.getTitle(expressionStr);
+                if (duplicateExpressionFilter.get(usedPlotPaneId).add(expressionTitle)) {
+                    return null;
+                }
+                final IPlotSourceDataset dataset = provider.newInstance(plotConfigurationHelper.getChartPanel(),
+                        expressionStr, usedPlotPaneId, rendererType);
+                dataset.setExpressionSeriesProvider(provider);
+                dataset.setExpressionSeriesArguments(expressionStr);
+                dataset.setSeriesTitle(expressionTitle);
+                final String rangeAxisId = rangeAxisIdPrefix + usedPlotPaneId;
+                dataset.setRangeAxisId(rangeAxisId);
+                return dataset;
+            } catch (final Throwable t) {
+                logExpressionException(expressionStr, t);
                 return null;
             }
-            final IExpressionSeriesProvider provider = plotConfigurationHelper.getExpressionSeriesProvider();
-            final IPlotSourceDataset dataset = provider.newInstance(plotConfigurationHelper.getChartPanel(),
-                    expressionStr, plotPaneId, rendererType);
-            dataset.setExpressionSeriesProvider(provider);
-            dataset.setExpressionSeriesArguments(expressionStr);
-            dataset.setSeriesTitle(provider.getTitle(expressionStr));
-            return dataset;
-        } catch (final Throwable t) {
-            logExpressionException(expressionStr, t);
+        } else {
             return null;
         }
     }
@@ -334,7 +361,9 @@ public class AddSeriesPanel extends JPanel {
                         expressionStr, plotPaneId, rendererType.get());
                 dataset.setExpressionSeriesProvider(provider);
                 dataset.setExpressionSeriesArguments(expressionStr);
-                dataset.setSeriesTitle(provider.getTitle(expressionStr));
+                final String title = provider.getTitle(expressionStr);
+                dataset.setSeriesTitle(title);
+                dataset.setRangeAxisId(plotPaneId);
 
                 layout.lbl_expression.setIcon(ICON_EXPRESSION);
             } catch (final Throwable t) {

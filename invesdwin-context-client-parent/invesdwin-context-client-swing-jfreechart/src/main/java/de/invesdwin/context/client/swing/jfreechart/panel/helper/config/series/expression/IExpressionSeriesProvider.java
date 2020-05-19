@@ -1,5 +1,7 @@
 package de.invesdwin.context.client.swing.jfreechart.panel.helper.config.series.expression;
 
+import java.util.concurrent.ExecutorService;
+
 import org.fife.ui.autocomplete.AutoCompletion;
 import org.fife.ui.autocomplete.CompletionProvider;
 import org.fife.ui.autocomplete.LanguageAwareCompletionProvider;
@@ -27,14 +29,20 @@ public interface IExpressionSeriesProvider {
 
     void modifyDataset(InteractiveChartPanel chartPanel, IPlotSourceDataset dataset, String expression);
 
-    default Parser newValidatingParser() {
-        return new ExpressionValidatingParser() {
+    default Parser newValidatingParser(final RSyntaxTextArea editor) {
+        final ExecutorService executor = getValidatingExecutor();
+        return new ExpressionValidatingParser(editor, executor) {
             @Override
             protected void parseExpression(final String expression) throws ParseException {
                 IExpressionSeriesProvider.this.parseExpression(expression);
             }
         };
     }
+
+    /**
+     * Return null to do this synchronously.
+     */
+    ExecutorService getValidatingExecutor();
 
     CompletionProvider newCompletionProvider();
 
@@ -48,7 +56,7 @@ public interface IExpressionSeriesProvider {
 
     default void configureEditor(final RSyntaxTextArea editor) {
         editor.clearParsers();
-        editor.addParser(newValidatingParser());
+        editor.addParser(newValidatingParser(editor));
         newAutoCompletion().install(editor);
     }
 
@@ -57,7 +65,7 @@ public interface IExpressionSeriesProvider {
     }
 
     default String getTitle(final String expression) {
-        return expression.toString();
+        return expression;
     }
 
     default boolean shouldValidateExpression(final String expression) {
