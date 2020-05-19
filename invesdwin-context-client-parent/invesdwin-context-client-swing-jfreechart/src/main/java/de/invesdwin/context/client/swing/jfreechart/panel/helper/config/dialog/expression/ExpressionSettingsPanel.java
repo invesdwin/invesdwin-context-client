@@ -5,7 +5,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.annotation.concurrent.NotThreadSafe;
-import javax.swing.Icon;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -23,19 +22,12 @@ import de.invesdwin.context.client.swing.jfreechart.plot.dataset.IPlotSourceData
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.error.Throwables;
 import de.invesdwin.util.lang.Objects;
-import de.invesdwin.util.lang.Strings;
-import de.invesdwin.util.math.expression.IExpression;
 import de.invesdwin.util.swing.Components;
 import de.invesdwin.util.swing.Dialogs;
 import de.invesdwin.util.swing.listener.DocumentListenerSupport;
 
 @NotThreadSafe
 public class ExpressionSettingsPanel extends JPanel implements ISettingsPanelActions {
-
-    public static final Icon ICON_EXPRESSION = AddSeriesPanel.ICON_EXPRESSION;
-    public static final Icon ICON_EXPRESSION_PENDING_INVALID = AddSeriesPanel.ICON_EXPRESSION_PENDING_INVALID;
-    public static final Icon ICON_EXPRESSION_PENDING_VALIDATING = AddSeriesPanel.ICON_EXPRESSION_PENDING_VALIDATING;
-    public static final Icon ICON_EXPRESSION_PENDING_VALID = AddSeriesPanel.ICON_EXPRESSION_PENDING_VALID;
 
     private static final org.slf4j.ext.XLogger LOG = org.slf4j.ext.XLoggerFactory.getXLogger(AddSeriesPanel.class);
 
@@ -80,7 +72,7 @@ public class ExpressionSettingsPanel extends JPanel implements ISettingsPanelAct
         });
         //set tooltip but use default icon
         validateExpressionEdit(null);
-        layout.lbl_expression.setIcon(ICON_EXPRESSION);
+        layout.lbl_expression.setIcon(ValidatingExpressionData.ICON_EXPRESSION);
 
         plotConfigurationHelper.getExpressionSeriesProvider().configureEditor(layout.tf_expression.textArea);
     }
@@ -95,22 +87,9 @@ public class ExpressionSettingsPanel extends JPanel implements ISettingsPanelAct
             final IExpressionSeriesProvider provider, final String originalExpression) {
         if (provider != null && hasChanges(originalExpression, newExpression)
                 && provider.shouldValidateExpression(newExpression)) {
-            try {
-                System.out.println("TODO: async with orange indicator");
-                final IExpression parsedExpression = provider.parseExpression(newExpression);
-                lbl_expression.setIcon(ICON_EXPRESSION_PENDING_VALID);
-                Components.setToolTipText(lbl_expression,
-                        "<html><b>Valid:</b><br><pre>  "
-                                + Strings.escapeHtml4(parsedExpression.toString().replace("\n", "\n  ")) + "</pre>",
-                        false, AddSeriesPanel.SPACED_TOOLTIP_FORMATTER);
-            } catch (final Throwable t) {
-                lbl_expression.setIcon(ICON_EXPRESSION_PENDING_INVALID);
-                Components.setToolTipText(lbl_expression,
-                        "<html><b>Error:</b><br><pre>  " + AddSeriesPanel.prepareErrorMessageForTooltip(t) + "</pre>",
-                        false, AddSeriesPanel.SPACED_TOOLTIP_FORMATTER);
-            }
+            ValidatingExpressionData.validate(provider, lbl_expression, newExpression);
         } else {
-            lbl_expression.setIcon(ICON_EXPRESSION);
+            lbl_expression.setIcon(ValidatingExpressionData.ICON_EXPRESSION);
             Components.setToolTipText(lbl_expression, null, false);
         }
     }
@@ -127,7 +106,7 @@ public class ExpressionSettingsPanel extends JPanel implements ISettingsPanelAct
 
     private void setExpressionValue(final String value) {
         layout.tf_expression.textArea.setText(value);
-        layout.lbl_expression.setIcon(ICON_EXPRESSION);
+        layout.lbl_expression.setIcon(ValidatingExpressionData.ICON_EXPRESSION);
     }
 
     @Override
@@ -143,7 +122,7 @@ public class ExpressionSettingsPanel extends JPanel implements ISettingsPanelAct
         if (hasChanges(dataset.getExpressionSeriesArguments(), newExpression)) {
             apply(newExpression);
         } else {
-            layout.lbl_expression.setIcon(ICON_EXPRESSION);
+            layout.lbl_expression.setIcon(ValidatingExpressionData.ICON_EXPRESSION);
         }
     }
 
@@ -153,7 +132,7 @@ public class ExpressionSettingsPanel extends JPanel implements ISettingsPanelAct
             seriesProvider.modifyDataset(plotConfigurationHelper.getChartPanel(), dataset, toExpression);
             dataset.setExpressionSeriesArguments(toExpression);
             dataset.setSeriesTitle(toExpression);
-            layout.lbl_expression.setIcon(ICON_EXPRESSION);
+            layout.lbl_expression.setIcon(ValidatingExpressionData.ICON_EXPRESSION);
         } catch (final Throwable t) {
             final String fromExpression = dataset.getSeriesTitle();
             LOG.warn("Error modifying series expression from [" + fromExpression + "] to [" + toExpression + "]:\n"

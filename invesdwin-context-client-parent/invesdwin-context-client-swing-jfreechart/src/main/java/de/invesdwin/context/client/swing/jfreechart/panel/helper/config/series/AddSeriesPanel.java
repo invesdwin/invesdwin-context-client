@@ -1,7 +1,6 @@
 package de.invesdwin.context.client.swing.jfreechart.panel.helper.config.series;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -14,16 +13,14 @@ import java.util.Set;
 import java.util.regex.Pattern;
 
 import javax.annotation.concurrent.NotThreadSafe;
-import javax.swing.Icon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.event.DocumentEvent;
 import javax.swing.table.DefaultTableModel;
 
-import org.apache.commons.lang3.ArrayUtils;
-
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.PlotConfigurationHelper;
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.SeriesRendererType;
+import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.dialog.expression.ValidatingExpressionData;
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.series.expression.IExpressionSeriesProvider;
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.series.indicator.IIndicatorSeriesProvider;
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.IPlotSourceDataset;
@@ -39,31 +36,12 @@ import de.invesdwin.util.math.expression.eval.operation.BinaryOperation;
 import de.invesdwin.util.math.expression.eval.operation.BinaryOperation.Op;
 import de.invesdwin.util.swing.Components;
 import de.invesdwin.util.swing.Dialogs;
-import de.invesdwin.util.swing.icon.ChangeColorImageFilter;
 import de.invesdwin.util.swing.listener.DocumentListenerSupport;
 import de.invesdwin.util.swing.listener.MouseListenerSupport;
 import de.invesdwin.util.swing.listener.MouseMotionListenerSupport;
-import de.invesdwin.util.swing.text.ToolTipFormatter;
 
 @NotThreadSafe
 public class AddSeriesPanel extends JPanel {
-
-    public static final Color COLOR_EXPRESSION_PENDING_INVALID = Color.RED;
-    public static final Color COLOR_EXPRESSION_PENDING_VALIDATING = Color.ORANGE;
-    public static final Color COLOR_EXPRESSION_PENDING_VALID = Color.GREEN.darker();
-
-    public static final Icon ICON_EXPRESSION = AddSeriesPanelLayout.ICON_EXPRESSION;
-    public static final Icon ICON_EXPRESSION_PENDING_INVALID = ChangeColorImageFilter
-            .apply(AddSeriesPanelLayout.ICON_EXPRESSION, COLOR_EXPRESSION_PENDING_INVALID);
-    public static final Icon ICON_EXPRESSION_PENDING_VALIDATING = ChangeColorImageFilter
-            .apply(AddSeriesPanelLayout.ICON_EXPRESSION, COLOR_EXPRESSION_PENDING_VALIDATING);
-    public static final Icon ICON_EXPRESSION_PENDING_VALID = ChangeColorImageFilter
-            .apply(AddSeriesPanelLayout.ICON_EXPRESSION, COLOR_EXPRESSION_PENDING_VALID);
-    public static final int TOOLTIP_WORD_WRAP_LIMIT = 120;
-    public static final ToolTipFormatter SPACED_TOOLTIP_FORMATTER = Components.getDefaultToolTipFormatter()
-            .clone()
-            .withLineBreaks(ArrayUtils.addAll(new String[] { "<br>  " },
-                    Components.getDefaultToolTipFormatter().getLineBreaks()));
 
     private static final int MIN_SERIES_PROVIDER_RANK = 1;
     private static final int MIDDLE_SERIES_PROVIDER_RANK = 2;
@@ -258,34 +236,16 @@ public class AddSeriesPanel extends JPanel {
     public static void validateExpressionAdd(final JLabel lbl_expression, final String expression,
             final IExpressionSeriesProvider provider) {
         if (provider.shouldValidateExpression(expression)) {
-            try {
-                System.out.println("TODO: async with orange indicator");
-                final IExpression parsedExpression = provider.parseExpression(expression);
-                if (parsedExpression == null) {
-                    lbl_expression.setIcon(AddSeriesPanel.ICON_EXPRESSION);
-                    Components.setToolTipText(lbl_expression, null, false);
-                    return;
-                }
-                lbl_expression.setIcon(AddSeriesPanel.ICON_EXPRESSION_PENDING_VALID);
-                Components.setToolTipText(lbl_expression,
-                        "<html><b>Valid:</b><br><pre>  "
-                                + Strings.escapeHtml4(parsedExpression.toString().replace("\n", "\n  ")) + "</pre>",
-                        false, SPACED_TOOLTIP_FORMATTER);
-            } catch (final Throwable t) {
-                lbl_expression.setIcon(AddSeriesPanel.ICON_EXPRESSION_PENDING_INVALID);
-                Components.setToolTipText(lbl_expression,
-                        "<html><b>Error:</b><br><pre>  " + AddSeriesPanel.prepareErrorMessageForTooltip(t) + "</pre>",
-                        false, SPACED_TOOLTIP_FORMATTER);
-            }
+            ValidatingExpressionData.validate(provider, lbl_expression, expression);
         } else {
-            lbl_expression.setIcon(AddSeriesPanel.ICON_EXPRESSION);
+            lbl_expression.setIcon(ValidatingExpressionData.ICON_EXPRESSION);
             Components.setToolTipText(lbl_expression, null, false);
         }
     }
 
     public static String prepareErrorMessageForTooltip(final Throwable t) {
         String message = Throwables.concatMessagesShort(t);
-        message = Strings.wrap(message, TOOLTIP_WORD_WRAP_LIMIT);
+        message = Strings.wrap(message, ValidatingExpressionData.TOOLTIP_WORD_WRAP_LIMIT);
         message = message.replace("\n", "\n  ");
         message = Strings.escapeHtml4(message);
         return message;
@@ -365,7 +325,7 @@ public class AddSeriesPanel extends JPanel {
                 dataset.setSeriesTitle(title);
                 dataset.setRangeAxisId(plotPaneId);
 
-                layout.lbl_expression.setIcon(ICON_EXPRESSION);
+                layout.lbl_expression.setIcon(ValidatingExpressionData.ICON_EXPRESSION);
             } catch (final Throwable t) {
                 logExpressionException(expressionStr, t);
             }
