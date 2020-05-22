@@ -101,9 +101,7 @@ public class PlotLegendHelper {
             if (datasetIndex != null) {
                 if (highlightedLegendInfo == null || highlightedLegendInfo.getTitle() != title
                         || highlightedLegendInfo.getDatasetIndex() != datasetIndex.intValue()) {
-                    //CHECKSTYLE:OFF
                     if (highlightedLegendInfo != null) {
-                        //CHECKSTYLE:ON
                         highlightedLegendInfo.getTitle().setBackgroundPaint(LEGEND_BACKGROUND_PAINT);
                     }
                     final int subplotIndex = chartPanel.getCombinedPlot().getSubplotIndex(mouseX, mouseY);

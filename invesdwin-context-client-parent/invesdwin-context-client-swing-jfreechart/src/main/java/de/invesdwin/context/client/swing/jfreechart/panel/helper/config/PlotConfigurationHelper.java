@@ -52,6 +52,7 @@ public class PlotConfigurationHelper {
 
     private JMenuItem configureSeriesItem;
     private JMenuItem removeSeriesItem;
+    private JMenuItem removeAllSeriesItem;
     private JMenuItem showSeriesItem;
     private JMenuItem hideSeriesItem;
 
@@ -104,6 +105,7 @@ public class PlotConfigurationHelper {
                         popupMenu.add(titleItem);
                         if (highlighted.isRemovable()) {
                             popupMenu.add(removeSeriesItem);
+                            popupMenu.add(removeAllSeriesItem);
                         }
                         popupMenu.add(showSeriesItem);
                     } else {
@@ -135,6 +137,7 @@ public class PlotConfigurationHelper {
                 popupMenu.addSeparator();
                 if (highlighted.isRemovable()) {
                     popupMenu.add(removeSeriesItem);
+                    popupMenu.add(removeAllSeriesItem);
                 }
                 popupMenu.add(hideSeriesItem);
             }
@@ -182,6 +185,14 @@ public class PlotConfigurationHelper {
             @Override
             public void actionPerformed(final ActionEvent e) {
                 highlighted.removeSeries();
+            }
+        });
+
+        removeAllSeriesItem = new JMenuItem("Remove All");
+        removeAllSeriesItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(final ActionEvent e) {
+                highlighted.removeAllSeries();
             }
         });
 

@@ -49,7 +49,12 @@ public class HighlightedLegendInfo {
     }
 
     public String getSeriesId() {
-        return String.valueOf(getDataset().getSeriesId());
+        final IPlotSourceDataset dataset = getDataset();
+        return getSeriesId(dataset);
+    }
+
+    private String getSeriesId(final IPlotSourceDataset dataset) {
+        return String.valueOf(dataset.getSeriesId());
     }
 
     public String getSeriesTitle() {
@@ -61,6 +66,10 @@ public class HighlightedLegendInfo {
     }
 
     public IPlotSourceDataset getDataset() {
+        return getDataset(datasetIndex);
+    }
+
+    private IPlotSourceDataset getDataset(final int datasetIndex) {
         return (IPlotSourceDataset) plot.getDataset(datasetIndex);
     }
 
@@ -81,17 +90,45 @@ public class HighlightedLegendInfo {
     }
 
     public boolean isRemovable() {
-        return chartPanel.getPlotLegendHelper().isDatasetRemovable(getDataset());
+        final IPlotSourceDataset dataset = getDataset();
+        return isRemovable(dataset);
+    }
+
+    private boolean isRemovable(final IPlotSourceDataset dataset) {
+        return chartPanel.getPlotLegendHelper().isDatasetRemovable(dataset);
     }
 
     public void removeSeries() {
-        Assertions.checkTrue(isRemovable());
-        chartPanel.getPlotConfigurationHelper().removeInitialSeriesSettings(getSeriesId());
-        final IPlotSourceDataset dataset = getDataset();
+        removeSeries(datasetIndex);
+        afterRemoveSeries();
+    }
+
+    private void removeSeries(final int datasetIndex) {
+        final IPlotSourceDataset dataset = getDataset(datasetIndex);
+        Assertions.checkTrue(isRemovable(dataset));
+        chartPanel.getPlotConfigurationHelper().removeInitialSeriesSettings(getSeriesId(dataset));
         dataset.close();
         XYPlots.removeDataset(plot, datasetIndex);
+    }
+
+    private void afterRemoveSeries() {
         XYPlots.updateRangeAxes(plot);
         chartPanel.getPlotLegendHelper().removeEmptyPlotsAndResetTrashPlot();
+    }
+
+    public void removeAllSeries() {
+        boolean removed = false;
+        for (int i = 0; i < plot.getDatasetCount(); i++) {
+            final IPlotSourceDataset dataset = getDataset(i);
+            if (dataset != null && isRemovable(dataset)) {
+                removeSeries(i);
+                removed = true;
+                i--;
+            }
+        }
+        if (removed) {
+            afterRemoveSeries();
+        }
     }
 
     public void setPriceLineVisible(final boolean visible) {
