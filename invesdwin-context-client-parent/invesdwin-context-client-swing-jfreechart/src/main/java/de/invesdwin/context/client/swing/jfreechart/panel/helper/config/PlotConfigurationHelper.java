@@ -1,5 +1,6 @@
 package de.invesdwin.context.client.swing.jfreechart.panel.helper.config;
 
+import java.awt.Component;
 import java.awt.Insets;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Clipboard;
@@ -64,8 +65,7 @@ public class PlotConfigurationHelper {
     private JMenuItem hideSeriesItem;
 
     private JMenu bookmarksItem;
-    private JMenuItem bookmarksRecentlyUsedItem;
-    private JMenuItem bookmarksAddItem;
+    private JMenuItem bookmarksRememberItem;
 
     private JMenuItem addSeriesItem;
     private JMenuItem copyToClipboardItem;
@@ -149,12 +149,10 @@ public class PlotConfigurationHelper {
 
             private void updateBookmarksItems() {
                 bookmarksItem.removeAll();
-                final Collection<Bookmark> bookmarks = bookmarkStorage
-                        .getRecentlyUsedValues(BookmarkMenuItem.MAX_RECENTLY_USED);
+                final List<Bookmark> bookmarks = bookmarkStorage.getValues();
                 final TimeRange visibleTimeRange = chartPanel.getVisibleTimeRange();
                 boolean visibleTimeRangeExists = false;
                 if (!bookmarks.isEmpty()) {
-                    bookmarksItem.add(bookmarksRecentlyUsedItem);
                     for (final Bookmark bookmark : bookmarks) {
                         final BookmarkMenuItem bookmarkItem = new BookmarkMenuItem(PlotConfigurationHelper.this,
                                 bookmark);
@@ -168,14 +166,20 @@ public class PlotConfigurationHelper {
                     bookmarksItem.addSeparator();
                 }
                 if (visibleTimeRange != null && !visibleTimeRangeExists) {
-                    bookmarksAddItem.setText("<html><b>Add:</b> " + visibleTimeRange);
-                    bookmarksItem.add(bookmarksAddItem);
+                    bookmarksRememberItem.setText("<html>Remember: <b>" + visibleTimeRange + "</b>");
+                    bookmarksItem.add(bookmarksRememberItem);
                 }
                 if (!bookmarks.isEmpty()) {
                     final JMenuItem bookmarksCancelItem = new JMenuItem("Cancel");
                     bookmarksCancelItem.addActionListener(new ActionListener() {
                         @Override
                         public void actionPerformed(final ActionEvent e) {
+                            for (final Component component : bookmarksItem.getMenuComponents()) {
+                                if (component instanceof BookmarkMenuItem) {
+                                    final BookmarkMenuItem cComponent = (BookmarkMenuItem) component;
+                                    cComponent.setPending(false);
+                                }
+                            }
                             getChartPanel().setVisibleTimeRangeOrReloadData(visibleTimeRange);
                         }
                     });
@@ -210,6 +214,15 @@ public class PlotConfigurationHelper {
                 highlighted = null;
                 //only the first popup should have the crosshair visible
                 chartPanel.mouseExited();
+
+                for (final Component component : bookmarksItem.getMenuComponents()) {
+                    if (component instanceof BookmarkMenuItem) {
+                        final BookmarkMenuItem cComponent = (BookmarkMenuItem) component;
+                        if (cComponent.isPending()) {
+                            cComponent.updateLastUsed();
+                        }
+                    }
+                }
             }
         });
 
@@ -217,10 +230,8 @@ public class PlotConfigurationHelper {
 
     private void initBookmarkItems() {
         bookmarksItem = new JMenu("Bookmarks");
-        bookmarksRecentlyUsedItem = new JMenuItem("Recently Used:");
-        bookmarksRecentlyUsedItem.setEnabled(false);
-        bookmarksAddItem = new JMenuItem("Add");
-        bookmarksAddItem.addActionListener(new ActionListener() {
+        bookmarksRememberItem = new JMenuItem("Remember");
+        bookmarksRememberItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(final ActionEvent e) {
                 final TimeRange visibleTimeRange = chartPanel.getVisibleTimeRange();

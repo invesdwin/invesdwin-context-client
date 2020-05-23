@@ -1,12 +1,10 @@
 package de.invesdwin.context.client.swing.jfreechart.panel.helper.config.bookmark;
 
-import java.util.Collection;
+import java.util.List;
 
 public interface IBookmarkStorage {
 
-    Collection<Bookmark> getValues();
-
-    Collection<Bookmark> getRecentlyUsedValues(int maxCount);
+    List<Bookmark> getValues();
 
     void addValue(Bookmark value);
 
