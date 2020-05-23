@@ -12,6 +12,7 @@ import javax.swing.JMenuItem;
 
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.PlotConfigurationHelper;
 import de.invesdwin.util.swing.listener.MouseListenerSupport;
+import de.invesdwin.util.time.fdate.FDate;
 
 @NotThreadSafe
 public class BookmarkMenuItem extends JMenu {
@@ -109,6 +110,6 @@ public class BookmarkMenuItem extends JMenu {
     }
 
     public void updateLastUsed() {
-        plotConfigurationHelper.getBookmarkStorage().addValue(bookmark);
+        plotConfigurationHelper.getBookmarkStorage().putValue(new Bookmark(bookmark, new FDate()));
     }
 }

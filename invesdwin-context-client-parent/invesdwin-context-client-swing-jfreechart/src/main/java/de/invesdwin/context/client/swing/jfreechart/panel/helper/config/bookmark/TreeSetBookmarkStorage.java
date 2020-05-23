@@ -5,7 +5,6 @@ import java.util.List;
 import javax.annotation.concurrent.ThreadSafe;
 
 import de.invesdwin.util.collections.list.ListSet;
-import de.invesdwin.util.time.fdate.FDate;
 
 @ThreadSafe
 public class TreeSetBookmarkStorage implements IBookmarkStorage {
@@ -18,9 +17,9 @@ public class TreeSetBookmarkStorage implements IBookmarkStorage {
     }
 
     @Override
-    public void addValue(final Bookmark value) {
+    public void putValue(final Bookmark value) {
         bookmarks.remove(value);
-        bookmarks.add(0, new Bookmark(value, new FDate()));
+        bookmarks.add(0, value);
     }
 
     @Override

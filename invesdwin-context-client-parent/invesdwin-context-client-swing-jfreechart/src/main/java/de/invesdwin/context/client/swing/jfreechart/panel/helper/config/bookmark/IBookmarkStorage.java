@@ -6,7 +6,7 @@ public interface IBookmarkStorage {
 
     List<Bookmark> getValues();
 
-    void addValue(Bookmark value);
+    void putValue(Bookmark value);
 
     void removeValue(Bookmark value);
 
