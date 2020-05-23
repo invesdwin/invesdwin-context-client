@@ -7,28 +7,28 @@ import javax.annotation.concurrent.ThreadSafe;
 import de.invesdwin.util.collections.list.ListSet;
 
 @ThreadSafe
-public class TreeSetBookmarkStorage implements IBookmarkStorage {
+public class HeapBookmarkStorage implements IBookmarkStorage {
 
     private final ListSet<Bookmark> bookmarks = new ListSet<>();
 
     @Override
-    public List<Bookmark> getValues() {
+    public synchronized List<Bookmark> getValues() {
         return bookmarks;
     }
 
     @Override
-    public void putValue(final Bookmark value) {
+    public synchronized void putValue(final Bookmark value) {
         bookmarks.remove(value);
         bookmarks.add(0, value);
     }
 
     @Override
-    public void removeValue(final Bookmark value) {
+    public synchronized void removeValue(final Bookmark value) {
         bookmarks.remove(value);
     }
 
     @Override
-    public void clear() {
+    public synchronized void clear() {
         bookmarks.clear();
     }
 

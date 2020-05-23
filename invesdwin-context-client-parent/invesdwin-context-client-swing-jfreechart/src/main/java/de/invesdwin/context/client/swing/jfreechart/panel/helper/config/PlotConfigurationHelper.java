@@ -33,7 +33,7 @@ import de.invesdwin.context.client.swing.jfreechart.panel.basis.CustomChartTrans
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.bookmark.Bookmark;
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.bookmark.BookmarkMenuItem;
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.bookmark.IBookmarkStorage;
-import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.bookmark.TreeSetBookmarkStorage;
+import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.bookmark.HeapBookmarkStorage;
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.dialog.SettingsDialog;
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.series.AddSeriesDialog;
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.series.expression.IExpressionSeriesProvider;
@@ -73,7 +73,7 @@ public class PlotConfigurationHelper {
 
     private final Map<String, IIndicatorSeriesProvider> indicatorSeriesProviders = new TreeMap<>();
     private IExpressionSeriesProvider expressionSeriesProvider;
-    private IBookmarkStorage bookmarkStorage = new TreeSetBookmarkStorage();
+    private IBookmarkStorage bookmarkStorage = new HeapBookmarkStorage();
 
     public PlotConfigurationHelper(final InteractiveChartPanel chartPanel) {
         this.chartPanel = chartPanel;
