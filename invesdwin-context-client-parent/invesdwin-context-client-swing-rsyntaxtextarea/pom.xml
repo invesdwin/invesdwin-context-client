@@ -13,6 +13,10 @@
 			<groupId>de.invesdwin</groupId>
 			<artifactId>invesdwin-util</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>de.invesdwin</groupId>
+			<artifactId>invesdwin-aspects</artifactId>
+		</dependency>
 
 		<dependency>
 			<groupId>com.fifesoft</groupId>

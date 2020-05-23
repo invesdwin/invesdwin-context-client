@@ -1,6 +1,5 @@
 package de.invesdwin.context.client.swing.rsyntaxtextarea.expression;
 
-import java.awt.EventQueue;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -20,6 +19,7 @@ import org.fife.ui.rsyntaxtextarea.parser.DefaultParseResult;
 import org.fife.ui.rsyntaxtextarea.parser.DefaultParserNotice;
 import org.fife.ui.rsyntaxtextarea.parser.ParseResult;
 
+import de.invesdwin.aspects.EventDispatchThreadUtil;
 import de.invesdwin.util.concurrent.future.Futures;
 import de.invesdwin.util.error.Throwables;
 import de.invesdwin.util.lang.Objects;
@@ -145,9 +145,7 @@ public class ExpressionValidatingParser extends AbstractParser {
         futureResult.thenAccept(new Consumer<List<DefaultParserNotice>>() {
             @Override
             public void accept(final List<DefaultParserNotice> t) {
-                //CHECKSTYLE:OFF
-                EventQueue.invokeLater(new Runnable() {
-                    //CHECKSTYLE:OF
+                EventDispatchThreadUtil.invokeLater(new Runnable() {
                     @Override
                     public void run() {
                         parent.forceReparsing(ExpressionValidatingParser.this);

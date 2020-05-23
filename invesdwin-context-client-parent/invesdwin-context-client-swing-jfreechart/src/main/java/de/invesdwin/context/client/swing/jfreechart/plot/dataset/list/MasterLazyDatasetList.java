@@ -142,7 +142,14 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
     }
 
     @Override
-    public synchronized void reloadData() {
+    public void reloadData() {
+        final FDate from = getFirstLoadedItem().getEndTime();
+        final FDate to = getLastLoadedItem().getEndTime();
+        reloadData(from, to, null);
+    }
+
+    @Override
+    public synchronized void reloadData(final FDate from, final FDate to, final Runnable reloadDataFinished) {
         if (getData().isEmpty()) {
             return;
         }
@@ -152,13 +159,16 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
                 try {
                     chartPanel.incrementUpdatingCount(); //prevent flickering
                     try {
-                        reloadDataMaster();
+                        reloadDataMaster(from, to);
                         minLowerBound = 0;
                         maxUpperBound = getData().size() - 1;
                         if (!slaveDatasetListeners.isEmpty()) {
                             for (final ISlaveLazyDatasetListener slave : slaveDatasetListeners) {
                                 slave.loadIinitialItems(false);
                             }
+                        }
+                        if (reloadDataFinished != null) {
+                            reloadDataFinished.run();
                         }
                     } finally {
                         chartPanel.decrementUpdatingCount();
@@ -198,9 +208,8 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
         return syncTask;
     }
 
-    private void reloadDataMaster() {
-        final ICloseableIterable<? extends TimeRangedOHLCDataItem> initialValues = provider
-                .getValues(getFirstLoadedItem().getEndTime(), getLastLoadedItem().getEndTime());
+    private void reloadDataMaster(final FDate from, final FDate to) {
+        final ICloseableIterable<? extends TimeRangedOHLCDataItem> initialValues = provider.getValues(from, to);
         final List<MasterOHLCDataItem> data = newData();
         try (ICloseableIterator<? extends TimeRangedOHLCDataItem> it = initialValues.iterator()) {
             while (true) {

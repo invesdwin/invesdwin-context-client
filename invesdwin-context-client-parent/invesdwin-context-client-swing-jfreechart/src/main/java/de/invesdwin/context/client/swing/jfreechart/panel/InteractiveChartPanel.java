@@ -56,6 +56,7 @@ import de.invesdwin.util.swing.listener.MouseWheelListenerSupport;
 import de.invesdwin.util.time.duration.Duration;
 import de.invesdwin.util.time.fdate.FDate;
 import de.invesdwin.util.time.fdate.FTimeUnit;
+import de.invesdwin.util.time.range.TimeRange;
 
 // CHECKSTYLE:OFF
 @NotThreadSafe
@@ -288,6 +289,43 @@ public class InteractiveChartPanel extends JPanel {
             final IChartPanelAwareDatasetList cData = (IChartPanelAwareDatasetList) masterDataset.getData();
             cData.reloadData();
         }
+    }
+
+    public void reloadData(final TimeRange timeRange) {
+        if (timeRange == null) {
+            throw new NullPointerException("range should not be null");
+        }
+        if (timeRange.getFrom() == null) {
+            throw new NullPointerException("range.from should not be null");
+        }
+        if (timeRange.getTo() == null) {
+            throw new NullPointerException("range.to should not be null");
+        }
+        if (masterDataset.getData() instanceof IChartPanelAwareDatasetList) {
+            final IChartPanelAwareDatasetList cData = (IChartPanelAwareDatasetList) masterDataset.getData();
+            cData.reloadData(timeRange.getFrom(), timeRange.getTo(), new Runnable() {
+                @Override
+                public void run() {
+                    setTimeRange(timeRange);
+                }
+            });
+        } else {
+            setTimeRange(timeRange);
+        }
+    }
+
+    private void setTimeRange(final TimeRange timeRange) {
+        final int fromIndex = masterDataset.getDateTimeAsItemIndex(0, timeRange.getFrom());
+        final int toIndex = masterDataset.getDateTimeAsItemIndex(0, timeRange.getTo());
+        final int visibleItemCount = toIndex - fromIndex;
+        final int gap = chartPanel.getAllowedRangeGap(visibleItemCount);
+        final int lastItemIndex = masterDataset.getItemCount(0) - 1;
+        final int lowerBound = fromIndex;
+        final int upperBound = toIndex;
+        final int minLowerBound = -gap;
+        final int maxUpperBound = lastItemIndex + gap;
+        final Range range = new Range(Doubles.max(minLowerBound, lowerBound), Doubles.min(maxUpperBound, upperBound));
+        domainAxis.setRange(range);
     }
 
     public int getInitialVisibleItemCount() {
