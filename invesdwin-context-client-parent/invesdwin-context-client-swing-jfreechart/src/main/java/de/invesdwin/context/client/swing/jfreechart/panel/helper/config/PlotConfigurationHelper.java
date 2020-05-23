@@ -18,6 +18,7 @@ import java.util.TreeSet;
 
 import javax.annotation.concurrent.NotThreadSafe;
 import javax.swing.JFileChooser;
+import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.event.PopupMenuEvent;
@@ -28,6 +29,10 @@ import org.jfree.chart.plot.XYPlot;
 
 import de.invesdwin.context.client.swing.jfreechart.panel.InteractiveChartPanel;
 import de.invesdwin.context.client.swing.jfreechart.panel.basis.CustomChartTransferable;
+import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.bookmark.Bookmark;
+import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.bookmark.BookmarkMenuItem;
+import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.bookmark.IBookmarkStorage;
+import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.bookmark.TreeSetBookmarkStorage;
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.dialog.SettingsDialog;
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.series.AddSeriesDialog;
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.series.expression.IExpressionSeriesProvider;
@@ -37,6 +42,8 @@ import de.invesdwin.context.client.swing.jfreechart.plot.dataset.IPlotSourceData
 import de.invesdwin.util.lang.Strings;
 import de.invesdwin.util.swing.Dialogs;
 import de.invesdwin.util.swing.listener.PopupMenuListenerSupport;
+import de.invesdwin.util.time.fdate.FDate;
+import de.invesdwin.util.time.range.TimeRange;
 
 @NotThreadSafe
 public class PlotConfigurationHelper {
@@ -56,6 +63,10 @@ public class PlotConfigurationHelper {
     private JMenuItem showSeriesItem;
     private JMenuItem hideSeriesItem;
 
+    private JMenu bookmarksItem;
+    private JMenuItem bookmarksRecentlyUsedItem;
+    private JMenuItem bookmarksAddItem;
+
     private JMenuItem addSeriesItem;
     private JMenuItem copyToClipboardItem;
     private JMenuItem saveAsPNGItem;
@@ -63,6 +74,7 @@ public class PlotConfigurationHelper {
 
     private final Map<String, IIndicatorSeriesProvider> indicatorSeriesProviders = new TreeMap<>();
     private IExpressionSeriesProvider expressionSeriesProvider;
+    private IBookmarkStorage bookmarkStorage = new TreeSetBookmarkStorage();
 
     public PlotConfigurationHelper(final InteractiveChartPanel chartPanel) {
         this.chartPanel = chartPanel;
@@ -90,6 +102,7 @@ public class PlotConfigurationHelper {
 
         initSeriesVisibilityItems();
         initAddIndicatorItem();
+        initBookmarkItems();
         initExportItems();
         initHelpItem();
 
@@ -116,6 +129,7 @@ public class PlotConfigurationHelper {
                         popupMenu.add(addSeriesItem);
                         popupMenu.addSeparator();
                     }
+                    addBookmarksMenuItems();
                     popupMenu.add(copyToClipboardItem);
                     popupMenu.add(saveAsPNGItem);
                     popupMenu.addSeparator();
@@ -123,6 +137,50 @@ public class PlotConfigurationHelper {
                 }
 
                 chartPanel.getPlotNavigationHelper().mouseExited();
+            }
+
+            private void addBookmarksMenuItems() {
+                if (bookmarkStorage == null) {
+                    return;
+                }
+                updateBookmarksItems();
+                popupMenu.add(bookmarksItem);
+            }
+
+            private void updateBookmarksItems() {
+                bookmarksItem.removeAll();
+                final Collection<Bookmark> bookmarks = bookmarkStorage
+                        .getRecentlyUsedValues(BookmarkMenuItem.MAX_RECENTLY_USED);
+                final TimeRange visibleTimeRange = chartPanel.getVisibleTimeRange();
+                boolean visibleTimeRangeExists = false;
+                if (!bookmarks.isEmpty()) {
+                    bookmarksItem.add(bookmarksRecentlyUsedItem);
+                    for (final Bookmark bookmark : bookmarks) {
+                        final BookmarkMenuItem bookmarkItem = new BookmarkMenuItem(PlotConfigurationHelper.this,
+                                bookmark);
+                        final boolean highlight = visibleTimeRange != null && visibleTimeRange.equals(bookmark);
+                        if (highlight) {
+                            bookmarkItem.setHighlighted(highlight);
+                            visibleTimeRangeExists = true;
+                        }
+                        bookmarksItem.add(bookmarkItem);
+                    }
+                    bookmarksItem.addSeparator();
+                }
+                if (visibleTimeRange != null && !visibleTimeRangeExists) {
+                    bookmarksAddItem.setText("<html><b>Add:</b> " + visibleTimeRange);
+                    bookmarksItem.add(bookmarksAddItem);
+                }
+                if (!bookmarks.isEmpty()) {
+                    final JMenuItem bookmarksCancelItem = new JMenuItem("Cancel");
+                    bookmarksCancelItem.addActionListener(new ActionListener() {
+                        @Override
+                        public void actionPerformed(final ActionEvent e) {
+                            getChartPanel().setVisibleTimeRangeOrReloadData(visibleTimeRange);
+                        }
+                    });
+                    bookmarksItem.add(bookmarksCancelItem);
+                }
             }
 
             private void addSeriesConfigMenuItems() {
@@ -155,6 +213,23 @@ public class PlotConfigurationHelper {
             }
         });
 
+    }
+
+    private void initBookmarkItems() {
+        bookmarksItem = new JMenu("Bookmarks");
+        bookmarksRecentlyUsedItem = new JMenuItem("Recently Used:");
+        bookmarksRecentlyUsedItem.setEnabled(false);
+        bookmarksAddItem = new JMenuItem("Add");
+        bookmarksAddItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(final ActionEvent e) {
+                final TimeRange visibleTimeRange = chartPanel.getVisibleTimeRange();
+                if (visibleTimeRange != null) {
+                    bookmarkStorage.addValue(new Bookmark(visibleTimeRange, new FDate()));
+                }
+                chartPanel.setVisibleTimeRange(visibleTimeRange);
+            }
+        });
     }
 
     public SeriesInitialSettings getOrCreateSeriesInitialSettings(final HighlightedLegendInfo highlighted) {
@@ -371,6 +446,14 @@ public class PlotConfigurationHelper {
 
     public void setExpressionSeriesProvider(final IExpressionSeriesProvider expressionSeriesProvider) {
         this.expressionSeriesProvider = expressionSeriesProvider;
+    }
+
+    public void setBookmarkStorage(final IBookmarkStorage bookmarkStorage) {
+        this.bookmarkStorage = bookmarkStorage;
+    }
+
+    public IBookmarkStorage getBookmarkStorage() {
+        return bookmarkStorage;
     }
 
     public Set<String> getRangeAxisIds() {

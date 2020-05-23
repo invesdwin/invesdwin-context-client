@@ -39,6 +39,7 @@ import de.invesdwin.context.client.swing.jfreechart.plot.IndexedDateTimeNumberFo
 import de.invesdwin.context.client.swing.jfreechart.plot.XYPlots;
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.IndexedDateTimeOHLCDataset;
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.list.IChartPanelAwareDatasetList;
+import de.invesdwin.context.jfreechart.dataset.TimeRangedOHLCDataItem;
 import de.invesdwin.context.jfreechart.visitor.JFreeChartLocaleChanger;
 import de.invesdwin.context.log.error.Err;
 import de.invesdwin.util.assertions.Assertions;
@@ -48,6 +49,7 @@ import de.invesdwin.util.concurrent.lock.ILock;
 import de.invesdwin.util.concurrent.lock.Locks;
 import de.invesdwin.util.lang.finalizer.AFinalizer;
 import de.invesdwin.util.math.Doubles;
+import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.swing.Components;
 import de.invesdwin.util.swing.listener.KeyListenerSupport;
 import de.invesdwin.util.swing.listener.MouseListenerSupport;
@@ -292,29 +294,33 @@ public class InteractiveChartPanel extends JPanel {
     }
 
     public void reloadData(final TimeRange timeRange) {
-        if (timeRange == null) {
-            throw new NullPointerException("range should not be null");
-        }
-        if (timeRange.getFrom() == null) {
-            throw new NullPointerException("range.from should not be null");
-        }
-        if (timeRange.getTo() == null) {
-            throw new NullPointerException("range.to should not be null");
-        }
+        TimeRange.assertNotNull(timeRange);
         if (masterDataset.getData() instanceof IChartPanelAwareDatasetList) {
             final IChartPanelAwareDatasetList cData = (IChartPanelAwareDatasetList) masterDataset.getData();
             cData.reloadData(timeRange.getFrom(), timeRange.getTo(), new Runnable() {
                 @Override
                 public void run() {
-                    setTimeRange(timeRange);
+                    setVisibleTimeRange(timeRange);
                 }
             });
         } else {
-            setTimeRange(timeRange);
+            setVisibleTimeRange(timeRange);
         }
     }
 
-    private void setTimeRange(final TimeRange timeRange) {
+    public void setVisibleTimeRangeOrReloadData(final TimeRange timeRange) {
+        TimeRange.assertNotNull(timeRange);
+        final TimeRange available = getAvailableTimeRange();
+        if (available == null || available.getFrom().isAfterNotNullSafe(timeRange.getFrom())
+                || available.getTo().isBeforeNotNullSafe(timeRange.getTo())) {
+            reloadData(timeRange);
+        } else {
+            setVisibleTimeRange(timeRange);
+        }
+    }
+
+    public void setVisibleTimeRange(final TimeRange timeRange) {
+        TimeRange.assertNotNull(timeRange);
         final int fromIndex = masterDataset.getDateTimeAsItemIndex(0, timeRange.getFrom());
         final int toIndex = masterDataset.getDateTimeAsItemIndex(0, timeRange.getTo());
         final int visibleItemCount = toIndex - fromIndex;
@@ -326,6 +332,33 @@ public class InteractiveChartPanel extends JPanel {
         final int maxUpperBound = lastItemIndex + gap;
         final Range range = new Range(Doubles.max(minLowerBound, lowerBound), Doubles.min(maxUpperBound, upperBound));
         domainAxis.setRange(range);
+    }
+
+    public TimeRange getVisibleTimeRange() {
+        final IndexedDateTimeOHLCDataset masterDataset = getMasterDataset();
+        final Range range = getDomainAxis().getRange();
+        final List<? extends TimeRangedOHLCDataItem> data = masterDataset.getData();
+        if (data.isEmpty()) {
+            return null;
+        }
+        final int firstIndex = Integers.max(0, (int) range.getLowerBound());
+        final FDate from = data.get(firstIndex).getStartTime();
+        final int lastIndex = Integers.min((int) range.getUpperBound(), data.size() - 1);
+        final FDate to = data.get(lastIndex).getEndTime();
+        return new TimeRange(from, to);
+    }
+
+    public TimeRange getAvailableTimeRange() {
+        final IndexedDateTimeOHLCDataset masterDataset = getMasterDataset();
+        final List<? extends TimeRangedOHLCDataItem> data = masterDataset.getData();
+        if (data.isEmpty()) {
+            return null;
+        }
+        final int firstIndex = 0;
+        final FDate from = data.get(firstIndex).getStartTime();
+        final int lastIndex = data.size() - 1;
+        final FDate to = data.get(lastIndex).getEndTime();
+        return new TimeRange(from, to);
     }
 
     public int getInitialVisibleItemCount() {

@@ -193,6 +193,9 @@ public class LazyCandlestickDemo extends JFrame {
         if (Reflections.JAVA_VERSION < 12) {
             new SystemProperties().setInteger("jdk.gtk.version", 2);
         }
+        if (Reflections.JAVA_DEBUG_MODE) {
+            System.setProperty("sun.awt.disablegrab", "true");
+        }
         //CHECKSTYLE:ON
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
