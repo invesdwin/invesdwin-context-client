@@ -10,4 +10,6 @@ public interface IBookmarkStorage {
 
     void removeValue(Bookmark value);
 
+    void clear();
+
 }

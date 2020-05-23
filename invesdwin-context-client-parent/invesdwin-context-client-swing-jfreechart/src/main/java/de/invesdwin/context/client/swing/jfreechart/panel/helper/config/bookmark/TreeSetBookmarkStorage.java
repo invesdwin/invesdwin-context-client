@@ -28,4 +28,9 @@ public class TreeSetBookmarkStorage implements IBookmarkStorage {
         bookmarks.remove(value);
     }
 
+    @Override
+    public void clear() {
+        bookmarks.clear();
+    }
+
 }

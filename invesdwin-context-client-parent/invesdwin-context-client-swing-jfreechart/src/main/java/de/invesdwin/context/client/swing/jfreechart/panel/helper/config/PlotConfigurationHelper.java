@@ -65,7 +65,6 @@ public class PlotConfigurationHelper {
     private JMenuItem hideSeriesItem;
 
     private JMenu bookmarksItem;
-    private JMenuItem bookmarksRememberItem;
 
     private JMenuItem addSeriesItem;
     private JMenuItem copyToClipboardItem;
@@ -125,11 +124,19 @@ public class PlotConfigurationHelper {
                         addSeriesConfigMenuItems();
                     }
                 } else {
+                    boolean addSeparator = false;
                     if (!indicatorSeriesProviders.isEmpty() || expressionSeriesProvider != null) {
                         popupMenu.add(addSeriesItem);
+                        addSeparator = true;
+                    }
+                    if (bookmarkStorage != null) {
+                        updateBookmarksItems();
+                        popupMenu.add(bookmarksItem);
+                        addSeparator = true;
+                    }
+                    if (addSeparator) {
                         popupMenu.addSeparator();
                     }
-                    addBookmarksMenuItems();
                     popupMenu.add(copyToClipboardItem);
                     popupMenu.add(saveAsPNGItem);
                     popupMenu.addSeparator();
@@ -137,14 +144,6 @@ public class PlotConfigurationHelper {
                 }
 
                 chartPanel.getPlotNavigationHelper().mouseExited();
-            }
-
-            private void addBookmarksMenuItems() {
-                if (bookmarkStorage == null) {
-                    return;
-                }
-                updateBookmarksItems();
-                popupMenu.add(bookmarksItem);
             }
 
             private void updateBookmarksItems() {
@@ -166,10 +165,26 @@ public class PlotConfigurationHelper {
                     bookmarksItem.addSeparator();
                 }
                 if (visibleTimeRange != null && !visibleTimeRangeExists) {
-                    bookmarksRememberItem.setText("<html>Remember: <b>" + visibleTimeRange + "</b>");
+                    final JMenuItem bookmarksRememberItem = new JMenuItem(
+                            "<html>Remember: <b>" + visibleTimeRange + "</b>");
+                    bookmarksRememberItem.addActionListener(new ActionListener() {
+                        @Override
+                        public void actionPerformed(final ActionEvent e) {
+                            bookmarkStorage.addValue(new Bookmark(visibleTimeRange, new FDate()));
+                            chartPanel.setVisibleTimeRange(visibleTimeRange);
+                        }
+                    });
                     bookmarksItem.add(bookmarksRememberItem);
                 }
                 if (!bookmarks.isEmpty()) {
+                    final JMenuItem bookmarksRemoveAllItem = new JMenuItem("Remove All");
+                    bookmarksRemoveAllItem.addActionListener(new ActionListener() {
+                        @Override
+                        public void actionPerformed(final ActionEvent e) {
+                            bookmarkStorage.clear();
+                        }
+                    });
+                    bookmarksItem.add(bookmarksRemoveAllItem);
                     final JMenuItem bookmarksCancelItem = new JMenuItem("Cancel");
                     bookmarksCancelItem.addActionListener(new ActionListener() {
                         @Override
@@ -230,17 +245,6 @@ public class PlotConfigurationHelper {
 
     private void initBookmarkItems() {
         bookmarksItem = new JMenu("Bookmarks");
-        bookmarksRememberItem = new JMenuItem("Remember");
-        bookmarksRememberItem.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(final ActionEvent e) {
-                final TimeRange visibleTimeRange = chartPanel.getVisibleTimeRange();
-                if (visibleTimeRange != null) {
-                    bookmarkStorage.addValue(new Bookmark(visibleTimeRange, new FDate()));
-                }
-                chartPanel.setVisibleTimeRange(visibleTimeRange);
-            }
-        });
     }
 
     public SeriesInitialSettings getOrCreateSeriesInitialSettings(final HighlightedLegendInfo highlighted) {
@@ -376,6 +380,11 @@ public class PlotConfigurationHelper {
                     sb.append(
                             "<li><b>Add Series</b>: Right clicking anywhere also allows you to add indicators or expressions as new series to the chart. "
                                     + "<br>The series settings context menu will also allow you to modify its calculation settings.</li>");
+                }
+
+                if (getBookmarkStorage() != null) {
+                    sb.append(
+                            "<li><b>Bookmarks</b>: Right clicking anywhere makes bookmarked ranges visible. They are shown is descending order by last usage.</li>");
                 }
 
                 sb.append("</ul>");
