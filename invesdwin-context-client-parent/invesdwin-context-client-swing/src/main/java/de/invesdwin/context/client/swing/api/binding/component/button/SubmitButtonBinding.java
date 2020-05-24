@@ -45,7 +45,13 @@ public class SubmitButtonBinding implements IComponentBinding {
         component.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(final ActionEvent e) {
-                submitRunnable.run();
+                final boolean registerSubmitButtonRunning = bindingGroup.registerSubmitButtonRunning();
+                try {
+                    submitRunnable.run();
+                } finally {
+                    bindingGroup.unregisterSubmitButtonRunning(registerSubmitButtonRunning);
+                }
+
             }
         });
         this.originalBorder = component.getBorder();

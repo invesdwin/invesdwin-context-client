@@ -53,6 +53,7 @@ public class BindingGroup implements IComponentBinding {
     private String invalidMessage = null;
     private SubmitButtonBinding defaultCloseOperation;
     private RootTitleBinding rootTitleBinding;
+    private volatile boolean submitButtonRunning;
 
     public BindingGroup(final AView<?, ?> view, final BeanObjectContext modelContext,
             final ISubmitButtonExceptionHandler submitButtonExceptionHandler) {
@@ -239,6 +240,20 @@ public class BindingGroup implements IComponentBinding {
 
     public RootTitleBinding getRootTitleBinding() {
         return rootTitleBinding;
+    }
+
+    public boolean registerSubmitButtonRunning() {
+        final boolean submitButtonRunningBefore = submitButtonRunning;
+        submitButtonRunning = true;
+        return submitButtonRunningBefore;
+    }
+
+    public void unregisterSubmitButtonRunning(final boolean registerSubmitButtonRunning) {
+        submitButtonRunning = registerSubmitButtonRunning;
+    }
+
+    public boolean isSubmitButtonRunning() {
+        return submitButtonRunning;
     }
 
 }
