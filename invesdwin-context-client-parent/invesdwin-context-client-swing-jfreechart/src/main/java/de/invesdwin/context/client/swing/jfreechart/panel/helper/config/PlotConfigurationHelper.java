@@ -32,8 +32,8 @@ import de.invesdwin.context.client.swing.jfreechart.panel.InteractiveChartPanel;
 import de.invesdwin.context.client.swing.jfreechart.panel.basis.CustomChartTransferable;
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.bookmark.Bookmark;
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.bookmark.BookmarkMenuItem;
-import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.bookmark.IBookmarkStorage;
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.bookmark.HeapBookmarkStorage;
+import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.bookmark.IBookmarkStorage;
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.dialog.SettingsDialog;
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.series.AddSeriesDialog;
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.series.expression.IExpressionSeriesProvider;
@@ -192,7 +192,7 @@ public class PlotConfigurationHelper {
                             for (final Component component : bookmarksItem.getMenuComponents()) {
                                 if (component instanceof BookmarkMenuItem) {
                                     final BookmarkMenuItem cComponent = (BookmarkMenuItem) component;
-                                    cComponent.setPending(false);
+                                    cComponent.setPendingRestore(false);
                                 }
                             }
                             getChartPanel().setVisibleTimeRangeOrReloadData(visibleTimeRange);
@@ -230,14 +230,7 @@ public class PlotConfigurationHelper {
                 //only the first popup should have the crosshair visible
                 chartPanel.mouseExited();
 
-                for (final Component component : bookmarksItem.getMenuComponents()) {
-                    if (component instanceof BookmarkMenuItem) {
-                        final BookmarkMenuItem cComponent = (BookmarkMenuItem) component;
-                        if (cComponent.isPending()) {
-                            cComponent.updateLastUsed();
-                        }
-                    }
-                }
+                BookmarkMenuItem.runPendingActionsRecursive(bookmarksItem, true);
             }
         });
 
@@ -383,8 +376,10 @@ public class PlotConfigurationHelper {
                 }
 
                 if (getBookmarkStorage() != null) {
-                    sb.append(
-                            "<li><b>Bookmarks</b>: Right clicking anywhere makes bookmarked ranges visible. They are shown is descending order by last usage.</li>");
+                    sb.append("<li><b>Bookmarks</b>: Right clicking anywhere makes bookmarked ranges visible. "
+                            + "They are shown in descending order by last usage."
+                            + "<br>The current range is shown in <b>bold</b>. Left click a range to preview the *restoral, middle click to mark it for <strike>removal</strike>."
+                            + "<br>Click on cancel to undo. Click anywhere else or one of the explicit restore/remove buttons to confirm your changes.</li>");
                 }
 
                 sb.append("</ul>");

@@ -21,7 +21,8 @@ public class BookmarkMenuItem extends JMenu {
     private final Bookmark bookmark;
     private final String label;
     private boolean highlighted;
-    private boolean pending;
+    private boolean pendingRestore;
+    private boolean pendingRemove;
 
     public BookmarkMenuItem(final PlotConfigurationHelper plotConfigurationHelper, final Bookmark bookmark) {
         this.plotConfigurationHelper = plotConfigurationHelper;
@@ -37,8 +38,10 @@ public class BookmarkMenuItem extends JMenu {
             public void mouseClicked(final MouseEvent e) {
                 if (e.getButton() == MouseEvent.BUTTON1) {
                     plotConfigurationHelper.getChartPanel().setVisibleTimeRangeOrReloadData(bookmark);
-                    resetPendingRecursive(getParent());
-                    setPending(true);
+                    resetPendingRestoreRecursive(getParent());
+                    setPendingRestore(true);
+                } else if (e.getButton() == MouseEvent.BUTTON2) {
+                    setPendingRemove(!isPendingRemove());
                 }
             }
 
@@ -49,6 +52,7 @@ public class BookmarkMenuItem extends JMenu {
             public void actionPerformed(final ActionEvent e) {
                 plotConfigurationHelper.getChartPanel().setVisibleTimeRangeOrReloadData(bookmark);
                 updateLastUsed();
+                runPendingActionsRecursive(getParent(), false);
             }
         });
         add(bookmarkRestoreItem);
@@ -56,25 +60,14 @@ public class BookmarkMenuItem extends JMenu {
         bookmarkRemoveItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(final ActionEvent e) {
-                plotConfigurationHelper.getBookmarkStorage().removeValue(bookmark);
+                setPendingRemove(true);
+                runPendingActionsRecursive(getParent(), false);
             }
         });
         add(bookmarkRemoveItem);
         final JMenuItem bookmarkLastUsedItem = new JMenuItem("Last Used: " + bookmark.getLastUsed().toString());
         bookmarkLastUsedItem.setEnabled(false);
         add(bookmarkLastUsedItem);
-    }
-
-    private void resetPendingRecursive(final Container root) {
-        for (final Component component : root.getComponents()) {
-            if (component instanceof BookmarkMenuItem) {
-                final BookmarkMenuItem cComponent = (BookmarkMenuItem) component;
-                cComponent.setPending(false);
-            } else if (component instanceof Container) {
-                final Container cComponent = (Container) component;
-                resetPendingRecursive(cComponent);
-            }
-        }
     }
 
     public void setHighlighted(final boolean highlighted) {
@@ -86,30 +79,98 @@ public class BookmarkMenuItem extends JMenu {
         return highlighted;
     }
 
-    public void setPending(final boolean pending) {
-        this.pending = pending;
+    public void setPendingRestore(final boolean pending) {
+        this.pendingRestore = pending;
         updateLabel();
     }
 
-    public boolean isPending() {
-        return pending;
+    public boolean isPendingRestore() {
+        return pendingRestore;
+    }
+
+    public void setPendingRemove(final boolean pendingRemove) {
+        this.pendingRemove = pendingRemove;
+        updateLabel();
+    }
+
+    public boolean isPendingRemove() {
+        return pendingRemove;
     }
 
     private void updateLabel() {
-        final String usedLabel;
-        if (pending) {
-            usedLabel = "*" + label;
-        } else {
-            usedLabel = label;
+        final StringBuilder sb = new StringBuilder("<html>");
+        if (pendingRestore) {
+            sb.append("*");
         }
         if (highlighted) {
-            setText("<html><b>" + usedLabel + "</b>");
-        } else {
-            setText(usedLabel);
+            sb.append("<b>");
         }
+        if (pendingRemove) {
+            sb.append("<strike>");
+        }
+        sb.append(label);
+        if (pendingRemove) {
+            sb.append("</strike>");
+        }
+        if (highlighted) {
+            sb.append("</b>");
+        }
+        setText(sb.toString());
     }
 
     public void updateLastUsed() {
         plotConfigurationHelper.getBookmarkStorage().putValue(new Bookmark(bookmark, new FDate()));
+    }
+
+    public void remove() {
+        plotConfigurationHelper.getBookmarkStorage().removeValue(bookmark);
+    }
+
+    public static void runPendingActionsRecursive(final Container root, final boolean allowRestore) {
+        final Component[] components = root.getComponents();
+        runPendingActionsRecursive(components, allowRestore);
+        if (root instanceof JMenu) {
+            final JMenu cRoot = (JMenu) root;
+            final Component[] menuComponents = cRoot.getMenuComponents();
+            runPendingActionsRecursive(menuComponents, allowRestore);
+        }
+    }
+
+    private static void runPendingActionsRecursive(final Component[] components, final boolean allowRestore) {
+        for (final Component component : components) {
+            if (component instanceof BookmarkMenuItem) {
+                final BookmarkMenuItem cComponent = (BookmarkMenuItem) component;
+                if (cComponent.isPendingRemove()) {
+                    cComponent.remove();
+                } else if (cComponent.isPendingRestore()) {
+                    cComponent.updateLastUsed();
+                }
+            } else if (component instanceof Container) {
+                final Container cComponent = (Container) component;
+                runPendingActionsRecursive(cComponent, allowRestore);
+            }
+        }
+    }
+
+    private static void resetPendingRestoreRecursive(final Container root) {
+        final Component[] components = root.getComponents();
+        resetPendingRestoreRecursive(components);
+        if (root instanceof JMenu) {
+            final JMenu cRoot = (JMenu) root;
+            final Component[] menuComponents = cRoot.getMenuComponents();
+            resetPendingRestoreRecursive(menuComponents);
+        }
+    }
+
+    private static void resetPendingRestoreRecursive(final Component[] components) {
+        for (final Component component : components) {
+            if (component instanceof BookmarkMenuItem) {
+                final BookmarkMenuItem cComponent = (BookmarkMenuItem) component;
+                cComponent.setPendingRestore(false);
+            } else if (component instanceof Container) {
+                final Container cComponent = (Container) component;
+                resetPendingRestoreRecursive(cComponent);
+            }
+        }
     }
 }
