@@ -32,6 +32,7 @@ import de.invesdwin.util.time.range.TimeRange;
 @ThreadSafe
 public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> implements IChartPanelAwareDatasetList {
 
+    private static final int RELOAD_TRAILING_ITEM_COUNT = 100;
     private static final int STEP_ITEM_COUNT_MULTIPLIER = 10;
     private static final int PRELOAD_RANGE_MULTIPLIER = 2;
     /*
@@ -212,6 +213,17 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
         final ICloseableIterable<? extends TimeRangedOHLCDataItem> initialValues = provider.getValues(from, to);
         final List<MasterOHLCDataItem> data = newData();
         try (ICloseableIterator<? extends TimeRangedOHLCDataItem> it = initialValues.iterator()) {
+            while (true) {
+                final TimeRangedOHLCDataItem next = it.next();
+                data.add(new MasterOHLCDataItem(next));
+            }
+        } catch (final NoSuchElementException e) {
+            //end reached
+        }
+        //append a few more so that trailing is not detected wrong
+        final ICloseableIterable<? extends TimeRangedOHLCDataItem> nextValues = provider
+                .getNextValues(to.addMilliseconds(1), RELOAD_TRAILING_ITEM_COUNT);
+        try (ICloseableIterator<? extends TimeRangedOHLCDataItem> it = nextValues.iterator()) {
             while (true) {
                 final TimeRangedOHLCDataItem next = it.next();
                 data.add(new MasterOHLCDataItem(next));

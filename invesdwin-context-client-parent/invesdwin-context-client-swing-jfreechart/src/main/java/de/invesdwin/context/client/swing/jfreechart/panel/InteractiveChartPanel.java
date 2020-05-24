@@ -323,13 +323,11 @@ public class InteractiveChartPanel extends JPanel {
         TimeRange.assertNotNull(timeRange);
         final int fromIndex = masterDataset.getDateTimeAsItemIndex(0, timeRange.getFrom());
         final int toIndex = masterDataset.getDateTimeAsItemIndex(0, timeRange.getTo());
-        final int visibleItemCount = toIndex - fromIndex;
-        final int gap = chartPanel.getAllowedRangeGap(visibleItemCount);
         final int lastItemIndex = masterDataset.getItemCount(0) - 1;
         final int lowerBound = fromIndex;
         final int upperBound = toIndex;
-        final int minLowerBound = -gap;
-        final int maxUpperBound = lastItemIndex + gap;
+        final int minLowerBound = 0;
+        final int maxUpperBound = lastItemIndex;
         final Range range = new Range(Doubles.max(minLowerBound, lowerBound), Doubles.min(maxUpperBound, upperBound));
         domainAxis.setRange(range);
     }
