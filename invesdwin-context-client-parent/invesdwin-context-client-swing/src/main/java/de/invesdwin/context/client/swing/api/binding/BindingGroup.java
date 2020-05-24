@@ -73,6 +73,10 @@ public class BindingGroup implements IComponentBinding {
         return modelContext;
     }
 
+    public List<IComponentBinding> getBindings(final String beanPath) {
+        return beanPath_binding.get(beanPath);
+    }
+
     public void addBinding(final IComponentBinding binding) {
         beanPath_binding.get(binding.getBeanPath()).add(binding);
         bindings.add(binding);
