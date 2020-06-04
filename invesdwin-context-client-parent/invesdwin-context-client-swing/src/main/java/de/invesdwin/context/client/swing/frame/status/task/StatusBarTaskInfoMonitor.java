@@ -81,15 +81,13 @@ public class StatusBarTaskInfoMonitor implements IRichApplicationHook, ITaskInfo
             boolean removed = false;
             try {
                 while (!Threads.isInterrupted()) {
-                    TaskInfo taskInfo = TaskInfoManager.getTaskInfo(name);
-                    if (taskInfo == null) {
-                        synchronized (TaskInfoManager.class) {
-                            taskInfo = TaskInfoManager.getTaskInfo(name);
-                            if (taskInfo == null) {
-                                name_task.remove(name);
-                                removed = true;
-                                break;
-                            }
+                    final TaskInfo taskInfo;
+                    synchronized (TaskInfoManager.class) {
+                        taskInfo = TaskInfoManager.getTaskInfo(name);
+                        if (taskInfo == null) {
+                            name_task.remove(name);
+                            removed = true;
+                            break;
                         }
                     }
                     updateProgress(taskInfo);
