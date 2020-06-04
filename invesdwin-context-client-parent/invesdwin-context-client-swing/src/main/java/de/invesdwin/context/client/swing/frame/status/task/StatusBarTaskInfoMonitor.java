@@ -53,10 +53,10 @@ public class StatusBarTaskInfoMonitor implements IRichApplicationHook, ITaskInfo
 
     @Override
     public void onTaskInfoAdded(final String name) {
-        synchronized (name_task) {
-            if (!name_task.containsKey(name)) {
-                final ATask<Object, Object> task = new TaskInfoTask(DelegateRichApplication.getInstance(), name);
-                name_task.put(name, task);
+        if (!name_task.containsKey(name)) {
+            final ATask<Object, Object> task = new TaskInfoTask(DelegateRichApplication.getInstance(), name);
+            final ATask<?, ?> existing = name_task.putIfAbsent(name, task);
+            if (existing == null) {
                 taskService.execute(task);
             }
         }
@@ -83,7 +83,7 @@ public class StatusBarTaskInfoMonitor implements IRichApplicationHook, ITaskInfo
                 while (!Threads.isInterrupted()) {
                     TaskInfo taskInfo = TaskInfoManager.getTaskInfo(name);
                     if (taskInfo == null) {
-                        synchronized (name_task) {
+                        synchronized (TaskInfoManager.class) {
                             taskInfo = TaskInfoManager.getTaskInfo(name);
                             if (taskInfo == null) {
                                 name_task.remove(name);
