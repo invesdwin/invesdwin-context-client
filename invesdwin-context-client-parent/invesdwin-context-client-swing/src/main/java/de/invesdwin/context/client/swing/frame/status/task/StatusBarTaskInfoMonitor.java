@@ -112,7 +112,7 @@ public class StatusBarTaskInfoMonitor implements IRichApplicationHook, ITaskInfo
     }
 
     @Override
-    public void onTaskInfoRemoved(final String name) {
+    public synchronized void onTaskInfoRemoved(final String name) {
         final ATask<?, ?> task = name_task.remove(name);
         if (task != null) {
             task.cancel(true);
