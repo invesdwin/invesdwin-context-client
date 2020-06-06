@@ -37,6 +37,7 @@ import de.invesdwin.util.swing.listener.WindowListenerSupport;
 public final class GuiExceptionHandler implements IErrHook {
 
     public static final GuiExceptionHandler INSTANCE = new GuiExceptionHandler();
+    private static final int MAX_PREVIEW_MESSAGE_LENGTH = 1500;
     private static final int MAX_EXCEPTIONS_SHOWING = 1;
     private static final AtomicInteger ALREADY_SHOWING_COUNT = new AtomicInteger(0);
     private final Set<IGuiExceptionHandlerHook> hooks = Collections
@@ -81,8 +82,8 @@ public final class GuiExceptionHandler implements IErrHook {
                 GuiService.i18n(resourceMap, "errorInfo.text", "An unexpected error occured. Please contact support."));
         basicErrorMessage.append("<br>");
         basicErrorMessage.append("<br><b>");
-        basicErrorMessage.append(
-                Components.getDefaultToolTipFormatter().format(Throwables.concatMessages(exc).replace("\n", "<br>")));
+        basicErrorMessage.append(Components.getDefaultToolTipFormatter()
+                .format(limitLength(Throwables.concatMessages(exc)).replace("\n", "<br>")));
         basicErrorMessage.append("</b>");
 
         /*
@@ -119,6 +120,14 @@ public final class GuiExceptionHandler implements IErrHook {
             ALREADY_SHOWING_COUNT.decrementAndGet();
         }
         return ImmutableFuture.of(null);
+    }
+
+    private String limitLength(final String message) {
+        if (message.length() > MAX_PREVIEW_MESSAGE_LENGTH) {
+            return message.substring(0, MAX_PREVIEW_MESSAGE_LENGTH) + " ...";
+        } else {
+            return message;
+        }
     }
 
     private ResourceMap getResourceMap() {
