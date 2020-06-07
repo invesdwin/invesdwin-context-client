@@ -28,6 +28,7 @@ import de.invesdwin.context.log.error.hook.IErrHook;
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.concurrent.future.ImmutableFuture;
 import de.invesdwin.util.error.Throwables;
+import de.invesdwin.util.lang.description.HtmlToPlainText;
 import de.invesdwin.util.shutdown.ShutdownHookManager;
 import de.invesdwin.util.swing.Components;
 import de.invesdwin.util.swing.Dialogs;
@@ -83,7 +84,7 @@ public final class GuiExceptionHandler implements IErrHook {
         basicErrorMessage.append("<br>");
         basicErrorMessage.append("<br><b>");
         basicErrorMessage.append(Components.getDefaultToolTipFormatter()
-                .format(limitLength(Throwables.concatMessages(exc)).replace("\n", "<br>")));
+                .format(shortenMessage(Throwables.concatMessages(exc)).replace("\n", "<br>")));
         basicErrorMessage.append("</b>");
 
         /*
@@ -122,11 +123,12 @@ public final class GuiExceptionHandler implements IErrHook {
         return ImmutableFuture.of(null);
     }
 
-    private String limitLength(final String message) {
-        if (message.length() > MAX_PREVIEW_MESSAGE_LENGTH) {
-            return message.substring(0, MAX_PREVIEW_MESSAGE_LENGTH) + " ...";
+    private String shortenMessage(final String message) {
+        final String text = HtmlToPlainText.htmlToPlainText(message);
+        if (text.length() > MAX_PREVIEW_MESSAGE_LENGTH) {
+            return text.substring(0, MAX_PREVIEW_MESSAGE_LENGTH) + " ...";
         } else {
-            return message;
+            return text;
         }
     }
 
