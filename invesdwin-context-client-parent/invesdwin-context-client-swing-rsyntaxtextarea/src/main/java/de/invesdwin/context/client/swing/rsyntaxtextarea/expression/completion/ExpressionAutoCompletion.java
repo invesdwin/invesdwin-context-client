@@ -64,24 +64,27 @@ public class ExpressionAutoCompletion extends AutoCompletion {
         // A return value of null => don't suggest completions
         final String text = getCompletionProvider().getAlreadyEnteredText(getTextComponent());
         if (text == null) {
-            return getLineOfCaret();
+            return getLineOfCaretDuplicate();
         }
 
         final List<Completion> completions = getCompletionProvider().getCompletions(getTextComponent());
         if (completions == null) {
-            return getLineOfCaret();
+            return getLineOfCaretDuplicate();
         }
         for (final Completion completion : completions) {
             if (text.equalsIgnoreCase(completion.getReplacementText())) {
                 hidePopupWindow();
-                return getLineOfCaret();
+                return getLineOfCaretDuplicate();
             }
         }
 
         return super.refreshPopupWindow();
     }
 
-    private int getLineOfCaret() {
+    /**
+     * inherited method is private, thus need to use a suffixed name for not to get warnings
+     */
+    private int getLineOfCaretDuplicate() {
         final Document doc = getTextComponent().getDocument();
         final Element root = doc.getDefaultRootElement();
         return root.getElementIndex(getTextComponent().getCaretPosition());
