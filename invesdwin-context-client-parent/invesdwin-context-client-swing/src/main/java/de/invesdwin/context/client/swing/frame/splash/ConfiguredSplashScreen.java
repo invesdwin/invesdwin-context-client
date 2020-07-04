@@ -16,7 +16,7 @@ import de.invesdwin.aspects.EventDispatchThreadUtil;
 import de.invesdwin.context.beans.init.MergedContext;
 import de.invesdwin.context.client.swing.frame.RichApplicationProperties;
 import de.invesdwin.context.client.swing.frame.app.DelegateRichApplication;
-import de.invesdwin.util.lang.Reflections;
+import de.invesdwin.util.lang.reflection.Reflections;
 
 @NotThreadSafe
 public final class ConfiguredSplashScreen implements SplashScreen, FactoryBean<ConfiguredSplashScreen> {

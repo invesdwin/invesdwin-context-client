@@ -13,7 +13,7 @@ import de.invesdwin.instrument.DynamicInstrumentationProperties;
 import de.invesdwin.instrument.DynamicInstrumentationReflections;
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.lang.Files;
-import de.invesdwin.util.lang.Reflections;
+import de.invesdwin.util.lang.reflection.Reflections;
 
 /**
  * https://github.com/jendap/multiplatform-swt

@@ -25,7 +25,7 @@ import de.invesdwin.norva.beanpath.BeanPathObjects;
 import de.invesdwin.norva.beanpath.annotation.Title;
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.lang.Objects;
-import de.invesdwin.util.lang.Reflections;
+import de.invesdwin.util.lang.reflection.Reflections;
 import de.invesdwin.util.swing.Components;
 
 /**

@@ -28,7 +28,7 @@ import de.invesdwin.context.client.swing.frame.app.DelegateRichApplication;
 import de.invesdwin.context.log.Log;
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.error.Throwables;
-import de.invesdwin.util.lang.Reflections;
+import de.invesdwin.util.lang.reflection.Reflections;
 
 @ThreadSafe
 public final class RichApplicationProperties {

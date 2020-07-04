@@ -35,7 +35,7 @@ import de.invesdwin.context.client.swing.frame.splash.ConfiguredSplashScreen;
 import de.invesdwin.context.client.swing.util.ComponentStandardizer;
 import de.invesdwin.context.log.error.Err;
 import de.invesdwin.util.assertions.Assertions;
-import de.invesdwin.util.lang.Reflections;
+import de.invesdwin.util.lang.reflection.Reflections;
 import de.invesdwin.util.swing.Dialogs;
 import de.invesdwin.util.swing.Frames;
 import de.invesdwin.util.time.duration.Duration;
