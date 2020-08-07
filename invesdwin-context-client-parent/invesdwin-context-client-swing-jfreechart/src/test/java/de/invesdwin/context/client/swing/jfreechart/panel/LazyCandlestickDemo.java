@@ -82,7 +82,7 @@ public class LazyCandlestickDemo extends JFrame {
         dataItemsCache = new AIterableGapHistoricalCache<TimeRangedOHLCDataItem>() {
 
             @Override
-            protected FDate innerExtractKey(final FDate key, final TimeRangedOHLCDataItem value) {
+            protected FDate innerExtractKey(final TimeRangedOHLCDataItem value) {
                 return value.getStartTime();
             }
 
