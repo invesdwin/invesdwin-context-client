@@ -6,6 +6,7 @@ import javax.inject.Named;
 
 import org.jdesktop.application.Application;
 import org.jdesktop.application.SingleFrameApplication;
+import org.jdesktop.application.Task;
 
 import de.invesdwin.context.client.swing.api.guiservice.ContentPane;
 import de.invesdwin.context.client.swing.api.guiservice.GuiService;
@@ -44,7 +45,9 @@ public class RichApplicationStub extends StubSupport {
         }
         statusBar.reset();
         contentPane.reset();
-        GuiService.get().getTaskService().shutdownNow();
+        for (final Task<?, ?> task : GuiService.get().getTaskService().getTasks()) {
+            task.cancel(true);
+        }
         RichApplicationProperties.reset();
     }
 
