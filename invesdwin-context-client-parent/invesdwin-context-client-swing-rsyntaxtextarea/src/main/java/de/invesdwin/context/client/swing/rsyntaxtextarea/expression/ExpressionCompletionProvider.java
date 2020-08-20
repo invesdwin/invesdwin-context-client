@@ -56,7 +56,7 @@ public class ExpressionCompletionProvider extends DefaultCompletionProvider {
                 if (existing == null) {
                     final String aliasedReference = expressionName;
                     final AliasedVariableCompletion c = newVariable(expressionName, name, v.getDescription(),
-                            v.getType().toString(), aliasedReference);
+                            v.getReturnType().toString(), aliasedReference);
                     name_completion.put(name, c);
                 } else {
                     existing.getAliases().add(expressionName);

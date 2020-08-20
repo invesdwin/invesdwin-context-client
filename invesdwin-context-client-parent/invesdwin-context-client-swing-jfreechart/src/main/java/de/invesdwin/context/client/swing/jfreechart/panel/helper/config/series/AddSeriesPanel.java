@@ -32,8 +32,8 @@ import de.invesdwin.util.math.expression.AExpressionVisitor;
 import de.invesdwin.util.math.expression.ExpressionVisitorSupport;
 import de.invesdwin.util.math.expression.IExpression;
 import de.invesdwin.util.math.expression.eval.IParsedExpression;
-import de.invesdwin.util.math.expression.eval.operation.BinaryOperation;
-import de.invesdwin.util.math.expression.eval.operation.BinaryOperation.Op;
+import de.invesdwin.util.math.expression.eval.operation.IBinaryOperation;
+import de.invesdwin.util.math.expression.eval.operation.Op;
 import de.invesdwin.util.swing.Components;
 import de.invesdwin.util.swing.Dialogs;
 import de.invesdwin.util.swing.listener.DocumentListenerSupport;
@@ -167,7 +167,7 @@ public class AddSeriesPanel extends JPanel {
                     }
 
                     @Override
-                    protected boolean visitMath(final BinaryOperation expression) {
+                    protected boolean visitMath(final IBinaryOperation expression) {
                         final String rangeAxisIdPrefix = "";
                         final SeriesRendererType seriesType;
                         if (expression.getOp() == Op.NOT) {
@@ -180,7 +180,7 @@ public class AddSeriesPanel extends JPanel {
                     }
 
                     @Override
-                    protected boolean visitComparison(final BinaryOperation expression) {
+                    protected boolean visitComparison(final IBinaryOperation expression) {
                         final String plotPaneId = provider.getPlotPaneId(expression);
                         final String rangeAxisIdPrefixLeftRight = "X: ";
                         final IParsedExpression left = expression.getLeft();
@@ -195,7 +195,7 @@ public class AddSeriesPanel extends JPanel {
                     }
 
                     @Override
-                    protected boolean visitLogicalCombination(final BinaryOperation expression) {
+                    protected boolean visitLogicalCombination(final IBinaryOperation expression) {
                         originalRendererType.set(SeriesRendererType.Step);
                         return true;
                     }
@@ -310,7 +310,7 @@ public class AddSeriesPanel extends JPanel {
                         SeriesRendererType.Line);
                 final AExpressionVisitor visitor = new ExpressionVisitorSupport() {
                     @Override
-                    protected boolean visitLogicalCombination(final BinaryOperation expression) {
+                    protected boolean visitLogicalCombination(final IBinaryOperation expression) {
                         rendererType.set(SeriesRendererType.Step);
                         return false;
                     }

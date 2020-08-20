@@ -59,6 +59,7 @@ import de.invesdwin.util.error.UnknownArgumentException;
 import de.invesdwin.util.lang.UniqueNameGenerator;
 import de.invesdwin.util.lang.reflection.Reflections;
 import de.invesdwin.util.math.expression.ExpressionParser;
+import de.invesdwin.util.math.expression.ExpressionType;
 import de.invesdwin.util.math.expression.IExpression;
 import de.invesdwin.util.math.expression.eval.BooleanExpression;
 import de.invesdwin.util.math.expression.eval.ConstantExpression;
@@ -486,7 +487,7 @@ public class LazyCandlestickDemo extends JFrame {
 
                 @Override
                 public IExpression getDefaultValue() {
-                    return new ConstantExpression(0);
+                    return new ConstantExpression(0D, ExpressionType.Integer);
                 }
             }, new IIndicatorSeriesParameter() {
 
@@ -517,7 +518,7 @@ public class LazyCandlestickDemo extends JFrame {
 
                 @Override
                 public IExpression getDefaultValue() {
-                    return new ConstantExpression(0);
+                    return new ConstantExpression(0D, ExpressionType.Double);
                 }
             }, new IIndicatorSeriesParameter() {
 

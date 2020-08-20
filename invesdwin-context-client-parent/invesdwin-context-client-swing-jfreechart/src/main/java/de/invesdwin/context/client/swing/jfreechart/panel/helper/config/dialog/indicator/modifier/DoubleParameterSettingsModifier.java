@@ -9,6 +9,7 @@ import javax.swing.event.ChangeListener;
 
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.series.indicator.IIndicatorSeriesParameter;
 import de.invesdwin.util.math.Doubles;
+import de.invesdwin.util.math.expression.ExpressionType;
 import de.invesdwin.util.math.expression.IExpression;
 import de.invesdwin.util.math.expression.eval.ConstantExpression;
 import de.invesdwin.util.swing.spinner.JSpinnerDecimal;
@@ -17,7 +18,8 @@ import de.invesdwin.util.swing.spinner.JSpinnerDecimal;
 public class DoubleParameterSettingsModifier extends AParameterSettingsModifier {
     private final JSpinnerDecimal component;
 
-    public DoubleParameterSettingsModifier(final IIndicatorSeriesParameter parameter, final Runnable modificationListener) {
+    public DoubleParameterSettingsModifier(final IIndicatorSeriesParameter parameter,
+            final Runnable modificationListener) {
         super(parameter);
 
         this.component = new JSpinnerDecimal();
@@ -25,9 +27,8 @@ public class DoubleParameterSettingsModifier extends AParameterSettingsModifier 
 
             @Override
             public void stateChanged(final ChangeEvent e) {
-
                 DoubleParameterSettingsModifier.super.setValue(
-                        new ConstantExpression(Doubles.checkedCast(component.getValue())));
+                        new ConstantExpression(Doubles.checkedCast(component.getValue()), ExpressionType.Double));
                 modificationListener.run();
             }
         });
