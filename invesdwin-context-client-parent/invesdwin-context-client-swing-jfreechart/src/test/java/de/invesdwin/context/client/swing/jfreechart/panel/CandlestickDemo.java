@@ -443,7 +443,7 @@ public class CandlestickDemo extends JFrame {
 
                 @Override
                 public IExpression getDefaultValue() {
-                    return new ConstantExpression(0D, ExpressionType.Integer);
+                    return new ConstantExpression(0D, ExpressionType.Boolean);
                 }
             }, new IIndicatorSeriesParameter() {
 
@@ -474,7 +474,7 @@ public class CandlestickDemo extends JFrame {
 
                 @Override
                 public IExpression getDefaultValue() {
-                    return new ConstantExpression(0D, ExpressionType.Double);
+                    return new ConstantExpression(0D, ExpressionType.Boolean);
                 }
             }, new IIndicatorSeriesParameter() {
 
