@@ -219,7 +219,7 @@ public class CandlestickDemo extends JFrame {
             final List<? extends TimeRangedOHLCDataItem> ohlc = chartPanel.getMasterDataset().getData();
             for (int i = 0; i < ohlc.size(); i++) {
                 final TimeRangedOHLCDataItem ohlcItem = ohlc.get(i);
-                final double value = expression.evaluateDouble(ohlcItem.getEndTime());
+                final double value = expression.newEvaluateDoubleFDate().evaluateDouble(ohlcItem.getEndTime());
                 final MutableXYDataItemOHLC item = new MutableXYDataItemOHLC(
                         new TimeRangedOHLCDataItem(ohlcItem.getStartTime(), ohlcItem.getEndTime(), Double.NaN,
                                 Double.NaN, Double.NaN, value, Double.NaN));
@@ -330,10 +330,10 @@ public class CandlestickDemo extends JFrame {
         private IndexedDateTimeXYSeries newSeriesPrefilled(final InteractiveChartPanel chartPanel,
                 final IExpression[] args, final String seriesId) {
             Assertions.checkEquals(4, args.length);
-            final boolean invertAddition = args[0].evaluateBoolean();
-            final int lagBars = args[1].evaluateInteger();
+            final boolean invertAddition = args[0].newEvaluateBoolean().evaluateBoolean();
+            final int lagBars = args[1].newEvaluateInteger().evaluateInteger();
             Assertions.assertThat(lagBars).isNotNegative();
-            double addition = args[2].evaluateDouble();
+            double addition = args[2].newEvaluateDouble().evaluateDouble();
             if (invertAddition) {
                 addition = -addition;
             }

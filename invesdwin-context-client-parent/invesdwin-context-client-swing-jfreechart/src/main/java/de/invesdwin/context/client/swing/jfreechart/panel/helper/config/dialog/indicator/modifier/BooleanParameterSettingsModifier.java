@@ -16,7 +16,8 @@ public class BooleanParameterSettingsModifier extends AParameterSettingsModifier
 
     private final JCheckBox component;
 
-    public BooleanParameterSettingsModifier(final IIndicatorSeriesParameter parameter, final Runnable modificationListener) {
+    public BooleanParameterSettingsModifier(final IIndicatorSeriesParameter parameter,
+            final Runnable modificationListener) {
         super(parameter);
         component = new JCheckBox();
         component.addActionListener(new ActionListener() {
@@ -31,7 +32,7 @@ public class BooleanParameterSettingsModifier extends AParameterSettingsModifier
     @Override
     public void setValue(final IExpression value) {
         super.setValue(value);
-        component.setSelected(value.evaluateBoolean());
+        component.setSelected(value.newEvaluateBoolean().evaluateBoolean());
     }
 
     @Override

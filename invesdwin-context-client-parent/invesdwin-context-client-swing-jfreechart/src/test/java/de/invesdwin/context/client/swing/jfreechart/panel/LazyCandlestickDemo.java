@@ -278,7 +278,7 @@ public class LazyCandlestickDemo extends JFrame {
                 public TimeRangedOHLCDataItem getValue(final FDate key) {
                     final TimeRangedOHLCDataItem ohlc = sourceQuery.getValue(key);
                     final FDate time = ohlc.getEndTime();
-                    final double value = expression.evaluateDouble(time);
+                    final double value = expression.newEvaluateDoubleFDate().evaluateDouble(time);
                     return new TimeRangedOHLCDataItem(ohlc.getStartTime(), ohlc.getEndTime(), Double.NaN, Double.NaN,
                             Double.NaN, value, Double.NaN);
                 }
@@ -383,10 +383,10 @@ public class LazyCandlestickDemo extends JFrame {
         private IndexedDateTimeXYSeries newSeriesSlave(final InteractiveChartPanel chartPanel, final IExpression[] args,
                 final String seriesId) {
             Assertions.checkEquals(4, args.length);
-            final boolean invertAddition = args[0].evaluateBoolean();
-            final int lagBars = args[1].evaluateInteger();
+            final boolean invertAddition = args[0].newEvaluateBoolean().evaluateBoolean();
+            final int lagBars = args[1].newEvaluateInteger().evaluateInteger();
             Assertions.assertThat(lagBars).isNotNegative();
-            double addition = args[2].evaluateDouble();
+            double addition = args[2].newEvaluateDouble().evaluateDouble();
             if (invertAddition) {
                 addition = -addition;
             }

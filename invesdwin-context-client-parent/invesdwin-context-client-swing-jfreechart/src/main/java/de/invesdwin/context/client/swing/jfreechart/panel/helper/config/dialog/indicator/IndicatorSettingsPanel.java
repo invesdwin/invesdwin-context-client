@@ -116,12 +116,11 @@ public class IndicatorSettingsPanel extends JPanel implements ISettingsPanelActi
             final String fromExpression = dataset.getSeriesTitle();
             LOG.warn("Error modifying series [" + indicatorSeriesProvider.getName() + "] expression from ["
                     + fromExpression + "] to [" + toExpression + "]:\n" + Throwables.getFullStackTrace(t));
-            Dialogs.showMessageDialog(this,
-                    "<html><b>Name:</b><br><pre>  " + indicatorSeriesProvider.getName()
-                            + "</pre><b>Valid Before:</b><br><pre>  " + fromExpression
-                            + "</pre><b>Invalid After:</b><br><pre>  " + toExpression
-                            + "</pre><br><b>Error:</b><br><pre>  " + AddSeriesPanel.prepareErrorMessageForTooltip(t) + "</pre>",
-                    "Invalid Expression", Dialogs.ERROR_MESSAGE);
+            Dialogs.showMessageDialog(this, "<html><b>Name:</b><br><pre>  " + indicatorSeriesProvider.getName()
+                    + "</pre><b>Valid Before:</b><br><pre>  " + fromExpression
+                    + "</pre><b>Invalid After:</b><br><pre>  " + toExpression + "</pre><br><b>Error:</b><br><pre>  "
+                    + AddSeriesPanel.prepareErrorMessageForTooltip(t) + "</pre>", "Invalid Expression",
+                    Dialogs.ERROR_MESSAGE);
 
             final IExpression[] seriesArgumentsValid = dataset.getIndicatorSeriesArguments();
             setModifierValues(seriesArgumentsValid);
@@ -141,7 +140,8 @@ public class IndicatorSettingsPanel extends JPanel implements ISettingsPanelActi
 
     private boolean hasChanges(final IExpression[] arguments1, final IExpression[] arguments2) {
         for (int i = 0; i < arguments1.length; i++) {
-            if (arguments1[i].evaluateDouble() != arguments2[i].evaluateDouble()) {
+            if (arguments1[i].newEvaluateDouble().evaluateDouble() != arguments2[i].newEvaluateDouble()
+                    .evaluateDouble()) {
                 return true;
             }
         }

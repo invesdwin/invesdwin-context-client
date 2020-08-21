@@ -36,7 +36,7 @@ public class IntegerParameterSettingsModifier extends AParameterSettingsModifier
     @Override
     public void setValue(final IExpression value) {
         super.setValue(value);
-        component.setValue(value.evaluateInteger());
+        component.setValue(value.newEvaluateInteger().evaluateInteger());
     }
 
     @Override
