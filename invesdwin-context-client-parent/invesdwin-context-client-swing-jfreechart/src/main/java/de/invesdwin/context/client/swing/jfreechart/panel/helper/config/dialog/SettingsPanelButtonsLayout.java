@@ -24,8 +24,10 @@ public class SettingsPanelButtonsLayout extends JPanel {
         final GridBagLayout gridBagLayout = new GridBagLayout();
         gridBagLayout.columnWidths = new int[] { 80, 0, 80, 80, 0 };
         gridBagLayout.rowHeights = new int[] { 25, 0 };
+        //CHECKSTYLE:OFF
         gridBagLayout.columnWeights = new double[] { 0.0, 1.0, 0.0, 0.0, Double.MIN_VALUE };
         gridBagLayout.rowWeights = new double[] { 0.0, Double.MIN_VALUE };
+        //CHECKSTYLE:ON
         setLayout(gridBagLayout);
         btn_reset = new JButton("Reset");
 

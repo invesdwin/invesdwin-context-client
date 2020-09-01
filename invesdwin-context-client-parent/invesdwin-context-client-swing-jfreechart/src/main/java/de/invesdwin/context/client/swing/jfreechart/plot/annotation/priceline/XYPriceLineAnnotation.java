@@ -45,7 +45,7 @@ public class XYPriceLineAnnotation extends AbstractXYAnnotation implements IPric
     private Stroke stroke;
     private boolean priceLineVisible;
     private boolean priceLabelVisible;
-    private double maxPriceTime = Double.MIN_VALUE;
+    private double maxPriceTime = Long.MIN_VALUE;
     private double maxPrice = Double.NaN;
     private Color maxPriceColor = null;
 
