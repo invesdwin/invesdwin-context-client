@@ -93,7 +93,11 @@ public class StatusBarTaskInfoMonitor implements IRichApplicationHook, ITaskInfo
                     updateProgress(taskInfo);
                     updateMessage(taskInfo);
                     updateDescription(taskInfo);
-                    CHECK_INTERVAL.sleep();
+                    try {
+                        CHECK_INTERVAL.sleep();
+                    } catch (final InterruptedException e) {
+                        break;
+                    }
                 }
                 return null;
             } finally {
