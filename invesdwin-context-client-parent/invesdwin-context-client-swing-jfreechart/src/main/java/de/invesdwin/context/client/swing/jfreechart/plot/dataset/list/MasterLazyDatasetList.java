@@ -573,11 +573,9 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
         public Range afterLimitRange(final Range range, final MutableBoolean rangeChanged) {
             Range updatedRange = maybeTrimDataRange(range, rangeChanged);
             if (!rangeListeners.isEmpty()) {
-                int i = 0;
                 for (final IRangeListener l : rangeListeners) {
                     updatedRange = l.afterLimitRange(updatedRange, rangeChanged);
                 }
-                i++;
             }
             return updatedRange;
         }

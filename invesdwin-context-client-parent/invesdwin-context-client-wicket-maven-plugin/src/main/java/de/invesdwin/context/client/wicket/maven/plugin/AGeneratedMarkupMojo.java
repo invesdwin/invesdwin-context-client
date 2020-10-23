@@ -2,7 +2,6 @@ package de.invesdwin.context.client.wicket.maven.plugin;
 
 import java.io.File;
 import java.lang.reflect.Method;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.HashSet;
@@ -18,6 +17,7 @@ import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.project.MavenProject;
 
 import de.invesdwin.context.PlatformInitializerProperties;
+import de.invesdwin.util.lang.uri.URIs;
 
 @NotThreadSafe(/* Threadsafe for maven execution with multiple instances, but not a threadsafe instance */)
 public abstract class AGeneratedMarkupMojo extends AbstractMojo {
@@ -76,19 +76,23 @@ public abstract class AGeneratedMarkupMojo extends AbstractMojo {
      */
     private ClassLoader createContextClassloader() {
         try {
-            final Set<URL> urls = new HashSet<URL>();
+            final Set<String> urls = new HashSet<String>();
             final Set<String> elements = getClasspathElements();
             for (final String element : elements) {
-                urls.add(new File(element).toURI().toURL());
+                urls.add(new File(element).toURI().toString());
             }
 
-            final ClassLoader contextClassLoader = URLClassLoader.newInstance(urls.toArray(new URL[0]),
+            final URL[] urlsArray = new URL[urls.size()];
+            int i = 0;
+            for (final String url : urls) {
+                urlsArray[i] = URIs.asUrl(url);
+                i++;
+            }
+            final ClassLoader contextClassLoader = URLClassLoader.newInstance(urlsArray,
                     ClassLoader.getSystemClassLoader());
 
             return contextClassLoader;
         } catch (final DependencyResolutionRequiredException e) {
-            throw new RuntimeException(e);
-        } catch (final MalformedURLException e) {
             throw new RuntimeException(e);
         }
     }
