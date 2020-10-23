@@ -32,7 +32,6 @@ import org.jfree.chart.entity.TitleEntity;
 import org.jfree.chart.event.TitleChangeEvent;
 import org.jfree.chart.title.LegendGraphic;
 import org.jfree.chart.title.LegendItemBlockContainer;
-import org.jfree.chart.title.LegendTitle;
 import org.jfree.chart.title.Title;
 import org.jfree.chart.ui.RectangleAnchor;
 import org.jfree.chart.ui.RectangleEdge;
@@ -585,7 +584,7 @@ public class CustomLegendTitle extends Title implements Cloneable, PublicCloneab
         if (obj == this) {
             return true;
         }
-        if (!(obj instanceof LegendTitle)) {
+        if (!(obj instanceof CustomLegendTitle)) {
             return false;
         }
         if (!super.equals(obj)) {

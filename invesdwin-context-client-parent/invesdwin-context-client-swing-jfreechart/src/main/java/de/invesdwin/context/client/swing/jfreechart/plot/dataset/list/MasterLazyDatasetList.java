@@ -92,13 +92,14 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
     public synchronized void resetRange() {
         if (getData().isEmpty() || getLastLoadedItem().getStartTime().isBefore(getResetReferenceTime())) {
             newData();
+            final InteractiveChartPanel chartPanelCopy = chartPanel;
             final Runnable task = newSyncTask(new Runnable() {
                 @Override
                 public void run() {
                     try {
-                        chartPanel.incrementUpdatingCount(); //prevent flickering
+                        chartPanelCopy.incrementUpdatingCount(); //prevent flickering
                         try {
-                            loadInitialDataMaster();
+                            loadInitialDataMaster(chartPanelCopy);
                             minLowerBound = 0;
                             maxUpperBound = getData().size() - 1;
                             if (!slaveDatasetListeners.isEmpty()) {
@@ -107,7 +108,7 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
                                 }
                             }
                         } finally {
-                            chartPanel.decrementUpdatingCount();
+                            chartPanelCopy.decrementUpdatingCount();
                         }
                     } catch (final Throwable t) {
                         Err.process(new RuntimeException("Ignoring, chart might have been closed", t));
@@ -245,7 +246,7 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
         return range.getUpperBound() >= (getData().size() - 1);
     }
 
-    private void loadInitialDataMaster() {
+    private void loadInitialDataMaster(final InteractiveChartPanel chartPanel) {
         final int initialVisibleItemCount = chartPanel.getInitialVisibleItemCount() * PRELOAD_RANGE_MULTIPLIER;
         final ICloseableIterable<? extends TimeRangedOHLCDataItem> initialValues = provider
                 .getPreviousValues(provider.getLastAvailableKey().getTo(), initialVisibleItemCount);
