@@ -85,7 +85,9 @@ public abstract class AGeneratedMarkupMojo extends AbstractMojo {
             final URL[] urlsArray = new URL[urls.size()];
             int i = 0;
             for (final String url : urls) {
+                //CHECKSTYLE:OFF
                 urlsArray[i] = new URL(url);
+                //CHECKSTYLE:ON
                 i++;
             }
             final ClassLoader contextClassLoader = URLClassLoader.newInstance(urlsArray,
