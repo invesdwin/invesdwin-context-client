@@ -2,6 +2,7 @@ package de.invesdwin.context.client.wicket.maven.plugin;
 
 import java.io.File;
 import java.lang.reflect.Method;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.HashSet;
@@ -17,7 +18,6 @@ import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.project.MavenProject;
 
 import de.invesdwin.context.PlatformInitializerProperties;
-import de.invesdwin.util.lang.uri.URIs;
 
 @NotThreadSafe(/* Threadsafe for maven execution with multiple instances, but not a threadsafe instance */)
 public abstract class AGeneratedMarkupMojo extends AbstractMojo {
@@ -85,14 +85,14 @@ public abstract class AGeneratedMarkupMojo extends AbstractMojo {
             final URL[] urlsArray = new URL[urls.size()];
             int i = 0;
             for (final String url : urls) {
-                urlsArray[i] = URIs.asUrl(url);
+                urlsArray[i] = new URL(url);
                 i++;
             }
             final ClassLoader contextClassLoader = URLClassLoader.newInstance(urlsArray,
                     ClassLoader.getSystemClassLoader());
 
             return contextClassLoader;
-        } catch (final DependencyResolutionRequiredException e) {
+        } catch (final DependencyResolutionRequiredException | MalformedURLException e) {
             throw new RuntimeException(e);
         }
     }
