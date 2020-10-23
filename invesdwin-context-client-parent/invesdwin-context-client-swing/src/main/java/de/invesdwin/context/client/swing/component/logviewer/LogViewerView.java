@@ -110,7 +110,7 @@ public class LogViewerView extends AView<LogViewerView, JPanel> {
         }
     }
 
-    public ILogViewerSource getSource() {
+    public synchronized ILogViewerSource getSource() {
         return source;
     }
 
@@ -273,7 +273,8 @@ public class LogViewerView extends AView<LogViewerView, JPanel> {
         return 10000;
     }
 
-    protected void onUpdate() {}
+    protected void onUpdate() {
+    }
 
     @EventDispatchThread(InvocationType.INVOKE_AND_WAIT)
     private void appendMessagesToDocument(final StringBuilder message,

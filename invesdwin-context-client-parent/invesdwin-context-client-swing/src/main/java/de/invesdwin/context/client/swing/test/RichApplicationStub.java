@@ -38,7 +38,7 @@ public class RichApplicationStub extends StubSupport {
 
     @Override
     public void tearDown(final ATest test, final TestContext ctx) {
-        launched = false;
+        RichApplicationStub.launched = false;
         if (Application.getInstance() instanceof SingleFrameApplication) {
             final SingleFrameApplication application = (SingleFrameApplication) Application.getInstance();
             application.getMainFrame().setVisible(false);
