@@ -349,7 +349,7 @@ public class FastCandlestickRenderer extends AbstractXYItemRenderer
         }
 
         // draw the body
-        Rectangle2D body;
+        final Rectangle2D body;
         if (horiz) {
             body = new Rectangle2D.Double(yyMinOpenClose, xx - stickWidth / 2, yyMaxOpenClose - yyMinOpenClose,
                     stickWidth);
@@ -413,7 +413,7 @@ public class FastCandlestickRenderer extends AbstractXYItemRenderer
 
     public double calculateStickWidth(final XYItemRendererState state, final Rectangle2D dataArea,
             final boolean horiz) {
-        double stickWidth;
+        final double stickWidth;
         double xxWidth = 0;
         final int itemCount = state.getLastItemIndex() - state.getFirstItemIndex();
         if (horiz) {

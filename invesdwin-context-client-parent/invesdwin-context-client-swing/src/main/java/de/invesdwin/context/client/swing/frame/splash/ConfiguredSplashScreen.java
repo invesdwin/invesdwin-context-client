@@ -46,8 +46,7 @@ public final class ConfiguredSplashScreen implements SplashScreen, FactoryBean<C
     private static ProgressSplashScreen splashScreen;
     protected boolean showing;
 
-    private ConfiguredSplashScreen() {
-    }
+    private ConfiguredSplashScreen() {}
 
     public void splash(final boolean force) {
         if (RichApplicationProperties.isWindowBuilder()) {
@@ -59,7 +58,7 @@ public final class ConfiguredSplashScreen implements SplashScreen, FactoryBean<C
 
                 if (RichApplicationProperties.hasDelegateClass()) {
                     final ApplicationMessageSource messageSource = new ApplicationMessageSource();
-                    splashScreen = new ProgressSplashScreen();
+                    ConfiguredSplashScreen.splashScreen = new ProgressSplashScreen();
                     splashScreen.setMessageSource(messageSource);
 
                     splashScreen.setImageResourcePath(new ClassPathResource(splashScreen.getMessageSource()
