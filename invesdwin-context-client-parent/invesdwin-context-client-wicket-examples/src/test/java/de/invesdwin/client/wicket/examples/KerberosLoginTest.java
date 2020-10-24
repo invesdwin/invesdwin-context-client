@@ -62,15 +62,15 @@ public class KerberosLoginTest extends ATest {
 
     @Test
     @Ignore("does not seem to work properly with apacheds; works fine with MIT Kerberos")
-    public void testKerberosRestTemplate() {
+    public void testKerberosRestTemplate() throws InterruptedException {
         //with keytab
         final String responseFromKeytab = new ProxyEnabledKerberosRestTemplate(keytab, PRINCIPAL).getForObject(
-                IntegrationProperties.WEBSERVER_BIND_URI + SpringKerberosSecurePage.MOUNT_PATH, String.class);
+                IntegrationProperties.WEBSERVER_BIND_URI + "/" + SpringKerberosSecurePage.MOUNT_PATH, String.class);
         Assertions.assertThat(responseFromKeytab).contains("Kerberos Authentication");
 
         //from ticket cache
         final String responseFromTicketCache = new ProxyEnabledKerberosRestTemplate().getForObject(
-                IntegrationProperties.WEBSERVER_BIND_URI + SpringKerberosSecurePage.MOUNT_PATH, String.class);
+                IntegrationProperties.WEBSERVER_BIND_URI + "/" + SpringKerberosSecurePage.MOUNT_PATH, String.class);
         Assertions.assertThat(responseFromTicketCache).contains("Kerberos Authentication");
     }
 
