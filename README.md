@@ -44,7 +44,7 @@ For some examples you can have a look at the test cases and implemented componen
 
 Other interesting frameworks:
 - [BetterBeansBinding](https://github.com/stephenneal/betterbeansbinding): this allows to easily keep models in sync with view components. It is an improved version of the reference implementation for [JSR-295](https://jcp.org/en/jsr/detail?id=295). Though after a while we decided replace that with a different binding mechanism that works better with invesdwin-norva annotations, component lifecycle (visible, enabled), validations and formatting.
-- [jGAF](https://github.com/pgdurand/jGAF) which provides a few interesting concepts.
+- [jGAF](https://github.com/pgdurand/jGAF): which provides a few interesting concepts.
 
 ### invesdwin-context-client-swing-jfreechart
 
