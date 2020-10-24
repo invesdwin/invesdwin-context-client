@@ -34,6 +34,7 @@ import org.junit.Test;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.security.kerberos.client.config.SunJaasKrb5LoginConfig;
 
+import de.invesdwin.context.ContextProperties;
 import de.invesdwin.context.client.wicket.examples.secure.kerberos.SpringKerberosSecurePage;
 import de.invesdwin.context.integration.IntegrationProperties;
 import de.invesdwin.context.security.kerberos.Keytabs;
@@ -165,7 +166,7 @@ public class KerberosLoginTest extends ATest {
 
     @SuppressWarnings("deprecation")
     private static File createKrb5Configuration(final String domain, final String kdc) throws IOException {
-        final File tempFile = File.createTempFile("krb5", "kdc");
+        final File tempFile = new File(ContextProperties.TEMP_DIRECTORY, "krb5.kdc");
         final ArrayList<String> lines = new ArrayList<>();
         lines.add("[libdefaults]");
         lines.add("\tdefault_realm = " + domain);
