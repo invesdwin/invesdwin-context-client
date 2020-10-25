@@ -21,7 +21,6 @@ Dependency declaration:
 
 The `invesdwin-context-client-swing` module provides some tools to simplify building swing applications. The following frameworks have been integrated to function as a platform:
 - [DockingFrames](https://github.com/Benoker/DockingFrames): this is a lightweight docking framework that provides a flexible container for your views.
-- [BetterBeansBinding](https://github.com/stephenneal/betterbeansbinding): this allows to easily keep models in sync with view components. It is an improved version of the reference implementation for [JSR-295](https://jcp.org/en/jsr/detail?id=295).
 - [BetterSwingApplicationFramework](https://sourceforge.net/projects/bsaf/): this provides a framework to handle the application lifecycline, internationalization and action binding. It is an improved version of the reference implementation for [JSR-296](https://en.wikipedia.org/wiki/Swing_Application_Framework).
 - [AssertJ Swing](http://joel-costigliola.github.io/assertj/assertj-swing.html): to write unit tests for your swing views by automating actions.
 - There are also a few more dependencies added which provide some more swing components you can use in your views ([SwingX](https://github.com/tmyroadctfig/swingx), [Jide OSS](https://github.com/jidesoft/jide-oss), [Spring Rich Client](http://spring-rich-c.sourceforge.net), [JCalendar](https://toedter.com/jcalendar/), [JGoodies-Forms](http://www.jgoodies.com/freeware/libraries/forms/), [JGoodies-Looks](http://www.jgoodies.com/freeware/libraries/looks/)) and some icon sets ([Tango](https://commons.wikimedia.org/wiki/Tango_icons), [Silk](http://www.famfamfam.com/lab/icons/silk/)).
@@ -42,6 +41,10 @@ Add the module `invesdwin-context-client-swing-test` (preferable in test maven s
 - **SwingExplorerStub**: annotate your test case with `@SwingExplorerTest` to debug your swing frame component tree with a helpful analyzer next to your frames. This feature is provided by [SwingExplorer](https://github.com/swingexplorer/swingexplorer).
 
 For some examples you can have a look at the test cases and implemented components/views inside the module itself. For more fundamental documentation it is best to seek the documentation that is directly provided by the referenced frameworks.
+
+Other interesting frameworks:
+- [BetterBeansBinding](https://github.com/stephenneal/betterbeansbinding): this allows to easily keep models in sync with view components. It is an improved version of the reference implementation for [JSR-295](https://jcp.org/en/jsr/detail?id=295). Though after a while we decided replace that with a different binding mechanism that works better with invesdwin-norva annotations, component lifecycle (visible, enabled), validations and formatting.
+- [jGAF](https://github.com/pgdurand/jGAF): which provides interesting concepts for securing a licensed application and to integrate better into macOS.
 
 ### invesdwin-context-client-swing-jfreechart
 
