@@ -29,16 +29,4 @@
 		</dependency>
 	</dependencies>
 	
-	<distributionManagement>
-		<repository>
-			<id>central</id>
-			<name>invesdwin.de-releases</name>
-			<url>https://invesdwin.de/artifactory/libs-release-local</url>
-		</repository>
-		<snapshotRepository>
-			<id>snapshots</id>
-			<name>invesdwin.de-snapshots</name>
-			<url>https://invesdwin.de/artifactory/libs-snapshot-local</url>
-		</snapshotRepository>
-	</distributionManagement>
 </project>
