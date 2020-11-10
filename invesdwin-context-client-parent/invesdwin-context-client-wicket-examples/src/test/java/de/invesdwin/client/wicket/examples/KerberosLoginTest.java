@@ -74,9 +74,9 @@ public class KerberosLoginTest extends ATest {
         final LoginContext loginContext = new LoginContext("", subject, null, createClientConfig(PRINCIPAL, keytab));
         loginContext.login();
         subject = loginContext.getSubject();
-        org.junit.Assert.assertEquals(1, subject.getPrincipals().size());
-        org.junit.Assert.assertEquals(KerberosPrincipal.class, subject.getPrincipals().iterator().next().getClass());
-        org.junit.Assert.assertEquals(PRINCIPAL, subject.getPrincipals().iterator().next().getName());
+        Assertions.checkEquals(1, subject.getPrincipals().size());
+        Assertions.checkEquals(KerberosPrincipal.class, subject.getPrincipals().iterator().next().getClass());
+        Assertions.checkEquals(PRINCIPAL, subject.getPrincipals().iterator().next().getName());
         loginContext.logout();
     }
 
