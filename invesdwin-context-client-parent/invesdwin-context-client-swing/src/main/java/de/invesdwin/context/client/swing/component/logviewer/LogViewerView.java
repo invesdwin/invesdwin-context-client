@@ -52,7 +52,7 @@ public class LogViewerView extends AView<LogViewerView, JPanel> {
     @GuardedBy("this.class")
     private static WrappedScheduledExecutorService scheduledExecutor;
     @GuardedBy("this")
-    private ILogViewerSource source;
+    private volatile ILogViewerSource source;
     @GuardedBy("this")
     private FDate logTo;
     @GuardedBy("this")
@@ -110,7 +110,8 @@ public class LogViewerView extends AView<LogViewerView, JPanel> {
         }
     }
 
-    public synchronized ILogViewerSource getSource() {
+    public ILogViewerSource getSource() {
+        //explicitly not synchronized here, else we get deadlocks
         return source;
     }
 
