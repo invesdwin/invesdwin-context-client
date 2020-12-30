@@ -1,9 +1,11 @@
 package de.invesdwin.context.client.swing.jfreechart.panel.helper;
 
+import java.awt.Point;
 import java.awt.Shape;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
+import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.List;
@@ -160,6 +162,8 @@ public class PlotNavigationHelper {
         if (subplotIndex >= subplots.size()) {
             return null;
         }
+        final Point scaledMouse = new Point(mouseX, mouseY);
+        final Point2D unscaledMouse = chartPanel.getChartPanel().translateScreenToJava2D(scaledMouse);
         final XYPlot plot = subplots.get(subplotIndex);
         for (int i = 0; i < plot.getDatasetCount(); i++) {
             final XYItemRenderer renderer = plot.getRenderer(i);
@@ -167,7 +171,7 @@ public class PlotNavigationHelper {
                 final INoteRenderer cRenderer = (INoteRenderer) renderer;
                 for (final XYNoteIconAnnotation noteIcon : cRenderer.getVisibleNoteIcons()) {
                     final XYAnnotationEntity entity = noteIcon.getEntity();
-                    if (entity != null && entity.getArea().contains(mouseX, mouseY)) {
+                    if (entity != null && entity.getArea().contains(unscaledMouse)) {
                         return noteIcon;
                     }
                 }
