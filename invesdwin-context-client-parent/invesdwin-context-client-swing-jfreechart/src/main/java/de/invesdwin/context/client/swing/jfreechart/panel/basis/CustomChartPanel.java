@@ -42,6 +42,7 @@ import org.jfree.chart.plot.Zoomable;
 import org.jfree.data.Range;
 
 import de.invesdwin.context.log.error.Err;
+import de.invesdwin.util.math.Doubles;
 import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.math.decimal.scaled.Percent;
 import de.invesdwin.util.math.decimal.scaled.PercentScale;
@@ -566,6 +567,23 @@ public class CustomChartPanel extends JPanel implements ChartChangeListener, Cha
     }
 
     /**
+     * Applies any scaling that is in effect for the chart drawing to the given rectangle.
+     *
+     * @param rect
+     *            the rectangle (<code>null</code> not permitted).
+     *
+     * @return A new scaled rectangle.
+     */
+    public Rectangle2D unscale(final Rectangle2D rect) {
+        final Insets insets = getInsets();
+        final double x = rect.getX() / getScaleX() + insets.left;
+        final double y = rect.getY() / getScaleY() + insets.top;
+        final double w = rect.getWidth() / getScaleX();
+        final double h = rect.getHeight() / getScaleY();
+        return new Rectangle2D.Double(x, y, w, h);
+    }
+
+    /**
      * Returns the chart entity at a given point.
      * <P>
      * This method will return null if there is (a) no entity at the given point, or (b) no entity collection has been
@@ -644,13 +662,18 @@ public class CustomChartPanel extends JPanel implements ChartChangeListener, Cha
             this.scaleX = 1.0;
             this.scaleY = 1.0;
 
+            final double maximumDrawHeightAdj = maybeAdjustMaximumDrawHeight(drawWidth, drawHeight,
+                    this.maximumDrawWidth, this.maximumDrawHeight);
+            final double maximumDrawWidthAdj = maybeAdjustMaximumDrawWidth(drawWidth, drawHeight, this.maximumDrawWidth,
+                    maximumDrawHeightAdj);
+
             if (drawWidth < this.minimumDrawWidth) {
                 this.scaleX = drawWidth / this.minimumDrawWidth;
                 drawWidth = this.minimumDrawWidth;
                 scale = true;
-            } else if (drawWidth > this.maximumDrawWidth) {
-                this.scaleX = drawWidth / this.maximumDrawWidth;
-                drawWidth = this.maximumDrawWidth;
+            } else if (drawWidth > maximumDrawWidthAdj) {
+                this.scaleX = drawWidth / maximumDrawWidthAdj;
+                drawWidth = maximumDrawWidthAdj;
                 scale = true;
             }
 
@@ -658,9 +681,9 @@ public class CustomChartPanel extends JPanel implements ChartChangeListener, Cha
                 this.scaleY = drawHeight / this.minimumDrawHeight;
                 drawHeight = this.minimumDrawHeight;
                 scale = true;
-            } else if (drawHeight > this.maximumDrawHeight) {
-                this.scaleY = drawHeight / this.maximumDrawHeight;
-                drawHeight = this.maximumDrawHeight;
+            } else if (drawHeight > maximumDrawHeightAdj) {
+                this.scaleY = drawHeight / maximumDrawHeightAdj;
+                drawHeight = maximumDrawHeightAdj;
                 scale = true;
             }
 
@@ -734,6 +757,28 @@ public class CustomChartPanel extends JPanel implements ChartChangeListener, Cha
             Err.process(new RuntimeException("Must be some race condition, retrying", t)); //log and ignore
             paintComponent(g);
         }
+    }
+
+    private double maybeAdjustMaximumDrawWidth(final double drawWidth, final double drawHeight,
+            final double maximumDrawWidth, final double maximumDrawHeight) {
+        if (drawHeight > maximumDrawHeight) {
+            final double aspectRatioHeightToWidthMultiplier = Doubles.divide(drawWidth, drawHeight);
+            if (aspectRatioHeightToWidthMultiplier > 0D) {
+                return maximumDrawHeight * aspectRatioHeightToWidthMultiplier;
+            }
+        }
+        return maximumDrawWidth;
+    }
+
+    private double maybeAdjustMaximumDrawHeight(final double drawWidth, final double drawHeight,
+            final double maximumDrawWidth, final double maximumDrawHeight) {
+        if (drawWidth > maximumDrawWidth) {
+            final double aspectRatioWidthToHeightMultiplier = Doubles.divide(drawHeight, drawWidth);
+            if (aspectRatioWidthToHeightMultiplier > 0D) {
+                return maximumDrawWidth * aspectRatioWidthToHeightMultiplier;
+            }
+        }
+        return maximumDrawHeight;
     }
 
     protected boolean isPaintAllowed() {

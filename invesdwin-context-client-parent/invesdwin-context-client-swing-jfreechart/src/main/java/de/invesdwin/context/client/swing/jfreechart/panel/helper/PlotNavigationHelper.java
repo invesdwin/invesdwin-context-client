@@ -215,7 +215,9 @@ public class PlotNavigationHelper {
     }
 
     private boolean findVisibleEntity(final int mouseX, final int mouseY) {
-        final Shape area = new Rectangle2D.Double(mouseX - 150, mouseY - 100, 300, 200);
+        final Rectangle2D.Double scaled = new Rectangle2D.Double(mouseX - 150, mouseY - 100, 300, 200);
+        final Rectangle2D unscaled = chartPanel.getChartPanel().unscale(scaled);
+        final Shape area = unscaled;
         for (int i = 0; i < visibleCheckAnnotations.length; i++) {
             final XYIconAnnotation annotation = visibleCheckAnnotations[i];
             final XYAnnotationEntity entity = annotation.getEntity();
@@ -258,7 +260,9 @@ public class PlotNavigationHelper {
             if (minY == null) {
                 return null;
             }
-            navHighlightingArea = new Rectangle2D.Double(minX, minY, maxX - minX, maxY - minY);
+            final Rectangle2D.Double unscaled = new Rectangle2D.Double(minX, minY, maxX - minX, maxY - minY);
+            final Rectangle2D scaled = chartPanel.getChartPanel().scale(unscaled);
+            navHighlightingArea = scaled;
         }
         return navHighlightingArea;
     }
