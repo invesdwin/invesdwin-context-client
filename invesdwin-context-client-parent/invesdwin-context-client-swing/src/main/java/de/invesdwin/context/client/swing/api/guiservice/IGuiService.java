@@ -29,6 +29,18 @@ public interface IGuiService {
     /**
      * If a view is already visible with an equal model, then that is being replaced with the new view. Otherwise this
      * view is just displayed in a new dockable.
+     * 
+     * This method places the view next to the current focus owning view.
+     */
+    default void showView(final AView<?, ?> view) {
+        showView(view, null);
+    }
+
+    /**
+     * If a view is already visible with an equal model, then that is being replaced with the new view. Otherwise this
+     * view is just displayed in a new dockable.
+     * 
+     * When location is null, view will be placed next to the current focus owning view.
      */
     void showView(AView<?, ?> view, IWorkingAreaLocation location);
 
