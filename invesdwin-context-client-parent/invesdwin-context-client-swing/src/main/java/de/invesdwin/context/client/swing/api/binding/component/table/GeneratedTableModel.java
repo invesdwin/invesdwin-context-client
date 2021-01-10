@@ -51,6 +51,7 @@ public class GeneratedTableModel extends AbstractTableModel {
             if (!Objects.equals(newColumns, columns)) {
                 this.columns = new ArrayList<>(columns);
                 resetPrevTableModel(newRowCount, newColumnCount);
+                fireTableStructureChanged();
             } else {
                 updatePrevTableModel(newRowCount, newColumnCount);
             }
@@ -61,11 +62,6 @@ public class GeneratedTableModel extends AbstractTableModel {
 
     private void updatePrevTableModel(final int newRowCount, final int newColumnCount) {
         final int prevRowCount = prevTableModel.length;
-        if (prevRowCount < newRowCount) {
-            fireTableRowsInserted(prevRowCount - 1, newRowCount - 1);
-        } else if (prevRowCount > newRowCount) {
-            fireTableRowsDeleted(newRowCount - 1, prevRowCount - 1);
-        }
         for (int r = 0; r < newRowCount; r++) {
             final Object[] row = prevTableModel[r];
             for (int c = 0; c < newColumnCount; c++) {
@@ -77,23 +73,61 @@ public class GeneratedTableModel extends AbstractTableModel {
                 }
             }
         }
+        if (prevRowCount < newRowCount) {
+            addRowsToPrevTableModel(newRowCount, newColumnCount, prevRowCount);
+            fireTableRowsInserted(prevRowCount - 1, newRowCount - 1);
+        } else if (prevRowCount > newRowCount) {
+            removeRowsFromPrevTableModel(newRowCount);
+            fireTableRowsDeleted(newRowCount - 1, prevRowCount - 1);
+        }
+    }
+
+    private void removeRowsFromPrevTableModel(final int newRowCount) {
+        final Object[][] oldTableModel = prevTableModel;
+        final Object[][] newTableModel = new Object[newRowCount][];
+        for (int r = 0; r < newTableModel.length; r++) {
+            newTableModel[r] = oldTableModel[r];
+        }
+        prevTableModel = newTableModel;
+    }
+
+    private void addRowsToPrevTableModel(final int newRowCount, final int newColumnCount, final int prevRowCount) {
+        final Object[][] oldTableModel = prevTableModel;
+        final Object[][] newTableModel = new Object[newRowCount][];
+        for (int r = 0; r < oldTableModel.length; r++) {
+            newTableModel[r] = oldTableModel[r];
+        }
+        for (int r = prevRowCount; r < newTableModel.length; r++) {
+            final Object[] row = new Object[newColumnCount];
+            for (int c = 0; c < newColumnCount; c++) {
+                row[c] = getValueAt(r, c);
+            }
+            newTableModel[r] = row;
+        }
+        prevTableModel = newTableModel;
     }
 
     private void resetPrevTableModel(final int newRowCount, final int newColumnCount) {
-        if (prevTableModel.length != newRowCount) {
-            prevTableModel = new Object[newRowCount][];
+        Object[][] newTableModel = prevTableModel;
+        if (newTableModel.length != newRowCount) {
+            newTableModel = new Object[newRowCount][];
         }
         for (int r = 0; r < newRowCount; r++) {
-            Object[] row = prevTableModel[r];
-            if (row == null || row.length != newColumnCount) {
+            final Object[] prevRow = newTableModel[r];
+            final Object[] row;
+            if (prevRow == null || prevRow.length != newColumnCount) {
                 row = new Object[newColumnCount];
-                prevTableModel[r] = row;
+            } else {
+                row = prevRow;
             }
             for (int c = 0; c < newColumnCount; c++) {
                 row[c] = getValueAt(r, c);
             }
+            if (prevRow != row) {
+                newTableModel[r] = row;
+            }
         }
-        fireTableStructureChanged();
+        prevTableModel = newTableModel;
     }
 
     protected Object getTarget() {
