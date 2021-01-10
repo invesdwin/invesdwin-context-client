@@ -22,6 +22,7 @@ public class TableSelectionBinding extends AComponentBinding<JTable, List<?>> {
     private final ATableBeanPathElement element;
     private final GeneratedTableModel tableModel;
     private final GeneratedTableSelectionModel selectionModel;
+    private List<Integer> prevSelectedIndexesInModel = Collections.emptyList();
     private boolean selectionUpdating = false;
 
     public TableSelectionBinding(final JTable component, final ATableBeanPathElement element,
@@ -56,6 +57,10 @@ public class TableSelectionBinding extends AComponentBinding<JTable, List<?>> {
     @Override
     protected Optional<List<?>> fromModelToComponent(final List<?> modelValue) {
         final List<Integer> selectedIndexesInModel = getSelectedIndexesInModel();
+        if (selectedIndexesInModel.equals(prevSelectedIndexesInModel)) {
+            Optional.ofNullable(modelValue);
+        }
+        prevSelectedIndexesInModel = selectedIndexesInModel;
         selectionUpdating = true;
         selectionModel.setValueIsAdjusting(true);
         try {

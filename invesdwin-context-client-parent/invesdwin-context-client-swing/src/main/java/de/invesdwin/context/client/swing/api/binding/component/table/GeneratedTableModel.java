@@ -30,6 +30,8 @@ public class GeneratedTableModel extends AbstractTableModel {
     private final BindingGroup bindingGroup;
     private final GeneratedTableSelectionModel selectionModel;
 
+    private Object[][] prevTableModel = new Object[0][];
+
     public GeneratedTableModel(final Runnable eagerSubmitRunnable, final ATableBeanPathElement element,
             final BindingGroup bindingGroup, final GeneratedTableSelectionModel selectionModel) {
         this.eagerSubmitRunnable = eagerSubmitRunnable;
@@ -44,15 +46,54 @@ public class GeneratedTableModel extends AbstractTableModel {
         selectionModel.setValueIsFrozen(true);
         try {
             final List<ITableColumnBeanPathElement> newColumns = element.getColumns();
+            final int newRowCount = rows.size();
+            final int newColumnCount = newColumns.size();
             if (!Objects.equals(newColumns, columns)) {
                 this.columns = new ArrayList<>(columns);
-                fireTableStructureChanged();
+                resetPrevTableModel(newRowCount, newColumnCount);
             } else {
-                fireTableDataChanged();
+                updatePrevTableModel(newRowCount, newColumnCount);
             }
         } finally {
             selectionModel.setValueIsFrozen(false);
         }
+    }
+
+    private void updatePrevTableModel(final int newRowCount, final int newColumnCount) {
+        final int prevRowCount = prevTableModel.length;
+        if (prevRowCount < newRowCount) {
+            fireTableRowsInserted(prevRowCount - 1, newRowCount - 1);
+        } else if (prevRowCount > newRowCount) {
+            fireTableRowsDeleted(newRowCount - 1, prevRowCount - 1);
+        }
+        for (int r = 0; r < newRowCount; r++) {
+            final Object[] row = prevTableModel[r];
+            for (int c = 0; c < newColumnCount; c++) {
+                final Object newValue = getValueAt(r, c);
+                final Object prevValue = row[c];
+                if (!Objects.equals(newValue, prevValue)) {
+                    row[c] = newValue;
+                    fireTableCellUpdated(r, c);
+                }
+            }
+        }
+    }
+
+    private void resetPrevTableModel(final int newRowCount, final int newColumnCount) {
+        if (prevTableModel.length != newRowCount) {
+            prevTableModel = new Object[newRowCount][];
+        }
+        for (int r = 0; r < newRowCount; r++) {
+            Object[] row = prevTableModel[r];
+            if (row == null || row.length != newColumnCount) {
+                row = new Object[newColumnCount];
+                prevTableModel[r] = row;
+            }
+            for (int c = 0; c < newColumnCount; c++) {
+                row[c] = getValueAt(r, c);
+            }
+        }
+        fireTableStructureChanged();
     }
 
     protected Object getTarget() {
