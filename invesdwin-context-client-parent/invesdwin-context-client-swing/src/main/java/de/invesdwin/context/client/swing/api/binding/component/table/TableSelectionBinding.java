@@ -1,5 +1,7 @@
 package de.invesdwin.context.client.swing.api.binding.component.table;
 
+import java.awt.event.KeyEvent;
+import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -16,6 +18,8 @@ import de.invesdwin.context.client.swing.api.binding.component.AComponentBinding
 import de.invesdwin.norva.beanpath.spi.element.ATableBeanPathElement;
 import de.invesdwin.norva.beanpath.spi.element.simple.modifier.IBeanPathPropertyModifier;
 import de.invesdwin.util.lang.Objects;
+import de.invesdwin.util.swing.listener.KeyListenerSupport;
+import de.invesdwin.util.swing.listener.MouseListenerSupport;
 
 @NotThreadSafe
 public class TableSelectionBinding extends AComponentBinding<JTable, List<?>> {
@@ -25,6 +29,9 @@ public class TableSelectionBinding extends AComponentBinding<JTable, List<?>> {
     private final GeneratedTableSelectionModel selectionModel;
     private List<Integer> prevSelectedIndexesInModel = Collections.emptyList();
     private boolean selectionUpdating = false;
+    private boolean valueIsAdjusting = false;
+    private boolean mouse1Down = false;
+    private boolean shiftDown = false;
 
     public TableSelectionBinding(final JTable component, final ATableBeanPathElement element,
             final BindingGroup bindingGroup, final GeneratedTableModel tableModel,
@@ -33,11 +40,47 @@ public class TableSelectionBinding extends AComponentBinding<JTable, List<?>> {
         this.tableModel = tableModel;
         this.selectionModel = selectionModel;
         this.element = element;
+        component.addMouseListener(new MouseListenerSupport() {
+            @Override
+            public void mousePressed(final MouseEvent e) {
+                if (e.getButton() == MouseEvent.BUTTON1) {
+                    mouse1Down = true;
+                }
+            }
+
+            @Override
+            public void mouseReleased(final MouseEvent e) {
+                if (mouse1Down && e.getButton() == MouseEvent.BUTTON1) {
+                    mouse1Down = false;
+                    //update selection
+                    fromModelToComponent(null);
+                }
+            }
+
+        });
+        component.addKeyListener(new KeyListenerSupport() {
+            @Override
+            public void keyPressed(final KeyEvent e) {
+                if (e.getKeyCode() == KeyEvent.VK_SHIFT) {
+                    shiftDown = true;
+                }
+            }
+
+            @Override
+            public void keyReleased(final KeyEvent e) {
+                if (shiftDown && e.getKeyCode() == KeyEvent.VK_SHIFT) {
+                    shiftDown = false;
+                    //update selection
+                    fromModelToComponent(null);
+                }
+            }
+        });
         if (eagerSubmitRunnable != null) {
             selectionModel.addListSelectionListener(new ListSelectionListener() {
                 @Override
                 public void valueChanged(final ListSelectionEvent e) {
                     if (e.getValueIsAdjusting()) {
+                        valueIsAdjusting = true;
                         return;
                     }
                     if (selectionUpdating) {
@@ -49,9 +92,11 @@ public class TableSelectionBinding extends AComponentBinding<JTable, List<?>> {
                         if (!Objects.equals(selectedIndexesInModel, selectedIndexesInTable)) {
                             eagerSubmitRunnable.run();
                             prevSelectedIndexesInModel = selectedIndexesInTable;
+                            valueIsAdjusting = false;
                         }
                     }
                 }
+
             });
         }
     }
@@ -62,6 +107,10 @@ public class TableSelectionBinding extends AComponentBinding<JTable, List<?>> {
 
     @Override
     protected Optional<List<?>> fromModelToComponent(final List<?> modelValue) {
+        if (valueIsAdjusting || mouse1Down || shiftDown) {
+            //don't interfere with user actions, thus don't reset his modifications
+            return Optional.ofNullable(modelValue);
+        }
         final List<Integer> selectedIndexesInModel = getSelectedIndexesInModel();
         if (Objects.equals(selectedIndexesInModel, prevSelectedIndexesInModel)) {
             return Optional.ofNullable(modelValue);
