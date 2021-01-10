@@ -19,10 +19,14 @@ import de.invesdwin.norva.beanpath.spi.element.TableSelectionButtonColumnBeanPat
 import de.invesdwin.norva.beanpath.spi.element.simple.modifier.SelectionBeanPathPropertyModifier;
 import de.invesdwin.util.error.UnknownArgumentException;
 import de.invesdwin.util.lang.Objects;
+import de.invesdwin.util.time.Instant;
+import de.invesdwin.util.time.duration.Duration;
+import de.invesdwin.util.time.fdate.FTimeUnit;
 
 @NotThreadSafe
 public class GeneratedTableModel extends AbstractTableModel {
 
+    private static final Duration FULL_REDRAW_INTERVAL = new Duration(250, FTimeUnit.MILLISECONDS);
     private final Runnable eagerSubmitRunnable;
     private final ATableBeanPathElement element;
     private List<ITableColumnBeanPathElement> columns;
@@ -31,6 +35,7 @@ public class GeneratedTableModel extends AbstractTableModel {
     private final GeneratedTableSelectionModel selectionModel;
 
     private Object[][] prevTableModel = new Object[0][];
+    private Instant lastFullRedraw = Instant.DUMMY;
 
     public GeneratedTableModel(final Runnable eagerSubmitRunnable, final ATableBeanPathElement element,
             final BindingGroup bindingGroup, final GeneratedTableSelectionModel selectionModel) {
@@ -52,6 +57,10 @@ public class GeneratedTableModel extends AbstractTableModel {
                 this.columns = new ArrayList<>(columns);
                 resetPrevTableModel(newRowCount, newColumnCount);
                 fireTableStructureChanged();
+            } else if (lastFullRedraw.isGreaterThan(FULL_REDRAW_INTERVAL)) {
+                //renderers might want to update something
+                resetPrevTableModel(newRowCount, newColumnCount);
+                fireTableDataChanged();
             } else {
                 updatePrevTableModel(newRowCount, newColumnCount);
             }
@@ -62,7 +71,7 @@ public class GeneratedTableModel extends AbstractTableModel {
 
     private void updatePrevTableModel(final int newRowCount, final int newColumnCount) {
         final int prevRowCount = prevTableModel.length;
-        for (int r = 0; r < newRowCount; r++) {
+        for (int r = 0; r < prevRowCount; r++) {
             final Object[] row = prevTableModel[r];
             for (int c = 0; c < newColumnCount; c++) {
                 final Object newValue = getValueAt(r, c);
@@ -128,6 +137,7 @@ public class GeneratedTableModel extends AbstractTableModel {
             }
         }
         prevTableModel = newTableModel;
+        lastFullRedraw = new Instant();
     }
 
     protected Object getTarget() {
@@ -167,20 +177,24 @@ public class GeneratedTableModel extends AbstractTableModel {
 
     @Override
     public Object getValueAt(final int rowIndex, final int columnIndex) {
-        final ITableColumnBeanPathElement column = columns.get(columnIndex);
-        if (column instanceof APropertyBeanPathElement) {
-            final APropertyBeanPathElement property = (APropertyBeanPathElement) column;
-            final Object row = rows.get(rowIndex);
-            return property.getModifier().getValueFromTarget(row);
-        } else if (column instanceof TableSelectionButtonColumnBeanPathElement) {
-            final TableSelectionButtonColumnBeanPathElement selection = (TableSelectionButtonColumnBeanPathElement) column;
-            final SelectionBeanPathPropertyModifier modifier = selection.getSelectionModifier();
-            final Object row = rows.get(rowIndex);
-            return modifier.isSelected(row);
-        } else if (column instanceof TableButtonColumnBeanPathElement) {
-            return rowIndex;
-        } else {
-            throw UnknownArgumentException.newInstance(Class.class, column.getClass());
+        try {
+            final ITableColumnBeanPathElement column = columns.get(columnIndex);
+            if (column instanceof APropertyBeanPathElement) {
+                final APropertyBeanPathElement property = (APropertyBeanPathElement) column;
+                final Object row = rows.get(rowIndex);
+                return property.getModifier().getValueFromTarget(row);
+            } else if (column instanceof TableSelectionButtonColumnBeanPathElement) {
+                final TableSelectionButtonColumnBeanPathElement selection = (TableSelectionButtonColumnBeanPathElement) column;
+                final SelectionBeanPathPropertyModifier modifier = selection.getSelectionModifier();
+                final Object row = rows.get(rowIndex);
+                return modifier.isSelected(row);
+            } else if (column instanceof TableButtonColumnBeanPathElement) {
+                return rowIndex;
+            } else {
+                throw UnknownArgumentException.newInstance(Class.class, column.getClass());
+            }
+        } catch (final IndexOutOfBoundsException e) {
+            return null;
         }
     }
 

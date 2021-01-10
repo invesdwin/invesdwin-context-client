@@ -15,6 +15,7 @@ import de.invesdwin.context.client.swing.api.binding.BindingGroup;
 import de.invesdwin.context.client.swing.api.binding.component.AComponentBinding;
 import de.invesdwin.norva.beanpath.spi.element.ATableBeanPathElement;
 import de.invesdwin.norva.beanpath.spi.element.simple.modifier.IBeanPathPropertyModifier;
+import de.invesdwin.util.lang.Objects;
 
 @NotThreadSafe
 public class TableSelectionBinding extends AComponentBinding<JTable, List<?>> {
@@ -43,7 +44,11 @@ public class TableSelectionBinding extends AComponentBinding<JTable, List<?>> {
                         return;
                     }
                     if (eagerSubmitRunnable != null) {
-                        eagerSubmitRunnable.run();
+                        final List<Integer> selectedIndexesInModel = prevSelectedIndexesInModel;
+                        final List<Integer> selectedIndexesInTable = getSelectedIndexesInTable();
+                        if (!Objects.equals(selectedIndexesInModel, selectedIndexesInTable)) {
+                            eagerSubmitRunnable.run();
+                        }
                     }
                 }
             });
