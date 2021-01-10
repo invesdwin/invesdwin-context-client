@@ -48,6 +48,7 @@ public class TableSelectionBinding extends AComponentBinding<JTable, List<?>> {
                         final List<Integer> selectedIndexesInTable = getSelectedIndexesInTable();
                         if (!Objects.equals(selectedIndexesInModel, selectedIndexesInTable)) {
                             eagerSubmitRunnable.run();
+                            prevSelectedIndexesInModel = selectedIndexesInTable;
                         }
                     }
                 }
@@ -62,8 +63,8 @@ public class TableSelectionBinding extends AComponentBinding<JTable, List<?>> {
     @Override
     protected Optional<List<?>> fromModelToComponent(final List<?> modelValue) {
         final List<Integer> selectedIndexesInModel = getSelectedIndexesInModel();
-        if (selectedIndexesInModel.equals(prevSelectedIndexesInModel)) {
-            Optional.ofNullable(modelValue);
+        if (Objects.equals(selectedIndexesInModel, prevSelectedIndexesInModel)) {
+            return Optional.ofNullable(modelValue);
         }
         prevSelectedIndexesInModel = selectedIndexesInModel;
         selectionUpdating = true;
