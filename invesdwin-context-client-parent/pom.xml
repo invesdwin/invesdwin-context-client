@@ -459,8 +459,8 @@
 	</pluginRepositories>
 
 	<scm>
-		<url>https://github.com/subes/invesdwin-context-client</url>
-		<connection>scm:git:https://github.com/subes/invesdwin-context-client.git</connection>
+		<url>https://github.com/invesdwin/invesdwin-context-client</url>
+		<connection>scm:git:https://github.com/invesdwin/invesdwin-context-client.git</connection>
 		<tag>HEAD</tag>
 	</scm>
 
