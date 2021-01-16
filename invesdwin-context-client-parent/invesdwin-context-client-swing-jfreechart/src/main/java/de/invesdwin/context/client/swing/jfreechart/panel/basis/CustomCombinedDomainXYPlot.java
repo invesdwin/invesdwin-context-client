@@ -83,7 +83,9 @@ public class CustomCombinedDomainXYPlot extends CombinedDomainXYPlot {
 
     @Override
     public void add(final XYPlot subplot, final int weight) {
-        EventDispatchThreadUtil.assertEventDispatchThread();
+        if (chartPanel.isInitialized()) {
+            EventDispatchThreadUtil.assertEventDispatchThread();
+        }
         if (weight == 0) {
             super.add(subplot, 1);
             subplot.setWeight(0);
@@ -94,7 +96,9 @@ public class CustomCombinedDomainXYPlot extends CombinedDomainXYPlot {
 
     @Override
     public void remove(final XYPlot subplot) {
-        EventDispatchThreadUtil.assertEventDispatchThread();
+        if (chartPanel.isInitialized()) {
+            EventDispatchThreadUtil.assertEventDispatchThread();
+        }
         super.remove(subplot);
     }
 

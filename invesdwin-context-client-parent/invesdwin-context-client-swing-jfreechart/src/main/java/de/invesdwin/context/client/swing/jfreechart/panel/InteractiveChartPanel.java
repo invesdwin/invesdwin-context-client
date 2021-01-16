@@ -89,6 +89,8 @@ public class InteractiveChartPanel extends JPanel {
 
     private final InteractiveChartPanelFinalizer finalizer;
 
+    private boolean initialized = false;
+
     public InteractiveChartPanel(final IndexedDateTimeOHLCDataset masterDataset) {
         this.masterDataset = masterDataset;
         Assertions.checkNotBlank(masterDataset.getRangeAxisId());
@@ -161,6 +163,7 @@ public class InteractiveChartPanel extends JPanel {
             final IChartPanelAwareDatasetList cData = (IChartPanelAwareDatasetList) masterDataset.getData();
             cData.setChartPanel(this);
         }
+        initialized = true;
         finalizer.executorUpdateLimit.execute(new Runnable() {
             @Override
             public void run() {
@@ -705,6 +708,10 @@ public class InteractiveChartPanel extends JPanel {
         public boolean isThreadLocal() {
             return false;
         }
+    }
+
+    public boolean isInitialized() {
+        return initialized;
     }
 
 }
