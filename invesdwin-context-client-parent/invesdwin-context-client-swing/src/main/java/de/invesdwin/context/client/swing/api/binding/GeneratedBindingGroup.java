@@ -142,7 +142,7 @@ public final class GeneratedBindingGroup {
                     bindingGroup.addBinding(binding);
                 }
             } catch (final Throwable t) {
-                throw new RuntimeException("At: " + c.getClass().getSimpleName() + " -> " + c.getName());
+                throw new RuntimeException("At: " + c.getClass().getSimpleName() + " -> " + c.getName(), t);
             }
         }
         bindingGroup.addBinding(new RootTitleBinding(bindingGroup));
