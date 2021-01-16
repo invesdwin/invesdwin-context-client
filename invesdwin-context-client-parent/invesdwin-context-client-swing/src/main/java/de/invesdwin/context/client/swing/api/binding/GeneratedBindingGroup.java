@@ -108,37 +108,41 @@ public final class GeneratedBindingGroup {
 
         final List<Component> components = new NamedViewComponentFinder().findAll(rootComponent);
         for (final Component c : components) {
-            final IComponentBinding binding;
-            if (c instanceof JMenuItem) {
-                binding = bindJMenuItem((JMenuItem) c);
-            } else if (c instanceof JButton) {
-                binding = bindJButton((JButton) c);
-                if (c instanceof JCheckBoxButton) {
-                    final JCheckBoxButton checkboxButton = (JCheckBoxButton) c;
-                    final IComponentBinding checkboxBinding = bindJCheckBox(checkboxButton.getCheckbox());
-                    if (checkboxBinding != null) {
-                        bindingGroup.addBinding(binding);
+            try {
+                final IComponentBinding binding;
+                if (c instanceof JMenuItem) {
+                    binding = bindJMenuItem((JMenuItem) c);
+                } else if (c instanceof JButton) {
+                    binding = bindJButton((JButton) c);
+                    if (c instanceof JCheckBoxButton) {
+                        final JCheckBoxButton checkboxButton = (JCheckBoxButton) c;
+                        final IComponentBinding checkboxBinding = bindJCheckBox(checkboxButton.getCheckbox());
+                        if (checkboxBinding != null) {
+                            bindingGroup.addBinding(binding);
+                        }
                     }
+                } else if (c instanceof JTextComponent) {
+                    binding = bindJTextComponent((JTextComponent) c);
+                } else if (c instanceof JLabel) {
+                    binding = bindJLabel((JLabel) c);
+                } else if (c instanceof JComboBox) {
+                    binding = bindJComboBox((JComboBox) c);
+                } else if (c instanceof JList) {
+                    binding = bindJList((JList) c);
+                } else if (c instanceof JTable) {
+                    binding = bindJTable((JTable) c);
+                } else if (c instanceof JCheckBox) {
+                    binding = bindJCheckBox((JCheckBox) c);
+                } else if (c instanceof JSpinner) {
+                    binding = bindJSpinner((JSpinner) c);
+                } else {
+                    throw UnknownArgumentException.newInstance(Class.class, c.getClass());
                 }
-            } else if (c instanceof JTextComponent) {
-                binding = bindJTextComponent((JTextComponent) c);
-            } else if (c instanceof JLabel) {
-                binding = bindJLabel((JLabel) c);
-            } else if (c instanceof JComboBox) {
-                binding = bindJComboBox((JComboBox) c);
-            } else if (c instanceof JList) {
-                binding = bindJList((JList) c);
-            } else if (c instanceof JTable) {
-                binding = bindJTable((JTable) c);
-            } else if (c instanceof JCheckBox) {
-                binding = bindJCheckBox((JCheckBox) c);
-            } else if (c instanceof JSpinner) {
-                binding = bindJSpinner((JSpinner) c);
-            } else {
-                throw UnknownArgumentException.newInstance(Class.class, c.getClass());
-            }
-            if (binding != null) {
-                bindingGroup.addBinding(binding);
+                if (binding != null) {
+                    bindingGroup.addBinding(binding);
+                }
+            } catch (final Throwable t) {
+                throw new RuntimeException("At: " + c.getClass().getSimpleName() + " -> " + c.getName());
             }
         }
         bindingGroup.addBinding(new RootTitleBinding(bindingGroup));
