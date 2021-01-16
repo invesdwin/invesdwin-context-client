@@ -48,7 +48,17 @@ public class ExpressionCompletionProvider extends DefaultCompletionProvider {
     public void addDefaultCompletions(final Set<String> duplicateExpressionFilter,
             final Map<String, IAliasedCompletion> name_completion,
             final Map<String, IAliasedCompletion> alias_completion) {
-        for (final IVariable v : ExpressionParser.getDefaultVariables()) {
+        final Collection<IVariable> defaultVariables = ExpressionParser.getDefaultVariables();
+        final Collection<IFunctionFactory> defaultFunctions = ExpressionParser.getDefaultFunctions();
+        addCompletions(duplicateExpressionFilter, name_completion, alias_completion, defaultVariables,
+                defaultFunctions);
+    }
+
+    public void addCompletions(final Set<String> duplicateExpressionFilter,
+            final Map<String, IAliasedCompletion> name_completion,
+            final Map<String, IAliasedCompletion> alias_completion, final Collection<IVariable> defaultVariables,
+            final Collection<IFunctionFactory> defaultFunctions) {
+        for (final IVariable v : defaultVariables) {
             final String expressionName = v.getExpressionName();
             final String name = v.getName();
             if (duplicateExpressionFilter.add(expressionName)) {
@@ -65,14 +75,14 @@ public class ExpressionCompletionProvider extends DefaultCompletionProvider {
             }
         }
 
-        for (final IFunctionFactory factory : ExpressionParser.getDefaultFunctions()) {
-            final AFunction f = factory.newFunction(getPreviousKeyFunction());
-            if (f == null) {
-                continue;
-            }
-            final String expressionName = f.getExpressionName();
-            final String name = f.getName();
+        for (final IFunctionFactory factory : defaultFunctions) {
+            final String expressionName = factory.getExpressionName();
             if (duplicateExpressionFilter.add(expressionName)) {
+                final AFunction f = factory.newFunction(getPreviousKeyFunction());
+                if (f == null) {
+                    continue;
+                }
+                final String name = f.getName();
                 final IAliasedCompletion existing = name_completion.get(name);
                 if (existing == null) {
                     final IFunctionParameterInfo[] parameters = f.getParameterInfos();
