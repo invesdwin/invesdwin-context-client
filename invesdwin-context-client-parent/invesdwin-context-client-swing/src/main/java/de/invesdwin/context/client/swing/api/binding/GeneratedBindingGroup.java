@@ -200,6 +200,8 @@ public final class GeneratedBindingGroup {
             return new ActionButtonBinding(component, action);
         }
 
+        System.out.println("support checkbox binding");
+
         final AActionBeanPathElement element = bindingGroup.getModelContext().getElementRegistry().getElement(beanPath);
         if (element != null) {
             return new SubmitButtonBinding(component, element, bindingGroup);
