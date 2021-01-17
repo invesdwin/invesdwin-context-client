@@ -65,6 +65,7 @@ public class GeneratedTableModel extends AbstractTableModel {
                 try {
                     updatePrevTableModel(newRowCount, newColumnCount);
                 } catch (final IndexOutOfBoundsException e) {
+                    //Caused by - java.lang.ArrayIndexOutOfBoundsException: Index 3440 out of bounds for length 3440
                     resetPrevTableModel(newRowCount, newColumnCount);
                     fireTableDataChanged();
                 }
