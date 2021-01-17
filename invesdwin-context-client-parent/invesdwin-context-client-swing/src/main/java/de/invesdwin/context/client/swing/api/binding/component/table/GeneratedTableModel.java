@@ -62,7 +62,12 @@ public class GeneratedTableModel extends AbstractTableModel {
                 resetPrevTableModel(newRowCount, newColumnCount);
                 fireTableDataChanged();
             } else {
-                updatePrevTableModel(newRowCount, newColumnCount);
+                try {
+                    updatePrevTableModel(newRowCount, newColumnCount);
+                } catch (final IndexOutOfBoundsException e) {
+                    resetPrevTableModel(newRowCount, newColumnCount);
+                    fireTableDataChanged();
+                }
             }
         } finally {
             selectionModel.setValueIsFrozen(false);
