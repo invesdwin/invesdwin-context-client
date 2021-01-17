@@ -52,7 +52,11 @@ public class IndexedDateTimeOHLCDataset extends ListOHLCDataset
 
     @Override
     public double getXValueAsDateTime(final int series, final int item) {
-        final int usedItem = Integers.between(item, 0, getItemCount(series) - 1);
+        final int itemCount = getItemCount(series);
+        if (itemCount == 0) {
+            return Double.NaN;
+        }
+        final int usedItem = Integers.between(item, 0, itemCount - 1);
         return getData().get(usedItem).getStartTime().millisValue();
     }
 

@@ -7,6 +7,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 import javax.swing.Action;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JList;
@@ -16,6 +17,7 @@ import javax.swing.JTable;
 import javax.swing.text.JTextComponent;
 
 import de.invesdwin.context.client.swing.api.binding.component.CheckBoxBinding;
+import de.invesdwin.context.client.swing.api.binding.component.CheckBoxMenuItemBinding;
 import de.invesdwin.context.client.swing.api.binding.component.ComboBoxBinding;
 import de.invesdwin.context.client.swing.api.binding.component.IComponentBinding;
 import de.invesdwin.context.client.swing.api.binding.component.ListBinding;
@@ -41,6 +43,7 @@ import de.invesdwin.norva.beanpath.spi.element.AActionBeanPathElement;
 import de.invesdwin.norva.beanpath.spi.element.AChoiceBeanPathElement;
 import de.invesdwin.norva.beanpath.spi.element.APropertyBeanPathElement;
 import de.invesdwin.norva.beanpath.spi.element.ATableBeanPathElement;
+import de.invesdwin.norva.beanpath.spi.element.CheckBoxBeanPathElement;
 import de.invesdwin.norva.beanpath.spi.element.IBeanPathElement;
 import de.invesdwin.norva.beanpath.spi.element.utility.ContainerTitleBeanPathElement;
 import de.invesdwin.util.error.UnknownArgumentException;
@@ -110,7 +113,9 @@ public final class GeneratedBindingGroup {
         for (final Component c : components) {
             try {
                 final IComponentBinding binding;
-                if (c instanceof JMenuItem) {
+                if (c instanceof JCheckBoxMenuItem) {
+                    binding = bindJCheckBoxMenuItem((JCheckBoxMenuItem) c);
+                } else if (c instanceof JMenuItem) {
                     binding = bindJMenuItem((JMenuItem) c);
                 } else if (c instanceof JButton) {
                     binding = bindJButton((JButton) c);
@@ -192,6 +197,16 @@ public final class GeneratedBindingGroup {
         return new TextComponentBinding(component, element, bindingGroup);
     }
 
+    protected IComponentBinding bindJCheckBoxMenuItem(final JCheckBoxMenuItem component) {
+        final String beanPath = component.getName();
+
+        final CheckBoxBeanPathElement element = bindingGroup.getModelContext()
+                .getElementRegistry()
+                .getElement(beanPath);
+
+        return new CheckBoxMenuItemBinding(component, element, bindingGroup);
+    }
+
     protected IComponentBinding bindJMenuItem(final JMenuItem component) {
         //prefer action over element for menu items
         final String beanPath = component.getName();
@@ -199,8 +214,6 @@ public final class GeneratedBindingGroup {
         if (action != null) {
             return new ActionButtonBinding(component, action);
         }
-
-        System.out.println("support checkbox binding");
 
         final AActionBeanPathElement element = bindingGroup.getModelContext().getElementRegistry().getElement(beanPath);
         if (element != null) {
