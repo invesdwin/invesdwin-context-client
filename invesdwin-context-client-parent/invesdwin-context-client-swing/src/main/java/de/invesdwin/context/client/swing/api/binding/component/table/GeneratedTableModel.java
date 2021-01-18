@@ -62,13 +62,13 @@ public class GeneratedTableModel extends AbstractTableModel {
                 resetPrevTableModel(newRowCount, newColumnCount);
                 fireTableDataChanged();
             } else {
-                try {
-                    updatePrevTableModel(newRowCount, newColumnCount);
-                } catch (final IndexOutOfBoundsException e) {
-                    //Caused by - java.lang.ArrayIndexOutOfBoundsException: Index 3440 out of bounds for length 3440
-                    resetPrevTableModel(newRowCount, newColumnCount);
-                    fireTableDataChanged();
-                }
+                //                try {
+                updatePrevTableModel(newRowCount, newColumnCount);
+                //                } catch (final IndexOutOfBoundsException e) {
+                //                    //Caused by - java.lang.ArrayIndexOutOfBoundsException: Index 3440 out of bounds for length 3440
+                //                    resetPrevTableModel(newRowCount, newColumnCount);
+                //                    fireTableDataChanged();
+                //                }
             }
         } finally {
             selectionModel.setValueIsFrozen(false);
@@ -90,10 +90,10 @@ public class GeneratedTableModel extends AbstractTableModel {
         }
         if (prevRowCount < newRowCount) {
             addRowsToPrevTableModel(newRowCount, newColumnCount, prevRowCount);
-            fireTableRowsInserted(prevRowCount - 1, newRowCount - 1);
+            fireTableRowsInserted(prevRowCount, newRowCount - 1);
         } else if (prevRowCount > newRowCount) {
             removeRowsFromPrevTableModel(newRowCount);
-            fireTableRowsDeleted(newRowCount - 1, prevRowCount - 1);
+            fireTableRowsDeleted(newRowCount, prevRowCount - 1);
         }
     }
 

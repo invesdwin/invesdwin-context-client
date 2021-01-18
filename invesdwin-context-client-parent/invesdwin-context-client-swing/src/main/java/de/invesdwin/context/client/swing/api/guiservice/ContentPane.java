@@ -100,6 +100,12 @@ public class ContentPane {
         application.showMainFrame();
     }
 
+    public void hideMainFrame() {
+        final de.invesdwin.context.client.swing.frame.app.DelegateRichApplication application = (de.invesdwin.context.client.swing.frame.app.DelegateRichApplication) Application
+                .getInstance();
+        application.hideMainFrame();
+    }
+
     @EventDispatchThread(InvocationType.INVOKE_AND_WAIT)
     public void showView(final AView<?, ?> view, final IWorkingAreaLocation location) {
         if (containsView(view)) {

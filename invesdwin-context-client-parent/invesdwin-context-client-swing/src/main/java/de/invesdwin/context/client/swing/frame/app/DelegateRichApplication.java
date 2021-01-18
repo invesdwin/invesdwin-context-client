@@ -175,6 +175,16 @@ public class DelegateRichApplication extends SingleFrameApplication {
         });
     }
 
+    @EventDispatchThread(InvocationType.INVOKE_LATER_IF_NOT_IN_EDT)
+    public void hideMainFrame() {
+        final FrameView frameView = getMainView();
+        final JFrame frame = frameView.getFrame();
+        if (!frame.isVisible()) {
+            return;
+        }
+        frame.setVisible(false);
+    }
+
     @Override
     public void shutdown() {
         super.shutdown();
