@@ -163,7 +163,6 @@ public class InteractiveChartPanel extends JPanel {
             final IChartPanelAwareDatasetList cData = (IChartPanelAwareDatasetList) masterDataset.getData();
             cData.setChartPanel(this);
         }
-        initialized = true;
         finalizer.executorUpdateLimit.execute(new Runnable() {
             @Override
             public void run() {
@@ -181,6 +180,7 @@ public class InteractiveChartPanel extends JPanel {
         chartPanel.setFocusable(true); //key listener only works on focusable panels
         chartPanel.addMouseListener(new MouseListenerImpl());
         chartPanel.addMouseWheelListener(new MouseWheelListenerImpl());
+        initialized = true;
     }
 
     public PlotCrosshairHelper getPlotCrosshairHelper() {
