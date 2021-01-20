@@ -1,4 +1,4 @@
-package de.invesdwin.context.client.swing.jfreechart.plot.renderer.custom;
+package de.invesdwin.context.client.swing.jfreechart.plot.renderer.custom.shape;
 
 import java.awt.Graphics2D;
 import java.awt.Image;
@@ -18,7 +18,6 @@ import javax.annotation.concurrent.NotThreadSafe;
 import org.jfree.chart.LegendItem;
 import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.event.RendererChangeEvent;
-import org.jfree.chart.labels.XYToolTipGenerator;
 import org.jfree.chart.plot.CrosshairState;
 import org.jfree.chart.plot.Plot;
 import org.jfree.chart.plot.PlotOrientation;
@@ -28,12 +27,12 @@ import org.jfree.chart.renderer.xy.AbstractXYItemRenderer;
 import org.jfree.chart.renderer.xy.XYItemRenderer;
 import org.jfree.chart.renderer.xy.XYItemRendererState;
 import org.jfree.chart.ui.RectangleEdge;
-import org.jfree.chart.urls.XYURLGenerator;
 import org.jfree.chart.util.Args;
-import org.jfree.chart.util.BooleanList;
 import org.jfree.chart.util.SerialUtils;
 import org.jfree.chart.util.ShapeUtils;
 import org.jfree.data.xy.XYDataset;
+
+import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.LineWidthType;
 
 /**
  * Adapted from CustomXYShapeRenderer
@@ -45,34 +44,11 @@ public class CustomXYShapeRenderer extends AbstractXYItemRenderer implements XYI
     private static final long serialVersionUID = -3271351259436865995L;
 
     /**
-     * A table of flags that control (per series) whether or not shapes are filled.
-     */
-    private BooleanList seriesShapesFilled;
-
-    /** The default value returned by the getShapeFilled() method. */
-    private boolean baseShapesFilled = true;
-
-    /**
      * The shape that is used to represent a line in the legend. This should never be set to {@code null}.
      */
     private transient Shape legendLine;
 
-    /**
-     * Constructs a new renderer.
-     */
-    public CustomXYShapeRenderer() {
-        this(null);
-    }
-
-    /**
-     * Constructs a new renderer.
-     *
-     * @param toolTipGenerator
-     *            the item label generator ({@code null} permitted).
-     */
-    public CustomXYShapeRenderer(final XYToolTipGenerator toolTipGenerator) {
-        this(toolTipGenerator, null);
-    }
+    private final ISeriesShapeFactory seriesShapeFactory;
 
     /**
      * Constructs a new renderer.
@@ -82,93 +58,33 @@ public class CustomXYShapeRenderer extends AbstractXYItemRenderer implements XYI
      * @param urlGenerator
      *            the URL generator.
      */
-    public CustomXYShapeRenderer(final XYToolTipGenerator toolTipGenerator, final XYURLGenerator urlGenerator) {
-
-        super();
-        setDefaultToolTipGenerator(toolTipGenerator);
-        setURLGenerator(urlGenerator);
-
-        this.seriesShapesFilled = new BooleanList();
-        this.baseShapesFilled = true;
+    public CustomXYShapeRenderer(final ISeriesShapeFactory seriesShapeFactory) {
         this.legendLine = new Line2D.Double(-7.0, 0.0, 7.0, 0.0);
-
-        System.out.println("use a shapebuilder as param and adjust on stroke width changes");
+        this.seriesShapeFactory = seriesShapeFactory;
     }
 
-    /**
-     * Returns the flag used to control whether or not the shape for an item is filled.
-     * <p>
-     * The default implementation passes control to the {@code getSeriesShapesFilled()} method. You can override this
-     * method if you require different behaviour.
-     *
-     * @param series
-     *            the series index (zero-based).
-     * @param item
-     *            the item index (zero-based).
-     *
-     * @return A boolean.
-     *
-     * @see #getSeriesShapesFilled(int)
-     */
-    public boolean getItemShapeFilled(final int series, final int item) {
-
-        // otherwise look up the paint table
-        final Boolean flag = this.seriesShapesFilled.getBoolean(series);
-        if (flag != null) {
-            return flag.booleanValue();
-        } else {
-            return this.baseShapesFilled;
-        }
+    public ISeriesShapeFactory getSeriesShapeFactory() {
+        return seriesShapeFactory;
     }
 
-    /**
-     * Returns the flag used to control whether or not the shapes for a series are filled.
-     *
-     * @param series
-     *            the series index (zero-based).
-     *
-     * @return A boolean.
-     */
-    public Boolean getSeriesShapesFilled(final int series) {
-        return this.seriesShapesFilled.getBoolean(series);
+    @Override
+    public void setSeriesStroke(final int series, final Stroke stroke, final boolean notify) {
+        super.setSeriesStroke(series, stroke, notify);
+        final LineWidthType width = LineWidthType.valueOf(stroke);
+        final Shape shape = seriesShapeFactory.newShape(width);
+        super.setSeriesShape(series, shape, notify);
     }
 
-    /**
-     * Sets the 'shapes filled' flag for a series and sends a {@link RendererChangeEvent} to all registered listeners.
-     *
-     * @param series
-     *            the series index (zero-based).
-     * @param flag
-     *            the flag.
-     *
-     * @see #getSeriesShapesFilled(int)
-     */
-    public void setSeriesShapesFilled(final int series, final Boolean flag) {
-        this.seriesShapesFilled.setBoolean(series, flag);
-        fireChangeEvent();
+    @Deprecated
+    @Override
+    public void setSeriesShape(final int series, final Shape shape) {
+        throw new UnsupportedOperationException();
     }
 
-    /**
-     * Returns the base 'shape filled' attribute.
-     *
-     * @return The base flag.
-     *
-     * @see #setBaseShapesFilled(boolean)
-     */
-    public boolean getBaseShapesFilled() {
-        return this.baseShapesFilled;
-    }
-
-    /**
-     * Sets the base 'shapes filled' flag and sends a {@link RendererChangeEvent} to all registered listeners.
-     *
-     * @param flag
-     *            the flag.
-     *
-     * @see #getBaseShapesFilled()
-     */
-    public void setBaseShapesFilled(final boolean flag) {
-        this.baseShapesFilled = flag;
+    @Deprecated
+    @Override
+    public void setSeriesShape(final int series, final Shape shape, final boolean notify) {
+        throw new UnsupportedOperationException();
     }
 
     /**
@@ -228,12 +144,11 @@ public class CustomXYShapeRenderer extends AbstractXYItemRenderer implements XYI
                     urlText = getLegendItemURLGenerator().generateLabel(dataset, series);
                 }
                 final Shape shape = lookupLegendShape(series);
-                final boolean shapeFilled = getItemShapeFilled(series, 0);
                 final Paint paint = lookupSeriesPaint(series);
                 final Paint linePaint = paint;
                 final Stroke lineStroke = lookupSeriesStroke(series);
-                result = new LegendItem(label, description, toolTipText, urlText, true, shape, shapeFilled, paint,
-                        !shapeFilled, paint, lineStroke, false, this.legendLine, lineStroke, linePaint);
+                result = new LegendItem(label, description, toolTipText, urlText, true, shape, true, paint, false,
+                        paint, lineStroke, false, this.legendLine, lineStroke, linePaint);
                 result.setLabelFont(lookupLegendTextFont(series));
                 final Paint labelPaint = lookupLegendTextPaint(series);
                 if (labelPaint != null) {
@@ -316,11 +231,7 @@ public class CustomXYShapeRenderer extends AbstractXYItemRenderer implements XYI
             shape = ShapeUtils.createTranslatedShape(shape, transX1, transY1);
         }
         if (shape.intersects(dataArea)) {
-            if (getItemShapeFilled(series, item)) {
-                g2.fill(shape);
-            } else {
-                g2.draw(shape);
-            }
+            g2.fill(shape);
         }
     }
 
@@ -344,12 +255,6 @@ public class CustomXYShapeRenderer extends AbstractXYItemRenderer implements XYI
             return false;
         }
         final CustomXYShapeRenderer that = (CustomXYShapeRenderer) obj;
-        if (!this.seriesShapesFilled.equals(that.seriesShapesFilled)) {
-            return false;
-        }
-        if (this.baseShapesFilled != that.baseShapesFilled) {
-            return false;
-        }
         if (!ShapeUtils.equal(this.legendLine, that.legendLine)) {
             return false;
         }
@@ -368,7 +273,6 @@ public class CustomXYShapeRenderer extends AbstractXYItemRenderer implements XYI
     @Override
     public Object clone() throws CloneNotSupportedException {
         final CustomXYShapeRenderer clone = (CustomXYShapeRenderer) super.clone();
-        clone.seriesShapesFilled = (BooleanList) this.seriesShapesFilled.clone();
         clone.legendLine = ShapeUtils.clone(this.legendLine);
         return clone;
     }

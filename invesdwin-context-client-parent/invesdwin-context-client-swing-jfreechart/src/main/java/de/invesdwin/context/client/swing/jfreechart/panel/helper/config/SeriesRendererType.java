@@ -1,15 +1,11 @@
 package de.invesdwin.context.client.swing.jfreechart.panel.helper.config;
 
 import java.awt.Color;
-import java.awt.Shape;
-import java.awt.geom.Ellipse2D;
-import java.awt.geom.GeneralPath;
 
 import javax.annotation.concurrent.Immutable;
 
 import org.jfree.chart.renderer.xy.StandardXYBarPainter;
 import org.jfree.chart.renderer.xy.XYItemRenderer;
-import org.jfree.chart.util.ShapeUtils;
 
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.legend.HighlightedLegendInfo;
 import de.invesdwin.context.client.swing.jfreechart.plot.XYPlots;
@@ -22,6 +18,9 @@ import de.invesdwin.context.client.swing.jfreechart.plot.renderer.FastXYShapeRen
 import de.invesdwin.context.client.swing.jfreechart.plot.renderer.FastXYStepRenderer;
 import de.invesdwin.context.client.swing.jfreechart.plot.renderer.IDatasetSourceXYItemRenderer;
 import de.invesdwin.context.client.swing.jfreechart.plot.renderer.custom.ICustomRendererType;
+import de.invesdwin.context.client.swing.jfreechart.plot.renderer.custom.shape.CircleSeriesShapeFactory;
+import de.invesdwin.context.client.swing.jfreechart.plot.renderer.custom.shape.CrossSeriesShapeFactory;
+import de.invesdwin.context.client.swing.jfreechart.plot.renderer.custom.shape.ISeriesShapeFactory;
 import de.invesdwin.util.error.UnknownArgumentException;
 
 @Immutable
@@ -156,13 +155,9 @@ public enum SeriesRendererType implements IRendererType {
         public IDatasetSourceXYItemRenderer newRenderer(final IPlotSourceDataset dataset,
                 final LineStyleType lineStyleType, final LineWidthType lineWidthType, final Color color,
                 final boolean priceLineVisible, final boolean priceLabelVisible) {
-            final FastXYShapeRenderer renderer = new FastXYShapeRenderer(dataset);
+            final FastXYShapeRenderer renderer = new FastXYShapeRenderer(dataset, CircleSeriesShapeFactory.INSTANCE);
             renderer.setSeriesPaint(0, color);
             renderer.setSeriesFillPaint(0, color);
-            final double width = lineWidthType.getWidth() * 2;
-            final double offset = -(width / 2);
-            final Shape circle = new Ellipse2D.Double(offset, offset, width, width);
-            renderer.setSeriesShape(0, circle);
             renderer.setSeriesStroke(0, lineStyleType.getStroke(lineWidthType));
             renderer.setPriceLineVisible(priceLineVisible);
             renderer.setPriceLabelVisible(priceLabelVisible);
@@ -184,11 +179,9 @@ public enum SeriesRendererType implements IRendererType {
         public IDatasetSourceXYItemRenderer newRenderer(final IPlotSourceDataset dataset,
                 final LineStyleType lineStyleType, final LineWidthType lineWidthType, final Color color,
                 final boolean priceLineVisible, final boolean priceLabelVisible) {
-            final FastXYShapeRenderer renderer = new FastXYShapeRenderer(dataset);
+            final FastXYShapeRenderer renderer = new FastXYShapeRenderer(dataset, CrossSeriesShapeFactory.INSTANCE);
             renderer.setSeriesPaint(0, color);
             renderer.setSeriesFillPaint(0, color);
-            final Shape cross = ShapeUtils.createRegularCross(lineWidthType.getWidth() * 2, lineWidthType.getWidth());
-            renderer.setSeriesShape(0, cross);
             renderer.setSeriesStroke(0, lineStyleType.getStroke(lineWidthType));
             renderer.setPriceLineVisible(priceLineVisible);
             renderer.setPriceLabelVisible(priceLabelVisible);
@@ -263,13 +256,13 @@ public enum SeriesRendererType implements IRendererType {
             }
         } else if (unwrapped instanceof FastXYShapeRenderer) {
             final FastXYShapeRenderer cUnwrapped = (FastXYShapeRenderer) unwrapped;
-            final Shape shape = cUnwrapped.getSeriesShape(0);
-            if (shape instanceof GeneralPath) {
+            final ISeriesShapeFactory seriesShapeFactory = cUnwrapped.getSeriesShapeFactory();
+            if (seriesShapeFactory == CrossSeriesShapeFactory.INSTANCE) {
                 return SeriesRendererType.Cross;
-            } else if (shape instanceof Ellipse2D) {
+            } else if (seriesShapeFactory == CircleSeriesShapeFactory.INSTANCE) {
                 return SeriesRendererType.Circle;
             } else {
-                throw UnknownArgumentException.newInstance(Class.class, shape.getClass());
+                throw UnknownArgumentException.newInstance(Class.class, seriesShapeFactory.getClass());
             }
         }
         throw UnknownArgumentException.newInstance(Class.class, unwrapped.getClass());

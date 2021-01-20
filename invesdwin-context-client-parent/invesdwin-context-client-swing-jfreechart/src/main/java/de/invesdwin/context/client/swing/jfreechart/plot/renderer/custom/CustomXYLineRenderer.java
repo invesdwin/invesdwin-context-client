@@ -19,7 +19,6 @@ import javax.annotation.concurrent.NotThreadSafe;
 import org.jfree.chart.LegendItem;
 import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.event.RendererChangeEvent;
-import org.jfree.chart.labels.XYToolTipGenerator;
 import org.jfree.chart.plot.CrosshairState;
 import org.jfree.chart.plot.Plot;
 import org.jfree.chart.plot.PlotOrientation;
@@ -29,7 +28,6 @@ import org.jfree.chart.renderer.xy.AbstractXYItemRenderer;
 import org.jfree.chart.renderer.xy.XYItemRenderer;
 import org.jfree.chart.renderer.xy.XYItemRendererState;
 import org.jfree.chart.ui.RectangleEdge;
-import org.jfree.chart.urls.XYURLGenerator;
 import org.jfree.chart.util.Args;
 import org.jfree.chart.util.PublicCloneable;
 import org.jfree.chart.util.SerialUtils;
@@ -47,17 +45,6 @@ public class CustomXYLineRenderer extends AbstractXYItemRenderer
     private transient Shape legendLine;
 
     public CustomXYLineRenderer() {
-        this(null);
-    }
-
-    public CustomXYLineRenderer(final XYToolTipGenerator toolTipGenerator) {
-        this(toolTipGenerator, null);
-    }
-
-    public CustomXYLineRenderer(final XYToolTipGenerator toolTipGenerator, final XYURLGenerator urlGenerator) {
-        super();
-        setDefaultToolTipGenerator(toolTipGenerator);
-        setURLGenerator(urlGenerator);
         this.legendLine = new Line2D.Double(-7.0, 0.0, 7.0, 0.0);
     }
 
