@@ -36,22 +36,25 @@ import org.jfree.chart.util.SerialUtils;
 import org.jfree.chart.util.ShapeUtils;
 import org.jfree.data.xy.XYDataset;
 
+/**
+ * Adapted from StandardXYItemRenderer
+ */
 @NotThreadSafe
-public class CustomXYItemRenderer extends AbstractXYItemRenderer
+public class CustomXYLineRenderer extends AbstractXYItemRenderer
         implements XYItemRenderer, Cloneable, PublicCloneable, Serializable {
 
     private static final long serialVersionUID = -3271351259436865995L;
     private transient Shape legendLine;
 
-    public CustomXYItemRenderer() {
+    public CustomXYLineRenderer() {
         this(null);
     }
 
-    public CustomXYItemRenderer(final XYToolTipGenerator toolTipGenerator) {
+    public CustomXYLineRenderer(final XYToolTipGenerator toolTipGenerator) {
         this(toolTipGenerator, null);
     }
 
-    public CustomXYItemRenderer(final XYToolTipGenerator toolTipGenerator, final XYURLGenerator urlGenerator) {
+    public CustomXYLineRenderer(final XYToolTipGenerator toolTipGenerator, final XYURLGenerator urlGenerator) {
         super();
         setDefaultToolTipGenerator(toolTipGenerator);
         setURLGenerator(urlGenerator);
@@ -308,10 +311,10 @@ public class CustomXYItemRenderer extends AbstractXYItemRenderer
         if (obj == this) {
             return true;
         }
-        if (!(obj instanceof CustomXYItemRenderer)) {
+        if (!(obj instanceof CustomXYLineRenderer)) {
             return false;
         }
-        final CustomXYItemRenderer that = (CustomXYItemRenderer) obj;
+        final CustomXYLineRenderer that = (CustomXYLineRenderer) obj;
         if (!ShapeUtils.equal(this.legendLine, that.legendLine)) {
             return false;
         }
@@ -328,7 +331,7 @@ public class CustomXYItemRenderer extends AbstractXYItemRenderer
      */
     @Override
     public Object clone() throws CloneNotSupportedException {
-        final CustomXYItemRenderer clone = (CustomXYItemRenderer) super.clone();
+        final CustomXYLineRenderer clone = (CustomXYLineRenderer) super.clone();
         clone.legendLine = ShapeUtils.clone(this.legendLine);
         return clone;
     }

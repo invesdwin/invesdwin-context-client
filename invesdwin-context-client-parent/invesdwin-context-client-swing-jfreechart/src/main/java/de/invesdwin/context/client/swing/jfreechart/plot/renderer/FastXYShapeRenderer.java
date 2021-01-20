@@ -6,15 +6,15 @@ import de.invesdwin.context.client.swing.jfreechart.plot.annotation.priceline.ID
 import de.invesdwin.context.client.swing.jfreechart.plot.annotation.priceline.IPriceLineRenderer;
 import de.invesdwin.context.client.swing.jfreechart.plot.annotation.priceline.XYPriceLineAnnotation;
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.IPlotSourceDataset;
-import de.invesdwin.context.client.swing.jfreechart.plot.renderer.custom.CustomXYItemRenderer;
+import de.invesdwin.context.client.swing.jfreechart.plot.renderer.custom.CustomXYShapeRenderer;
 
 @NotThreadSafe
-public class FastStandardXYItemRenderer extends CustomXYItemRenderer implements IDelegatePriceLineXYItemRenderer {
+public class FastXYShapeRenderer extends CustomXYShapeRenderer implements IDelegatePriceLineXYItemRenderer {
 
     private final IPlotSourceDataset dataset;
     private final XYPriceLineAnnotation priceLineAnnotation;
 
-    public FastStandardXYItemRenderer(final IPlotSourceDataset dataset) {
+    public FastXYShapeRenderer(final IPlotSourceDataset dataset) {
         this.dataset = dataset;
         this.priceLineAnnotation = new XYPriceLineAnnotation(dataset, this);
         addAnnotation(priceLineAnnotation);

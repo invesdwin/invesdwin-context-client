@@ -12,7 +12,7 @@ import de.invesdwin.context.client.swing.jfreechart.plot.dataset.IPlotSourceData
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.IndexedDateTimeOHLCDataset;
 import de.invesdwin.context.client.swing.jfreechart.plot.renderer.FastCandlestickRenderer;
 import de.invesdwin.context.client.swing.jfreechart.plot.renderer.FastOHLCRenderer;
-import de.invesdwin.context.client.swing.jfreechart.plot.renderer.FastStandardXYItemRenderer;
+import de.invesdwin.context.client.swing.jfreechart.plot.renderer.FastXYLineRenderer;
 import de.invesdwin.context.client.swing.jfreechart.plot.renderer.FastXYAreaRenderer;
 import de.invesdwin.context.client.swing.jfreechart.plot.renderer.FastXYStepRenderer;
 import de.invesdwin.context.client.swing.jfreechart.plot.renderer.IDatasetSourceXYItemRenderer;
@@ -36,7 +36,7 @@ public class PriceInitialSettings {
     private final FastCandlestickRenderer candlestickRenderer;
     private final FastOHLCRenderer ohlcRenderer;
     private final FastXYAreaRenderer areaRenderer;
-    private final FastStandardXYItemRenderer lineRenderer;
+    private final FastXYLineRenderer lineRenderer;
     private final FastXYStepRenderer stepLineRenderer;
 
     /*
@@ -59,7 +59,7 @@ public class PriceInitialSettings {
         this.candlestickRenderer = new FastCandlestickRenderer(dataset);
         this.ohlcRenderer = candlestickRenderer.getOhlcRenderer();
         this.areaRenderer = new FastXYAreaRenderer(dataset);
-        this.lineRenderer = new FastStandardXYItemRenderer(dataset);
+        this.lineRenderer = new FastXYLineRenderer(dataset);
         this.stepLineRenderer = new FastXYStepRenderer(dataset);
         this.rangeAxisId = dataset.getRangeAxisId();
 
