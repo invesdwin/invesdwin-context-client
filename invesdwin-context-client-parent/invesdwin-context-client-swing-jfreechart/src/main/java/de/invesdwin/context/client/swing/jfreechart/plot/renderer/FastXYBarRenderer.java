@@ -32,6 +32,8 @@ public class FastXYBarRenderer extends XYBarRenderer implements IDelegatePriceLi
 
     public FastXYBarRenderer(final IPlotSourceDataset dataset, final double margin) {
         super(margin);
+        Renderers.disableAutoPopulate(this);
+
         this.dataset = dataset;
         this.priceLineAnnotation = new XYPriceLineAnnotation(dataset, this);
         addAnnotation(priceLineAnnotation);

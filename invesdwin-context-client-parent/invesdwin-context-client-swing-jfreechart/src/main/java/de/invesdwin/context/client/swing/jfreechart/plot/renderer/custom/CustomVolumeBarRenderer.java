@@ -39,8 +39,8 @@ public class CustomVolumeBarRenderer extends FastXYBarRenderer implements IUpDow
 
         setBarPainter(new StandardXYBarPainter());
         setShadowVisible(false);
-        setSeriesPaint(0, config.getSeriesColor());
-        setSeriesStroke(0, config.getSeriesStroke());
+        setDefaultPaint(config.getSeriesColor());
+        setDefaultStroke(config.getSeriesStroke());
         setDrawBarOutline(false);
 
         this.upColor = Colors.setTransparency(config.getUpColor(), DEFAULT_VOLUME_TRANSPARENCY);

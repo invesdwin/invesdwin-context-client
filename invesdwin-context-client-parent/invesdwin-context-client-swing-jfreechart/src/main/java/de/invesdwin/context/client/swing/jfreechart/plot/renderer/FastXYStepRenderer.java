@@ -34,6 +34,8 @@ public class FastXYStepRenderer extends XYStepRenderer implements IDelegatePrice
     private final XYPriceLineAnnotation priceLineAnnotation;
 
     public FastXYStepRenderer(final IPlotSourceDataset dataset) {
+        Renderers.disableAutoPopulate(this);
+
         this.dataset = dataset;
         this.priceLineAnnotation = new XYPriceLineAnnotation(dataset, this);
         addAnnotation(priceLineAnnotation);

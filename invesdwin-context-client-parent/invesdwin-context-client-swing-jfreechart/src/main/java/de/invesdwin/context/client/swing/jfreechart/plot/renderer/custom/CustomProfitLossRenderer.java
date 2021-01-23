@@ -40,8 +40,8 @@ public class CustomProfitLossRenderer extends ACustomEquityChangeRenderer
         this.dataset = dataset;
         final PriceInitialSettings config = plotConfigurationHelper.getPriceInitialSettings();
 
-        setSeriesPaint(0, Colors.setTransparency(UP_COLOR, TRANSPARENCY));
-        setSeriesStroke(0, config.getSeriesStroke());
+        setDefaultPaint(Colors.setTransparency(UP_COLOR, TRANSPARENCY));
+        setDefaultStroke(config.getSeriesStroke());
 
         this.upColor = Colors.setTransparency(UP_COLOR, TRANSPARENCY);
         this.downColor = Colors.setTransparency(DOWN_COLOR, TRANSPARENCY);

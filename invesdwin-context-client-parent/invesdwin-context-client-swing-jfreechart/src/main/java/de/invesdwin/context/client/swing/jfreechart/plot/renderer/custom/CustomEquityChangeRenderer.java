@@ -42,8 +42,8 @@ public class CustomEquityChangeRenderer extends ACustomEquityChangeRenderer
 
         final PriceInitialSettings config = plotConfigurationHelper.getPriceInitialSettings();
 
-        setSeriesPaint(0, Colors.setTransparency(UP_COLOR, LINE_TRANSPARENCY));
-        setSeriesStroke(0, config.getSeriesStroke());
+        setDefaultPaint(Colors.setTransparency(UP_COLOR, LINE_TRANSPARENCY));
+        setDefaultStroke(config.getSeriesStroke());
 
         this.upColor = Colors.setTransparency(UP_COLOR, AREA_TRANSPARENCY);
         this.downColor = Colors.setTransparency(DOWN_COLOR, AREA_TRANSPARENCY);

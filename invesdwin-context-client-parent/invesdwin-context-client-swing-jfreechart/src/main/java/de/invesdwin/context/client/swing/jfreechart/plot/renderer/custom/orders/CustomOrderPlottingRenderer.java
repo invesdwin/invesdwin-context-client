@@ -45,6 +45,7 @@ import de.invesdwin.context.client.swing.jfreechart.plot.annotation.XYNoteIconAn
 import de.invesdwin.context.client.swing.jfreechart.plot.annotation.priceline.XYPriceLineAnnotation;
 import de.invesdwin.context.client.swing.jfreechart.plot.renderer.INoteRenderer;
 import de.invesdwin.context.client.swing.jfreechart.plot.renderer.IUpDownColorRenderer;
+import de.invesdwin.context.client.swing.jfreechart.plot.renderer.Renderers;
 import de.invesdwin.context.client.swing.jfreechart.plot.renderer.custom.CustomProfitLossRenderer;
 import de.invesdwin.context.client.swing.jfreechart.plot.renderer.custom.ICustomRendererType;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
@@ -80,12 +81,14 @@ public class CustomOrderPlottingRenderer extends AbstractXYItemRenderer
 
     public CustomOrderPlottingRenderer(final PlotConfigurationHelper plotConfigurationHelper,
             final OrderPlottingDataset dataset) {
+        Renderers.disableAutoPopulate(this);
+
         this.dataset = dataset;
         final PriceInitialSettings config = plotConfigurationHelper.getPriceInitialSettings();
         setUpColor(UP_COLOR);
         setDownColor(DOWN_COLOR);
-        setSeriesPaint(0, BOTH_COLOR);
-        setSeriesStroke(0, config.getSeriesStroke());
+        setDefaultPaint(BOTH_COLOR);
+        setDefaultStroke(config.getSeriesStroke());
     }
 
     @Override
@@ -95,10 +98,13 @@ public class CustomOrderPlottingRenderer extends AbstractXYItemRenderer
 
     @Override
     public void setSeriesPaint(final int series, final Paint paint, final boolean notify) {
-        super.setSeriesPaint(series, paint, notify);
-        if (series == 0) {
-            noteBothIcon = newNoteIcon((Color) paint);
-        }
+        throw new UnsupportedOperationException("use setDefaultPaint instead");
+    }
+
+    @Override
+    public void setDefaultPaint(final Paint paint, final boolean notify) {
+        super.setDefaultPaint(paint, notify);
+        noteBothIcon = newNoteIcon((Color) paint);
     }
 
     private ImageIcon newNoteIcon(final Color color) {
@@ -197,7 +203,7 @@ public class CustomOrderPlottingRenderer extends AbstractXYItemRenderer
             final PlotOrientation orientation = plot.getOrientation();
             final RectangleEdge domainEdge = Plot.resolveDomainAxisLocation(plot.getDomainAxisLocation(), orientation);
             final RectangleEdge rangeEdge = Plot.resolveRangeAxisLocation(plot.getRangeAxisLocation(), orientation);
-            final LineWidthType lineWidth = LineWidthType.valueOf(getSeriesStroke(series));
+            final LineWidthType lineWidth = LineWidthType.valueOf(lookupSeriesStroke(series));
             final Map<Integer, List<String>> index_notes = drawLines(g2, dataArea, info, plot, domainAxis, rangeAxis,
                     lastItem, cDataset, firstItem, rendererIndex, rangeAxisFormat, domainEdge, rangeEdge, lineWidth);
             drawNotes(g2, dataArea, info, plot, domainAxis, cDataset, rendererIndex, cRangeAxis, index_notes);

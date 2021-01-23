@@ -91,11 +91,12 @@ public class FastCandlestickRenderer extends AbstractXYItemRenderer
     private final FastOHLCRenderer ohlcRenderer;
 
     public FastCandlestickRenderer(final IndexedDateTimeOHLCDataset dataset) {
-        super();
+        Renderers.disableAutoPopulate(this);
+
         this.upColor = PriceInitialSettings.DEFAULT_UP_COLOR;
         this.downColor = PriceInitialSettings.DEFAULT_DOWN_COLOR;
-        setSeriesPaint(0, upColor);
-        setSeriesStroke(0, PriceInitialSettings.DEFAULT_SERIES_STROKE);
+        setDefaultPaint(upColor);
+        setDefaultStroke(PriceInitialSettings.DEFAULT_SERIES_STROKE);
         this.dataset = dataset;
         this.priceLineAnnotation = new XYPriceLineAnnotation(dataset, this);
         addAnnotation(priceLineAnnotation);
@@ -316,7 +317,7 @@ public class FastCandlestickRenderer extends AbstractXYItemRenderer
         final double yyOpen = rangeAxis.valueToJava2D(yOpen, dataArea, edge);
         final double yyClose = rangeAxis.valueToJava2D(yClose, dataArea, edge);
 
-        calculateItemStroke(state, getSeriesStroke(0));
+        calculateItemStroke(state, getDefaultStroke());
         final double stickWidth = calculateStickWidth(state, dataArea, horiz);
 
         final Paint p = getItemPaint(series, item);

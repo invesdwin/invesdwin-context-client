@@ -70,9 +70,11 @@ public class FastXYAreaRenderer extends AbstractXYItemRenderer implements IDeleg
 
     private final XYPriceLineAnnotation priceLineAnnotation;
 
-    private IPlotSourceDataset dataset;
+    private final IPlotSourceDataset dataset;
 
     public FastXYAreaRenderer(final IPlotSourceDataset dataset) {
+        Renderers.disableAutoPopulate(this);
+
         this.dataset = dataset;
 
         this.plotArea = true;
@@ -88,7 +90,7 @@ public class FastXYAreaRenderer extends AbstractXYItemRenderer implements IDeleg
         this.legendArea = area;
         this.gradientTransformer = new StandardGradientPaintTransformer();
 
-        setSeriesStroke(0, PriceInitialSettings.DEFAULT_SERIES_STROKE);
+        setDefaultStroke(PriceInitialSettings.DEFAULT_SERIES_STROKE);
 
         this.priceLineAnnotation = new XYPriceLineAnnotation(dataset, this);
         addAnnotation(priceLineAnnotation);
@@ -439,6 +441,36 @@ public class FastXYAreaRenderer extends AbstractXYItemRenderer implements IDeleg
         SerialUtils.writeShape(this.legendArea, stream);
     }
 
+    @Override
+    public void setDefaultPaint(final Paint paint) {
+        super.setDefaultPaint(paint);
+        super.setDefaultFillPaint(paint);
+    }
+
+    @Override
+    public void setDefaultPaint(final Paint paint, final boolean notify) {
+        super.setDefaultPaint(paint, notify);
+        super.setDefaultFillPaint(paint, notify);
+    }
+
+    /**
+     * The series paint is also set as the fill paint.
+     */
+    @Deprecated
+    @Override
+    public void setDefaultFillPaint(final Paint paint) {
+        super.setDefaultFillPaint(paint);
+    }
+
+    /**
+     * The series paint is also set as the fill paint.
+     */
+    @Deprecated
+    @Override
+    public void setDefaultFillPaint(final Paint paint, final boolean notify) {
+        super.setDefaultFillPaint(paint, notify);
+    }
+    
     @Override
     public void setSeriesPaint(final int series, final Paint paint) {
         super.setSeriesPaint(series, paint);

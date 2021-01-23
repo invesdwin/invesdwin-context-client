@@ -104,14 +104,14 @@ public class StyleSettingsPanel extends JPanel implements ISettingsPanelActions 
                             .getSelectedItem();
                     final SeriesRendererType type = selectedItem.getType();
                     final XYItemRenderer renderer = highlighted.getRenderer();
-                    final Color color = (Color) renderer.getSeriesPaint(0);
-                    final Stroke stroke = renderer.getSeriesStroke(0);
+                    final Color color = (Color) renderer.getDefaultPaint();
+                    final Stroke stroke = renderer.getDefaultStroke();
                     if (type == SeriesRendererType.Custom) {
                         final ICustomRendererType customRenderer = (ICustomRendererType) plotConfigurationHelper
                                 .getSeriesInitialSettings(highlighted)
                                 .getRendererType();
-                        customRenderer.setSeriesPaint(0, color);
-                        customRenderer.setSeriesStroke(0, stroke);
+                        customRenderer.setDefaultPaint(color);
+                        customRenderer.setDefaultStroke(stroke);
                         if (customRenderer.isPriceLineConfigurable()
                                 && plotConfigurationHelper.getSeriesInitialSettings(highlighted)
                                         .getRendererType()
@@ -150,9 +150,9 @@ public class StyleSettingsPanel extends JPanel implements ISettingsPanelActions 
             @Override
             public void actionPerformed(final ActionEvent e) {
                 final XYItemRenderer renderer = highlighted.getRenderer();
-                final Stroke stroke = renderer.getSeriesStroke(0);
+                final Stroke stroke = renderer.getDefaultStroke();
                 final LineStyleType selectedItem = (LineStyleType) panel.cmb_lineStyle.getSelectedItem();
-                renderer.setSeriesStroke(0, selectedItem.getStroke(stroke));
+                renderer.setDefaultStroke(selectedItem.getStroke(stroke));
             }
         });
 
@@ -160,9 +160,9 @@ public class StyleSettingsPanel extends JPanel implements ISettingsPanelActions 
             @Override
             public void actionPerformed(final ActionEvent e) {
                 final XYItemRenderer renderer = highlighted.getRenderer();
-                final Stroke stroke = renderer.getSeriesStroke(0);
+                final Stroke stroke = renderer.getDefaultStroke();
                 final LineWidthType selectedItem = (LineWidthType) panel.cmb_lineWidth.getSelectedItem();
-                renderer.setSeriesStroke(0, selectedItem.getStroke(stroke));
+                renderer.setDefaultStroke(selectedItem.getStroke(stroke));
             }
 
         });
@@ -170,7 +170,7 @@ public class StyleSettingsPanel extends JPanel implements ISettingsPanelActions 
 
     private void initColors() {
         panel.btn_seriesColor.addActionListener(new ColorChooserButtonActionListener(panel.btn_seriesColor,
-                (Color) highlighted.getRenderer().getSeriesPaint(0)) {
+                (Color) highlighted.getRenderer().getDefaultPaint()) {
 
             @Override
             protected String getChooserDialogTitle() {
@@ -186,21 +186,21 @@ public class StyleSettingsPanel extends JPanel implements ISettingsPanelActions 
             public void change(final Color initialColor, final Color newColor) {
                 super.change(initialColor, newColor);
                 final XYItemRenderer renderer = highlighted.getRenderer();
-                renderer.setSeriesPaint(0, newColor);
+                renderer.setDefaultPaint(newColor);
             }
 
             @Override
             public void ok(final Color initialColor, final Color acceptedColor) {
                 super.ok(initialColor, acceptedColor);
                 final XYItemRenderer renderer = highlighted.getRenderer();
-                renderer.setSeriesPaint(0, acceptedColor);
+                renderer.setDefaultPaint(acceptedColor);
             }
 
             @Override
             public void cancel(final Color initialColor, final Color cancelledColor) {
                 super.cancel(initialColor, cancelledColor);
                 final XYItemRenderer renderer = highlighted.getRenderer();
-                renderer.setSeriesPaint(0, initialColor);
+                renderer.setDefaultPaint(initialColor);
             }
         });
         if (highlighted.getRenderer() instanceof IUpDownColorRenderer) {
@@ -373,7 +373,7 @@ public class StyleSettingsPanel extends JPanel implements ISettingsPanelActions 
                 panel.cmb_lineStyle.addItem(type);
             }
             final XYItemRenderer renderer = highlighted.getRenderer();
-            final LineStyleType lineStyleType = LineStyleType.valueOf(renderer.getSeriesStroke(0));
+            final LineStyleType lineStyleType = LineStyleType.valueOf(renderer.getDefaultStroke());
             panel.cmb_lineStyle.setSelectedItem(lineStyleType);
         }
         if (panel.cmb_lineWidth.isVisible()) {
@@ -381,7 +381,7 @@ public class StyleSettingsPanel extends JPanel implements ISettingsPanelActions 
                 panel.cmb_lineWidth.addItem(type);
             }
             final XYItemRenderer renderer = highlighted.getRenderer();
-            final LineWidthType lineWidthType = LineWidthType.valueOf(renderer.getSeriesStroke(0));
+            final LineWidthType lineWidthType = LineWidthType.valueOf(renderer.getDefaultStroke());
             panel.cmb_lineWidth.setSelectedItem(lineWidthType);
         }
     }

@@ -34,6 +34,8 @@ import org.jfree.chart.util.SerialUtils;
 import org.jfree.chart.util.ShapeUtils;
 import org.jfree.data.xy.XYDataset;
 
+import de.invesdwin.context.client.swing.jfreechart.plot.renderer.Renderers;
+
 /**
  * Adapted from StandardXYItemRenderer
  */
@@ -45,6 +47,8 @@ public class CustomXYLineRenderer extends AbstractXYItemRenderer
     private transient Shape legendLine;
 
     public CustomXYLineRenderer() {
+        Renderers.disableAutoPopulate(this);
+
         this.legendLine = new Line2D.Double(-7.0, 0.0, 7.0, 0.0);
     }
 

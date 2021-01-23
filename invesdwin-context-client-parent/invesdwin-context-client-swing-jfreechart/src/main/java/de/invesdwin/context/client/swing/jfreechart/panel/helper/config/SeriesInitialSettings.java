@@ -33,7 +33,7 @@ public class SeriesInitialSettings {
         } else {
             rendererType = seriesRendererType;
         }
-        seriesColor = (Color) initialRenderer.getSeriesPaint(0);
+        seriesColor = (Color) initialRenderer.getDefaultPaint();
         if (initialRenderer instanceof IUpDownColorRenderer) {
             final IUpDownColorRenderer cRenderer = (IUpDownColorRenderer) initialRenderer;
             upColor = cRenderer.getUpColor();
@@ -42,7 +42,7 @@ public class SeriesInitialSettings {
             upColor = null;
             downColor = null;
         }
-        final Stroke stroke = initialRenderer.getSeriesStroke(0);
+        final Stroke stroke = initialRenderer.getDefaultStroke();
         lineStyleType = LineStyleType.valueOf(stroke);
         lineWidthType = LineWidthType.valueOf(stroke);
         priceLineVisible = HighlightedLegendInfo.isPriceLineVisible(initialRenderer);

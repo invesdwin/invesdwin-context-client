@@ -31,9 +31,9 @@ public enum SeriesRendererType implements IRendererType {
                 final LineStyleType lineStyleType, final LineWidthType lineWidthType, final Color color,
                 final boolean priceLineVisible, final boolean priceLabelVisible) {
             final FastXYLineRenderer renderer = new FastXYLineRenderer(dataset);
-            renderer.setSeriesPaint(0, color);
-            renderer.setSeriesFillPaint(0, color);
-            renderer.setSeriesStroke(0, lineStyleType.getStroke(lineWidthType));
+            renderer.setDefaultPaint(color);
+            renderer.setDefaultFillPaint(color);
+            renderer.setDefaultStroke(lineStyleType.getStroke(lineWidthType));
             renderer.setPriceLineVisible(priceLineVisible);
             renderer.setPriceLabelVisible(priceLabelVisible);
             return renderer;
@@ -55,9 +55,9 @@ public enum SeriesRendererType implements IRendererType {
                 final LineStyleType lineStyleType, final LineWidthType lineWidthType, final Color color,
                 final boolean priceLineVisible, final boolean priceLabelVisible) {
             final FastXYStepRenderer renderer = new FastXYStepRenderer(dataset);
-            renderer.setSeriesPaint(0, color);
-            renderer.setSeriesFillPaint(0, color);
-            renderer.setSeriesStroke(0, lineStyleType.getStroke(lineWidthType));
+            renderer.setDefaultPaint(color);
+            renderer.setDefaultFillPaint(color);
+            renderer.setDefaultStroke(lineStyleType.getStroke(lineWidthType));
             renderer.setPriceLineVisible(priceLineVisible);
             renderer.setPriceLabelVisible(priceLabelVisible);
             return renderer;
@@ -79,8 +79,8 @@ public enum SeriesRendererType implements IRendererType {
                 final LineStyleType lineStyleType, final LineWidthType lineWidthType, final Color color,
                 final boolean priceLineVisible, final boolean priceLabelVisible) {
             final FastXYAreaRenderer renderer = new FastXYAreaRenderer(dataset);
-            renderer.setSeriesPaint(0, color);
-            renderer.setSeriesStroke(0, lineStyleType.getStroke(lineWidthType));
+            renderer.setDefaultPaint(color);
+            renderer.setDefaultStroke(lineStyleType.getStroke(lineWidthType));
             renderer.setPriceLineVisible(priceLineVisible);
             renderer.setPriceLabelVisible(priceLabelVisible);
             return renderer;
@@ -104,9 +104,9 @@ public enum SeriesRendererType implements IRendererType {
             final FastXYBarRenderer renderer = new FastXYBarRenderer(dataset);
             renderer.setBarPainter(new StandardXYBarPainter());
             renderer.setShadowVisible(false);
-            renderer.setSeriesPaint(0, color);
-            renderer.setSeriesFillPaint(0, color);
-            renderer.setSeriesStroke(0, lineStyleType.getStroke(lineWidthType));
+            renderer.setDefaultPaint(color);
+            renderer.setDefaultFillPaint(color);
+            renderer.setDefaultStroke(lineStyleType.getStroke(lineWidthType));
             renderer.setDrawBarOutline(false);
             renderer.setPriceLineVisible(priceLineVisible);
             renderer.setPriceLabelVisible(priceLabelVisible);
@@ -131,9 +131,9 @@ public enum SeriesRendererType implements IRendererType {
             final FastXYBarRenderer renderer = new FastXYBarRenderer(dataset, HISTOGRAM_MARGIN);
             renderer.setBarPainter(new StandardXYBarPainter());
             renderer.setShadowVisible(false);
-            renderer.setSeriesPaint(0, color);
-            renderer.setSeriesFillPaint(0, color);
-            renderer.setSeriesStroke(0, lineStyleType.getStroke(lineWidthType));
+            renderer.setDefaultPaint(color);
+            renderer.setDefaultFillPaint(color);
+            renderer.setDefaultStroke(lineStyleType.getStroke(lineWidthType));
             renderer.setDrawBarOutline(false);
             renderer.setPriceLineVisible(priceLineVisible);
             renderer.setPriceLabelVisible(priceLabelVisible);
@@ -156,9 +156,9 @@ public enum SeriesRendererType implements IRendererType {
                 final LineStyleType lineStyleType, final LineWidthType lineWidthType, final Color color,
                 final boolean priceLineVisible, final boolean priceLabelVisible) {
             final FastXYShapeRenderer renderer = new FastXYShapeRenderer(dataset, CircleSeriesShapeFactory.INSTANCE);
-            renderer.setSeriesPaint(0, color);
-            renderer.setSeriesFillPaint(0, color);
-            renderer.setSeriesStroke(0, lineStyleType.getStroke(lineWidthType));
+            renderer.setDefaultPaint(color);
+            renderer.setDefaultFillPaint(color);
+            renderer.setDefaultStroke(lineStyleType.getStroke(lineWidthType));
             renderer.setPriceLineVisible(priceLineVisible);
             renderer.setPriceLabelVisible(priceLabelVisible);
             return renderer;
@@ -180,9 +180,9 @@ public enum SeriesRendererType implements IRendererType {
                 final LineStyleType lineStyleType, final LineWidthType lineWidthType, final Color color,
                 final boolean priceLineVisible, final boolean priceLabelVisible) {
             final FastXYShapeRenderer renderer = new FastXYShapeRenderer(dataset, CrossSeriesShapeFactory.INSTANCE);
-            renderer.setSeriesPaint(0, color);
-            renderer.setSeriesFillPaint(0, color);
-            renderer.setSeriesStroke(0, lineStyleType.getStroke(lineWidthType));
+            renderer.setDefaultPaint(color);
+            renderer.setDefaultFillPaint(color);
+            renderer.setDefaultStroke(lineStyleType.getStroke(lineWidthType));
             renderer.setPriceLineVisible(priceLineVisible);
             renderer.setPriceLabelVisible(priceLabelVisible);
             return renderer;

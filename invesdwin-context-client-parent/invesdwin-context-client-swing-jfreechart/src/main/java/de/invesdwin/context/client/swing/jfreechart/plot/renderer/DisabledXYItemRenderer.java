@@ -29,12 +29,15 @@ public class DisabledXYItemRenderer extends AbstractXYItemRenderer implements ID
     private final IDatasetSourceXYItemRenderer enabledRenderer;
 
     public DisabledXYItemRenderer(final IDatasetSourceXYItemRenderer enabledRenderer) {
+        Renderers.disableAutoPopulate(this);
+
         Assertions.checkNotNull(enabledRenderer);
         if (enabledRenderer instanceof DisabledXYItemRenderer) {
             throw new IllegalArgumentException(
                     "enabledRenderer should not be an instance of " + DisabledXYItemRenderer.class.getSimpleName());
         }
         this.enabledRenderer = enabledRenderer;
+
     }
 
     public XYItemRenderer getEnabledRenderer() {
@@ -46,7 +49,8 @@ public class DisabledXYItemRenderer extends AbstractXYItemRenderer implements ID
     public void drawItem(final Graphics2D g2, final XYItemRendererState state, final Rectangle2D dataArea,
             final PlotRenderingInfo info, final XYPlot plot, final ValueAxis domainAxis, final ValueAxis rangeAxis,
             final XYDataset dataset, final int series, final int item, final CrosshairState crosshairState,
-            final int pass) {}
+            final int pass) {
+    }
     //CHECKSTYLE:ON
 
     public static XYItemRenderer maybeUnwrap(final XYItemRenderer renderer) {
@@ -101,6 +105,51 @@ public class DisabledXYItemRenderer extends AbstractXYItemRenderer implements ID
     @Override
     public Paint getSeriesFillPaint(final int series) {
         return enabledRenderer.getSeriesFillPaint(series);
+    }
+
+    @Override
+    public void setDefaultStroke(final Stroke stroke, final boolean notify) {
+        enabledRenderer.setDefaultStroke(stroke, notify);
+    }
+
+    @Override
+    public void setDefaultStroke(final Stroke stroke) {
+        enabledRenderer.setDefaultStroke(stroke);
+    }
+
+    @Override
+    public Stroke getDefaultStroke() {
+        return enabledRenderer.getDefaultStroke();
+    }
+
+    @Override
+    public void setDefaultPaint(final Paint paint, final boolean notify) {
+        enabledRenderer.setDefaultPaint(paint, notify);
+    }
+
+    @Override
+    public void setDefaultPaint(final Paint paint) {
+        enabledRenderer.setDefaultPaint(paint);
+    }
+
+    @Override
+    public Paint getDefaultPaint() {
+        return enabledRenderer.getDefaultPaint();
+    }
+
+    @Override
+    public void setDefaultFillPaint(final Paint paint, final boolean notify) {
+        enabledRenderer.setDefaultFillPaint(paint, notify);
+    }
+
+    @Override
+    public void setDefaultFillPaint(final Paint paint) {
+        enabledRenderer.setDefaultFillPaint(paint);
+    }
+
+    @Override
+    public Paint getDefaultFillPaint() {
+        return enabledRenderer.getDefaultFillPaint();
     }
 
     @Override

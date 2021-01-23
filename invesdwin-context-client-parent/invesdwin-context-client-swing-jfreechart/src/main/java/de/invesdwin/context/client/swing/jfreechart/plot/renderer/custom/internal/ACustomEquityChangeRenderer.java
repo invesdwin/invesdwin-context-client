@@ -21,7 +21,6 @@ import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.entity.EntityCollection;
 import org.jfree.chart.event.RendererChangeEvent;
 import org.jfree.chart.labels.XYSeriesLabelGenerator;
-import org.jfree.chart.labels.XYToolTipGenerator;
 import org.jfree.chart.plot.CrosshairState;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.PlotRenderingInfo;
@@ -32,7 +31,6 @@ import org.jfree.chart.renderer.xy.XYItemRenderer;
 import org.jfree.chart.renderer.xy.XYItemRendererState;
 import org.jfree.chart.ui.GradientPaintTransformer;
 import org.jfree.chart.ui.StandardGradientPaintTransformer;
-import org.jfree.chart.urls.XYURLGenerator;
 import org.jfree.chart.util.Args;
 import org.jfree.chart.util.PublicCloneable;
 import org.jfree.chart.util.SerialUtils;
@@ -43,6 +41,7 @@ import org.jfree.data.xy.XYDataset;
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.PriceInitialSettings;
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.PlotSourceXYSeriesCollection;
 import de.invesdwin.context.client.swing.jfreechart.plot.renderer.IUpDownColorRenderer;
+import de.invesdwin.context.client.swing.jfreechart.plot.renderer.Renderers;
 import de.invesdwin.context.jfreechart.dataset.ListXYSeriesOHLC;
 import de.invesdwin.context.jfreechart.dataset.MutableXYDataItemOHLC;
 import de.invesdwin.context.jfreechart.dataset.TimeRangedOHLCDataItem;
@@ -98,32 +97,8 @@ public abstract class ACustomEquityChangeRenderer extends AbstractXYItemRenderer
      */
     private GradientPaintTransformer gradientTransformer;
 
-    /**
-     * Constructs a new renderer.
-     *
-     * @param type
-     *            the type of the renderer.
-     */
     public ACustomEquityChangeRenderer() {
-        this(null, null);
-    }
-
-    /**
-     * Constructs a new renderer. To specify the type of renderer, use one of the constants: {@code SHAPES},
-     * {@code LINES}, {@code SHAPES_AND_LINES}, {@code AREA} or {@code AREA_AND_SHAPES}.
-     *
-     * @param type
-     *            the type of renderer.
-     * @param toolTipGenerator
-     *            the tool tip generator ({@code null} permitted).
-     * @param urlGenerator
-     *            the URL generator ({@code null} permitted).
-     */
-    public ACustomEquityChangeRenderer(final XYToolTipGenerator toolTipGenerator, final XYURLGenerator urlGenerator) {
-
-        super();
-        setDefaultToolTipGenerator(toolTipGenerator);
-        setURLGenerator(urlGenerator);
+        Renderers.disableAutoPopulate(this);
 
         this.plotArea = true;
         this.plotLines = true;
@@ -138,7 +113,7 @@ public abstract class ACustomEquityChangeRenderer extends AbstractXYItemRenderer
         this.legendArea = area;
         this.gradientTransformer = new StandardGradientPaintTransformer();
 
-        setSeriesStroke(0, PriceInitialSettings.DEFAULT_SERIES_STROKE);
+        setDefaultStroke(PriceInitialSettings.DEFAULT_SERIES_STROKE);
     }
 
     /**

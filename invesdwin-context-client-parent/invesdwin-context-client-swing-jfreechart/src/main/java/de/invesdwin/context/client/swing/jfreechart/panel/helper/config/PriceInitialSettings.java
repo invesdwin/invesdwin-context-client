@@ -12,8 +12,8 @@ import de.invesdwin.context.client.swing.jfreechart.plot.dataset.IPlotSourceData
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.IndexedDateTimeOHLCDataset;
 import de.invesdwin.context.client.swing.jfreechart.plot.renderer.FastCandlestickRenderer;
 import de.invesdwin.context.client.swing.jfreechart.plot.renderer.FastOHLCRenderer;
-import de.invesdwin.context.client.swing.jfreechart.plot.renderer.FastXYLineRenderer;
 import de.invesdwin.context.client.swing.jfreechart.plot.renderer.FastXYAreaRenderer;
+import de.invesdwin.context.client.swing.jfreechart.plot.renderer.FastXYLineRenderer;
 import de.invesdwin.context.client.swing.jfreechart.plot.renderer.FastXYStepRenderer;
 import de.invesdwin.context.client.swing.jfreechart.plot.renderer.IDatasetSourceXYItemRenderer;
 import de.invesdwin.util.assertions.Assertions;
@@ -84,8 +84,8 @@ public class PriceInitialSettings {
         priceRendererType = getPriceRendererType(priceRenderer);
         upColor = candlestickRenderer.getUpColor();
         downColor = candlestickRenderer.getDownColor();
-        seriesColor = (Color) priceRenderer.getSeriesPaint(0);
-        seriesStroke = priceRenderer.getSeriesStroke(0);
+        seriesColor = (Color) priceRenderer.getDefaultPaint();
+        seriesStroke = priceRenderer.getDefaultStroke();
         priceLineVisible = candlestickRenderer.isPriceLineVisible();
         priceLabelVisible = candlestickRenderer.isPriceLabelVisible();
 
@@ -106,8 +106,8 @@ public class PriceInitialSettings {
     public void updatePriceRendererType(final PriceRendererType priceRendererType) {
         final XYItemRenderer renderer = getCurrentPriceRenderer();
         final XYItemRenderer newRenderer = getPriceRenderer(priceRendererType);
-        newRenderer.setSeriesPaint(0, renderer.getSeriesPaint(0));
-        newRenderer.setSeriesStroke(0, renderer.getSeriesStroke(0));
+        newRenderer.setDefaultPaint(renderer.getDefaultPaint());
+        newRenderer.setDefaultStroke(renderer.getDefaultStroke());
         plotConfigurationHelper.getChartPanel().getOhlcPlot().setRenderer(0, newRenderer);
     }
 
@@ -184,11 +184,11 @@ public class PriceInitialSettings {
     }
 
     private void updateSeriesColor() {
-        this.candlestickRenderer.setSeriesPaint(0, seriesColor);
-        this.ohlcRenderer.setSeriesPaint(0, seriesColor);
-        this.lineRenderer.setSeriesPaint(0, seriesColor);
-        this.areaRenderer.setSeriesPaint(0, seriesColor);
-        this.stepLineRenderer.setSeriesPaint(0, seriesColor);
+        this.candlestickRenderer.setDefaultPaint(seriesColor);
+        this.ohlcRenderer.setDefaultPaint(seriesColor);
+        this.lineRenderer.setDefaultPaint(seriesColor);
+        this.areaRenderer.setDefaultPaint(seriesColor);
+        this.stepLineRenderer.setDefaultPaint(seriesColor);
     }
 
     public void setSeriesStroke(final LineStyleType lineStyleType, final LineWidthType lineWidthType) {
@@ -197,11 +197,11 @@ public class PriceInitialSettings {
     }
 
     private void updateSeriesStroke() {
-        this.candlestickRenderer.setSeriesStroke(0, seriesStroke);
-        this.ohlcRenderer.setSeriesStroke(0, seriesStroke);
-        this.lineRenderer.setSeriesStroke(0, seriesStroke);
-        this.areaRenderer.setSeriesStroke(0, seriesStroke);
-        this.stepLineRenderer.setSeriesStroke(0, seriesStroke);
+        this.candlestickRenderer.setDefaultStroke(seriesStroke);
+        this.ohlcRenderer.setDefaultStroke(seriesStroke);
+        this.lineRenderer.setDefaultStroke(seriesStroke);
+        this.areaRenderer.setDefaultStroke(seriesStroke);
+        this.stepLineRenderer.setDefaultStroke(seriesStroke);
     }
 
     public void setSeriesStroke(final Stroke seriesStroke) {

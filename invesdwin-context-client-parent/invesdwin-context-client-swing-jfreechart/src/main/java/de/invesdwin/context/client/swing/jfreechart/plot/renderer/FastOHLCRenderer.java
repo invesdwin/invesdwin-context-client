@@ -35,8 +35,10 @@ public class FastOHLCRenderer extends HighLowRenderer
     private final XYPriceLineAnnotation priceLineAnnotation;
 
     public FastOHLCRenderer(final FastCandlestickRenderer candlestickRenderer) {
+        Renderers.disableAutoPopulate(this);
+
         this.candlestickRenderer = candlestickRenderer;
-        setSeriesStroke(0, PriceInitialSettings.DEFAULT_SERIES_STROKE);
+        setDefaultStroke(PriceInitialSettings.DEFAULT_SERIES_STROKE);
         this.priceLineAnnotation = new XYPriceLineAnnotation(candlestickRenderer.getDataset(), this);
         addAnnotation(priceLineAnnotation);
     }
@@ -87,7 +89,7 @@ public class FastOHLCRenderer extends HighLowRenderer
 
         final boolean horiz = candlestickRenderer.isHorizontal(plot);
         final double stickWidth = candlestickRenderer.calculateStickWidth(state, dataArea, horiz);
-        candlestickRenderer.calculateItemStroke(state, getSeriesStroke(0));
+        candlestickRenderer.calculateItemStroke(state, getDefaultStroke());
         setTickLength(stickWidth / 2);
         //info null to skip entitycollection stuff
         super.drawItem(g2, state, dataArea, null, plot, domainAxis, rangeAxis, dataset, series, item, crosshairState,

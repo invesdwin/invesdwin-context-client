@@ -54,8 +54,8 @@ public interface ICustomRendererType extends IRendererType, IDatasetSourceXYItem
             cThis.setPriceLineVisible(initialSettings.isPriceLineVisible());
             cThis.setPriceLabelVisible(initialSettings.isPriceLabelVisible());
         }
-        setSeriesPaint(0, initialSettings.getSeriesColor());
-        setSeriesStroke(0, initialSettings.getSeriesStroke());
+        setDefaultPaint(initialSettings.getSeriesColor());
+        setDefaultStroke(initialSettings.getSeriesStroke());
         highlighted.setRenderer(this);
     }
 

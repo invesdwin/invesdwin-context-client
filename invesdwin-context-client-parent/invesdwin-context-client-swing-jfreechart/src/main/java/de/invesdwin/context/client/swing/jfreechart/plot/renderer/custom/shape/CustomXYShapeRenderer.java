@@ -33,6 +33,7 @@ import org.jfree.chart.util.ShapeUtils;
 import org.jfree.data.xy.XYDataset;
 
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.LineWidthType;
+import de.invesdwin.context.client.swing.jfreechart.plot.renderer.Renderers;
 
 /**
  * Adapted from CustomXYShapeRenderer
@@ -59,6 +60,8 @@ public class CustomXYShapeRenderer extends AbstractXYItemRenderer implements XYI
      *            the URL generator.
      */
     public CustomXYShapeRenderer(final ISeriesShapeFactory seriesShapeFactory) {
+        Renderers.disableAutoPopulate(this);
+
         this.legendLine = new Line2D.Double(-7.0, 0.0, 7.0, 0.0);
         this.seriesShapeFactory = seriesShapeFactory;
     }
@@ -84,6 +87,26 @@ public class CustomXYShapeRenderer extends AbstractXYItemRenderer implements XYI
     @Deprecated
     @Override
     public void setSeriesShape(final int series, final Shape shape, final boolean notify) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void setDefaultStroke(final Stroke stroke, final boolean notify) {
+        super.setDefaultStroke(stroke, notify);
+        final LineWidthType width = LineWidthType.valueOf(stroke);
+        final Shape shape = seriesShapeFactory.newShape(width);
+        super.setDefaultShape(shape, notify);
+    }
+
+    @Deprecated
+    @Override
+    public void setDefaultShape(final Shape shape) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Deprecated
+    @Override
+    public void setDefaultShape(final Shape shape, final boolean notify) {
         throw new UnsupportedOperationException();
     }
 
