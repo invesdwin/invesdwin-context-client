@@ -27,7 +27,7 @@ import de.invesdwin.util.time.fdate.FTimeUnit;
 @ThreadSafe
 public class StatusBarTaskInfoMonitor implements IRichApplicationHook, ITaskInfoListener {
 
-    private static final Duration CHECK_INTERVAL = new Duration(1, FTimeUnit.SECONDS);
+    private static final Duration CHECK_INTERVAL = new Duration(100, FTimeUnit.MILLISECONDS);
 
     private final Map<String, ATask<?, ?>> name_task = Caffeine.newBuilder()
             .weakValues()
