@@ -72,46 +72,66 @@ public class HighlightableLegendTitle extends CustomLegendTitle {
 
     private String newLabelString(final int domainMarkerItem, final IPlotSourceDataset dataset, final String label,
             final int series, final NumberFormat rangeAxisFormat) {
+        final XYPlot plot = dataset.getPlot();
+        final int datasetindex = XYPlots.getDatasetIndexForDataset(plot, dataset, false);
+        final XYItemRenderer renderer = plot.getRenderer(datasetindex);
         if (dataset instanceof OHLCDataset && dataset == chartPanel.getMasterDataset()) {
             final OHLCDataset ohlc = dataset;
             final StringBuilder sb = new StringBuilder(label);
-            final double open = ohlc.getOpenValue(series, domainMarkerItem);
-            final double high = ohlc.getHighValue(series, domainMarkerItem);
-            final double low = ohlc.getLowValue(series, domainMarkerItem);
-            final double close = ohlc.getCloseValue(series, domainMarkerItem);
-            if (isNanOrFlat(open, high, low, close)) {
-                //this is bar flat, show it as that
-                sb.append(" ");
-                sb.append(rangeAxisFormat.format(close));
-            } else {
-                sb.append(" O:");
-                sb.append(rangeAxisFormat.format(open));
-                sb.append(" H:");
-                sb.append(rangeAxisFormat.format(high));
-                sb.append(" L:");
-                sb.append(rangeAxisFormat.format(low));
-                sb.append(" C:");
-                sb.append(rangeAxisFormat.format(close));
+            if (renderer.getDefaultSeriesVisibleInLegend() || renderer.getDefaultItemLabelsVisible()
+                    || renderer.isSeriesItemLabelsVisible(series)) {
+                final double open = ohlc.getOpenValue(series, domainMarkerItem);
+                final double high = ohlc.getHighValue(series, domainMarkerItem);
+                final double low = ohlc.getLowValue(series, domainMarkerItem);
+                final double close = ohlc.getCloseValue(series, domainMarkerItem);
+                if (Doubles.isNaN(open) && Doubles.isNaN(high) && Doubles.isNaN(low) && Doubles.isNaN(close)) {
+                    return "";
+                }
+                if (open == high && high == low && low == close) {
+                    sb.append(" ");
+                    //this is bar flat, show it as that
+                    sb.append(rangeAxisFormat.format(close));
+                } else {
+                    sb.append(" O:");
+                    sb.append(rangeAxisFormat.format(open));
+                    sb.append(" H:");
+                    sb.append(rangeAxisFormat.format(high));
+                    sb.append(" L:");
+                    sb.append(rangeAxisFormat.format(low));
+                    sb.append(" C:");
+                    sb.append(rangeAxisFormat.format(close));
+                }
+                sb.append(" T:");
+                sb.append(chartPanel.getDomainAxisFormat().format(domainMarkerItem));
             }
-            sb.append(" T:");
-            sb.append(chartPanel.getDomainAxisFormat().format(domainMarkerItem));
             return sb.toString();
         } else {
             final StringBuilder sb = new StringBuilder(label);
-            sb.append(" ");
-            sb.append(rangeAxisFormat.format(dataset.getYValue(series, domainMarkerItem)));
+            if (renderer.getDefaultSeriesVisibleInLegend()) {
+                sb.append(" ");
+                sb.append(rangeAxisFormat.format(dataset.getYValue(series, domainMarkerItem)));
+            } else {
+                for (int i = series; i < dataset.getSeriesCount(); i++) {
+                    //show values grouped that are selected to be shown, first series is already visible in legend, otherwise this function would not have been called
+                    if (i > series && renderer.isSeriesVisibleInLegend(i)) {
+                        /*
+                         * though a new visible series will stop the grouping
+                         * 
+                         * though this is normally a misconfiguration, since groupings should happen only once for all
+                         * series in a dataset/renderer
+                         * 
+                         * but we don't want to duplicate the information in that case
+                         */
+                        break;
+                    }
+                    if (renderer.getDefaultItemLabelsVisible() || renderer.isSeriesItemLabelsVisible(i)) {
+                        sb.append(" ");
+                        sb.append(rangeAxisFormat.format(dataset.getYValue(i, domainMarkerItem)));
+                    }
+                }
+            }
             return sb.toString();
         }
-    }
-
-    private boolean isNanOrFlat(final double open, final double high, final double low, final double close) {
-        if (Doubles.isNaN(open) && Doubles.isNaN(high) && Doubles.isNaN(low) && Doubles.isNaN(close)) {
-            return true;
-        }
-        if (open == high && high == low && low == close) {
-            return true;
-        }
-        return false;
     }
 
     @Override
