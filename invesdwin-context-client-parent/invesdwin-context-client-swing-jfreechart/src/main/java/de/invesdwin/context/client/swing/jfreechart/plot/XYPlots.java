@@ -9,13 +9,16 @@ import javax.annotation.concurrent.Immutable;
 
 import org.jfree.chart.axis.AxisLocation;
 import org.jfree.chart.axis.NumberAxis;
+import org.jfree.chart.plot.ValueMarker;
 import org.jfree.chart.plot.XYPlot;
+import org.jfree.chart.ui.Layer;
 import org.jfree.chart.ui.RectangleEdge;
 import org.jfree.data.general.Dataset;
 import org.jfree.data.xy.XYDataset;
 
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.DisabledXYDataset;
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.IPlotSourceDataset;
+import de.invesdwin.util.math.Doubles;
 import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.math.decimal.Decimal;
 import de.invesdwin.util.math.decimal.scaled.Percent;
@@ -32,7 +35,8 @@ public final class XYPlots {
     };
     public static final Font DEFAULT_FONT = new Font("Verdana", Font.PLAIN, 9);
 
-    private XYPlots() {}
+    private XYPlots() {
+    }
 
     public static int getFreeDatasetIndex(final XYPlot plot) {
         for (int i = 0; i < plot.getDatasetCount(); i++) {
@@ -184,6 +188,35 @@ public final class XYPlots {
             throw new IllegalStateException("No datasetIndex found for dataset");
         } else {
             return null;
+        }
+    }
+
+    public static void updateMarker(final XYPlot plot, final int index, final ValueMarker marker, final Layer layer,
+            final double value, final boolean notify) {
+        if (marker == null) {
+            return;
+        }
+        if (Doubles.isNaN(value)) {
+            removeMarker(plot, index, marker, layer, notify);
+        } else {
+            addMarker(plot, index, marker, layer, value, notify);
+        }
+    }
+
+    private static void addMarker(final XYPlot plot, final int index, final ValueMarker marker, final Layer layer,
+            final double value, final boolean notify) {
+        if (Doubles.isNaN(marker.getValue())) {
+            marker.setValue(value);
+            plot.addDomainMarker(index, marker, layer, notify);
+        } else {
+            marker.setValue(value);
+        }
+    }
+
+    private static void removeMarker(final XYPlot plot, final int index, final ValueMarker marker, final Layer layer,
+            final boolean notify) {
+        if (plot.removeDomainMarker(index, marker, layer, notify)) {
+            marker.setValue(Double.NaN);
         }
     }
 

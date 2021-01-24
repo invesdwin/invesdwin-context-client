@@ -76,7 +76,7 @@ public class IndexedDateTimeOHLCDataset extends ListOHLCDataset
         return bisect(getData(), time);
     }
 
-    private static int bisect(final List<? extends TimeRangedOHLCDataItem> keys, final FDate skippingKeysAbove) {
+    public static int bisect(final List<? extends TimeRangedOHLCDataItem> keys, final FDate skippingKeysAbove) {
         int lo = 0;
         int hi = keys.size();
         while (lo < hi) {
