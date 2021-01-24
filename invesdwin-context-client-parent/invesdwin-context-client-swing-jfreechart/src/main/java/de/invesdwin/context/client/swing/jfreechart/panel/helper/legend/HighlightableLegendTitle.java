@@ -18,6 +18,7 @@ import de.invesdwin.context.client.swing.jfreechart.panel.InteractiveChartPanel;
 import de.invesdwin.context.client.swing.jfreechart.plot.XYPlots;
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.IPlotSourceDataset;
 import de.invesdwin.util.error.UnknownArgumentException;
+import de.invesdwin.util.math.Doubles;
 
 @NotThreadSafe
 public class HighlightableLegendTitle extends CustomLegendTitle {
@@ -75,17 +76,23 @@ public class HighlightableLegendTitle extends CustomLegendTitle {
             final OHLCDataset ohlc = dataset;
             final StringBuilder sb = new StringBuilder(label);
             final double open = ohlc.getOpenValue(series, domainMarkerItem);
-            sb.append(" O:");
-            sb.append(rangeAxisFormat.format(open));
             final double high = ohlc.getHighValue(series, domainMarkerItem);
-            sb.append(" H:");
-            sb.append(rangeAxisFormat.format(high));
             final double low = ohlc.getLowValue(series, domainMarkerItem);
-            sb.append(" L:");
-            sb.append(rangeAxisFormat.format(low));
             final double close = ohlc.getCloseValue(series, domainMarkerItem);
-            sb.append(" C:");
-            sb.append(rangeAxisFormat.format(close));
+            if (isNanOrFlat(open, high, low, close)) {
+                //this is bar flat, show it as that
+                sb.append(" ");
+                sb.append(rangeAxisFormat.format(close));
+            } else {
+                sb.append(" O:");
+                sb.append(rangeAxisFormat.format(open));
+                sb.append(" H:");
+                sb.append(rangeAxisFormat.format(high));
+                sb.append(" L:");
+                sb.append(rangeAxisFormat.format(low));
+                sb.append(" C:");
+                sb.append(rangeAxisFormat.format(close));
+            }
             sb.append(" T:");
             sb.append(chartPanel.getDomainAxisFormat().format(domainMarkerItem));
             return sb.toString();
@@ -95,6 +102,16 @@ public class HighlightableLegendTitle extends CustomLegendTitle {
             sb.append(rangeAxisFormat.format(dataset.getYValue(series, domainMarkerItem)));
             return sb.toString();
         }
+    }
+
+    private boolean isNanOrFlat(final double open, final double high, final double low, final double close) {
+        if (Doubles.isNaN(open) && Doubles.isNaN(high) && Doubles.isNaN(low) && Doubles.isNaN(close)) {
+            return true;
+        }
+        if (open == high && high == low && low == close) {
+            return true;
+        }
+        return false;
     }
 
     @Override
