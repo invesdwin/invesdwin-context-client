@@ -85,7 +85,7 @@ public class HighlightableLegendTitle extends CustomLegendTitle {
                 final double low = ohlc.getLowValue(series, domainMarkerItem);
                 final double close = ohlc.getCloseValue(series, domainMarkerItem);
                 if (Doubles.isNaN(open) && Doubles.isNaN(high) && Doubles.isNaN(low) && Doubles.isNaN(close)) {
-                    return "";
+                    return sb.toString();
                 }
                 if (open == high && high == low && low == close) {
                     sb.append(" ");
