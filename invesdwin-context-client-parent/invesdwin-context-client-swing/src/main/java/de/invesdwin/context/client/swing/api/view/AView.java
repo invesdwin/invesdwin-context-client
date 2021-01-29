@@ -156,7 +156,6 @@ public abstract class AView<M extends AModel, C extends JComponent> extends AMod
         }
     }
 
-    @Hidden(skip = true)
     public Icon getIcon() {
         return getResourceMap().getIcon(KEY_VIEW_ICON);
     }
@@ -277,9 +276,11 @@ public abstract class AView<M extends AModel, C extends JComponent> extends AMod
     }
 
     @Hidden(skip = true)
-    protected void onOpen() {}
+    protected void onOpen() {
+    }
 
     @Hidden(skip = true)
-    protected void onClose() {}
+    protected void onClose() {
+    }
 
 }

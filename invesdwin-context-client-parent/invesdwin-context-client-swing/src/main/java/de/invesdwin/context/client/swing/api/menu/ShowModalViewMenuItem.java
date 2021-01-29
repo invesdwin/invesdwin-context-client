@@ -53,12 +53,22 @@ public class ShowModalViewMenuItem extends JMenuItem {
         initialize();
     }
 
+    @SuppressWarnings("unchecked")
+    public ShowModalViewMenuItem(final AView<?, ?> viewInstance, final Dimension dimension) {
+        this.viewClass = (Class<? extends AView<?, ?>>) viewInstance.getClass();
+        this.cachedViewInstance = viewInstance;
+        this.caching = true;
+        this.dimension = dimension;
+        initialize();
+    }
+
     private void initialize() {
         final ResourceMap resourceMap = GuiService.get().getResourceMap(viewClass);
-        final String viewTitle = getTitle(resourceMap);
-        Components.setToolTipText(this, resourceMap.getString(AView.KEY_VIEW_DESCRIPTION), false);
-        final Icon viewIcon = resourceMap.getIcon(AView.KEY_VIEW_ICON);
-        setAction(new AbstractAction(viewTitle, viewIcon) {
+        final String title = newTitle(resourceMap);
+        final String description = newDescription(resourceMap);
+        Components.setToolTipText(this, description, false);
+        final Icon icon = newIcon(resourceMap);
+        setAction(new AbstractAction(title, icon) {
             @Override
             public void actionPerformed(final ActionEvent e) {
                 try {
@@ -78,7 +88,24 @@ public class ShowModalViewMenuItem extends JMenuItem {
         });
     }
 
-    protected String getTitle(final ResourceMap resourceMap) {
+    protected Icon newIcon(final ResourceMap resourceMap) {
+        if (cachedViewInstance != null) {
+            return cachedViewInstance.getIcon();
+        }
+        return resourceMap.getIcon(AView.KEY_VIEW_ICON);
+    }
+
+    protected String newDescription(final ResourceMap resourceMap) {
+        if (cachedViewInstance != null) {
+            return cachedViewInstance.getDescription();
+        }
+        return resourceMap.getString(AView.KEY_VIEW_DESCRIPTION);
+    }
+
+    protected String newTitle(final ResourceMap resourceMap) {
+        if (cachedViewInstance != null) {
+            return cachedViewInstance.getTitle();
+        }
         String viewTitle = resourceMap.getString(AView.KEY_VIEW_TITLE);
         if (Strings.isBlank(viewTitle)) {
             final Class<?>[] generics = Reflections.resolveTypeArguments(viewClass, AView.class);
