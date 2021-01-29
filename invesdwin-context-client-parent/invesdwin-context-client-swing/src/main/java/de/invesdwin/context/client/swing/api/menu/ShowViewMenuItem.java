@@ -50,8 +50,16 @@ public class ShowViewMenuItem extends JMenuItem {
     private ContentPane contentPane;
 
     public ShowViewMenuItem(final Class<? extends AView<?, ?>> viewClass, final IWorkingAreaLocation location) {
-        super();
         this.viewClass = viewClass;
+        this.location = location;
+        initialize();
+    }
+
+    @SuppressWarnings("unchecked")
+    public ShowViewMenuItem(final AView<?, ?> viewInstance, final IWorkingAreaLocation location) {
+        this.viewClass = (Class<? extends AView<?, ?>>) viewInstance.getClass();
+        this.cachedViewInstance = viewInstance;
+        this.caching = true;
         this.location = location;
         initialize();
     }
@@ -115,6 +123,10 @@ public class ShowViewMenuItem extends JMenuItem {
     }
 
     public ShowViewMenuItem withCaching(final boolean caching) {
+        if (cachedViewInstance != null) {
+            //ignore change
+            return this;
+        }
         this.caching = caching;
         return this;
     }
