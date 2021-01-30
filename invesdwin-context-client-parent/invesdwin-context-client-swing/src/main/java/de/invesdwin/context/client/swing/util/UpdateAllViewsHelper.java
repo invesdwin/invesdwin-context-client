@@ -9,6 +9,7 @@ import java.util.Set;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
+import de.invesdwin.context.client.swing.api.guiservice.GuiService;
 import de.invesdwin.context.client.swing.api.view.AView;
 
 @NotThreadSafe
@@ -32,9 +33,13 @@ public class UpdateAllViewsHelper {
         final Set<AView<?, ?>> duplicateViewsFilter = Collections.newSetFromMap(new IdentityHashMap<>());
         final Component rootComponent;
         if (view != null) {
+            //we prefer the view, since a menu item component won't find its parent views from a popup component
             rootComponent = getRootComponent(view.getComponent());
-        } else {
+        } else if (component != null) {
             rootComponent = getRootComponent(component);
+        } else {
+            //fallback to the frame or dialog and update everything there
+            rootComponent = GuiService.get().getWindow();
         }
         new AViewVisitor() {
             @Override
