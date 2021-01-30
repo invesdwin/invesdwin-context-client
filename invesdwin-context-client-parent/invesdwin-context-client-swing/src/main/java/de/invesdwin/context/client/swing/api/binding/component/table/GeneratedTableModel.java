@@ -70,7 +70,8 @@ public class GeneratedTableModel extends AbstractTableModel {
     }
 
     private void updatePrevTableModel(final int newRowCount, final int newColumnCount) {
-        final int prevRowCount = prevTableModel.length;
+        final Object[][] oldTableModel = prevTableModel;
+        final int prevRowCount = oldTableModel.length;
         if (prevRowCount < newRowCount) {
             addRowsToPrevTableModel(newRowCount, newColumnCount, prevRowCount);
             fireTableRowsInserted(prevRowCount, newRowCount - 1);
@@ -80,7 +81,7 @@ public class GeneratedTableModel extends AbstractTableModel {
         }
         //update existing columns a bit later to reduce flickering
         for (int r = 0; r < prevRowCount; r++) {
-            final Object[] row = prevTableModel[r];
+            final Object[] row = oldTableModel[r];
             for (int c = 0; c < newColumnCount; c++) {
                 final Object newValue = getValueAt(r, c);
                 final Object prevValue = row[c];
