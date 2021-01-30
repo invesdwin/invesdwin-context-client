@@ -73,11 +73,11 @@ public abstract class AComponentBinding<C extends JComponent, V> implements ICom
                         }
 
                         @Override
-                        public void process(final Component component) {
+                        public void process(final AView<?, ?> view, final Component component) {
                             if (!isModifiable()) {
                                 return;
                             }
-                            super.process(component);
+                            super.process(view, component);
                         }
 
                     };
@@ -85,7 +85,7 @@ public abstract class AComponentBinding<C extends JComponent, V> implements ICom
                     @Override
                     public void run() {
                         if (!updating) {
-                            helper.process(component);
+                            helper.process(bindingGroup.getView(), component);
                         }
                     }
                 };
@@ -96,18 +96,18 @@ public abstract class AComponentBinding<C extends JComponent, V> implements ICom
                     private final BindingSubmitAllViewsHelper helper = new BindingSubmitAllViewsHelper(
                             AComponentBinding.this) {
                         @Override
-                        public void process(final Component component) {
+                        public void process(final AView<?, ?> view, final Component component) {
                             if (!isModifiable()) {
                                 return;
                             }
-                            super.process(component);
+                            super.process(view, component);
                         }
                     };
 
                     @Override
                     public void run() {
                         if (!updating) {
-                            helper.process(component);
+                            helper.process(bindingGroup.getView(), component);
                         }
                     }
 

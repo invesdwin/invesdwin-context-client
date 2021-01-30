@@ -63,11 +63,11 @@ public class SubmitButtonBinding implements IComponentBinding {
             return new Runnable() {
                 private final SubmitAllViewsHelper helper = new SubmitAllViewsHelper() {
                     @Override
-                    public void process(final Component component) {
+                    public void process(final AView<?, ?> view, final Component component) {
                         if (!isModifiable()) {
                             return;
                         }
-                        super.process(component);
+                        super.process(view, component);
                     }
 
                     @Override
@@ -80,7 +80,7 @@ public class SubmitButtonBinding implements IComponentBinding {
 
                 @Override
                 public void run() {
-                    helper.process(component);
+                    helper.process(bindingGroup.getView(), component);
                 }
             };
 
@@ -88,11 +88,11 @@ public class SubmitButtonBinding implements IComponentBinding {
             return new Runnable() {
                 private final SubmitAllViewsHelper helper = new SubmitAllViewsHelper() {
                     @Override
-                    public void process(final Component component) {
+                    public void process(final AView<?, ?> view, final Component component) {
                         if (!isModifiable()) {
                             return;
                         }
-                        super.process(component);
+                        super.process(view, component);
                     }
 
                     @Override
@@ -111,7 +111,7 @@ public class SubmitButtonBinding implements IComponentBinding {
 
                 @Override
                 public void run() {
-                    helper.process(component);
+                    helper.process(bindingGroup.getView(), component);
                 }
             };
         }

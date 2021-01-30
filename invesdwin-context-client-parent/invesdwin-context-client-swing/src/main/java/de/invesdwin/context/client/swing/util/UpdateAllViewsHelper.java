@@ -16,8 +16,8 @@ public class UpdateAllViewsHelper {
 
     private static final UpdateAllViewsHelper DEFAULT_INSTANCE = new UpdateAllViewsHelper();
 
-    public void process(final Component component) {
-        final List<AView<?, ?>> views = getViews(component);
+    public void process(final AView<?, ?> view, final Component component) {
+        final List<AView<?, ?>> views = getViews(view, component);
         update(views);
     }
 
@@ -27,9 +27,15 @@ public class UpdateAllViewsHelper {
         }
     }
 
-    protected List<AView<?, ?>> getViews(final Component component) {
+    protected List<AView<?, ?>> getViews(final AView<?, ?> view, final Component component) {
         final List<AView<?, ?>> views = new ArrayList<>();
         final Set<AView<?, ?>> duplicateViewsFilter = Collections.newSetFromMap(new IdentityHashMap<>());
+        final Component rootComponent;
+        if (view != null) {
+            rootComponent = getRootComponent(view.getComponent());
+        } else {
+            rootComponent = getRootComponent(component);
+        }
         new AViewVisitor() {
             @Override
             protected void visit(final AView<?, ?> view) {
@@ -40,7 +46,7 @@ public class UpdateAllViewsHelper {
                 }
             }
 
-        }.visitAll(getRootComponent(component));
+        }.visitAll(rootComponent);
         return views;
     }
 
@@ -52,8 +58,16 @@ public class UpdateAllViewsHelper {
         return Views.getRootComponentInDockable(component);
     }
 
+    public static void updateAllViews(final AView<?, ?> view, final Component component) {
+        DEFAULT_INSTANCE.process(view, component);
+    }
+
+    public static void updateAllViews(final AView<?, ?> view) {
+        DEFAULT_INSTANCE.process(view, null);
+    }
+
     public static void updateAllViews(final Component component) {
-        DEFAULT_INSTANCE.process(component);
+        DEFAULT_INSTANCE.process(null, component);
     }
 
 }

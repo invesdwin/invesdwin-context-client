@@ -19,8 +19,8 @@ public class SubmitAllViewsHelper extends UpdateAllViewsHelper {
     private static final SubmitAllViewsHelper DEFAULT_INSTANCE = new SubmitAllViewsHelper();
 
     @Override
-    public void process(final Component component) {
-        final List<AView<?, ?>> views = getViews(component);
+    public void process(final AView<?, ?> view, final Component component) {
+        final List<AView<?, ?>> views = getViews(view, component);
         submit(views);
         final String invalidMessage = validate(views);
         if (invalidMessage == null) {
@@ -72,7 +72,15 @@ public class SubmitAllViewsHelper extends UpdateAllViewsHelper {
         }
     }
 
+    public static void submitAllViews(final AView<?, ?> view, final Component component) {
+        DEFAULT_INSTANCE.process(view, component);
+    }
+
+    public static void submitAllViews(final AView<?, ?> view) {
+        DEFAULT_INSTANCE.process(view, null);
+    }
+
     public static void submitAllViews(final Component component) {
-        DEFAULT_INSTANCE.process(component);
+        DEFAULT_INSTANCE.process(null, component);
     }
 }
