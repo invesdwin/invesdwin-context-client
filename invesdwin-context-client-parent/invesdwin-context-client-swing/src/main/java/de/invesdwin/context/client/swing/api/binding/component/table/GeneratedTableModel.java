@@ -62,7 +62,22 @@ public class GeneratedTableModel extends AbstractTableModel {
                 resetPrevTableModel(newRowCount, newColumnCount);
                 fireTableDataChanged();
             } else {
-                updatePrevTableModel(newRowCount, newColumnCount);
+                try {
+                    updatePrevTableModel(newRowCount, newColumnCount);
+                } catch (final IndexOutOfBoundsException e) {
+                    //    Caused by - java.lang.IndexOutOfBoundsException: Invalid index
+                    //    at java.desktop/javax.swing.DefaultRowSorter.convertUnsortedUnfiltered(DefaultRowSorter.java:523)
+                    //    at java.desktop/javax.swing.DefaultRowSorter.convertRowIndexToView(DefaultRowSorter.java:494)
+                    //    at java.desktop/javax.swing.JTable.convertRowIndexToView(JTable.java:2607)
+                    //    at java.desktop/javax.swing.JTable.repaintSortedRows(JTable.java:4180)
+                    //    at java.desktop/javax.swing.JTable.sortedTableChanged(JTable.java:4121)
+                    //    at java.desktop/javax.swing.JTable.tableChanged(JTable.java:4400)
+                    //    at java.desktop/javax.swing.table.AbstractTableModel.fireTableChanged(AbstractTableModel.java:297)
+                    //    at java.desktop/javax.swing.table.AbstractTableModel.fireTableCellUpdated(AbstractTableModel.java:276)
+                    //  * at de.invesdwin.context.client.swing.api.binding.component.table.GeneratedTableModel.updatePrevTableModel(GeneratedTableModel.java:90) *
+                    resetPrevTableModel(newRowCount, newColumnCount);
+                    fireTableDataChanged();
+                }
             }
         } finally {
             selectionModel.setValueIsFrozen(false);
