@@ -19,6 +19,7 @@ import de.invesdwin.context.client.swing.jfreechart.plot.dataset.IndexedDateTime
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.list.ISlaveLazyDatasetListener;
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.list.MasterLazyDatasetList;
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.list.SlaveLazyDatasetListenerSupport;
+import de.invesdwin.context.client.swing.jfreechart.plot.renderer.custom.annotations.item.AAnnotationPlottingDataItem;
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.collections.factory.ILockCollectionFactory;
 import de.invesdwin.util.collections.iterable.ASkippingIterable;
@@ -30,10 +31,11 @@ import de.invesdwin.util.math.expression.IExpression;
 import de.invesdwin.util.time.fdate.FDate;
 
 @NotThreadSafe
-public class AnnotationPlottingDataset extends AbstractXYDataset implements IPlotSourceDataset, IIndexedDateTimeXYDataset {
+public class AnnotationPlottingDataset extends AbstractXYDataset
+        implements IPlotSourceDataset, IIndexedDateTimeXYDataset {
 
-    public static final int MAX_ORDERS = 10_000;
-    private static final int TRIM_ORDERS = 12_000;
+    public static final int MAX_ANNOTATIONS = 10_000;
+    private static final int TRIM_ANNOTATIONS = 12_000;
 
     private final String seriesKey;
     private String seriesTitle;
@@ -43,9 +45,8 @@ public class AnnotationPlottingDataset extends AbstractXYDataset implements IPlo
     private DatasetGroup group;
     private String initialPlotPaneId;
     private String rangeAxisId;
-    private final Map<String, AnnotationPlottingDataItem> orderId_item = ILockCollectionFactory.getInstance(true)
+    private final Map<String, AAnnotationPlottingDataItem> annotationId_item = ILockCollectionFactory.getInstance(true)
             .newFastIterableLinkedMap();
-    private boolean lastTradeProfit = true;
     private IIndicatorSeriesProvider indicatorSeriesProvider;
     private IExpression[] indicatorSeriesArguments;
     private IExpressionSeriesProvider expressionSeriesProvider;
@@ -98,7 +99,8 @@ public class AnnotationPlottingDataset extends AbstractXYDataset implements IPlo
         } else {
             this.rangeListener = null;
             this.slaveDatasetListener = null;
-            this.executor = Executors.newDisabledExecutor(AnnotationPlottingDataset.class.getSimpleName() + "_DISABLED");
+            this.executor = Executors
+                    .newDisabledExecutor(AnnotationPlottingDataset.class.getSimpleName() + "_DISABLED");
         }
     }
 
@@ -192,23 +194,22 @@ public class AnnotationPlottingDataset extends AbstractXYDataset implements IPlo
         return masterDataset.getDateTimeAsItemIndex(series, time);
     }
 
-    public void addOrUpdate(final AnnotationPlottingDataItem item) {
+    public void addOrUpdate(final AAnnotationPlottingDataItem item) {
         final long firstLoadedKeyMillis = (long) getXValueAsDateTime(0, 0);
         final long lastLoadedKeyMillis = (long) getXValueAsDateTime(0, getItemCount(0) - 1);
         final boolean trailingLoaded = masterDataset.isTrailingLoaded();
         item.updateItemLoaded(firstLoadedKeyMillis, lastLoadedKeyMillis, trailingLoaded, this);
-        orderId_item.put(item.getOrderId(), item);
-        lastTradeProfit = item.isProfit();
-        if (orderId_item.size() > TRIM_ORDERS) {
-            while (orderId_item.size() > MAX_ORDERS) {
-                final String first = orderId_item.keySet().iterator().next();
-                orderId_item.remove(first);
+        annotationId_item.put(item.getAnnotationId(), item);
+        if (annotationId_item.size() > TRIM_ANNOTATIONS) {
+            while (annotationId_item.size() > MAX_ANNOTATIONS) {
+                final String first = annotationId_item.keySet().iterator().next();
+                annotationId_item.remove(first);
             }
         }
     }
 
-    public void remove(final String orderId) {
-        orderId_item.remove(orderId);
+    public void remove(final String annotationId) {
+        annotationId_item.remove(annotationId);
     }
 
     @Override
@@ -216,18 +217,15 @@ public class AnnotationPlottingDataset extends AbstractXYDataset implements IPlo
         return false;
     }
 
-    public ICloseableIterable<AnnotationPlottingDataItem> getVisibleItems(final int firstItem, final int lastItem) {
-        return new ASkippingIterable<AnnotationPlottingDataItem>(WrapperCloseableIterable.maybeWrap(orderId_item.values())) {
+    public ICloseableIterable<AAnnotationPlottingDataItem> getVisibleItems(final int firstItem, final int lastItem) {
+        return new ASkippingIterable<AAnnotationPlottingDataItem>(
+                WrapperCloseableIterable.maybeWrap(annotationId_item.values())) {
             @Override
-            protected boolean skip(final AnnotationPlottingDataItem element) {
-                return !element.isItemLoaded() || element.getOpenTimeLoadedIndex() > lastItem
-                        || element.getCloseTimeLoadedIndex() < firstItem;
+            protected boolean skip(final AAnnotationPlottingDataItem element) {
+                return !element.isItemLoaded() || element.getStartTimeLoadedIndex() > lastItem
+                        || element.getEndTimeLoadedIndex() < firstItem;
             }
         };
-    }
-
-    public boolean isLastTradeProfit() {
-        return lastTradeProfit;
     }
 
     @Override
@@ -346,7 +344,7 @@ public class AnnotationPlottingDataset extends AbstractXYDataset implements IPlo
     }
 
     private void modifyItemLoadedIndexes(final int fromIndex, final int addend) {
-        for (final AnnotationPlottingDataItem dataItem : orderId_item.values()) {
+        for (final AAnnotationPlottingDataItem dataItem : annotationId_item.values()) {
             dataItem.modifyItemLoadedIndexes(fromIndex, addend);
         }
     }
@@ -357,7 +355,7 @@ public class AnnotationPlottingDataset extends AbstractXYDataset implements IPlo
         if (forced || prevFirstLoadedKeyMillis != firstLoadedKeyMillis
                 || prevLastLoadedKeyMillis != lastLoadedKeyMillis) {
             final boolean trailingLoaded = masterDataset.isTrailingLoaded();
-            for (final AnnotationPlottingDataItem dataItem : orderId_item.values()) {
+            for (final AAnnotationPlottingDataItem dataItem : annotationId_item.values()) {
                 dataItem.updateItemLoaded(firstLoadedKeyMillis, lastLoadedKeyMillis, trailingLoaded,
                         AnnotationPlottingDataset.this);
             }
