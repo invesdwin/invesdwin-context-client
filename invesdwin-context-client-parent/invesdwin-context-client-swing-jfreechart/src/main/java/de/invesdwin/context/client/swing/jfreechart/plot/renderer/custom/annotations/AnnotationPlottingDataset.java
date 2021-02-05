@@ -212,6 +212,10 @@ public class AnnotationPlottingDataset extends AbstractXYDataset
         }
     }
 
+    public AAnnotationPlottingDataItem get(final String annotationId) {
+        return annotationId_item.get(annotationId);
+    }
+
     public void remove(final String annotationId) {
         annotationId_item.remove(annotationId);
     }
