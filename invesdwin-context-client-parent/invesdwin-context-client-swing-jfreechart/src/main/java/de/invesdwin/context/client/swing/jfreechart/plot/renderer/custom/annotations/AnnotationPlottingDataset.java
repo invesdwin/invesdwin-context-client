@@ -1,7 +1,5 @@
 package de.invesdwin.context.client.swing.jfreechart.plot.renderer.custom.annotations;
 
-import java.util.Map;
-
 import javax.annotation.concurrent.NotThreadSafe;
 
 import org.jfree.chart.plot.XYPlot;
@@ -22,6 +20,7 @@ import de.invesdwin.context.client.swing.jfreechart.plot.dataset.list.SlaveLazyD
 import de.invesdwin.context.client.swing.jfreechart.plot.renderer.custom.annotations.item.AAnnotationPlottingDataItem;
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.collections.factory.ILockCollectionFactory;
+import de.invesdwin.util.collections.fast.IFastIterableMap;
 import de.invesdwin.util.collections.iterable.ASkippingIterable;
 import de.invesdwin.util.collections.iterable.ICloseableIterable;
 import de.invesdwin.util.collections.iterable.WrapperCloseableIterable;
@@ -45,7 +44,8 @@ public class AnnotationPlottingDataset extends AbstractXYDataset
     private DatasetGroup group;
     private String initialPlotPaneId;
     private String rangeAxisId;
-    private final Map<String, AAnnotationPlottingDataItem> annotationId_item = ILockCollectionFactory.getInstance(true)
+    private final IFastIterableMap<String, AAnnotationPlottingDataItem> annotationId_item = ILockCollectionFactory
+            .getInstance(true)
             .newFastIterableLinkedMap();
     private IIndicatorSeriesProvider indicatorSeriesProvider;
     private IExpression[] indicatorSeriesArguments;
@@ -192,6 +192,10 @@ public class AnnotationPlottingDataset extends AbstractXYDataset
     @Override
     public int getDateTimeAsItemIndex(final int series, final FDate time) {
         return masterDataset.getDateTimeAsItemIndex(series, time);
+    }
+
+    public String[] getAnnotationIds() {
+        return annotationId_item.asKeyArray(String.class);
     }
 
     public void addOrUpdate(final AAnnotationPlottingDataItem item) {
