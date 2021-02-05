@@ -8,29 +8,29 @@ import de.invesdwin.util.time.fdate.FDate;
 @NotThreadSafe
 public class LineAnnotationPlottingDataItem extends AAnnotationPlottingDataItem {
 
-    private final double startPrice;
     private final FDate startTime;
+    private final double startPrice;
     private final FDate endTime;
     private final double endPrice;
     private boolean itemLoaded;
     private int startTimeLoadedIndex = Integer.MIN_VALUE;
     private int endTimeLoadedIndex = Integer.MIN_VALUE;
 
-    public LineAnnotationPlottingDataItem(final String annotationId, final double startPrice, final FDate startTime,
+    public LineAnnotationPlottingDataItem(final String annotationId, final FDate startTime, final double startPrice,
             final FDate endTime, final double endPrice) {
         super(annotationId);
-        this.startPrice = startPrice;
         this.startTime = startTime;
+        this.startPrice = startPrice;
         this.endTime = endTime;
         this.endPrice = endPrice;
     }
 
-    public double getStartPrice() {
-        return startPrice;
-    }
-
     public FDate getStartTime() {
         return startTime;
+    }
+
+    public double getStartPrice() {
+        return startPrice;
     }
 
     public FDate getEndTime() {
