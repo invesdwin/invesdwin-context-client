@@ -23,6 +23,8 @@ import org.jfree.chart.ui.RectangleAnchor;
 import org.jfree.chart.ui.RectangleInsets;
 import org.jfree.chart.ui.TextAnchor;
 
+import de.invesdwin.aspects.annotation.EventDispatchThread;
+import de.invesdwin.aspects.annotation.EventDispatchThread.InvocationType;
 import de.invesdwin.context.client.swing.jfreechart.panel.InteractiveChartPanel;
 import de.invesdwin.context.client.swing.jfreechart.plot.annotation.priceline.XYPriceLineAnnotation;
 import de.invesdwin.util.lang.Colors;
@@ -85,6 +87,7 @@ public class PlotCrosshairHelper {
         return domainCrosshairMarker.getValue();
     }
 
+    @EventDispatchThread(InvocationType.INVOKE_LATER_IF_NOT_IN_EDT)
     public void updateCrosshair(final int mouseX, final int mouseY) {
         final Point mousePoint = new Point(mouseX, mouseY);
 
@@ -170,6 +173,7 @@ public class PlotCrosshairHelper {
         }
     }
 
+    @EventDispatchThread(InvocationType.INVOKE_LATER_IF_NOT_IN_EDT)
     public void disableCrosshair() {
         final List<XYPlot> subplotsList = chartPanel.getCombinedPlot().getSubplots();
         for (int i = 0; i < subplotsList.size(); i++) {
