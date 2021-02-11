@@ -195,6 +195,11 @@ public class AnnotationPlottingDataset extends AbstractXYDataset
     }
 
     @Override
+    public int getDateTimeStartAsItemIndex(final int series, final FDate time) {
+        return masterDataset.getDateTimeStartAsItemIndex(series, time);
+    }
+
+    @Override
     public int getDateTimeEndAsItemIndex(final int series, final FDate time) {
         return masterDataset.getDateTimeEndAsItemIndex(series, time);
     }
