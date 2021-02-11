@@ -240,10 +240,10 @@ public class InteractiveChartPanel extends JPanel {
     }
 
     public void resetRange(final int visibleItemCount) {
-        resetRangeRecursion(visibleItemCount, true);
+        resetRangeRetry(visibleItemCount, true);
     }
 
-    private void resetRangeRecursion(final int visibleItemCount, final boolean recursionAllowed) {
+    private void resetRangeRetry(final int visibleItemCount, final boolean retryAllowed) {
         if (masterDataset.getItemCount(0) > 0) {
             final FDate firstItemDate = masterDataset.getData().get(0).getStartTime();
             final FDate lastItemDate = masterDataset.getData().get(masterDataset.getItemCount(0) - 1).getStartTime();
@@ -252,7 +252,7 @@ public class InteractiveChartPanel extends JPanel {
             update();
             final FDate newFirstItemDate = masterDataset.getData().get(0).getStartTime();
             final FDate newLastItemDate = masterDataset.getData().get(masterDataset.getItemCount(0) - 1).getStartTime();
-            if (recursionAllowed
+            if (retryAllowed
                     && (!newFirstItemDate.equals(firstItemDate) || !newLastItemDate.equals(lastItemDate))) {
                 finalizer.executorUpdateLimit.execute(new Runnable() {
                     @Override
@@ -262,7 +262,7 @@ public class InteractiveChartPanel extends JPanel {
                                 @Override
                                 public void run() {
                                     //retry only once
-                                    resetRangeRecursion(visibleItemCount, false);
+                                    resetRangeRetry(visibleItemCount, false);
                                 }
                             });
                         } catch (final InterruptedException e) {
