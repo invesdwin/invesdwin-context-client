@@ -145,6 +145,9 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
 
     @Override
     public void reloadData() {
+        if (getData().isEmpty()) {
+            return;
+        }
         final FDate from = getFirstLoadedItem().getEndTime();
         final FDate to = getLastLoadedItem().getEndTime();
         reloadData(from, to, null);
@@ -238,7 +241,11 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
         if (lastUpdateTime != null && isTrailingRange(chartPanel.getDomainAxis().getRange())) {
             return lastUpdateTime;
         } else {
-            return provider.getLastAvailableKey().getFrom();
+            final TimeRange lastAvailableKey = provider.getLastAvailableKey();
+            if (lastAvailableKey == null) {
+                return null;
+            }
+            return lastAvailableKey.getFrom();
         }
     }
 
@@ -248,8 +255,12 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
 
     private void loadInitialDataMaster(final InteractiveChartPanel chartPanel) {
         final int initialVisibleItemCount = chartPanel.getInitialVisibleItemCount() * PRELOAD_RANGE_MULTIPLIER;
+        final TimeRange lastAvailableKey = provider.getLastAvailableKey();
+        if (lastAvailableKey == null) {
+            return;
+        }
         final ICloseableIterable<? extends TimeRangedOHLCDataItem> initialValues = provider
-                .getPreviousValues(provider.getLastAvailableKey().getTo(), initialVisibleItemCount);
+                .getPreviousValues(lastAvailableKey.getTo(), initialVisibleItemCount);
         final List<MasterOHLCDataItem> data = getData();
         try (ICloseableIterator<? extends TimeRangedOHLCDataItem> it = initialValues.iterator()) {
             while (true) {
@@ -336,6 +347,9 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
             //wait for lazy loading to finish
             return range;
         }
+        if (getData().isEmpty()) {
+            return range;
+        }
         final boolean isTrailing = isTrailingRange(range);
         Range updatedRange = range;
         final List<MasterOHLCDataItem> data = getData();
@@ -369,7 +383,8 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
             final int preloadUpperBound = (int) (range.getUpperBound() + range.getLength());
             if (preloadUpperBound > data.size()) {
                 final TimeRangedOHLCDataItem lastLoadedItem = getLastLoadedItem();
-                if (provider.getLastAvailableKey().getFrom().isAfter(lastLoadedItem.getStartTime())) {
+                final TimeRange lastAvailableKey = provider.getLastAvailableKey();
+                if (lastAvailableKey != null && lastAvailableKey.getFrom().isAfter(lastLoadedItem.getStartTime())) {
                     //append a whole screen additional to the requested items
                     final int appendCount = Integers.min(MAX_STEP_ITEM_COUNT,
                             (preloadUpperBound - data.size()) * STEP_ITEM_COUNT_MULTIPLIER);
@@ -395,6 +410,9 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
 
     @Override
     public boolean isTrailingLoaded() {
+        if (getData().isEmpty()) {
+            return false;
+        }
         final FDate lastLoadedKeyFrom = getLastLoadedItem().getStartTime();
         if (lastLoadedKeyFrom == null) {
             return false;
@@ -418,7 +436,6 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
                     try (ICloseableIterator<? extends TimeRangedOHLCDataItem> it = masterValues.iterator()) {
                         while (true) {
                             final TimeRangedOHLCDataItem next = it.next();
-                            final FDate key = next.getEndTime();
                             final MasterOHLCDataItem appendItem = items.get(nextItemsIndex);
                             appendItem.setOHLC(next);
                             loadedItems.add(appendItem);
