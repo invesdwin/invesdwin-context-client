@@ -224,7 +224,7 @@ public class CandlestickDemo extends JFrame {
                         new TimeRangedOHLCDataItem(ohlcItem.getStartTime(), ohlcItem.getEndTime(), Double.NaN,
                                 Double.NaN, Double.NaN, value, Double.NaN));
                 final int index = list.size();
-                final double xValueAsDateTime = chartPanel.getMasterDataset().getXValueAsDateTime(0, index);
+                final double xValueAsDateTime = chartPanel.getMasterDataset().getXValueAsDateTimeEnd(0, index);
                 if (xValueAsDateTime != item.getXValue()) {
                     throw new IllegalStateException(
                             "Async at index [" + index + "]: ohlc[" + new FDate((long) xValueAsDateTime)
@@ -352,7 +352,7 @@ public class CandlestickDemo extends JFrame {
                         new TimeRangedOHLCDataItem(ohlcItem.getStartTime(), ohlcItem.getEndTime(), Double.NaN,
                                 Double.NaN, Double.NaN, value, Double.NaN));
                 final int index = list.size();
-                final double xValueAsDateTime = chartPanel.getMasterDataset().getXValueAsDateTime(0, index);
+                final double xValueAsDateTime = chartPanel.getMasterDataset().getXValueAsDateTimeEnd(0, index);
                 if (xValueAsDateTime != item.getXValue()) {
                     throw new IllegalStateException(
                             "Async at index [" + index + "]: ohlc[" + new FDate((long) xValueAsDateTime)

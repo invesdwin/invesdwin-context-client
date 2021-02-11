@@ -103,7 +103,7 @@ public class XYPriceLineAnnotation extends AbstractXYAnnotation implements IPric
         final double x1 = dataArea.getMinX();
         final double x2 = dataArea.getMaxX();
 
-        final double lastPriceTime = masterDataset.getXValueAsDateTime(0, lastItem);
+        final double lastPriceTime = masterDataset.getXValueAsDateTimeEnd(0, lastItem);
         if (lastPriceTime >= maxPriceTime) {
             final double lastPrice = dataset.getYValue(0, lastItem);
             if (!Doubles.isNaN(lastPrice)) {

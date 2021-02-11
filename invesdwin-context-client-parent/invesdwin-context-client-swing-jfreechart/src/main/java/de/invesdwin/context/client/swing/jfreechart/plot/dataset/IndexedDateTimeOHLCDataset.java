@@ -51,7 +51,17 @@ public class IndexedDateTimeOHLCDataset extends ListOHLCDataset
     }
 
     @Override
-    public double getXValueAsDateTime(final int series, final int item) {
+    public double getXValueAsDateTimeStart(final int series, final int item) {
+        final int itemCount = getItemCount(series);
+        if (itemCount == 0) {
+            return Double.NaN;
+        }
+        final int usedItem = Integers.between(item, 0, itemCount - 1);
+        return getData().get(usedItem).getStartTime().millisValue();
+    }
+
+    @Override
+    public double getXValueAsDateTimeEnd(final int series, final int item) {
         final int itemCount = getItemCount(series);
         if (itemCount == 0) {
             return Double.NaN;
@@ -72,17 +82,17 @@ public class IndexedDateTimeOHLCDataset extends ListOHLCDataset
     }
 
     @Override
-    public int getDateTimeAsItemIndex(final int series, final FDate time) {
-        return bisect(getData(), time);
+    public int getDateTimeEndAsItemIndex(final int series, final FDate time) {
+        return bisectDateTimeEnd(getData(), time);
     }
 
-    public static int bisect(final List<? extends TimeRangedOHLCDataItem> keys, final FDate skippingKeysAbove) {
+    public static int bisectDateTimeEnd(final List<? extends TimeRangedOHLCDataItem> keys, final FDate skippingKeysAbove) {
         int lo = 0;
         int hi = keys.size();
         while (lo < hi) {
             final int mid = (lo + hi) / 2;
             //if (x < list.get(mid)) {
-            final FDate midKey = keys.get(mid).getStartTime();
+            final FDate midKey = keys.get(mid).getEndTime();
             final int compareTo = midKey.compareTo(skippingKeysAbove);
             switch (compareTo) {
             case -1:
@@ -103,7 +113,7 @@ public class IndexedDateTimeOHLCDataset extends ListOHLCDataset
         if (lo >= keys.size()) {
             lo = lo - 1;
         }
-        final FDate loTime = keys.get(lo).getStartTime();
+        final FDate loTime = keys.get(lo).getEndTime();
         if (loTime.isAfterNotNullSafe(skippingKeysAbove)) {
             final int index = lo - 1;
             return index;

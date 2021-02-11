@@ -324,8 +324,8 @@ public class InteractiveChartPanel extends JPanel {
 
     public void setVisibleTimeRange(final TimeRange timeRange) {
         TimeRange.assertNotNull(timeRange);
-        final int fromIndex = masterDataset.getDateTimeAsItemIndex(0, timeRange.getFrom());
-        final int toIndex = masterDataset.getDateTimeAsItemIndex(0, timeRange.getTo());
+        final int fromIndex = masterDataset.getDateTimeEndAsItemIndex(0, timeRange.getFrom());
+        final int toIndex = masterDataset.getDateTimeEndAsItemIndex(0, timeRange.getTo());
         final int lastItemIndex = masterDataset.getItemCount(0) - 1;
         final int lowerBound = fromIndex;
         final int upperBound = toIndex;

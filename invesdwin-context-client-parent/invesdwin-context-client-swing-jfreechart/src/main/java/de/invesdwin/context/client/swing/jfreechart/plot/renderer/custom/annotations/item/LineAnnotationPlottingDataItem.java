@@ -57,9 +57,9 @@ public class LineAnnotationPlottingDataItem extends AAnnotationPlottingDataItem 
                 endTimeLoadedIndex = Integer.MIN_VALUE;
             }
         } else {
-            this.startTimeLoadedIndex = dataset.getDateTimeAsItemIndex(0, startTime);
+            this.startTimeLoadedIndex = dataset.getDateTimeEndAsItemIndex(0, startTime);
             if (endTime != null) {
-                this.endTimeLoadedIndex = dataset.getDateTimeAsItemIndex(0, endTime);
+                this.endTimeLoadedIndex = dataset.getDateTimeEndAsItemIndex(0, endTime);
             } else {
                 this.endTimeLoadedIndex = dataset.getItemCount(0) - 1;
             }

@@ -92,9 +92,9 @@ public class OrderPlottingDataItem {
                 closeTimeLoadedIndex = Integer.MIN_VALUE;
             }
         } else {
-            this.openTimeLoadedIndex = dataset.getDateTimeAsItemIndex(0, openTime);
+            this.openTimeLoadedIndex = dataset.getDateTimeEndAsItemIndex(0, openTime);
             if (closeTime != null) {
-                this.closeTimeLoadedIndex = dataset.getDateTimeAsItemIndex(0, closeTime);
+                this.closeTimeLoadedIndex = dataset.getDateTimeEndAsItemIndex(0, closeTime);
             } else {
                 this.closeTimeLoadedIndex = dataset.getItemCount(0) - 1;
             }

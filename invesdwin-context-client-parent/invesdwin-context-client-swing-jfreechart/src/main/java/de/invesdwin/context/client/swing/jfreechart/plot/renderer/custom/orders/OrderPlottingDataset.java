@@ -183,18 +183,23 @@ public class OrderPlottingDataset extends AbstractXYDataset implements IPlotSour
     }
 
     @Override
-    public double getXValueAsDateTime(final int series, final int item) {
-        return masterDataset.getXValueAsDateTime(series, item);
+    public double getXValueAsDateTimeStart(final int series, final int item) {
+        return masterDataset.getXValueAsDateTimeStart(series, item);
     }
 
     @Override
-    public int getDateTimeAsItemIndex(final int series, final FDate time) {
-        return masterDataset.getDateTimeAsItemIndex(series, time);
+    public double getXValueAsDateTimeEnd(final int series, final int item) {
+        return masterDataset.getXValueAsDateTimeEnd(series, item);
+    }
+
+    @Override
+    public int getDateTimeEndAsItemIndex(final int series, final FDate time) {
+        return masterDataset.getDateTimeEndAsItemIndex(series, time);
     }
 
     public void addOrUpdate(final OrderPlottingDataItem item) {
-        final long firstLoadedKeyMillis = (long) getXValueAsDateTime(0, 0);
-        final long lastLoadedKeyMillis = (long) getXValueAsDateTime(0, getItemCount(0) - 1);
+        final long firstLoadedKeyMillis = (long) getXValueAsDateTimeEnd(0, 0);
+        final long lastLoadedKeyMillis = (long) getXValueAsDateTimeEnd(0, getItemCount(0) - 1);
         final boolean trailingLoaded = masterDataset.isTrailingLoaded();
         item.updateItemLoaded(firstLoadedKeyMillis, lastLoadedKeyMillis, trailingLoaded, this);
         orderId_item.put(item.getOrderId(), item);
@@ -352,8 +357,8 @@ public class OrderPlottingDataset extends AbstractXYDataset implements IPlotSour
     }
 
     private void updateItemsLoaded(final boolean forced) {
-        final long firstLoadedKeyMillis = (long) getXValueAsDateTime(0, 0);
-        final long lastLoadedKeyMillis = (long) getXValueAsDateTime(0, getItemCount(0) - 1);
+        final long firstLoadedKeyMillis = (long) getXValueAsDateTimeEnd(0, 0);
+        final long lastLoadedKeyMillis = (long) getXValueAsDateTimeEnd(0, getItemCount(0) - 1);
         if (forced || prevFirstLoadedKeyMillis != firstLoadedKeyMillis
                 || prevLastLoadedKeyMillis != lastLoadedKeyMillis) {
             final boolean trailingLoaded = masterDataset.isTrailingLoaded();

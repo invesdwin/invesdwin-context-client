@@ -44,13 +44,13 @@ public class IndexedDateTimeNumberFormat extends NumberFormat {
     @Override
     public StringBuffer format(final double number, final StringBuffer toAppendTo, final FieldPosition pos) {
         final int item = (int) number;
-        final long time = (long) dataset.getXValueAsDateTime(0, item);
-        final long prevTime = (long) dataset.getXValueAsDateTime(0, item - 1);
+        final long time = (long) dataset.getXValueAsDateTimeStart(0, item);
+        final long prevTime = (long) dataset.getXValueAsDateTimeStart(0, item - 1);
         final FDate date = new FDate(time);
         final FDate prevDate = new FDate(prevTime);
         final Range range = domainAxis.getRange();
-        final double millis = dataset.getXValueAsDateTime(0, (int) range.getUpperBound())
-                - dataset.getXValueAsDateTime(0, (int) range.getLowerBound());
+        final double millis = dataset.getXValueAsDateTimeStart(0, (int) range.getUpperBound())
+                - dataset.getXValueAsDateTimeStart(0, (int) range.getLowerBound());
         final Duration duration = new Duration((long) millis, FTimeUnit.MILLISECONDS);
         final DateFormat format;
         if (duration.isLessThan(MILLISECOND_THRESHOLD) && FDates.isSameSecond(date, prevDate)) {
@@ -70,8 +70,8 @@ public class IndexedDateTimeNumberFormat extends NumberFormat {
     @Override
     public StringBuffer format(final long number, final StringBuffer toAppendTo, final FieldPosition pos) {
         final int item = (int) number;
-        final long time = (long) dataset.getXValueAsDateTime(0, item);
-        final long prevTime = (long) dataset.getXValueAsDateTime(0, item - 1);
+        final long time = (long) dataset.getXValueAsDateTimeStart(0, item);
+        final long prevTime = (long) dataset.getXValueAsDateTimeStart(0, item - 1);
         final FDate date = new FDate(time);
         final FDate prevDate = new FDate(prevTime);
         final DateFormat format;
