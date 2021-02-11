@@ -192,14 +192,19 @@ public class OrderPlottingDataset extends AbstractXYDataset implements IPlotSour
         return masterDataset.getXValueAsDateTimeEnd(series, item);
     }
 
+    public int getDateTimeStartAsItemIndex(final int series, final FDate time) {
+        return masterDataset.getDateTimeStartAsItemIndex(series, time);
+    }
+
     @Override
     public int getDateTimeEndAsItemIndex(final int series, final FDate time) {
         return masterDataset.getDateTimeEndAsItemIndex(series, time);
     }
 
     public void addOrUpdate(final OrderPlottingDataItem item) {
-        final long firstLoadedKeyMillis = (long) getXValueAsDateTimeEnd(0, 0);
-        final long lastLoadedKeyMillis = (long) getXValueAsDateTimeEnd(0, getItemCount(0) - 1);
+        //we need to search for start time, otherwise entries will be plotted one bar too early
+        final long firstLoadedKeyMillis = (long) getXValueAsDateTimeStart(0, 0);
+        final long lastLoadedKeyMillis = (long) getXValueAsDateTimeStart(0, getItemCount(0) - 1);
         final boolean trailingLoaded = masterDataset.isTrailingLoaded();
         item.updateItemLoaded(firstLoadedKeyMillis, lastLoadedKeyMillis, trailingLoaded, this);
         orderId_item.put(item.getOrderId(), item);
@@ -357,8 +362,9 @@ public class OrderPlottingDataset extends AbstractXYDataset implements IPlotSour
     }
 
     private void updateItemsLoaded(final boolean forced) {
-        final long firstLoadedKeyMillis = (long) getXValueAsDateTimeEnd(0, 0);
-        final long lastLoadedKeyMillis = (long) getXValueAsDateTimeEnd(0, getItemCount(0) - 1);
+        //we need to search for start time, otherwise entries will be plotted one bar too early
+        final long firstLoadedKeyMillis = (long) getXValueAsDateTimeStart(0, 0);
+        final long lastLoadedKeyMillis = (long) getXValueAsDateTimeStart(0, getItemCount(0) - 1);
         if (forced || prevFirstLoadedKeyMillis != firstLoadedKeyMillis
                 || prevLastLoadedKeyMillis != lastLoadedKeyMillis) {
             final boolean trailingLoaded = masterDataset.isTrailingLoaded();

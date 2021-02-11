@@ -10,6 +10,8 @@ public interface IIndexedDateTimeXYDataset extends XYDataset {
 
     double getXValueAsDateTimeEnd(int series, int item);
 
+    int getDateTimeStartAsItemIndex(int series, FDate time);
+
     int getDateTimeEndAsItemIndex(int series, FDate time);
 
 }

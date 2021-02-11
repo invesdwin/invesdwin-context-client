@@ -92,9 +92,10 @@ public class OrderPlottingDataItem {
                 closeTimeLoadedIndex = Integer.MIN_VALUE;
             }
         } else {
-            this.openTimeLoadedIndex = dataset.getDateTimeEndAsItemIndex(0, openTime);
+            //we need to search for start time, otherwise entries will be plotted one bar too early
+            this.openTimeLoadedIndex = dataset.getDateTimeStartAsItemIndex(0, openTime);
             if (closeTime != null) {
-                this.closeTimeLoadedIndex = dataset.getDateTimeEndAsItemIndex(0, closeTime);
+                this.closeTimeLoadedIndex = dataset.getDateTimeStartAsItemIndex(0, closeTime);
             } else {
                 this.closeTimeLoadedIndex = dataset.getItemCount(0) - 1;
             }

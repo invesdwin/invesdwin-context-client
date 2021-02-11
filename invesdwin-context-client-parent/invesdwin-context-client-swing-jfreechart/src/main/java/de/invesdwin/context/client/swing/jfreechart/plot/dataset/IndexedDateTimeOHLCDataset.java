@@ -82,11 +82,54 @@ public class IndexedDateTimeOHLCDataset extends ListOHLCDataset
     }
 
     @Override
+    public int getDateTimeStartAsItemIndex(final int series, final FDate time) {
+        return bisectDateTimeStart(getData(), time);
+    }
+
+    public static int bisectDateTimeStart(final List<? extends TimeRangedOHLCDataItem> keys,
+            final FDate skippingKeysAbove) {
+        int lo = 0;
+        int hi = keys.size();
+        while (lo < hi) {
+            final int mid = (lo + hi) / 2;
+            //if (x < list.get(mid)) {
+            final FDate midKey = keys.get(mid).getStartTime();
+            final int compareTo = midKey.compareTo(skippingKeysAbove);
+            switch (compareTo) {
+            case -1:
+                lo = mid + 1;
+                break;
+            case 0:
+                return mid;
+            case 1:
+                hi = mid;
+                break;
+            default:
+                throw UnknownArgumentException.newInstance(Integer.class, compareTo);
+            }
+        }
+        if (lo <= 0) {
+            return 0;
+        }
+        if (lo >= keys.size()) {
+            lo = lo - 1;
+        }
+        final FDate loTime = keys.get(lo).getStartTime();
+        if (loTime.isAfterNotNullSafe(skippingKeysAbove)) {
+            final int index = lo - 1;
+            return index;
+        } else {
+            return lo;
+        }
+    }
+
+    @Override
     public int getDateTimeEndAsItemIndex(final int series, final FDate time) {
         return bisectDateTimeEnd(getData(), time);
     }
 
-    public static int bisectDateTimeEnd(final List<? extends TimeRangedOHLCDataItem> keys, final FDate skippingKeysAbove) {
+    public static int bisectDateTimeEnd(final List<? extends TimeRangedOHLCDataItem> keys,
+            final FDate skippingKeysAbove) {
         int lo = 0;
         int hi = keys.size();
         while (lo < hi) {
