@@ -9,7 +9,7 @@ import javax.swing.JComponent;
 
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.series.indicator.IIndicatorSeriesParameter;
 import de.invesdwin.util.math.expression.IExpression;
-import de.invesdwin.util.math.expression.eval.BooleanExpression;
+import de.invesdwin.util.math.expression.eval.BooleanConstantExpression;
 
 @NotThreadSafe
 public class BooleanParameterSettingsModifier extends AParameterSettingsModifier {
@@ -23,7 +23,8 @@ public class BooleanParameterSettingsModifier extends AParameterSettingsModifier
         component.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(final ActionEvent e) {
-                BooleanParameterSettingsModifier.super.setValue(new BooleanExpression(component.isSelected()));
+                BooleanParameterSettingsModifier.super.setValue(
+                        BooleanConstantExpression.valueOf(component.isSelected()));
                 modificationListener.run();
             }
         });

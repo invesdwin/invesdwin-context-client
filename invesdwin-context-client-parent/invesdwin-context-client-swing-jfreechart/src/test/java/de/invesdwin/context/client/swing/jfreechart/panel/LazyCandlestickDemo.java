@@ -59,10 +59,8 @@ import de.invesdwin.util.error.UnknownArgumentException;
 import de.invesdwin.util.lang.UniqueNameGenerator;
 import de.invesdwin.util.lang.reflection.Reflections;
 import de.invesdwin.util.math.expression.ExpressionParser;
-import de.invesdwin.util.math.expression.ExpressionType;
 import de.invesdwin.util.math.expression.IExpression;
-import de.invesdwin.util.math.expression.eval.BooleanExpression;
-import de.invesdwin.util.math.expression.eval.ConstantExpression;
+import de.invesdwin.util.math.expression.eval.BooleanConstantExpression;
 import de.invesdwin.util.math.expression.eval.EnumerationExpression;
 import de.invesdwin.util.time.fdate.FDate;
 import de.invesdwin.util.time.range.TimeRange;
@@ -456,7 +454,7 @@ public class LazyCandlestickDemo extends JFrame {
 
                 @Override
                 public IExpression getDefaultValue() {
-                    return new BooleanExpression(false);
+                    return BooleanConstantExpression.FALSE;
                 }
             }, new IIndicatorSeriesParameter() {
 
@@ -487,7 +485,7 @@ public class LazyCandlestickDemo extends JFrame {
 
                 @Override
                 public IExpression getDefaultValue() {
-                    return new ConstantExpression(0D, ExpressionType.Boolean);
+                    return BooleanConstantExpression.FALSE;
                 }
             }, new IIndicatorSeriesParameter() {
 
@@ -518,7 +516,7 @@ public class LazyCandlestickDemo extends JFrame {
 
                 @Override
                 public IExpression getDefaultValue() {
-                    return new ConstantExpression(0D, ExpressionType.Boolean);
+                    return BooleanConstantExpression.FALSE;
                 }
             }, new IIndicatorSeriesParameter() {
 
