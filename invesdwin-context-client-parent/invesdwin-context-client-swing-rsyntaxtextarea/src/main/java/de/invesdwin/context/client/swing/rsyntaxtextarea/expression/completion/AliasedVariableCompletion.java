@@ -12,12 +12,12 @@ import org.fife.ui.autocomplete.VariableCompletion;
 public class AliasedVariableCompletion extends VariableCompletion implements IAliasedCompletion {
 
     private final Set<String> aliases = new TreeSet<>();
-    private final String example;
+    private final String aliasedReference;
 
     public AliasedVariableCompletion(final CompletionProvider provider, final String name, final String type,
-            final String example) {
+            final String aliasedReference) {
         super(provider, name, type);
-        this.example = example;
+        this.aliasedReference = aliasedReference;
     }
 
     @Override
@@ -28,7 +28,7 @@ public class AliasedVariableCompletion extends VariableCompletion implements IAl
     @Override
     public String getSummary() {
         final String summary = super.getSummary();
-        return AliasedFunctionCompletion.appendAliases(summary, aliases);
+        return AliasedFunctionCompletion.appendAliases(summary, aliases, null);
     }
 
     @Override
@@ -37,8 +37,10 @@ public class AliasedVariableCompletion extends VariableCompletion implements IAl
                 null) {
             @Override
             public String getSummary() {
-                final String summary = super.getSummary();
-                return AliasedFunctionCompletion.appendAliasOf(summary, example);
+                String summary = super.getSummary();
+                summary = AliasedFunctionCompletion.appendAliasOf(summary, aliasedReference);
+                summary = AliasedFunctionCompletion.appendAliases(summary, aliases, inputText);
+                return summary;
             }
         };
         copy.setShortDescription(getShortDescription());

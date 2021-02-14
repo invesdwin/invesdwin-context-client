@@ -17,9 +17,9 @@ public class AliasedFunctionCompletion extends FunctionCompletion implements IAl
     private final String aliasedReference;
 
     public AliasedFunctionCompletion(final CompletionProvider provider, final String name, final String returnType,
-            final String aliasReference) {
+            final String aliasedReference) {
         super(provider, name, returnType);
-        this.aliasedReference = aliasReference;
+        this.aliasedReference = aliasedReference;
     }
 
     @Override
@@ -30,10 +30,10 @@ public class AliasedFunctionCompletion extends FunctionCompletion implements IAl
     @Override
     public String getSummary() {
         final String summary = super.getSummary();
-        return appendAliases(summary, aliases);
+        return appendAliases(summary, aliases, null);
     }
 
-    public static String appendAliases(final String summary, final Set<String> aliases) {
+    public static String appendAliases(final String summary, final Set<String> aliases, final String thisAlias) {
         if (!aliases.isEmpty()) {
             final StringBuilder sb = new StringBuilder();
             if (summary != null) {
@@ -42,7 +42,13 @@ public class AliasedFunctionCompletion extends FunctionCompletion implements IAl
             sb.append("<b>Aliases:</b><br>");
             sb.append("<center><table width='90%'><tr><td>");
             for (final String alias : aliases) {
-                sb.append(alias);
+                if (thisAlias != null && thisAlias.equals(alias)) {
+                    sb.append("<i><b>");
+                    sb.append(alias);
+                    sb.append("</b></i>");
+                } else {
+                    sb.append(alias);
+                }
                 sb.append("<br>");
             }
             sb.append("</td></tr></table></center>");
@@ -73,8 +79,10 @@ public class AliasedFunctionCompletion extends FunctionCompletion implements IAl
                 null) {
             @Override
             public String getSummary() {
-                final String summary = super.getSummary();
-                return AliasedFunctionCompletion.appendAliasOf(summary, aliasedReference);
+                String summary = super.getSummary();
+                summary = appendAliasOf(summary, aliasedReference);
+                summary = appendAliases(summary, aliases, inputText);
+                return summary;
             }
         };
         final List<Parameter> params = new ArrayList<>(getParamCount());
