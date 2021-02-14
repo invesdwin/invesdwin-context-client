@@ -1,7 +1,7 @@
 package de.invesdwin.context.client.swing.rsyntaxtextarea.expression.completion;
 
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.Map;
+import java.util.TreeMap;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
@@ -11,7 +11,7 @@ import org.fife.ui.autocomplete.VariableCompletion;
 @NotThreadSafe
 public class AliasedVariableCompletion extends VariableCompletion implements IAliasedCompletion {
 
-    private final Set<String> aliases = new TreeSet<>();
+    private final Map<String, String> aliases = new TreeMap<>();
     private final String aliasedReference;
 
     public AliasedVariableCompletion(final CompletionProvider provider, final String name, final String type,
@@ -21,14 +21,14 @@ public class AliasedVariableCompletion extends VariableCompletion implements IAl
     }
 
     @Override
-    public Set<String> getAliases() {
-        return aliases;
+    public void putAlias(final String alias, final String description) {
+        aliases.put(alias, description);
     }
 
     @Override
     public String getSummary() {
         final String summary = super.getSummary();
-        return AliasedFunctionCompletion.appendAliases(summary, aliases, null);
+        return AliasedFunctionCompletion.appendAliases(summary, aliases.keySet(), null);
     }
 
     @Override
@@ -39,11 +39,11 @@ public class AliasedVariableCompletion extends VariableCompletion implements IAl
             public String getSummary() {
                 String summary = super.getSummary();
                 summary = AliasedFunctionCompletion.appendAliasOf(summary, aliasedReference);
-                summary = AliasedFunctionCompletion.appendAliases(summary, aliases, inputText);
+                summary = AliasedFunctionCompletion.appendAliases(summary, aliases.keySet(), inputText);
                 return summary;
             }
         };
-        copy.setShortDescription(getShortDescription());
+        copy.setShortDescription(aliases.get(inputText));
         copy.setIcon(getIcon());
         copy.setDefinedIn(getDefinedIn());
         copy.setRelevance(RELEVANCE_ALIAS);

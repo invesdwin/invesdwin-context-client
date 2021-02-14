@@ -2,8 +2,9 @@ package de.invesdwin.context.client.swing.rsyntaxtextarea.expression.completion;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
-import java.util.TreeSet;
+import java.util.TreeMap;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
@@ -13,7 +14,7 @@ import org.fife.ui.autocomplete.FunctionCompletion;
 @NotThreadSafe
 public class AliasedFunctionCompletion extends FunctionCompletion implements IAliasedCompletion {
 
-    private final Set<String> aliases = new TreeSet<>();
+    private final Map<String, String> aliases = new TreeMap<>();
     private final String aliasedReference;
 
     public AliasedFunctionCompletion(final CompletionProvider provider, final String name, final String returnType,
@@ -23,14 +24,14 @@ public class AliasedFunctionCompletion extends FunctionCompletion implements IAl
     }
 
     @Override
-    public Set<String> getAliases() {
-        return aliases;
+    public void putAlias(final String alias, final String description) {
+        aliases.put(alias, description);
     }
 
     @Override
     public String getSummary() {
         final String summary = super.getSummary();
-        return appendAliases(summary, aliases, null);
+        return appendAliases(summary, aliases.keySet(), null);
     }
 
     public static String appendAliases(final String summary, final Set<String> aliases, final String thisAlias) {
@@ -81,7 +82,7 @@ public class AliasedFunctionCompletion extends FunctionCompletion implements IAl
             public String getSummary() {
                 String summary = super.getSummary();
                 summary = appendAliasOf(summary, aliasedReference);
-                summary = appendAliases(summary, aliases, inputText);
+                summary = appendAliases(summary, aliases.keySet(), inputText);
                 return summary;
             }
         };
@@ -90,7 +91,7 @@ public class AliasedFunctionCompletion extends FunctionCompletion implements IAl
             params.add(getParam(i));
         }
         copy.setParams(params);
-        copy.setShortDescription(getShortDescription());
+        copy.setShortDescription(aliases.get(inputText));
         copy.setDefinedIn(getDefinedIn());
         copy.setIcon(getIcon());
         copy.setReturnValueDescription(getReturnValueDescription());

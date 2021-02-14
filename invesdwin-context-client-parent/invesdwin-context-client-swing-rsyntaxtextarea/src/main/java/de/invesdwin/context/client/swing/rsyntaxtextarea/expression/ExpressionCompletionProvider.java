@@ -47,17 +47,17 @@ public class ExpressionCompletionProvider extends DefaultCompletionProvider {
 
     public void addDefaultCompletions(final Set<String> duplicateExpressionFilter,
             final Map<String, IAliasedCompletion> name_completion,
-            final Map<String, IAliasedCompletion> alias_completion) {
+            final Map<String, IAliasedCompletion> alias_completion, final boolean put) {
         final Collection<IVariable> defaultVariables = ExpressionParser.getDefaultVariables();
         final Collection<IFunctionFactory> defaultFunctions = ExpressionParser.getDefaultFunctions();
-        addCompletions(duplicateExpressionFilter, name_completion, alias_completion, defaultVariables,
-                defaultFunctions);
+        addCompletions(duplicateExpressionFilter, name_completion, alias_completion, defaultVariables, defaultFunctions,
+                put);
     }
 
     public void addCompletions(final Set<String> duplicateExpressionFilter,
             final Map<String, IAliasedCompletion> name_completion,
             final Map<String, IAliasedCompletion> alias_completion, final Collection<IVariable> defaultVariables,
-            final Collection<IFunctionFactory> defaultFunctions) {
+            final Collection<IFunctionFactory> defaultFunctions, final boolean put) {
         for (final IVariable v : defaultVariables) {
             final String expressionName = v.getExpressionName();
             final String name = v.getName();
@@ -69,7 +69,7 @@ public class ExpressionCompletionProvider extends DefaultCompletionProvider {
                             v.getReturnType().toString(), aliasedReference);
                     name_completion.put(name, c);
                 } else {
-                    existing.getAliases().add(expressionName);
+                    existing.putAlias(expressionName, v.getDescription());
                     alias_completion.put(v.getExpressionName(), existing);
                 }
             }
@@ -109,12 +109,14 @@ public class ExpressionCompletionProvider extends DefaultCompletionProvider {
                     }
                 } else {
                     final String alias = f.getExpressionString(f.getDefaultValues());
-                    existing.getAliases().add(alias);
+                    existing.putAlias(alias, f.getDescription());
                     alias_completion.put(f.getExpressionName(), existing);
                 }
             }
         }
-        addCompletions(name_completion.values(), alias_completion);
+        if (put) {
+            addCompletions(name_completion.values(), alias_completion);
+        }
     }
 
     /**

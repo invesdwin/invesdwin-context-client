@@ -300,7 +300,7 @@ public class LazyCandlestickDemo extends JFrame {
             final Map<String, IAliasedCompletion> name_completion = new HashMap<>();
             final Map<String, IAliasedCompletion> alias_completion = new HashMap<>();
             final ExpressionCompletionProvider provider = new ExpressionCompletionProvider();
-            provider.addDefaultCompletions(duplicateExpressionFilter, name_completion, alias_completion);
+            provider.addDefaultCompletions(duplicateExpressionFilter, name_completion, alias_completion, true);
             return provider;
         }
 
