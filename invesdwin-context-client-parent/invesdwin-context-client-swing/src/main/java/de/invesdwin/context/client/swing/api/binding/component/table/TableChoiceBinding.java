@@ -11,8 +11,8 @@ import javax.swing.table.TableCellRenderer;
 import de.invesdwin.context.client.swing.api.binding.BindingGroup;
 import de.invesdwin.context.client.swing.api.binding.component.AComponentBinding;
 import de.invesdwin.context.client.swing.api.view.AModel;
-import de.invesdwin.norva.beanpath.spi.element.ATableBeanPathElement;
 import de.invesdwin.norva.beanpath.spi.element.simple.modifier.IBeanPathPropertyModifier;
+import de.invesdwin.norva.beanpath.spi.element.table.ATableBeanPathElement;
 import de.invesdwin.util.swing.Components;
 
 @NotThreadSafe

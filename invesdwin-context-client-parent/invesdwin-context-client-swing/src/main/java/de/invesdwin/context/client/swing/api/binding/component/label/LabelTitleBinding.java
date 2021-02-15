@@ -15,12 +15,12 @@ import de.invesdwin.util.swing.Components;
 @NotThreadSafe
 public class LabelTitleBinding extends LabelBinding {
 
-    private final de.invesdwin.norva.beanpath.spi.element.simple.modifier.internal.CallableValueBeanPathModifier<Object> modifier;
+    private final de.invesdwin.norva.beanpath.spi.element.simple.modifier.CallableValueBeanPathModifier<Object> modifier;
 
     public LabelTitleBinding(final JLabel component, final APropertyBeanPathElement element,
             final BindingGroup bindingGroup) {
         super(component, element, bindingGroup);
-        this.modifier = new de.invesdwin.norva.beanpath.spi.element.simple.modifier.internal.CallableValueBeanPathModifier<Object>(
+        this.modifier = new de.invesdwin.norva.beanpath.spi.element.simple.modifier.CallableValueBeanPathModifier<Object>(
                 element.getAccessor(), new Callable<Object>() {
                     @Override
                     public Object call() throws Exception {

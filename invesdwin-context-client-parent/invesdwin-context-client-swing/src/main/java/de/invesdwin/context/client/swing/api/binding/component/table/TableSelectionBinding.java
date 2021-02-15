@@ -15,8 +15,8 @@ import javax.swing.event.ListSelectionListener;
 
 import de.invesdwin.context.client.swing.api.binding.BindingGroup;
 import de.invesdwin.context.client.swing.api.binding.component.AComponentBinding;
-import de.invesdwin.norva.beanpath.spi.element.ATableBeanPathElement;
 import de.invesdwin.norva.beanpath.spi.element.simple.modifier.IBeanPathPropertyModifier;
+import de.invesdwin.norva.beanpath.spi.element.table.ATableBeanPathElement;
 import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.swing.listener.KeyListenerSupport;
 import de.invesdwin.util.swing.listener.MouseListenerSupport;
