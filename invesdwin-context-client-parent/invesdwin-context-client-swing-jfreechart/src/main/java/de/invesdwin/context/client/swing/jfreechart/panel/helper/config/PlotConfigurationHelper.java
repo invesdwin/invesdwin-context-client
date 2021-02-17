@@ -49,6 +49,11 @@ import de.invesdwin.util.time.range.TimeRange;
 @NotThreadSafe
 public class PlotConfigurationHelper {
 
+    /**
+     * Default is a shared instance in memory.
+     */
+    private static final HeapBookmarkStorage DEFAULT_BOOKMARK_STORAGE = new HeapBookmarkStorage();
+
     private final InteractiveChartPanel chartPanel;
 
     private final PriceInitialSettings priceInitialSettings;
@@ -73,7 +78,7 @@ public class PlotConfigurationHelper {
 
     private final Map<String, IIndicatorSeriesProvider> indicatorSeriesProviders = new TreeMap<>();
     private IExpressionSeriesProvider expressionSeriesProvider;
-    private IBookmarkStorage bookmarkStorage = new HeapBookmarkStorage();
+    private IBookmarkStorage bookmarkStorage = DEFAULT_BOOKMARK_STORAGE;
 
     public PlotConfigurationHelper(final InteractiveChartPanel chartPanel) {
         this.chartPanel = chartPanel;
