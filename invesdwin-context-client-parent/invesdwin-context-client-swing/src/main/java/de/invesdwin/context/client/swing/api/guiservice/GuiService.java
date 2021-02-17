@@ -5,6 +5,7 @@ import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.Window;
+import java.awt.event.ComponentEvent;
 import java.awt.event.WindowEvent;
 import java.util.Stack;
 
@@ -32,7 +33,9 @@ import de.invesdwin.context.client.swing.frame.content.DockableIdGenerator;
 import de.invesdwin.context.client.swing.frame.content.IWorkingAreaLocation;
 import de.invesdwin.context.client.swing.util.SubmitAllViewsHelper;
 import de.invesdwin.context.client.swing.util.UpdateAllViewsHelper;
+import de.invesdwin.context.client.swing.util.Views;
 import de.invesdwin.util.swing.Dialogs;
+import de.invesdwin.util.swing.listener.ComponentListenerSupport;
 import de.invesdwin.util.swing.listener.WindowListenerSupport;
 
 @ThreadSafe
@@ -126,6 +129,12 @@ public class GuiService implements IGuiService {
         }
         dialog.setMinimumSize(new Dimension(100, 100));
         dialog.setLocationRelativeTo(window);
+        dialog.addComponentListener(new ComponentListenerSupport() {
+            @Override
+            public void componentShown(final ComponentEvent e) {
+                Views.triggerOnShowing(view);
+            }
+        });
         //this call blocks for modal dialogs, which is expected
         dialog.setVisible(true);
         EventDispatchThreadUtil.invokeLater(new Runnable() {

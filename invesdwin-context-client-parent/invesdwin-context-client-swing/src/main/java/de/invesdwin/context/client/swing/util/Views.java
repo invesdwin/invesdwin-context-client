@@ -6,6 +6,9 @@ import java.awt.Window;
 import javax.annotation.concurrent.Immutable;
 import javax.swing.JComponent;
 
+import bibliothek.gui.Dockable;
+import bibliothek.gui.dock.common.intern.CDockable;
+import bibliothek.gui.dock.common.intern.DefaultCommonDockable;
 import bibliothek.gui.dock.util.BackgroundPanel;
 import de.invesdwin.context.client.swing.api.view.AView;
 import de.invesdwin.context.client.swing.api.view.IDockable;
@@ -13,7 +16,8 @@ import de.invesdwin.context.client.swing.api.view.IDockable;
 @Immutable
 public final class Views {
 
-    private Views() {}
+    private Views() {
+    }
 
     public static AView<?, ?> findParentView(final Component component) {
         return findParentView(component, null);
@@ -44,6 +48,32 @@ public final class Views {
         return null;
     }
 
+    public static AView<?, ?> getViewAt(final Dockable dockable) {
+        if (dockable instanceof IDockable) {
+            final IDockable cDockable = (IDockable) dockable;
+            return getViewAt(cDockable);
+        } else if (dockable instanceof DefaultCommonDockable) {
+            final DefaultCommonDockable cDockable = (DefaultCommonDockable) dockable;
+            return getViewAt(cDockable.getDockable());
+        }
+        return null;
+    }
+
+    private static AView<?, ?> getViewAt(final IDockable dockable) {
+        if (dockable == null) {
+            return null;
+        }
+        return dockable.getView();
+    }
+
+    private static AView<?, ?> getViewAt(final CDockable dockable) {
+        if (dockable instanceof IDockable) {
+            final IDockable cDockable = (IDockable) dockable;
+            return getViewAt(cDockable);
+        }
+        return null;
+    }
+
     public static Component getRootComponentInDockable(final Component component) {
         Component parent = component;
         while (parent.getParent() != null && !(parent.getParent() instanceof BackgroundPanel)
@@ -51,6 +81,17 @@ public final class Views {
             parent = parent.getParent();
         }
         return parent;
+    }
+
+    public static void triggerOnShowing(final AView<?, ?> view) {
+        if (view != null) {
+            new AViewVisitor() {
+                @Override
+                protected void visit(final AView<?, ?> view) {
+                    view.triggerOnShowing();
+                }
+            }.visitAll(view.getComponent());
+        }
     }
 
 }

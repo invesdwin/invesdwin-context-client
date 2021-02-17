@@ -18,12 +18,15 @@ import bibliothek.gui.dock.common.intern.CDockable;
 import bibliothek.gui.dock.common.intern.CommonDockable;
 import bibliothek.gui.dock.common.mode.ExtendedMode;
 import bibliothek.gui.dock.control.focus.DefaultFocusRequest;
+import bibliothek.gui.dock.event.DockableFocusEvent;
+import bibliothek.gui.dock.event.DockableFocusListener;
 import de.invesdwin.aspects.EventDispatchThreadUtil;
 import de.invesdwin.context.client.swing.api.guiservice.ContentPane;
 import de.invesdwin.context.client.swing.api.guiservice.GuiService;
 import de.invesdwin.context.client.swing.api.view.AView;
 import de.invesdwin.context.client.swing.api.view.IDockable;
 import de.invesdwin.context.client.swing.frame.app.DelegateRichApplication;
+import de.invesdwin.context.client.swing.util.Views;
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.swing.listener.KeyListenerSupport;
 
@@ -115,6 +118,30 @@ public class ContentPaneView extends AView<ContentPaneView, JPanel> {
                     break;
                 default:
                     break;
+                }
+            }
+        });
+
+        control.getController().getFocusController().addDockableFocusListener(new DockableFocusListener() {
+            private int prevDockableHashCode = Integer.MIN_VALUE;
+
+            @Override
+            public void dockableFocused(final DockableFocusEvent paramDockableFocusEvent) {
+                final Dockable newDockable = paramDockableFocusEvent.getNewFocusOwner();
+                if (newDockable == null) {
+                    return;
+                }
+                final int newDockableHashCode = newDockable.hashCode();
+                if (prevDockableHashCode != newDockableHashCode) {
+                    //invoke later so that the componend is really focused
+                    EventDispatchThreadUtil.invokeLater(new Runnable() {
+                        @Override
+                        public void run() {
+                            final AView<?, ?> view = Views.getViewAt(newDockable);
+                            Views.triggerOnShowing(view);
+                        }
+                    });
+                    prevDockableHashCode = newDockableHashCode;
                 }
             }
         });

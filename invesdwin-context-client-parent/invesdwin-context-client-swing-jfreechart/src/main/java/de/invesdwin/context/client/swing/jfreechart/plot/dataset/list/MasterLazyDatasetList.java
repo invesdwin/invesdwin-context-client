@@ -628,7 +628,7 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
     }
 
     public synchronized boolean update(final FDate lastTickTime) {
-        if (executor.getPendingCount() > 0) {
+        while (executor.getPendingCount() > 0) {
             //wait for lazy loading to finish
             return false;
         }

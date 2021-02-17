@@ -6,4 +6,6 @@ public interface IViewListener {
 
     void onClose();
 
+    void onShowing();
+
 }

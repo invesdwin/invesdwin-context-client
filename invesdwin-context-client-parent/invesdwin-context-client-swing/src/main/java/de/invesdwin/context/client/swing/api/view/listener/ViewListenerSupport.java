@@ -6,9 +6,15 @@ import javax.annotation.concurrent.Immutable;
 public class ViewListenerSupport implements IViewListener {
 
     @Override
-    public void onOpen() {}
+    public void onOpen() {
+    }
 
     @Override
-    public void onClose() {}
+    public void onClose() {
+    }
+
+    @Override
+    public void onShowing() {
+    }
 
 }

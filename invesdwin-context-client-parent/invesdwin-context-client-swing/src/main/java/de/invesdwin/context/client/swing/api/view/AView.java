@@ -276,11 +276,23 @@ public abstract class AView<M extends AModel, C extends JComponent> extends AMod
     }
 
     @Hidden(skip = true)
+    public final void triggerOnShowing() {
+        onShowing();
+        if (broadcastingViewListener != null) {
+            broadcastingViewListener.onShowing();
+        }
+    }
+
+    @Hidden(skip = true)
     protected void onOpen() {
     }
 
     @Hidden(skip = true)
     protected void onClose() {
+    }
+
+    @Hidden(skip = true)
+    protected void onShowing() {
     }
 
 }

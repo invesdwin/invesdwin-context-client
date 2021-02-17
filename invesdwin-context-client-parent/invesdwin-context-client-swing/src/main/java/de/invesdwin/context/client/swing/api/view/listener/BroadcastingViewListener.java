@@ -36,6 +36,14 @@ public class BroadcastingViewListener implements IViewListener, Cloneable {
         }
     }
 
+    @Override
+    public void onShowing() {
+        final IViewListener[] array = listeners.asArray(IViewListener.class);
+        for (int i = 0; i < array.length; i++) {
+            array[i].onShowing();
+        }
+    }
+
     public void clear() {
         listeners.clear();
     }
