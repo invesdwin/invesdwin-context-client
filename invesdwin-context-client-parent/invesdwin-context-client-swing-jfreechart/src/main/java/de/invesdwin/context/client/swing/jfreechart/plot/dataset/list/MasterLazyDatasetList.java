@@ -90,7 +90,7 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
 
     @Override
     public synchronized void resetRange() {
-        if (getData().isEmpty() || getLastLoadedItem().getStartTime().isBefore(getResetReferenceTime())) {
+        if (getData().isEmpty() || getLastLoadedItem().getEndTime().isBefore(getResetReferenceTime())) {
             newData();
             final InteractiveChartPanel chartPanelCopy = chartPanel;
             final Runnable task = newSyncTask(new Runnable() {
@@ -245,7 +245,7 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
             if (lastAvailableKey == null) {
                 return null;
             }
-            return lastAvailableKey.getFrom();
+            return lastAvailableKey.getTo();
         }
     }
 
@@ -356,7 +356,7 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
         final int preloadLowerBound = (int) (range.getLowerBound() - range.getLength());
         if (preloadLowerBound < 0) {
             final TimeRangedOHLCDataItem firstLoadedItem = getFirstLoadedItem();
-            if (firstAvailableKey.getFrom().isBefore(firstLoadedItem.getStartTime())) {
+            if (firstAvailableKey.getTo().isBefore(firstLoadedItem.getEndTime())) {
                 //prepend a whole screen additional to the requested items
                 final int prependCount = Integers.min(MAX_STEP_ITEM_COUNT,
                         Integers.abs(preloadLowerBound) * STEP_ITEM_COUNT_MULTIPLIER);
@@ -384,7 +384,7 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
             if (preloadUpperBound > data.size()) {
                 final TimeRangedOHLCDataItem lastLoadedItem = getLastLoadedItem();
                 final TimeRange lastAvailableKey = provider.getLastAvailableKey();
-                if (lastAvailableKey != null && lastAvailableKey.getFrom().isAfter(lastLoadedItem.getStartTime())) {
+                if (lastAvailableKey != null && lastAvailableKey.getTo().isAfter(lastLoadedItem.getEndTime())) {
                     //append a whole screen additional to the requested items
                     final int appendCount = Integers.min(MAX_STEP_ITEM_COUNT,
                             (preloadUpperBound - data.size()) * STEP_ITEM_COUNT_MULTIPLIER);
@@ -413,20 +413,20 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
         if (getData().isEmpty()) {
             return false;
         }
-        final FDate lastLoadedKeyFrom = getLastLoadedItem().getStartTime();
-        if (lastLoadedKeyFrom == null) {
+        final FDate lastLoadedKeyTo = getLastLoadedItem().getEndTime();
+        if (lastLoadedKeyTo == null) {
             return false;
         }
-        final FDate lastAvailableKeyFrom = provider.getLastAvailableKey().getFrom();
-        if (lastAvailableKeyFrom == null) {
+        final FDate lastAvailableKeyTo = provider.getLastAvailableKey().getTo();
+        if (lastAvailableKeyTo == null) {
             return false;
         }
-        return lastAvailableKeyFrom.isBeforeOrEqualToNotNullSafe(lastLoadedKeyFrom);
+        return lastAvailableKeyTo.isBeforeOrEqualToNotNullSafe(lastLoadedKeyTo);
     }
 
     private void loadItems(final List<MasterOHLCDataItem> data, final List<MasterOHLCDataItem> items,
             final ICloseableIterable<? extends TimeRangedOHLCDataItem> masterValues) {
-        final double priority = items.get(0).getStartTime().millisValue();
+        final double priority = items.get(0).getEndTime().millisValue();
         executor.execute(new IPriorityRunnable() {
             @Override
             public void run() {
@@ -687,7 +687,7 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
              * the NaN bar will always be appended without the real value appearing
              */
             appendSlaves(appendCount);
-            lastUpdateTime = getLastLoadedItem().getStartTime();
+            lastUpdateTime = getLastLoadedItem().getEndTime();
 
             if (appendCount > 0) {
                 //trail range
