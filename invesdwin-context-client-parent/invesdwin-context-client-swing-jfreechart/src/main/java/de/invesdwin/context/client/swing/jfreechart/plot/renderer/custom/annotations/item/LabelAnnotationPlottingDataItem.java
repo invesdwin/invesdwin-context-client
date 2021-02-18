@@ -10,48 +10,33 @@ import de.invesdwin.context.client.swing.jfreechart.plot.renderer.custom.annotat
 import de.invesdwin.util.time.fdate.FDate;
 
 @NotThreadSafe
-public class LineAnnotationPlottingDataItem extends AAnnotationPlottingDataItem {
+public class LabelAnnotationPlottingDataItem extends AAnnotationPlottingDataItem {
 
-    private final FDate startTime;
-    private final double startPrice;
-    private final FDate endTime;
-    private final double endPrice;
+    private final FDate time;
+    private final double price;
     private final String label;
     private final LabelHorizontalAlignType labelHorizontalAlign;
     private final LabelVerticalAlignType labelVerticalAlign;
     private boolean itemLoaded;
-    private int startTimeLoadedIndex = Integer.MIN_VALUE;
-    private int endTimeLoadedIndex = Integer.MIN_VALUE;
+    private int timeLoadedIndex = Integer.MIN_VALUE;
 
-    //CHECKSTYLE:OFF
-    public LineAnnotationPlottingDataItem(final String annotationId, final FDate startTime, final double startPrice,
-            final FDate endTime, final double endPrice, final String label,
-            final LabelHorizontalAlignType labelHorizontalAlign, final LabelVerticalAlignType labelVerticalAlign) {
-        //CHECKSTYLE:ON
+    public LabelAnnotationPlottingDataItem(final String annotationId, final FDate time, final double price,
+            final String label, final LabelHorizontalAlignType labelHorizontalAlign,
+            final LabelVerticalAlignType labelVerticalAlign) {
         super(annotationId);
-        this.startTime = startTime;
-        this.startPrice = startPrice;
-        this.endTime = endTime;
-        this.endPrice = endPrice;
+        this.time = time;
+        this.price = price;
         this.label = label;
         this.labelHorizontalAlign = labelHorizontalAlign;
         this.labelVerticalAlign = labelVerticalAlign;
     }
 
-    public FDate getStartTime() {
-        return startTime;
+    public FDate getTime() {
+        return time;
     }
 
-    public double getStartPrice() {
-        return startPrice;
-    }
-
-    public FDate getEndTime() {
-        return endTime;
-    }
-
-    public double getEndPrice() {
-        return endPrice;
+    public double getPrice() {
+        return price;
     }
 
     public String getLabel() {
@@ -74,20 +59,14 @@ public class LineAnnotationPlottingDataItem extends AAnnotationPlottingDataItem 
     @Override
     public void updateItemLoaded(final long firstLoadedKeyMillis, final long lastLoadedKeyMillis,
             final boolean trailingLoaded, final AnnotationPlottingDataset dataset) {
-        if (!trailingLoaded && getStartTime().millisValue() > lastLoadedKeyMillis
-                || getEndTime() != null && getEndTime().millisValue() < firstLoadedKeyMillis) {
+        if (!trailingLoaded && getTime().millisValue() > lastLoadedKeyMillis
+                || getTime() != null && getTime().millisValue() < firstLoadedKeyMillis) {
             if (itemLoaded) {
                 itemLoaded = false;
-                startTimeLoadedIndex = Integer.MIN_VALUE;
-                endTimeLoadedIndex = Integer.MIN_VALUE;
+                timeLoadedIndex = Integer.MIN_VALUE;
             }
         } else {
-            this.startTimeLoadedIndex = dataset.getDateTimeEndAsItemIndex(0, startTime);
-            if (endTime != null) {
-                this.endTimeLoadedIndex = dataset.getDateTimeEndAsItemIndex(0, endTime);
-            } else {
-                this.endTimeLoadedIndex = dataset.getItemCount(0) - 1;
-            }
+            this.timeLoadedIndex = dataset.getDateTimeEndAsItemIndex(0, time);
             itemLoaded = true;
         }
     }
@@ -95,23 +74,20 @@ public class LineAnnotationPlottingDataItem extends AAnnotationPlottingDataItem 
     @Override
     public void modifyItemLoadedIndexes(final int fromIndex, final int addend) {
         if (itemLoaded) {
-            if (startTimeLoadedIndex >= fromIndex) {
-                startTimeLoadedIndex += addend;
-            }
-            if (endTimeLoadedIndex >= fromIndex) {
-                endTimeLoadedIndex += addend;
+            if (timeLoadedIndex >= fromIndex) {
+                timeLoadedIndex += addend;
             }
         }
     }
 
     @Override
     public int innerGetStartTimeLoadedIndex() {
-        return startTimeLoadedIndex;
+        return timeLoadedIndex;
     }
 
     @Override
     public int innerGetEndTimeLoadedIndex() {
-        return endTimeLoadedIndex;
+        return timeLoadedIndex;
     }
 
     public TextAnchor getLabelTextAnchor() {

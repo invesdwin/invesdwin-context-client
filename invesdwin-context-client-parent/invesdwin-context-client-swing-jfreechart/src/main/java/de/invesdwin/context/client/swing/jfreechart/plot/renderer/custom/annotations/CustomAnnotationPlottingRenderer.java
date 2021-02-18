@@ -32,6 +32,7 @@ import de.invesdwin.context.client.swing.jfreechart.plot.annotation.priceline.XY
 import de.invesdwin.context.client.swing.jfreechart.plot.renderer.Renderers;
 import de.invesdwin.context.client.swing.jfreechart.plot.renderer.custom.ICustomRendererType;
 import de.invesdwin.context.client.swing.jfreechart.plot.renderer.custom.annotations.item.AAnnotationPlottingDataItem;
+import de.invesdwin.context.client.swing.jfreechart.plot.renderer.custom.annotations.item.LabelAnnotationPlottingDataItem;
 import de.invesdwin.context.client.swing.jfreechart.plot.renderer.custom.annotations.item.LineAnnotationPlottingDataItem;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
 import de.invesdwin.util.error.UnknownArgumentException;
@@ -131,6 +132,10 @@ public class CustomAnnotationPlottingRenderer extends AbstractXYItemRenderer imp
                     final LineAnnotationPlottingDataItem cNext = (LineAnnotationPlottingDataItem) next;
                     drawLine(g2, dataArea, info, plot, domainAxis, rangeAxis, rendererIndex, rangeAxisFormat,
                             domainEdge, rangeEdge, stroke, color, cNext);
+                } else if (next instanceof LabelAnnotationPlottingDataItem) {
+                    final LabelAnnotationPlottingDataItem cNext = (LabelAnnotationPlottingDataItem) next;
+                    drawLabel(g2, dataArea, info, plot, domainAxis, rangeAxis, rendererIndex, rangeAxisFormat,
+                            domainEdge, rangeEdge, stroke, color, cNext);
                 } else {
                     throw UnknownArgumentException.newInstance(Class.class, next.getClass());
                 }
@@ -159,12 +164,33 @@ public class CustomAnnotationPlottingRenderer extends AbstractXYItemRenderer imp
 
         final String label = next.getLabel();
         if (Strings.isNotBlank(label)) {
+            final TextAnchor textAnchor = next.getLabelTextAnchor();
             final XYTextAnnotation priceAnnotation = new XYTextAnnotation(label, x2 - 1D, y2 + 1D);
             priceAnnotation.setPaint(color);
             priceAnnotation.setFont(FONT);
-            priceAnnotation.setTextAnchor(TextAnchor.TOP_RIGHT);
+            priceAnnotation.setTextAnchor(textAnchor);
             priceAnnotation.draw(g2, plot, dataArea, ABSOLUTE_AXIS, ABSOLUTE_AXIS, rendererIndex, info);
         }
+    }
+
+    //CHECKSTYLE:OFF
+    private void drawLabel(final Graphics2D g2, final Rectangle2D dataArea, final PlotRenderingInfo info,
+            final XYPlot plot, final ValueAxis domainAxis, final ValueAxis rangeAxis, final int rendererIndex,
+            final NumberFormat rangeAxisFormat, final RectangleEdge domainEdge, final RectangleEdge rangeEdge,
+            final Stroke stroke, final Paint color, final LabelAnnotationPlottingDataItem next) {
+        //CHECKSTYLE:ON
+
+        final double x = domainAxis.valueToJava2D(next.getStartTimeLoadedIndex(), dataArea, domainEdge);
+        final double price = next.getPrice();
+        final double y = rangeAxis.valueToJava2D(price, dataArea, rangeEdge);
+        final String label = next.getLabel();
+        final TextAnchor textAnchor = next.getLabelTextAnchor();
+
+        final XYTextAnnotation priceAnnotation = new XYTextAnnotation(label, x, y);
+        priceAnnotation.setPaint(color);
+        priceAnnotation.setFont(FONT);
+        priceAnnotation.setTextAnchor(textAnchor);
+        priceAnnotation.draw(g2, plot, dataArea, ABSOLUTE_AXIS, ABSOLUTE_AXIS, rendererIndex, info);
     }
 
 }
