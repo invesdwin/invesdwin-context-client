@@ -12,17 +12,19 @@ public class LineAnnotationPlottingDataItem extends AAnnotationPlottingDataItem 
     private final double startPrice;
     private final FDate endTime;
     private final double endPrice;
+    private final String label;
     private boolean itemLoaded;
     private int startTimeLoadedIndex = Integer.MIN_VALUE;
     private int endTimeLoadedIndex = Integer.MIN_VALUE;
 
     public LineAnnotationPlottingDataItem(final String annotationId, final FDate startTime, final double startPrice,
-            final FDate endTime, final double endPrice) {
+            final FDate endTime, final double endPrice, final String label) {
         super(annotationId);
         this.startTime = startTime;
         this.startPrice = startPrice;
         this.endTime = endTime;
         this.endPrice = endPrice;
+        this.label = label;
     }
 
     public FDate getStartTime() {
@@ -39,6 +41,10 @@ public class LineAnnotationPlottingDataItem extends AAnnotationPlottingDataItem 
 
     public double getEndPrice() {
         return endPrice;
+    }
+
+    public String getLabel() {
+        return label;
     }
 
     @Override

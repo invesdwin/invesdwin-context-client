@@ -11,6 +11,7 @@ import java.util.NoSuchElementException;
 import javax.annotation.concurrent.NotThreadSafe;
 
 import org.jfree.chart.annotations.XYLineAnnotation;
+import org.jfree.chart.annotations.XYTextAnnotation;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.plot.CrosshairState;
@@ -21,6 +22,7 @@ import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.AbstractXYItemRenderer;
 import org.jfree.chart.renderer.xy.XYItemRendererState;
 import org.jfree.chart.ui.RectangleEdge;
+import org.jfree.chart.ui.TextAnchor;
 import org.jfree.data.xy.XYDataset;
 
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.PlotConfigurationHelper;
@@ -33,6 +35,7 @@ import de.invesdwin.context.client.swing.jfreechart.plot.renderer.custom.annotat
 import de.invesdwin.context.client.swing.jfreechart.plot.renderer.custom.annotations.item.LineAnnotationPlottingDataItem;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
 import de.invesdwin.util.error.UnknownArgumentException;
+import de.invesdwin.util.lang.Strings;
 
 @NotThreadSafe
 public class CustomAnnotationPlottingRenderer extends AbstractXYItemRenderer implements ICustomRendererType {
@@ -153,6 +156,15 @@ public class CustomAnnotationPlottingRenderer extends AbstractXYItemRenderer imp
         final double y2 = rangeAxis.valueToJava2D(closePrice, dataArea, rangeEdge);
         final XYLineAnnotation lineAnnotation = new XYLineAnnotation(x1, y1, x2, y2, stroke, color);
         lineAnnotation.draw(g2, plot, dataArea, ABSOLUTE_AXIS, ABSOLUTE_AXIS, rendererIndex, null);
+
+        final String label = next.getLabel();
+        if (Strings.isNotBlank(label)) {
+            final XYTextAnnotation priceAnnotation = new XYTextAnnotation(label, x2 - 1D, y2 + 1D);
+            priceAnnotation.setPaint(color);
+            priceAnnotation.setFont(FONT);
+            priceAnnotation.setTextAnchor(TextAnchor.TOP_RIGHT);
+            priceAnnotation.draw(g2, plot, dataArea, ABSOLUTE_AXIS, ABSOLUTE_AXIS, rendererIndex, info);
+        }
     }
 
 }
