@@ -54,7 +54,7 @@ public class GeneratedTableModel extends AbstractTableModel {
             final int newRowCount = rows.size();
             final int newColumnCount = newColumns.size();
             if (!Objects.equals(newColumns, columns)) {
-                this.columns = new ArrayList<>(columns);
+                this.columns = new ArrayList<>(newColumns);
                 resetPrevTableModel(newRowCount, newColumnCount);
                 fireTableStructureChanged();
             } else if (lastFullRedraw.isGreaterThan(FULL_REDRAW_INTERVAL)) {
