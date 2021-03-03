@@ -37,6 +37,7 @@ import de.invesdwin.context.client.swing.jfreechart.plot.renderer.custom.annotat
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
 import de.invesdwin.util.error.UnknownArgumentException;
 import de.invesdwin.util.lang.Strings;
+import de.invesdwin.util.math.Doubles;
 
 @NotThreadSafe
 public class CustomAnnotationPlottingRenderer extends AbstractXYItemRenderer implements ICustomRendererType {
@@ -165,11 +166,59 @@ public class CustomAnnotationPlottingRenderer extends AbstractXYItemRenderer imp
         final String label = next.getLabel();
         if (Strings.isNotBlank(label)) {
             final TextAnchor textAnchor = next.getLabelTextAnchor();
-            final XYTextAnnotation priceAnnotation = new XYTextAnnotation(label, x2 - 1D, y2 + 1D);
+            final double labelX = getLineLabelX(next, x1, x2);
+            final double labelY = getLineLabelY(next, y1, y2);
+            final XYTextAnnotation priceAnnotation = new XYTextAnnotation(label, labelX, labelY);
             priceAnnotation.setPaint(color);
             priceAnnotation.setFont(FONT);
             priceAnnotation.setTextAnchor(textAnchor);
             priceAnnotation.draw(g2, plot, dataArea, ABSOLUTE_AXIS, ABSOLUTE_AXIS, rendererIndex, info);
+        }
+    }
+
+    private double getLineLabelY(final LineAnnotationPlottingDataItem next, final double y1, final double y2) {
+        switch (next.getLabelVerticalAlign()) {
+        case Top:
+            switch (next.getLabelHorizontalAlign()) {
+            case Left:
+                return y1 - 1D;
+            case Center:
+                return Doubles.max(y1, y2);
+            case Right:
+                return y2 - 1D;
+            default:
+                throw UnknownArgumentException.newInstance(LabelHorizontalAlignType.class,
+                        next.getLabelHorizontalAlign());
+            }
+        case Center:
+            return (y1 + y2) / 2;
+        case Bottom:
+            switch (next.getLabelHorizontalAlign()) {
+            case Left:
+                return y1 + 1D;
+            case Center:
+                return Doubles.min(y1, y2);
+            case Right:
+                return y2 + 1D;
+            default:
+                throw UnknownArgumentException.newInstance(LabelHorizontalAlignType.class,
+                        next.getLabelHorizontalAlign());
+            }
+        default:
+            throw UnknownArgumentException.newInstance(LabelVerticalAlignType.class, next.getLabelVerticalAlign());
+        }
+    }
+
+    private double getLineLabelX(final LineAnnotationPlottingDataItem next, final double x1, final double x2) {
+        switch (next.getLabelHorizontalAlign()) {
+        case Left:
+            return x1 + 1D;
+        case Center:
+            return (x1 + x2) / 2;
+        case Right:
+            return x2 - 1D;
+        default:
+            throw UnknownArgumentException.newInstance(LabelHorizontalAlignType.class, next.getLabelHorizontalAlign());
         }
     }
 
