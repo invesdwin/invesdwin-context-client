@@ -13,8 +13,6 @@ import javax.validation.constraints.Min;
 
 import org.hibernate.validator.constraints.Range;
 
-import com.jgoodies.common.base.Strings;
-
 import de.invesdwin.context.beans.validator.DecimalRange;
 import de.invesdwin.context.client.swing.api.binding.BindingGroup;
 import de.invesdwin.context.client.swing.api.binding.converter.IConverter;
@@ -22,6 +20,7 @@ import de.invesdwin.context.client.swing.api.binding.converter.NumberToNumberCon
 import de.invesdwin.norva.beanpath.spi.element.APropertyBeanPathElement;
 import de.invesdwin.norva.beanpath.spi.element.simple.modifier.IBeanPathPropertyModifier;
 import de.invesdwin.util.lang.Objects;
+import de.invesdwin.util.lang.Strings;
 import de.invesdwin.util.math.decimal.Decimal;
 import de.invesdwin.util.swing.spinner.SpinnerDecimalEditor;
 import de.invesdwin.util.swing.spinner.SpinnerDecimalModel;

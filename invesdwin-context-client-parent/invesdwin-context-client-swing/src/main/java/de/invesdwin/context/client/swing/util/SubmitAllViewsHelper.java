@@ -7,11 +7,10 @@ import java.util.Set;
 
 import javax.annotation.concurrent.Immutable;
 
-import com.jgoodies.common.base.Strings;
-
 import de.invesdwin.context.client.swing.api.binding.BindingGroup;
 import de.invesdwin.context.client.swing.api.guiservice.GuiService;
 import de.invesdwin.context.client.swing.api.view.AView;
+import de.invesdwin.util.lang.Strings;
 
 @Immutable
 public class SubmitAllViewsHelper extends UpdateAllViewsHelper {

@@ -7,10 +7,9 @@ import java.text.ParseException;
 
 import javax.annotation.concurrent.Immutable;
 
-import com.jgoodies.common.base.Strings;
-
 import de.invesdwin.norva.beanpath.spi.element.IPropertyBeanPathElement;
 import de.invesdwin.util.error.UnknownArgumentException;
+import de.invesdwin.util.lang.Strings;
 import de.invesdwin.util.math.decimal.Decimal;
 
 @Immutable

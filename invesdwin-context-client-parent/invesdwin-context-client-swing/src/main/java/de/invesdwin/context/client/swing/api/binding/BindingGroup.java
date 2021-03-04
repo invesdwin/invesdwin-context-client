@@ -11,8 +11,6 @@ import javax.swing.JButton;
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
 
-import com.jgoodies.common.base.Strings;
-
 import de.invesdwin.context.beans.validator.BeanValidator;
 import de.invesdwin.context.client.swing.api.annotation.DefaultCloseOperation;
 import de.invesdwin.context.client.swing.api.binding.component.AComponentBinding;
@@ -30,6 +28,7 @@ import de.invesdwin.norva.beanpath.spi.element.RootBeanPathElement;
 import de.invesdwin.util.collections.fast.AFastIterableDelegateList;
 import de.invesdwin.util.collections.loadingcache.ALoadingCache;
 import de.invesdwin.util.lang.Objects;
+import de.invesdwin.util.lang.Strings;
 
 @NotThreadSafe
 public class BindingGroup implements IComponentBinding {

@@ -7,8 +7,7 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.text.JTextComponent;
 
-import com.jgoodies.common.base.Strings;
-
+import de.invesdwin.util.lang.Strings;
 import de.invesdwin.util.swing.AComponentVisitor;
 
 /**

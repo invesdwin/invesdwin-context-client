@@ -12,8 +12,6 @@ import org.jdesktop.application.ResourceMap;
 import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.context.ApplicationContext;
 
-import com.jgoodies.common.base.Strings;
-
 import de.invesdwin.context.beans.init.ApplicationContexts;
 import de.invesdwin.context.client.swing.api.binding.GeneratedBindingGroup;
 import de.invesdwin.context.client.swing.api.binding.component.button.ISubmitButtonExceptionHandler;
@@ -25,6 +23,7 @@ import de.invesdwin.norva.beanpath.BeanPathObjects;
 import de.invesdwin.norva.beanpath.annotation.Title;
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.lang.Objects;
+import de.invesdwin.util.lang.Strings;
 import de.invesdwin.util.lang.reflection.Reflections;
 import de.invesdwin.util.swing.Components;
 

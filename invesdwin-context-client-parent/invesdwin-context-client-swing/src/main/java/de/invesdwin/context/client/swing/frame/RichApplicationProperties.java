@@ -18,8 +18,6 @@ import org.jdesktop.application.ResourceMap;
 import org.jdesktop.application.utils.PlatformType;
 import org.springframework.beans.factory.config.BeanDefinition;
 
-import com.jgoodies.common.base.Strings;
-
 import de.invesdwin.context.ContextProperties;
 import de.invesdwin.context.beans.init.MergedContext;
 import de.invesdwin.context.client.swing.api.IRichApplication;
@@ -28,6 +26,7 @@ import de.invesdwin.context.client.swing.frame.app.DelegateRichApplication;
 import de.invesdwin.context.log.Log;
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.error.Throwables;
+import de.invesdwin.util.lang.Strings;
 import de.invesdwin.util.lang.reflection.Reflections;
 
 @ThreadSafe
