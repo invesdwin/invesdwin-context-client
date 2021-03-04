@@ -67,7 +67,7 @@ public class IndexedDateTimeOHLCDataset extends ListOHLCDataset
             return Double.NaN;
         }
         final int usedItem = Integers.between(item, 0, itemCount - 1);
-        return getData().get(usedItem).getStartTime().millisValue();
+        return getData().get(usedItem).getEndTime().millisValue();
     }
 
     public boolean isTrailingLoaded() {

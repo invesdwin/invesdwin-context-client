@@ -4,7 +4,6 @@ import java.text.DateFormat;
 import java.text.FieldPosition;
 import java.text.NumberFormat;
 import java.text.ParsePosition;
-import java.util.Date;
 import java.util.Locale;
 
 import javax.annotation.concurrent.NotThreadSafe;
@@ -44,10 +43,31 @@ public class IndexedDateTimeNumberFormat extends NumberFormat {
     @Override
     public StringBuffer format(final double number, final StringBuffer toAppendTo, final FieldPosition pos) {
         final int item = (int) number;
-        final long time = (long) dataset.getXValueAsDateTimeStart(0, item);
-        final long prevTime = (long) dataset.getXValueAsDateTimeStart(0, item - 1);
-        final FDate date = new FDate(time);
+        formatItem(toAppendTo, item);
+        return toAppendTo;
+    }
+
+    @Override
+    public StringBuffer format(final long number, final StringBuffer toAppendTo, final FieldPosition pos) {
+        final int item = (int) number;
+        formatItem(toAppendTo, item);
+        return toAppendTo;
+    }
+
+    private void formatItem(final StringBuffer toAppendTo, final int item) {
+        final long prevStartTime = (long) dataset.getXValueAsDateTimeStart(0, item - 1);
+        final long startTime = (long) dataset.getXValueAsDateTimeStart(0, item);
+        formatTime(toAppendTo, prevStartTime, startTime);
+        final long endTime = (long) dataset.getXValueAsDateTimeEnd(0, item);
+        if (endTime != startTime) {
+            toAppendTo.append(" -> ");
+            formatTime(toAppendTo, startTime, endTime);
+        }
+    }
+
+    private void formatTime(final StringBuffer toAppendTo, final long prevTime, final long time) {
         final FDate prevDate = new FDate(prevTime);
+        final FDate date = new FDate(time);
         final Range range = domainAxis.getRange();
         final double millis = dataset.getXValueAsDateTimeStart(0, (int) range.getUpperBound())
                 - dataset.getXValueAsDateTimeStart(0, (int) range.getLowerBound());
@@ -62,30 +82,7 @@ public class IndexedDateTimeNumberFormat extends NumberFormat {
         } else {
             format = dateFormat;
         }
-        //CHECKSTYLE:OFF
-        return toAppendTo.append(format.format(new Date(time)));
-        //CHECKSTYLE:ON
-    }
-
-    @Override
-    public StringBuffer format(final long number, final StringBuffer toAppendTo, final FieldPosition pos) {
-        final int item = (int) number;
-        final long time = (long) dataset.getXValueAsDateTimeStart(0, item);
-        final long prevTime = (long) dataset.getXValueAsDateTimeStart(0, item - 1);
-        final FDate date = new FDate(time);
-        final FDate prevDate = new FDate(prevTime);
-        final DateFormat format;
-        if (FDates.isSameSecond(date, prevDate)) {
-            format = millisecondFormat;
-        } else if (FDates.isSameMinute(date, prevDate)) {
-            format = secondFormat;
-        } else if (FDates.isSameDay(date, prevDate)) {
-            format = minuteFormat;
-        } else {
-            format = dateFormat;
-        }
-        //CHECKSTYLE:OFF
-        return toAppendTo.append(format.format(new Date(time)));
+        toAppendTo.append(format.format(date.dateValue()));
     }
 
     @Override
