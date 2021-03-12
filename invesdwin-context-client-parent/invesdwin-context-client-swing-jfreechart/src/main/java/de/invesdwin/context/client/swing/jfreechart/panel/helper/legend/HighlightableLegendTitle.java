@@ -102,7 +102,7 @@ public class HighlightableLegendTitle extends CustomLegendTitle {
                     sb.append(rangeAxisFormat.format(close));
                 }
                 sb.append(" T:");
-                sb.append(chartPanel.getDomainAxisFormat().format(domainMarkerItem));
+                sb.append(chartPanel.getDomainAxisFormat().formatFromTo(domainMarkerItem));
             }
             return sb.toString();
         } else {

@@ -43,29 +43,43 @@ public class IndexedDateTimeNumberFormat extends NumberFormat {
     @Override
     public StringBuffer format(final double number, final StringBuffer toAppendTo, final FieldPosition pos) {
         final int item = (int) number;
-        formatItem(toAppendTo, item);
+        final String str = formatItem(item, false);
+        toAppendTo.append(str);
         return toAppendTo;
     }
 
     @Override
     public StringBuffer format(final long number, final StringBuffer toAppendTo, final FieldPosition pos) {
         final int item = (int) number;
-        formatItem(toAppendTo, item);
+        final String str = formatItem(item, false);
+        toAppendTo.append(str);
         return toAppendTo;
     }
 
-    private void formatItem(final StringBuffer toAppendTo, final int item) {
-        final long prevStartTime = (long) dataset.getXValueAsDateTimeStart(0, item - 1);
-        final long startTime = (long) dataset.getXValueAsDateTimeStart(0, item);
-        formatTime(toAppendTo, prevStartTime, startTime);
-        final long endTime = (long) dataset.getXValueAsDateTimeEnd(0, item);
-        if (endTime != startTime) {
-            toAppendTo.append(" -> ");
-            formatTime(toAppendTo, startTime, endTime);
-        }
+    public String formatFromTo(final int item) {
+        return formatItem(item, true);
     }
 
-    private void formatTime(final StringBuffer toAppendTo, final long prevTime, final long time) {
+    private String formatItem(final int item, final boolean formatEndTime) {
+        final StringBuilder sb = new StringBuilder();
+        final long prevStartTime = (long) dataset.getXValueAsDateTimeStart(0, item - 1);
+        final long startTime = (long) dataset.getXValueAsDateTimeStart(0, item);
+        final String startTimeStr = formatTime(prevStartTime, startTime);
+        sb.append(startTimeStr);
+        if (formatEndTime) {
+            final long endTime = (long) dataset.getXValueAsDateTimeEnd(0, item);
+            if (endTime != startTime) {
+                final String endTimeStr = formatTime(startTime, endTime);
+                if (!endTimeStr.equals(startTimeStr)) {
+                    sb.append(" -> ");
+                    sb.append(endTimeStr);
+                }
+            }
+        }
+        return sb.toString();
+    }
+
+    private String formatTime(final long prevTime, final long time) {
         final FDate prevDate = new FDate(prevTime);
         final FDate date = new FDate(time);
         final Range range = domainAxis.getRange();
@@ -82,11 +96,12 @@ public class IndexedDateTimeNumberFormat extends NumberFormat {
         } else {
             format = dateFormat;
         }
-        toAppendTo.append(format.format(date.dateValue()));
+        return format.format(date.dateValue());
     }
 
     @Override
     public Number parse(final String source, final ParsePosition parsePosition) {
         throw new UnsupportedOperationException();
     }
+
 }
