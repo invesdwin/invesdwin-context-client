@@ -43,37 +43,38 @@ public class IndexedDateTimeNumberFormat extends NumberFormat {
     @Override
     public StringBuffer format(final double number, final StringBuffer toAppendTo, final FieldPosition pos) {
         final int item = (int) number;
-        final String str = formatItem(item, false);
+        final String str = formatItem(item);
         toAppendTo.append(str);
         return toAppendTo;
+    }
+
+    private String formatItem(final int item) {
+        final long prevEndTime = (long) dataset.getXValueAsDateTimeEnd(0, item - 1);
+        final long endTime = (long) dataset.getXValueAsDateTimeEnd(0, item);
+        final String endTimeStr = formatTime(prevEndTime, endTime);
+        return endTimeStr;
     }
 
     @Override
     public StringBuffer format(final long number, final StringBuffer toAppendTo, final FieldPosition pos) {
         final int item = (int) number;
-        final String str = formatItem(item, false);
+        final String str = formatItem(item);
         toAppendTo.append(str);
         return toAppendTo;
     }
 
     public String formatFromTo(final int item) {
-        return formatItem(item, true);
-    }
-
-    private String formatItem(final int item, final boolean formatEndTime) {
         final StringBuilder sb = new StringBuilder();
         final long prevStartTime = (long) dataset.getXValueAsDateTimeStart(0, item - 1);
         final long startTime = (long) dataset.getXValueAsDateTimeStart(0, item);
         final String startTimeStr = formatTime(prevStartTime, startTime);
         sb.append(startTimeStr);
-        if (formatEndTime) {
-            final long endTime = (long) dataset.getXValueAsDateTimeEnd(0, item);
-            if (endTime != startTime) {
-                final String endTimeStr = formatTime(startTime, endTime);
-                if (!endTimeStr.equals(startTimeStr)) {
-                    sb.append(" -> ");
-                    sb.append(endTimeStr);
-                }
+        final long endTime = (long) dataset.getXValueAsDateTimeEnd(0, item);
+        if (endTime != startTime) {
+            final String endTimeStr = formatTime(startTime, endTime);
+            if (!endTimeStr.equals(startTimeStr)) {
+                sb.append(" -> ");
+                sb.append(endTimeStr);
             }
         }
         return sb.toString();
