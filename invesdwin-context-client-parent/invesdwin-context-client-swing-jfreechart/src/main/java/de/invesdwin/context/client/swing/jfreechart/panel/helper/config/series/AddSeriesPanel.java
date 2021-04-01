@@ -28,12 +28,14 @@ import de.invesdwin.util.collections.loadingcache.ALoadingCache;
 import de.invesdwin.util.concurrent.reference.MutableReference;
 import de.invesdwin.util.error.Throwables;
 import de.invesdwin.util.lang.Strings;
-import de.invesdwin.util.math.expression.AExpressionVisitor;
 import de.invesdwin.util.math.expression.ExpressionVisitorSupport;
 import de.invesdwin.util.math.expression.IExpression;
 import de.invesdwin.util.math.expression.eval.IParsedExpression;
 import de.invesdwin.util.math.expression.eval.operation.IBinaryOperation;
 import de.invesdwin.util.math.expression.eval.operation.Op;
+import de.invesdwin.util.math.expression.visitor.ADrawableExpressionVisitor;
+import de.invesdwin.util.math.expression.visitor.AExpressionVisitor;
+import de.invesdwin.util.math.expression.visitor.ExpressionProperties;
 import de.invesdwin.util.swing.Components;
 import de.invesdwin.util.swing.Dialogs;
 import de.invesdwin.util.swing.listener.DocumentListenerSupport;
@@ -152,12 +154,7 @@ public class AddSeriesPanel extends JPanel {
                 };
                 final MutableReference<SeriesRendererType> originalRendererType = new MutableReference<SeriesRendererType>(
                         SeriesRendererType.Line);
-                final AExpressionVisitor visitor = new AExpressionVisitor() {
-
-                    @Override
-                    protected boolean isDrawableOnly() {
-                        return true;
-                    }
+                final ADrawableExpressionVisitor visitor = new ADrawableExpressionVisitor() {
 
                     @Override
                     protected void visitOther(final IExpression expression) {
@@ -266,7 +263,7 @@ public class AddSeriesPanel extends JPanel {
     private IPlotSourceDataset addExpressionDebug(final String plotPaneId, final String rangeAxisIdPrefix,
             final IExpression expression, final ALoadingCache<String, Set<String>> duplicateExpressionFilter,
             final SeriesRendererType rendererType) {
-        final IExpression drawable = AExpressionVisitor.getDrawable(expression);
+        final IExpression drawable = ExpressionProperties.getDrawable(expression);
         if (drawable != null) {
             final String expressionStr = drawable.toString();
             try {
