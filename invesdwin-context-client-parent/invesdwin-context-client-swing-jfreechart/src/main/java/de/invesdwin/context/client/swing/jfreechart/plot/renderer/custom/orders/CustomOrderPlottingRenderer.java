@@ -81,6 +81,11 @@ public class CustomOrderPlottingRenderer extends AbstractXYItemRenderer
 
     public CustomOrderPlottingRenderer(final PlotConfigurationHelper plotConfigurationHelper,
             final OrderPlottingDataset dataset) {
+        this(plotConfigurationHelper, dataset, null);
+    }
+
+    public CustomOrderPlottingRenderer(final PlotConfigurationHelper plotConfigurationHelper,
+            final OrderPlottingDataset dataset, final LineWidthType lineWidth) {
         Renderers.disableAutoPopulate(this);
 
         this.dataset = dataset;
@@ -88,7 +93,11 @@ public class CustomOrderPlottingRenderer extends AbstractXYItemRenderer
         setUpColor(UP_COLOR);
         setDownColor(DOWN_COLOR);
         setDefaultPaint(BOTH_COLOR);
-        setDefaultStroke(config.getSeriesStroke());
+        if (lineWidth == null) {
+            setDefaultStroke(config.getSeriesStroke());
+        } else {
+            setDefaultStroke(lineWidth.getStroke(config.getSeriesStroke()));
+        }
     }
 
     @Override
