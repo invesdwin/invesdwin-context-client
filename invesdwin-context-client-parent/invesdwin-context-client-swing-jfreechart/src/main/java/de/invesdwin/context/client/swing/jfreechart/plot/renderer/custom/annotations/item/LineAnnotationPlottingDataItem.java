@@ -22,6 +22,8 @@ public class LineAnnotationPlottingDataItem extends AAnnotationPlottingDataItem 
     private boolean itemLoaded;
     private int startTimeLoadedIndex = Integer.MIN_VALUE;
     private int endTimeLoadedIndex = Integer.MIN_VALUE;
+    private double startPriceLoaded = Double.NaN;
+    private double endPriceLoaded = Double.NaN;
 
     //CHECKSTYLE:OFF
     public LineAnnotationPlottingDataItem(final String annotationId, final FDate startTime, final double startPrice,
@@ -79,7 +81,9 @@ public class LineAnnotationPlottingDataItem extends AAnnotationPlottingDataItem 
             if (itemLoaded) {
                 itemLoaded = false;
                 startTimeLoadedIndex = Integer.MIN_VALUE;
+                startPriceLoaded = startPrice;
                 endTimeLoadedIndex = Integer.MIN_VALUE;
+                endPriceLoaded = endPrice;
             }
         } else {
             this.startTimeLoadedIndex = dataset.getDateTimeEndAsItemIndex(0, startTime);
@@ -88,6 +92,8 @@ public class LineAnnotationPlottingDataItem extends AAnnotationPlottingDataItem 
             } else {
                 this.endTimeLoadedIndex = dataset.getItemCount(0) - 1;
             }
+            this.startPriceLoaded = newStartPriceLoaded(dataset);
+            this.endPriceLoaded = newEndPriceLoaded(dataset);
             itemLoaded = true;
         }
     }
@@ -116,6 +122,56 @@ public class LineAnnotationPlottingDataItem extends AAnnotationPlottingDataItem 
 
     public TextAnchor getLabelTextAnchor() {
         return labelHorizontalAlign.getTextAnchor(labelVerticalAlign);
+    }
+
+    public double getStartPriceLoaded() {
+        return startPriceLoaded;
+    }
+
+    private double newStartPriceLoaded(final AnnotationPlottingDataset dataset) {
+        if (FDate.MIN_DATE.equals(startTime) || FDate.MAX_DATE.equals(endTime)) {
+            //no limited time range
+            return startPrice;
+        }
+        if (startPrice == endPrice) {
+            //no slope
+            return startPrice;
+        }
+        final long startTimeLoadedKey = (long) dataset.getXValueAsDateTimeEnd(0, startTimeLoadedIndex);
+        if (startTime.millisValue() == startTimeLoadedKey) {
+            //no adjustment needed, since we hit the point
+            return startPrice;
+        }
+        final double expectedTimeRange = endTime.millisValue() - startTime.millisValue();
+        final double priceIncrementPerMillisecond = (endPrice - startPrice) / expectedTimeRange;
+        final double millisDifference = startTimeLoadedKey - startTime.millisValue();
+        final double startPriceLoaded = startPrice + millisDifference * priceIncrementPerMillisecond;
+        return startPriceLoaded;
+    }
+
+    public double getEndPriceLoaded() {
+        return endPriceLoaded;
+    }
+
+    private double newEndPriceLoaded(final AnnotationPlottingDataset dataset) {
+        if (FDate.MIN_DATE.equals(startTime) || FDate.MAX_DATE.equals(endTime)) {
+            //no limited time range
+            return endPrice;
+        }
+        if (startPrice == endPrice) {
+            //no slope
+            return startPrice;
+        }
+        final long endTimeLoadedKey = (long) dataset.getXValueAsDateTimeEnd(0, endTimeLoadedIndex);
+        if (endTime.millisValue() == endTimeLoadedKey) {
+            //no adjustment needed, since we hit the point
+            return endPrice;
+        }
+        final double expectedTimeRange = endTime.millisValue() - startTime.millisValue();
+        final double priceIncrementPerMillisecond = (endPrice - startPrice) / expectedTimeRange;
+        final double millisDifference = endTimeLoadedKey - endTime.millisValue();
+        final double endPriceLoaded = endPrice + millisDifference * priceIncrementPerMillisecond;
+        return endPriceLoaded;
     }
 
 }

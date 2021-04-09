@@ -152,11 +152,13 @@ public class CustomAnnotationPlottingRenderer extends AbstractXYItemRenderer imp
             final NumberFormat rangeAxisFormat, final RectangleEdge domainEdge, final RectangleEdge rangeEdge,
             final Stroke stroke, final Paint color, final LineAnnotationPlottingDataItem next) {
         //CHECKSTYLE:ON
-        final double x1 = domainAxis.valueToJava2D(next.getStartTimeLoadedIndex(), dataArea, domainEdge);
-        final double x2 = domainAxis.valueToJava2D(next.getEndTimeLoadedIndex(), dataArea, domainEdge);
+        final int startTimeLoadedIndex = next.getStartTimeLoadedIndex();
+        final double x1 = domainAxis.valueToJava2D(startTimeLoadedIndex, dataArea, domainEdge);
+        final int endTimeLoadedIndex = next.getEndTimeLoadedIndex();
+        final double x2 = domainAxis.valueToJava2D(endTimeLoadedIndex, dataArea, domainEdge);
 
-        final double openPrice = next.getStartPrice();
-        final double closePrice = next.getEndPrice();
+        final double openPrice = next.getStartPriceLoaded();
+        final double closePrice = next.getEndPriceLoaded();
 
         final double y1 = rangeAxis.valueToJava2D(openPrice, dataArea, rangeEdge);
         final double y2 = rangeAxis.valueToJava2D(closePrice, dataArea, rangeEdge);
