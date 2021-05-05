@@ -4,6 +4,7 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
 import javax.annotation.concurrent.NotThreadSafe;
+import javax.swing.Action;
 import javax.swing.JComponent;
 import javax.swing.event.CaretEvent;
 import javax.swing.event.CaretListener;
@@ -73,7 +74,13 @@ public class SelectAllActionWorkaround implements IStartupHook {
                 final int dot = caret.getDot();
                 final int mark = caret.getMark();
                 final int length = text.getDocument().getLength();
-                selectAllAction.setEnabled(Math.abs(mark - dot) != length);
+                final boolean enabled = Math.abs(mark - dot) != length;
+                selectAllAction.setEnabled(enabled);
+                final Action proxy = selectAllAction.getProxy();
+                if (proxy != null) {
+                    //proxy will otherwise disable the action again, thus sync the setting there
+                    proxy.setEnabled(enabled);
+                }
             }
             text.addCaretListener(caretListener);
         }
