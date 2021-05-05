@@ -223,8 +223,18 @@ public class GuiService implements IGuiService {
     }
 
     @Override
+    public boolean isAltGraphDown() {
+        return getContentPane().isAltGraphDown();
+    }
+
+    @Override
     public boolean isMetaDown() {
         return getContentPane().isMetaDown();
+    }
+
+    @Override
+    public boolean isModifierDown() {
+        return getContentPane().isModifierDown();
     }
 
     public static String i18n(final Class<?> clazz, final String value) {

@@ -87,4 +87,8 @@ public interface IGuiService {
 
     boolean isMetaDown();
 
+    boolean isAltGraphDown();
+
+    boolean isModifierDown();
+
 }

@@ -40,6 +40,7 @@ public class ContentPaneView extends AView<ContentPaneView, JPanel> {
     private boolean metaDown;
     private boolean shiftDown;
     private boolean altDown;
+    private boolean altGraphDown;
 
     @Override
     protected JPanel initComponent() {
@@ -116,6 +117,8 @@ public class ContentPaneView extends AView<ContentPaneView, JPanel> {
                 case KeyEvent.VK_ALT:
                     altDown = state;
                     break;
+                case KeyEvent.VK_ALT_GRAPH:
+                    altGraphDown = state;
                 default:
                     break;
                 }
@@ -236,7 +239,15 @@ public class ContentPaneView extends AView<ContentPaneView, JPanel> {
         return altDown;
     }
 
+    public boolean isAltGraphDown() {
+        return altGraphDown;
+    }
+
     public boolean isMetaDown() {
         return metaDown;
+    }
+
+    public boolean isModifierDown() {
+        return controlDown || shiftDown || altDown || altGraphDown || metaDown;
     }
 }

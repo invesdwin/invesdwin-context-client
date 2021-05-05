@@ -158,8 +158,16 @@ public class ContentPane {
         return contentPaneView.isAltDown();
     }
 
+    public boolean isAltGraphDown() {
+        return contentPaneView.isAltGraphDown();
+    }
+
     public boolean isMetaDown() {
         return contentPaneView.isMetaDown();
+    }
+
+    public boolean isModifierDown() {
+        return contentPaneView.isModifierDown();
     }
 
 }

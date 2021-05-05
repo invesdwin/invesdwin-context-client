@@ -27,6 +27,7 @@ import org.apache.commons.io.input.CharSequenceReader;
 import de.invesdwin.aspects.EventDispatchThreadUtil;
 import de.invesdwin.aspects.annotation.EventDispatchThread;
 import de.invesdwin.aspects.annotation.EventDispatchThread.InvocationType;
+import de.invesdwin.context.client.swing.api.guiservice.GuiService;
 import de.invesdwin.context.client.swing.api.view.AView;
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.collections.iterable.ICloseableIterable;
@@ -175,7 +176,10 @@ public class LogViewerView extends AView<LogViewerView, JPanel> {
 
             @Override
             public void keyReleased(final KeyEvent e) {
-                //any key restores trailing
+                if (e.getKeyChar() == KeyEvent.CHAR_UNDEFINED || GuiService.get().isModifierDown()) {
+                    return;
+                }
+                //any character key restores trailing
                 editor.setCaretPosition(editor.getDocument().getLength());
             }
 
