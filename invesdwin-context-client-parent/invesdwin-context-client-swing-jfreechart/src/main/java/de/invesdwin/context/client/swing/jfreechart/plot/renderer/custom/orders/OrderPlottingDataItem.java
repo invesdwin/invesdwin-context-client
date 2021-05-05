@@ -2,6 +2,7 @@ package de.invesdwin.context.client.swing.jfreechart.plot.renderer.custom.orders
 
 import javax.annotation.concurrent.NotThreadSafe;
 
+import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.time.fdate.FDate;
 
 @NotThreadSafe
@@ -95,9 +96,20 @@ public class OrderPlottingDataItem {
             //we need to search for start time, otherwise entries will be plotted one bar too early
             this.openTimeLoadedIndex = dataset.getDateTimeStartAsItemIndex(0, openTime);
             if (closeTime != null) {
-                this.closeTimeLoadedIndex = dataset.getDateTimeEndAsItemIndex(0, closeTime);
+                final int endIndexFromEndTime = dataset.getDateTimeEndAsItemIndex(0, closeTime);
+                final long endTimeMillis = (long) dataset.getXValueAsDateTimeEnd(0, endIndexFromEndTime);
+                if (closeTime.millisValue() > endTimeMillis) {
+                    //close happened inside the next bar
+                    final int lastIndex = dataset.getItemCount(0) - 1;
+                    final int nextBarIndex = endIndexFromEndTime + 1;
+                    this.closeTimeLoadedIndex = Integers.min(nextBarIndex, lastIndex);
+                } else {
+                    //close happend either inside this bar or right at the end of it
+                    this.closeTimeLoadedIndex = endIndexFromEndTime;
+                }
             } else {
-                this.closeTimeLoadedIndex = dataset.getItemCount(0) - 1;
+                final int lastIndex = dataset.getItemCount(0) - 1;
+                this.closeTimeLoadedIndex = lastIndex;
             }
             itemLoaded = true;
         }
