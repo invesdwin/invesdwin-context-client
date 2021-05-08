@@ -58,6 +58,20 @@ public class SettingsDialog extends JDialog {
         setLocationRelativeTo(plotConfigurationHelper.getChartPanel());
     }
 
+    @Override
+    public void pack() {
+        //don't automatically change width
+        if (isShowing()) {
+            final int prevWidth = getWidth();
+            final Dimension prevPreferredSize = getPreferredSize();
+            setPreferredSize(new Dimension(prevWidth, 0));
+            super.pack();
+            setPreferredSize(prevPreferredSize);
+        } else {
+            super.pack();
+        }
+    }
+
     protected void close() {
         //tradingview also regards this as ok()
         panel.ok();
