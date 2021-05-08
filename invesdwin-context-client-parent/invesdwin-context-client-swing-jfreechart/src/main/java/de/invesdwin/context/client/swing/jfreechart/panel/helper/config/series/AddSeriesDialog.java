@@ -14,12 +14,14 @@ import javax.swing.JDialog;
 import javax.swing.KeyStroke;
 
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.PlotConfigurationHelper;
+import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.dialog.SettingsDialog;
 import de.invesdwin.util.swing.Dialogs;
 import de.invesdwin.util.swing.listener.WindowListenerSupport;
 
 @NotThreadSafe
 public class AddSeriesDialog extends JDialog {
 
+    public static final int MAX_WIDTH = SettingsDialog.MAX_WIDTH;
     private final AddSeriesPanel panel;
 
     public AddSeriesDialog(final PlotConfigurationHelper plotConfigurationHelper) {
@@ -47,8 +49,11 @@ public class AddSeriesDialog extends JDialog {
         }, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_IN_FOCUSED_WINDOW);
 
         setMinimumSize(new Dimension(400, 300));
-        setResizable(false);
+        setResizable(true);
         pack();
+        if (getWidth() > MAX_WIDTH) {
+            setSize(MAX_WIDTH, getHeight());
+        }
         setLocationRelativeTo(plotConfigurationHelper.getChartPanel());
     }
 

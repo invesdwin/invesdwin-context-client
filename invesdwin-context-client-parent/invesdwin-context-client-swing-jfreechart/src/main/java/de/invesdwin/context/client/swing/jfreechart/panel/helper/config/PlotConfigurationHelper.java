@@ -209,9 +209,10 @@ public class PlotConfigurationHelper {
 
             private void addSeriesConfigMenuItems() {
                 if (highlighted.isPriceSeries()) {
-                    titleItem.setText(String.valueOf(chartPanel.getMasterDataset().getSeriesTitle() + " - Series"));
+                    titleItem.setText(
+                            Strings.abbreviate(chartPanel.getMasterDataset().getSeriesTitle(), 50) + " - Series");
                 } else {
-                    titleItem.setText(highlighted.getSeriesTitle() + " - Series");
+                    titleItem.setText(Strings.abbreviate(highlighted.getSeriesTitle(), 50) + " - Series");
                 }
                 popupMenu.add(titleItem);
                 popupMenu.addSeparator();
