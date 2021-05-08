@@ -166,9 +166,9 @@ public class LazyCandlestickDemo extends JFrame {
             }
 
             @Override
-            public TimeRange getLastAvailableKey() {
+            public FDate getLastAvailableKeyTo() {
                 final TimeRangedOHLCDataItem item = dataItems.get(dataItems.size() - 1);
-                return new TimeRange(item.getStartTime(), item.getEndTime());
+                return item.getEndTime();
             }
 
             @Override

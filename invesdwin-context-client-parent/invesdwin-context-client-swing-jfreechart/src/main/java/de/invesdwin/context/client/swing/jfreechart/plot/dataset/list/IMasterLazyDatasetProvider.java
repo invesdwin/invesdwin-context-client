@@ -11,16 +11,16 @@ public interface IMasterLazyDatasetProvider {
 
     TimeRange getFirstAvailableKey();
 
-    TimeRange getLastAvailableKey();
+    FDate getLastAvailableKeyTo();
 
     ICloseableIterable<? extends TimeRangedOHLCDataItem> getPreviousValues(FDate key, int count);
 
     default ICloseableIterable<? extends TimeRangedOHLCDataItem> getNextValues(final FDate key, final int count) {
-        final TimeRange lastAvailableKey = getLastAvailableKey();
-        if (lastAvailableKey == null) {
+        final FDate lastAvailableKeyTo = getLastAvailableKeyTo();
+        if (lastAvailableKeyTo == null) {
             return EmptyCloseableIterable.getInstance();
         }
-        return new LimitingIterable<>(getValues(key, lastAvailableKey.getTo()), count);
+        return new LimitingIterable<>(getValues(key, lastAvailableKeyTo), count);
     }
 
     ICloseableIterable<? extends TimeRangedOHLCDataItem> getValues(FDate from, FDate to);

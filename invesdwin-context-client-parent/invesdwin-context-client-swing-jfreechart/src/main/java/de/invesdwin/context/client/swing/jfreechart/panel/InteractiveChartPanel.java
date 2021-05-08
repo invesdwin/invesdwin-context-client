@@ -252,8 +252,7 @@ public class InteractiveChartPanel extends JPanel {
             update();
             final FDate newFirstItemDate = masterDataset.getData().get(0).getStartTime();
             final FDate newLastItemDate = masterDataset.getData().get(masterDataset.getItemCount(0) - 1).getStartTime();
-            if (retryAllowed
-                    && (!newFirstItemDate.equals(firstItemDate) || !newLastItemDate.equals(lastItemDate))) {
+            if (retryAllowed && (!newFirstItemDate.equals(firstItemDate) || !newLastItemDate.equals(lastItemDate))) {
                 finalizer.executorUpdateLimit.execute(new Runnable() {
                     @Override
                     public void run() {

@@ -241,11 +241,7 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
         if (lastUpdateTime != null && isTrailingRange(chartPanel.getDomainAxis().getRange())) {
             return lastUpdateTime;
         } else {
-            final TimeRange lastAvailableKey = provider.getLastAvailableKey();
-            if (lastAvailableKey == null) {
-                return null;
-            }
-            return lastAvailableKey.getTo();
+            return provider.getLastAvailableKeyTo();
         }
     }
 
@@ -255,12 +251,12 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
 
     private void loadInitialDataMaster(final InteractiveChartPanel chartPanel) {
         final int initialVisibleItemCount = chartPanel.getInitialVisibleItemCount() * PRELOAD_RANGE_MULTIPLIER;
-        final TimeRange lastAvailableKey = provider.getLastAvailableKey();
-        if (lastAvailableKey == null) {
+        final FDate lastAvailableKeyTo = provider.getLastAvailableKeyTo();
+        if (lastAvailableKeyTo == null) {
             return;
         }
         final ICloseableIterable<? extends TimeRangedOHLCDataItem> initialValues = provider
-                .getPreviousValues(lastAvailableKey.getTo(), initialVisibleItemCount);
+                .getPreviousValues(lastAvailableKeyTo, initialVisibleItemCount);
         final List<MasterOHLCDataItem> data = getData();
         try (ICloseableIterator<? extends TimeRangedOHLCDataItem> it = initialValues.iterator()) {
             while (true) {
@@ -383,8 +379,8 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
             final int preloadUpperBound = (int) (range.getUpperBound() + range.getLength());
             if (preloadUpperBound > data.size()) {
                 final TimeRangedOHLCDataItem lastLoadedItem = getLastLoadedItem();
-                final TimeRange lastAvailableKey = provider.getLastAvailableKey();
-                if (lastAvailableKey != null && lastAvailableKey.getTo().isAfter(lastLoadedItem.getEndTime())) {
+                final FDate lastAvailableKeyTo = provider.getLastAvailableKeyTo();
+                if (lastAvailableKeyTo != null && lastAvailableKeyTo.isAfter(lastLoadedItem.getEndTime())) {
                     //append a whole screen additional to the requested items
                     final int appendCount = Integers.min(MAX_STEP_ITEM_COUNT,
                             (preloadUpperBound - data.size()) * STEP_ITEM_COUNT_MULTIPLIER);
@@ -417,7 +413,7 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
         if (lastLoadedKeyTo == null) {
             return false;
         }
-        final FDate lastAvailableKeyTo = provider.getLastAvailableKey().getTo();
+        final FDate lastAvailableKeyTo = provider.getLastAvailableKeyTo();
         if (lastAvailableKeyTo == null) {
             return false;
         }
