@@ -9,6 +9,7 @@ import de.invesdwin.context.client.swing.jfreechart.panel.InteractiveChartPanel;
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.list.item.MasterOHLCDataItem;
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.list.item.SlaveXYDataItemOHLC;
 import de.invesdwin.context.log.error.Err;
+import de.invesdwin.util.collections.loadingcache.historical.query.error.ResetCacheException;
 import de.invesdwin.util.concurrent.priority.IPriorityRunnable;
 import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.time.fdate.FDate;
@@ -31,7 +32,7 @@ public class SlaveLazyDatasetList extends ALazyDatasetList<SlaveXYDataItemOHLC> 
     }
 
     @Override
-    public synchronized void appendItems(final int appendCount) {
+    public synchronized void appendItems(final int appendCount) throws ResetCacheException {
         //invalidate two elements to reload them
         final List<SlaveXYDataItemOHLC> data = getData();
         for (int i = Math.max(0, data.size() - 2); i <= data.size() - 1; i++) {
@@ -59,7 +60,7 @@ public class SlaveLazyDatasetList extends ALazyDatasetList<SlaveXYDataItemOHLC> 
     }
 
     @Override
-    public synchronized void prependItems(final int prependCount) {
+    public synchronized void prependItems(final int prependCount) throws ResetCacheException {
         final List<SlaveXYDataItemOHLC> slavePrependItems = new ArrayList<>(prependCount);
         for (int i = 0; i < prependCount; i++) {
             final SlaveXYDataItemOHLC slaveItem = new SlaveXYDataItemOHLC(provider);
@@ -71,17 +72,17 @@ public class SlaveLazyDatasetList extends ALazyDatasetList<SlaveXYDataItemOHLC> 
         assertSameSizeAsMaster();
     }
 
-    private void assertSameSizeAsMaster() {
+    private void assertSameSizeAsMaster() throws ResetCacheException {
         final int masterSize = master.size();
         final List<SlaveXYDataItemOHLC> data = getData();
         if (data.size() != masterSize) {
-            throw new IllegalStateException("slave.size [" + data.size() + "] should be equal to master.size ["
+            throw new ResetCacheException("slave.size [" + data.size() + "] should be equal to master.size ["
                     + masterSize + "]. Reloading: " + provider);
         }
     }
 
     @Override
-    public synchronized void loadIinitialItems(final boolean eager) {
+    public synchronized void loadIinitialItems(final boolean eager) throws ResetCacheException {
         List<SlaveXYDataItemOHLC> data = getData();
         for (int i = 0; i < data.size(); i++) {
             removeAndInvalidateItem(data, i);
@@ -122,7 +123,7 @@ public class SlaveLazyDatasetList extends ALazyDatasetList<SlaveXYDataItemOHLC> 
     }
 
     @Override
-    public synchronized void removeStartItems(final int tooManyBefore) {
+    public synchronized void removeStartItems(final int tooManyBefore) throws ResetCacheException {
         final List<SlaveXYDataItemOHLC> data = getData();
         for (int i = 0; i < tooManyBefore; i++) {
             removeAndInvalidateItem(data, 0);
@@ -131,7 +132,7 @@ public class SlaveLazyDatasetList extends ALazyDatasetList<SlaveXYDataItemOHLC> 
     }
 
     @Override
-    public synchronized void removeEndItems(final int tooManyAfter) {
+    public synchronized void removeEndItems(final int tooManyAfter) throws ResetCacheException {
         final List<SlaveXYDataItemOHLC> data = getData();
         for (int i = 0; i < tooManyAfter; i++) {
             removeAndInvalidateItem(data, data.size() - 1);
@@ -140,7 +141,7 @@ public class SlaveLazyDatasetList extends ALazyDatasetList<SlaveXYDataItemOHLC> 
     }
 
     @Override
-    public synchronized void removeMiddleItems(final int index, final int count) {
+    public synchronized void removeMiddleItems(final int index, final int count) throws ResetCacheException {
         final List<SlaveXYDataItemOHLC> data = getData();
         for (int i = 0; i < count && data.size() > index; i++) {
             data.remove(index);

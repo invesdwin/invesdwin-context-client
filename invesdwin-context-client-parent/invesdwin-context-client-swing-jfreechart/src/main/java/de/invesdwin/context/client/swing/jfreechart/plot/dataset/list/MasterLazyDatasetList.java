@@ -23,6 +23,7 @@ import de.invesdwin.context.jfreechart.dataset.TimeRangedOHLCDataItem;
 import de.invesdwin.context.log.error.Err;
 import de.invesdwin.util.collections.iterable.ICloseableIterable;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
+import de.invesdwin.util.collections.loadingcache.historical.query.error.ResetCacheException;
 import de.invesdwin.util.concurrent.WrappedExecutorService;
 import de.invesdwin.util.concurrent.priority.IPriorityRunnable;
 import de.invesdwin.util.math.Integers;
@@ -268,7 +269,8 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
         }
     }
 
-    private synchronized Range maybeTrimDataRange(final Range range, final MutableBoolean rangeChanged) {
+    private synchronized Range maybeTrimDataRange(final Range range, final MutableBoolean rangeChanged)
+            throws ResetCacheException {
         Range updatedRange = range;
         final List<MasterOHLCDataItem> data = getData();
         if (data.size() > TRIM_ITEM_COUNT) {
@@ -301,7 +303,8 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
         return updatedRange;
     }
 
-    private void removeTooManyAfter(final List<MasterOHLCDataItem> data, final int tooManyAfter) {
+    private void removeTooManyAfter(final List<MasterOHLCDataItem> data, final int tooManyAfter)
+            throws ResetCacheException {
         chartPanel.incrementUpdatingCount();
         try {
             for (int i = 0; i < tooManyAfter; i++) {
@@ -318,7 +321,7 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
     }
 
     private Range removeTooManyBefore(final Range range, final MutableBoolean rangeChanged,
-            final List<MasterOHLCDataItem> data, final int tooManyBefore) {
+            final List<MasterOHLCDataItem> data, final int tooManyBefore) throws ResetCacheException {
         chartPanel.incrementUpdatingCount();
         try {
             for (int i = 0; i < tooManyBefore; i++) {
@@ -338,7 +341,8 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
         }
     }
 
-    public synchronized Range maybeLoadDataRange(final Range range, final MutableBoolean rangeChanged) {
+    public synchronized Range maybeLoadDataRange(final Range range, final MutableBoolean rangeChanged)
+            throws ResetCacheException {
         if (executor.getPendingCount() > 0) {
             //wait for lazy loading to finish
             return range;
@@ -524,7 +528,7 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
         return appendItems;
     }
 
-    private void appendSlaves(final int appendCount) {
+    private void appendSlaves(final int appendCount) throws ResetCacheException {
         if (!slaveDatasetListeners.isEmpty()) {
             for (final ISlaveLazyDatasetListener slave : slaveDatasetListeners) {
                 slave.appendItems(appendCount);
@@ -545,7 +549,7 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
         return prependItems;
     }
 
-    private void prependSlaves(final int prependCount) {
+    private void prependSlaves(final int prependCount) throws ResetCacheException {
         if (!slaveDatasetListeners.isEmpty()) {
             for (final ISlaveLazyDatasetListener slave : slaveDatasetListeners) {
                 slave.prependItems(prependCount);
@@ -573,24 +577,36 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
 
         @Override
         public Range beforeLimitRange(final Range range, final MutableBoolean rangeChanged) {
-            Range updatedRange = maybeLoadDataRange(range, rangeChanged);
-            if (!rangeListeners.isEmpty()) {
-                for (final IRangeListener l : rangeListeners) {
-                    updatedRange = l.beforeLimitRange(updatedRange, rangeChanged);
+            try {
+                Range updatedRange = maybeLoadDataRange(range, rangeChanged);
+                if (!rangeListeners.isEmpty()) {
+                    for (final IRangeListener l : rangeListeners) {
+                        updatedRange = l.beforeLimitRange(updatedRange, rangeChanged);
+                    }
                 }
+                return updatedRange;
+            } catch (final ResetCacheException e) {
+                Err.process(new RuntimeException("Retrying...", e));
+                reloadData();
+                return beforeLimitRange(range, rangeChanged);
             }
-            return updatedRange;
         }
 
         @Override
         public Range afterLimitRange(final Range range, final MutableBoolean rangeChanged) {
-            Range updatedRange = maybeTrimDataRange(range, rangeChanged);
-            if (!rangeListeners.isEmpty()) {
-                for (final IRangeListener l : rangeListeners) {
-                    updatedRange = l.afterLimitRange(updatedRange, rangeChanged);
+            try {
+                Range updatedRange = maybeTrimDataRange(range, rangeChanged);
+                if (!rangeListeners.isEmpty()) {
+                    for (final IRangeListener l : rangeListeners) {
+                        updatedRange = l.afterLimitRange(updatedRange, rangeChanged);
+                    }
                 }
+                return updatedRange;
+            } catch (final ResetCacheException e) {
+                Err.process(new RuntimeException("Retrying...", e));
+                reloadData();
+                return afterLimitRange(range, rangeChanged);
             }
-            return updatedRange;
         }
 
         @Override
@@ -640,14 +656,25 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
         }
         chartPanel.incrementUpdatingCount();
         try {
-            return updateTrailingItems(lastTickTime, data, rangeBefore);
+            return updateTrailingItemsRetry(lastTickTime, data, rangeBefore);
         } finally {
             chartPanel.decrementUpdatingCount();
         }
     }
 
-    private boolean updateTrailingItems(final FDate lastTickTime, final List<MasterOHLCDataItem> data,
+    private boolean updateTrailingItemsRetry(final FDate lastTickTime, final List<MasterOHLCDataItem> data,
             final Range rangeBefore) {
+        try {
+            return updateTrailingItems(lastTickTime, data, rangeBefore);
+        } catch (final ResetCacheException e) {
+            Err.process(new RuntimeException("Retrying...", e));
+            reloadData();
+            return updateTrailingItemsRetry(lastTickTime, data, rangeBefore);
+        }
+    }
+
+    private boolean updateTrailingItems(final FDate lastTickTime, final List<MasterOHLCDataItem> data,
+            final Range rangeBefore) throws ResetCacheException {
         //remove at least two elements
         int lastItemIndex = Math.max(0, data.size() - 3);
         TimeRangedOHLCDataItem lastItem = data.get(lastItemIndex);
