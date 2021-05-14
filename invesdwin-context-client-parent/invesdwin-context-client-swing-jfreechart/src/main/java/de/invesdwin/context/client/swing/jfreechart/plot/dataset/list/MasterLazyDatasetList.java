@@ -586,7 +586,7 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
                 }
                 return updatedRange;
             } catch (final ResetCacheException e) {
-                Err.process(new RuntimeException("Retrying...", e));
+                Err.process(new RuntimeException("Resetting and retrying...", e));
                 reloadData();
                 return beforeLimitRange(range, rangeChanged);
             }
@@ -603,7 +603,7 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
                 }
                 return updatedRange;
             } catch (final ResetCacheException e) {
-                Err.process(new RuntimeException("Retrying...", e));
+                Err.process(new RuntimeException("Resetting and retrying...", e));
                 reloadData();
                 return afterLimitRange(range, rangeChanged);
             }
@@ -667,7 +667,7 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
         try {
             return updateTrailingItems(lastTickTime, data, rangeBefore);
         } catch (final ResetCacheException e) {
-            Err.process(new RuntimeException("Retrying...", e));
+            Err.process(new RuntimeException("Resetting and retrying...", e));
             reloadData();
             return updateTrailingItemsRetry(lastTickTime, data, rangeBefore);
         }
