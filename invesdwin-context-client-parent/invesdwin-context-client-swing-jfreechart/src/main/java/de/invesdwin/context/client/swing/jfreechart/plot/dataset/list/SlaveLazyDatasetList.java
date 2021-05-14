@@ -140,7 +140,7 @@ public class SlaveLazyDatasetList extends ALazyDatasetList<SlaveXYDataItemOHLC> 
     }
 
     @Override
-    public void removeMiddleItems(final int index, final int count) {
+    public synchronized void removeMiddleItems(final int index, final int count) {
         final List<SlaveXYDataItemOHLC> data = getData();
         for (int i = 0; i < count && data.size() > index; i++) {
             data.remove(index);
