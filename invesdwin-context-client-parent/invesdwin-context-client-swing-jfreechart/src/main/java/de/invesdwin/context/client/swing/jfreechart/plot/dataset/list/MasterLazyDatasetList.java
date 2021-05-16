@@ -704,7 +704,6 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
         } catch (final NoSuchElementException ex) {
             // end reached
         }
-        lastItemIndex = Integers.min(lastItemIndex, data.size() - 1);
         if (replacedCount > 0 || appendCount > 0) {
             /*
              * we need to replace at least the last two elements, otherwise if the slave does not draw incomplete bars,
@@ -721,7 +720,8 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
             }
 
             //load slave items
-            for (int i = firstAppendIndex; i <= lastItemIndex; i++) {
+            //this is actually lastItemIndex+1, so don't use <=
+            for (int i = firstAppendIndex; i < lastItemIndex; i++) {
                 final MasterOHLCDataItem item = data.get(i);
                 item.loadSlaveItems(item.getEndTime());
             }
