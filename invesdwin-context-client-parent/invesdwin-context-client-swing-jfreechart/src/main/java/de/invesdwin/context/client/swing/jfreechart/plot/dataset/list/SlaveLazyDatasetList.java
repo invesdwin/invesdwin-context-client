@@ -143,7 +143,7 @@ public class SlaveLazyDatasetList extends ALazyDatasetList<SlaveXYDataItemOHLC> 
     @Override
     public synchronized void removeMiddleItems(final int index, final int count) throws ResetCacheException {
         final List<SlaveXYDataItemOHLC> data = getData();
-        for (int i = 0; i < count && data.size() > index; i++) {
+        for (int i = 0; i < count; i++) {
             data.remove(index);
         }
         assertSameSizeAsMaster();
