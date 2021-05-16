@@ -52,7 +52,11 @@ public class HighlightableLegendTitle extends CustomLegendTitle {
                 domainMarkerItem = lastItem;
             }
             if (!dataset.isLegendValueVisible(series, domainMarkerItem)) {
-                return label;
+                //try again with previous item before incomplete bar (this series might not draw incomplete values)
+                domainMarkerItem--;
+                if (!dataset.isLegendValueVisible(series, domainMarkerItem)) {
+                    return label;
+                }
             }
             final XYPlot plot = dataset.getPlot();
             if (plot == chartPanel.getCombinedPlot().getTrashPlot()) {
