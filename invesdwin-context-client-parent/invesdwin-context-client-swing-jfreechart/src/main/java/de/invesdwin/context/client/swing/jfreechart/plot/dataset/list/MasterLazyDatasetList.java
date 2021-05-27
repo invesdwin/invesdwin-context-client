@@ -27,7 +27,6 @@ import de.invesdwin.util.concurrent.WrappedExecutorService;
 import de.invesdwin.util.concurrent.priority.IPriorityRunnable;
 import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.time.fdate.FDate;
-import de.invesdwin.util.time.range.TimeRange;
 
 @ThreadSafe
 public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> implements IChartPanelAwareDatasetList {
@@ -47,7 +46,7 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
     private final IMasterLazyDatasetProvider provider;
     private final Set<ISlaveLazyDatasetListener> slaveDatasetListeners;
     private final Set<IRangeListener> rangeListeners;
-    private final TimeRange firstAvailableKey;
+    private FDate firstAvailableKeyTo;
     private InteractiveChartPanel chartPanel;
     @GuardedBy("this")
     private FDate lastUpdateTime;
@@ -68,7 +67,6 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
                 .<IRangeListener, Boolean> build()
                 .asMap();
         this.rangeListeners = Collections.newSetFromMap(limitRangeListeners);
-        this.firstAvailableKey = provider.getFirstAvailableKey();
         this.executor = executor;
         this.loadSlaveItemsExecutor = loadSlaveItemsExecutor;
     }
@@ -352,7 +350,7 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
         final int preloadLowerBound = (int) (range.getLowerBound() - range.getLength());
         if (preloadLowerBound < 0) {
             final TimeRangedOHLCDataItem firstLoadedItem = getFirstLoadedItem();
-            if (firstAvailableKey.getTo().isBefore(firstLoadedItem.getEndTime())) {
+            if (getFirstAvailableKeyTo().isBefore(firstLoadedItem.getEndTime())) {
                 //prepend a whole screen additional to the requested items
                 final int prependCount = Integers.min(MAX_STEP_ITEM_COUNT,
                         Integers.abs(preloadLowerBound) * STEP_ITEM_COUNT_MULTIPLIER);
@@ -402,6 +400,13 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
             }
         }
         return updatedRange;
+    }
+
+    private FDate getFirstAvailableKeyTo() {
+        if (firstAvailableKeyTo == null) {
+            firstAvailableKeyTo = provider.getFirstAvailableKeyTo();
+        }
+        return firstAvailableKeyTo;
     }
 
     @Override

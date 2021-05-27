@@ -5,11 +5,10 @@ import de.invesdwin.util.collections.iterable.EmptyCloseableIterable;
 import de.invesdwin.util.collections.iterable.ICloseableIterable;
 import de.invesdwin.util.collections.iterable.LimitingIterable;
 import de.invesdwin.util.time.fdate.FDate;
-import de.invesdwin.util.time.range.TimeRange;
 
 public interface IMasterLazyDatasetProvider {
 
-    TimeRange getFirstAvailableKey();
+    FDate getFirstAvailableKeyTo();
 
     FDate getLastAvailableKeyTo();
 
