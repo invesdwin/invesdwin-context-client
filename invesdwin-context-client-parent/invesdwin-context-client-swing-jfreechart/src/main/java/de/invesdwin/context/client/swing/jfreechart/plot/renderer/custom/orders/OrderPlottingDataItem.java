@@ -99,7 +99,7 @@ public class OrderPlottingDataItem {
                 //close happend either inside this bar or right at the end of it?
                 this.closeTimeLoadedIndex = endIndexFromEndTime;
                 final long endTimeMillis = (long) dataset.getXValueAsDateTimeEnd(0, endIndexFromEndTime);
-                checkInsideNextBar(dataset, endIndexFromEndTime, endTimeMillis);
+                checkCloseInsideNextBar(dataset, endIndexFromEndTime, endTimeMillis);
             } else {
                 final int lastIndex = dataset.getItemCount(0) - 1;
                 this.closeTimeLoadedIndex = lastIndex;
@@ -108,22 +108,30 @@ public class OrderPlottingDataItem {
         }
     }
 
-    private void checkInsideNextBar(final OrderPlottingDataset dataset, final int endIndexFromEndTime,
+    private void checkCloseInsideNextBar(final OrderPlottingDataset dataset, final int endIndexFromEndTime,
             final long endTimeMillis) {
         //end time is exclusive, start time is inclusive for time bars
-        if (closeTime.millisValue() >= endTimeMillis) {
-            //close happened inside the next bar?
-            final int lastIndex = dataset.getItemCount(0) - 1;
-            final int nextBarIndex = endIndexFromEndTime + 1;
-            if (nextBarIndex <= lastIndex) {
-                this.closeTimeLoadedIndex = nextBarIndex;
-                if (closeTime.millisValue() > endTimeMillis) {
+
+        //close happened inside the next bar?
+        if (closeTime.millisValue() < endTimeMillis) {
+            return;
+        }
+
+        final int lastIndex = dataset.getItemCount(0) - 1;
+        final int nextBarIndex = endIndexFromEndTime + 1;
+        if (nextBarIndex > lastIndex) {
+            return;
+        }
+        this.closeTimeLoadedIndex = nextBarIndex;
+        if (closeTime.millisValue() > endTimeMillis) {
+            this.closeTimeLoadedIndex = nextBarIndex;
+        } else {
+            final long nextStartTimeMillis = (long) dataset.getXValueAsDateTimeStart(0, nextBarIndex);
+            if (nextStartTimeMillis == endTimeMillis || closeTime.millisValue() >= nextStartTimeMillis) {
+                final double high = dataset.getHighValue(0, nextBarIndex);
+                final double low = dataset.getLowValue(0, nextBarIndex);
+                if (low <= closePrice && closePrice <= high) {
                     this.closeTimeLoadedIndex = nextBarIndex;
-                } else {
-                    final long nextStartTimeMillis = (long) dataset.getXValueAsDateTimeStart(0, nextBarIndex);
-                    if (nextStartTimeMillis == endTimeMillis || closeTime.millisValue() >= nextStartTimeMillis) {
-                        this.closeTimeLoadedIndex = nextBarIndex;
-                    }
                 }
             }
         }

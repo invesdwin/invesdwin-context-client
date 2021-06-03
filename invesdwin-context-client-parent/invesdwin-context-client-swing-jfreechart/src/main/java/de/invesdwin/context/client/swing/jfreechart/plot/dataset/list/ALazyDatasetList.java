@@ -9,6 +9,8 @@ import java.util.ListIterator;
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
+import de.invesdwin.util.lang.Strings;
+
 @ThreadSafe
 public abstract class ALazyDatasetList<E> implements List<E> {
 
@@ -203,6 +205,11 @@ public abstract class ALazyDatasetList<E> implements List<E> {
     @Override
     public List<E> subList(final int fromIndex, final int toIndex) {
         throw newNotNeededException();
+    }
+
+    @Override
+    public String toString() {
+        return Strings.asString(data);
     }
 
 }
