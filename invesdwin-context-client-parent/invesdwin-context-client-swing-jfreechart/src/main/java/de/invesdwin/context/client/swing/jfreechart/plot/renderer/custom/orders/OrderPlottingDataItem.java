@@ -2,7 +2,6 @@ package de.invesdwin.context.client.swing.jfreechart.plot.renderer.custom.orders
 
 import javax.annotation.concurrent.NotThreadSafe;
 
-import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.time.fdate.FDate;
 
 @NotThreadSafe
@@ -97,21 +96,36 @@ public class OrderPlottingDataItem {
             this.openTimeLoadedIndex = dataset.getDateTimeStartAsItemIndex(0, openTime);
             if (closeTime != null) {
                 final int endIndexFromEndTime = dataset.getDateTimeEndAsItemIndex(0, closeTime);
+                //close happend either inside this bar or right at the end of it?
+                this.closeTimeLoadedIndex = endIndexFromEndTime;
                 final long endTimeMillis = (long) dataset.getXValueAsDateTimeEnd(0, endIndexFromEndTime);
-                if (closeTime.millisValue() > endTimeMillis) {
-                    //close happened inside the next bar
-                    final int lastIndex = dataset.getItemCount(0) - 1;
-                    final int nextBarIndex = endIndexFromEndTime + 1;
-                    this.closeTimeLoadedIndex = Integers.min(nextBarIndex, lastIndex);
-                } else {
-                    //close happend either inside this bar or right at the end of it
-                    this.closeTimeLoadedIndex = endIndexFromEndTime;
-                }
+                checkInsideNextBar(dataset, endIndexFromEndTime, endTimeMillis);
             } else {
                 final int lastIndex = dataset.getItemCount(0) - 1;
                 this.closeTimeLoadedIndex = lastIndex;
             }
             itemLoaded = true;
+        }
+    }
+
+    private void checkInsideNextBar(final OrderPlottingDataset dataset, final int endIndexFromEndTime,
+            final long endTimeMillis) {
+        //end time is exclusive, start time is inclusive for time bars
+        if (closeTime.millisValue() >= endTimeMillis) {
+            //close happened inside the next bar?
+            final int lastIndex = dataset.getItemCount(0) - 1;
+            final int nextBarIndex = endIndexFromEndTime + 1;
+            if (nextBarIndex <= lastIndex) {
+                this.closeTimeLoadedIndex = nextBarIndex;
+                if (closeTime.millisValue() > endTimeMillis) {
+                    this.closeTimeLoadedIndex = nextBarIndex;
+                } else {
+                    final long nextStartTimeMillis = (long) dataset.getXValueAsDateTimeStart(0, nextBarIndex);
+                    if (nextStartTimeMillis == endTimeMillis || closeTime.millisValue() >= nextStartTimeMillis) {
+                        this.closeTimeLoadedIndex = nextBarIndex;
+                    }
+                }
+            }
         }
     }
 
