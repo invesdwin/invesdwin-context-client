@@ -58,8 +58,8 @@ import de.invesdwin.util.concurrent.WrappedExecutorService;
 import de.invesdwin.util.error.UnknownArgumentException;
 import de.invesdwin.util.lang.UniqueNameGenerator;
 import de.invesdwin.util.lang.reflection.Reflections;
-import de.invesdwin.util.math.expression.ExpressionParser;
 import de.invesdwin.util.math.expression.IExpression;
+import de.invesdwin.util.math.expression.MultipleExpressionParser;
 import de.invesdwin.util.math.expression.eval.BooleanConstantExpression;
 import de.invesdwin.util.math.expression.eval.EnumerationExpression;
 import de.invesdwin.util.time.fdate.FDate;
@@ -288,7 +288,7 @@ public class LazyCandlestickDemo extends JFrame {
 
         @Override
         public IExpression parseExpression(final String expression) {
-            return new ExpressionParser(expression).parse();
+            return new MultipleExpressionParser(expression).parse();
         }
 
         @Override

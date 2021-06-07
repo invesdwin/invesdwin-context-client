@@ -25,6 +25,7 @@ import de.invesdwin.util.error.Throwables;
 import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.lang.Strings;
 import de.invesdwin.util.math.Integers;
+import de.invesdwin.util.math.expression.MultipleExpressionParser;
 import de.invesdwin.util.math.expression.tokenizer.IPosition;
 import de.invesdwin.util.math.expression.tokenizer.ParseException;
 
@@ -113,7 +114,7 @@ public class ExpressionValidatingParser extends AbstractParser {
     }
 
     protected void parseExpression(final String expression) throws ParseException {
-        new de.invesdwin.util.math.expression.ExpressionParser(expression).parse();
+        new MultipleExpressionParser(expression).parse();
     }
 
     private synchronized Future<List<DefaultParserNotice>> validateExpression(final String expression) {
