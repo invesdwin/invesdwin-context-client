@@ -53,7 +53,7 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
     private FDate lastUpdateTime;
     private volatile int minLowerBound;
     private volatile int maxUpperBound;
-    private volatile FDate prevLastAvailableKeyTo = FDate.MIN_DATE;
+    private volatile FDate prevLastAvailableKeyTo;
 
     public MasterLazyDatasetList(final IMasterLazyDatasetProvider provider, final WrappedExecutorService executor,
             final WrappedExecutorService loadSlaveItemsExecutor) {
@@ -100,6 +100,7 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
                         chartPanelCopy.incrementUpdatingCount(); //prevent flickering
                         try {
                             loadInitialDataMaster(chartPanelCopy);
+                            prevLastAvailableKeyTo = null;
                             minLowerBound = 0;
                             maxUpperBound = getData().size() - 1;
                             if (!slaveDatasetListeners.isEmpty()) {
@@ -256,7 +257,6 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
         if (lastAvailableKeyTo == null) {
             return;
         }
-        prevLastAvailableKeyTo = null;
         final ICloseableIterable<? extends TimeRangedOHLCDataItem> initialValues = provider
                 .getPreviousValues(lastAvailableKeyTo, initialVisibleItemCount);
         final List<MasterOHLCDataItem> data = getData();
@@ -384,6 +384,10 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
                 final FDate lastAvailableKeyTo = provider.getLastAvailableKeyTo();
                 if (lastAvailableKeyTo != null && lastAvailableKeyTo.isAfter(lastLoadedItem.getEndTime())
                         && !Objects.equals(prevLastAvailableKeyTo, lastAvailableKeyTo)) {
+                    /*
+                     * don't check again if the same last available to is used, otherwise an endless loop might occur
+                     * because of last loaded item being a millisecond earlier
+                     */
                     prevLastAvailableKeyTo = lastAvailableKeyTo;
                     //append a whole screen additional to the requested items
                     final int appendCount = Integers.min(MAX_STEP_ITEM_COUNT,
@@ -474,6 +478,7 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
                                 slave.afterLoadItems(true);
                             }
                         }
+                        prevLastAvailableKeyTo = null;
                         minLowerBound = 0;
                         maxUpperBound = data.size() - 1;
                         chartPanel.update();
