@@ -25,6 +25,7 @@ import de.invesdwin.util.collections.iterable.ICloseableIterable;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
 import de.invesdwin.util.concurrent.WrappedExecutorService;
 import de.invesdwin.util.concurrent.priority.IPriorityRunnable;
+import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.time.fdate.FDate;
 
@@ -381,7 +382,7 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
                 final TimeRangedOHLCDataItem lastLoadedItem = getLastLoadedItem();
                 final FDate lastAvailableKeyTo = provider.getLastAvailableKeyTo();
                 if (lastAvailableKeyTo != null && lastAvailableKeyTo.isAfter(lastLoadedItem.getEndTime())
-                        && prevLastAvailableKeyTo.equals(lastAvailableKeyTo)) {
+                        && !Objects.equals(prevLastAvailableKeyTo, lastAvailableKeyTo)) {
                     prevLastAvailableKeyTo = lastAvailableKeyTo;
                     //append a whole screen additional to the requested items
                     final int appendCount = Integers.min(MAX_STEP_ITEM_COUNT,
