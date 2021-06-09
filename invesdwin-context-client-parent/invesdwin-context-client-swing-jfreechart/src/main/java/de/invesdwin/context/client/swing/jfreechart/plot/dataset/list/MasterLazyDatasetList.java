@@ -52,6 +52,8 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
     private FDate lastUpdateTime;
     private volatile int minLowerBound;
     private volatile int maxUpperBound;
+    @GuardedBy("this")
+    private FDate prevLastAvailableKeyTo = FDate.MIN_DATE;
 
     public MasterLazyDatasetList(final IMasterLazyDatasetProvider provider, final WrappedExecutorService executor,
             final WrappedExecutorService loadSlaveItemsExecutor) {
@@ -378,7 +380,9 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
             if (preloadUpperBound > data.size()) {
                 final TimeRangedOHLCDataItem lastLoadedItem = getLastLoadedItem();
                 final FDate lastAvailableKeyTo = provider.getLastAvailableKeyTo();
-                if (lastAvailableKeyTo != null && lastAvailableKeyTo.isAfter(lastLoadedItem.getEndTime())) {
+                if (lastAvailableKeyTo != null && lastAvailableKeyTo.isAfter(lastLoadedItem.getEndTime())
+                        && prevLastAvailableKeyTo.equals(lastAvailableKeyTo)) {
+                    prevLastAvailableKeyTo = lastAvailableKeyTo;
                     //append a whole screen additional to the requested items
                     final int appendCount = Integers.min(MAX_STEP_ITEM_COUNT,
                             (preloadUpperBound - data.size()) * STEP_ITEM_COUNT_MULTIPLIER);
