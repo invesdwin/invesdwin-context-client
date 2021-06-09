@@ -53,8 +53,7 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
     private FDate lastUpdateTime;
     private volatile int minLowerBound;
     private volatile int maxUpperBound;
-    @GuardedBy("this")
-    private FDate prevLastAvailableKeyTo = FDate.MIN_DATE;
+    private volatile FDate prevLastAvailableKeyTo = FDate.MIN_DATE;
 
     public MasterLazyDatasetList(final IMasterLazyDatasetProvider provider, final WrappedExecutorService executor,
             final WrappedExecutorService loadSlaveItemsExecutor) {
@@ -166,6 +165,7 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
                     chartPanel.incrementUpdatingCount(); //prevent flickering
                     try {
                         reloadDataMaster(from, to);
+                        prevLastAvailableKeyTo = null;
                         minLowerBound = 0;
                         maxUpperBound = getData().size() - 1;
                         if (!slaveDatasetListeners.isEmpty()) {
@@ -256,6 +256,7 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
         if (lastAvailableKeyTo == null) {
             return;
         }
+        prevLastAvailableKeyTo = null;
         final ICloseableIterable<? extends TimeRangedOHLCDataItem> initialValues = provider
                 .getPreviousValues(lastAvailableKeyTo, initialVisibleItemCount);
         final List<MasterOHLCDataItem> data = getData();
