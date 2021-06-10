@@ -478,7 +478,6 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
                                 slave.afterLoadItems(true);
                             }
                         }
-                        prevLastAvailableKeyTo = null;
                         minLowerBound = 0;
                         maxUpperBound = data.size() - 1;
                         chartPanel.update();
