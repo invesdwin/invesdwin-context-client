@@ -196,7 +196,7 @@ public final class RichApplicationProperties {
         if (UNDEFINED_APPLICATION_ID.equals(applicationId)) {
             throw new IllegalStateException("Please override Application.id: " + applicationId);
         }
-        return new File(ContextProperties.getHomeDirectory(), applicationId);
+        return new File(ContextProperties.getHomeDataDirectory(), applicationId);
     }
 
     /**
