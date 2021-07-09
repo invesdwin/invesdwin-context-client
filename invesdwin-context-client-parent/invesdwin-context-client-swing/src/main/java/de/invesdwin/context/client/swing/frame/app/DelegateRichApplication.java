@@ -38,8 +38,8 @@ import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.lang.reflection.Reflections;
 import de.invesdwin.util.swing.Dialogs;
 import de.invesdwin.util.swing.Frames;
+import de.invesdwin.util.time.date.FTimeUnit;
 import de.invesdwin.util.time.duration.Duration;
-import de.invesdwin.util.time.fdate.FTimeUnit;
 
 /**
  * This class initialized only rudimentary things, so that the EDT is not blocked for too long.

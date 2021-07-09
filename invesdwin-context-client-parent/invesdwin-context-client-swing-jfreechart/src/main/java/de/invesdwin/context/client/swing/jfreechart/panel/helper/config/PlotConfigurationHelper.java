@@ -43,7 +43,7 @@ import de.invesdwin.context.client.swing.jfreechart.plot.dataset.IPlotSourceData
 import de.invesdwin.util.lang.Strings;
 import de.invesdwin.util.swing.Dialogs;
 import de.invesdwin.util.swing.listener.PopupMenuListenerSupport;
-import de.invesdwin.util.time.fdate.FDate;
+import de.invesdwin.util.time.date.FDate;
 import de.invesdwin.util.time.range.TimeRange;
 
 @NotThreadSafe

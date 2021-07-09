@@ -9,7 +9,7 @@ import de.invesdwin.context.jfreechart.dataset.TimeRangedOHLCDataItem;
 import de.invesdwin.util.collections.iterable.buffer.BufferingIterator;
 import de.invesdwin.util.collections.iterable.buffer.EmptyBufferingIterator;
 import de.invesdwin.util.collections.iterable.buffer.IBufferingIterator;
-import de.invesdwin.util.time.fdate.FDate;
+import de.invesdwin.util.time.date.FDate;
 
 @NotThreadSafe
 public class MasterOHLCDataItem extends MutableOHLCDataItem {

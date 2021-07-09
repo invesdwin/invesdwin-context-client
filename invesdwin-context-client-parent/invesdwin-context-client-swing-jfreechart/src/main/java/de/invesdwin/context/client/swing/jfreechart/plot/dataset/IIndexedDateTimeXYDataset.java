@@ -2,7 +2,7 @@ package de.invesdwin.context.client.swing.jfreechart.plot.dataset;
 
 import org.jfree.data.xy.XYDataset;
 
-import de.invesdwin.util.time.fdate.FDate;
+import de.invesdwin.util.time.date.FDate;
 
 public interface IIndexedDateTimeXYDataset extends XYDataset {
 

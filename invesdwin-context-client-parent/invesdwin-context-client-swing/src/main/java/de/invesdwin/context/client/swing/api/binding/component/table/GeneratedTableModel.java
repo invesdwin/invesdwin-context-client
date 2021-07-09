@@ -20,8 +20,8 @@ import de.invesdwin.norva.beanpath.spi.element.table.column.TableSelectionButton
 import de.invesdwin.util.error.UnknownArgumentException;
 import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.time.Instant;
+import de.invesdwin.util.time.date.FTimeUnit;
 import de.invesdwin.util.time.duration.Duration;
-import de.invesdwin.util.time.fdate.FTimeUnit;
 
 @NotThreadSafe
 public class GeneratedTableModel extends AbstractTableModel {

@@ -62,7 +62,7 @@ import de.invesdwin.util.math.expression.IExpression;
 import de.invesdwin.util.math.expression.MultipleExpressionParser;
 import de.invesdwin.util.math.expression.eval.BooleanConstantExpression;
 import de.invesdwin.util.math.expression.eval.EnumerationExpression;
-import de.invesdwin.util.time.fdate.FDate;
+import de.invesdwin.util.time.date.FDate;
 
 @NotThreadSafe
 public class LazyCandlestickDemo extends JFrame {

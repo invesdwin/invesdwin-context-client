@@ -15,7 +15,7 @@ import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.error.UnknownArgumentException;
 import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.math.expression.IExpression;
-import de.invesdwin.util.time.fdate.FDate;
+import de.invesdwin.util.time.date.FDate;
 
 @NotThreadSafe
 public class IndexedDateTimeOHLCDataset extends ListOHLCDataset

@@ -27,8 +27,8 @@ import de.invesdwin.context.client.swing.frame.app.DelegateRichApplication;
 import de.invesdwin.util.lang.Strings;
 import de.invesdwin.util.swing.Components;
 import de.invesdwin.util.swing.MouseEnteredListener;
+import de.invesdwin.util.time.date.FTimeUnit;
 import de.invesdwin.util.time.duration.Duration;
-import de.invesdwin.util.time.fdate.FTimeUnit;
 
 @ThreadSafe
 public class StatusBarTaskView extends AView<StatusBarTaskView, JPanel> implements IRichApplicationHook {

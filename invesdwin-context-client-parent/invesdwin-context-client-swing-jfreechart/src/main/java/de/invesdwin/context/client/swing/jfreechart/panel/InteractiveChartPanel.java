@@ -55,9 +55,9 @@ import de.invesdwin.util.swing.listener.KeyListenerSupport;
 import de.invesdwin.util.swing.listener.MouseListenerSupport;
 import de.invesdwin.util.swing.listener.MouseMotionListenerSupport;
 import de.invesdwin.util.swing.listener.MouseWheelListenerSupport;
+import de.invesdwin.util.time.date.FDate;
+import de.invesdwin.util.time.date.FTimeUnit;
 import de.invesdwin.util.time.duration.Duration;
-import de.invesdwin.util.time.fdate.FDate;
-import de.invesdwin.util.time.fdate.FTimeUnit;
 import de.invesdwin.util.time.range.TimeRange;
 
 // CHECKSTYLE:OFF

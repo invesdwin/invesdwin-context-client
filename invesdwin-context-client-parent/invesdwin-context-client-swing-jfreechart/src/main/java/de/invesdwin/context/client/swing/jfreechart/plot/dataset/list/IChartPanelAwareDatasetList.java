@@ -1,7 +1,7 @@
 package de.invesdwin.context.client.swing.jfreechart.plot.dataset.list;
 
 import de.invesdwin.context.client.swing.jfreechart.panel.InteractiveChartPanel;
-import de.invesdwin.util.time.fdate.FDate;
+import de.invesdwin.util.time.date.FDate;
 
 public interface IChartPanelAwareDatasetList {
 

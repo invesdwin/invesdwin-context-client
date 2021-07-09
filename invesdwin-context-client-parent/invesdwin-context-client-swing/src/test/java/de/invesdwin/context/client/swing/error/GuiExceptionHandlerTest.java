@@ -10,7 +10,7 @@ import de.invesdwin.context.client.swing.TestModelView;
 import de.invesdwin.context.log.error.Err;
 import de.invesdwin.context.test.ATest;
 import de.invesdwin.context.test.TestContext;
-import de.invesdwin.util.time.fdate.FTimeUnit;
+import de.invesdwin.util.time.date.FTimeUnit;
 
 @NotThreadSafe
 public class GuiExceptionHandlerTest extends ATest {

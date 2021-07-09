@@ -7,8 +7,8 @@ import java.util.TimerTask;
 
 import javax.annotation.concurrent.ThreadSafe;
 
+import de.invesdwin.util.time.date.FTimeUnit;
 import de.invesdwin.util.time.duration.Duration;
-import de.invesdwin.util.time.fdate.FTimeUnit;
 
 /**
  * Alternative events dispatching queue. The benefit over the default Event Dispatch queue is that you can add as many

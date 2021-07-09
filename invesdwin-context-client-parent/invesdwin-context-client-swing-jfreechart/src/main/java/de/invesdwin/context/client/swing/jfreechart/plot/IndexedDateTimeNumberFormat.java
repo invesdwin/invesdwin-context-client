@@ -12,10 +12,10 @@ import org.jfree.chart.axis.NumberAxis;
 import org.jfree.data.Range;
 
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.IIndexedDateTimeXYDataset;
+import de.invesdwin.util.time.date.FDate;
+import de.invesdwin.util.time.date.FDates;
+import de.invesdwin.util.time.date.FTimeUnit;
 import de.invesdwin.util.time.duration.Duration;
-import de.invesdwin.util.time.fdate.FDate;
-import de.invesdwin.util.time.fdate.FDates;
-import de.invesdwin.util.time.fdate.FTimeUnit;
 
 @NotThreadSafe
 public class IndexedDateTimeNumberFormat extends NumberFormat {

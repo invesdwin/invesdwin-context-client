@@ -40,10 +40,10 @@ import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.swing.Dialogs;
 import de.invesdwin.util.swing.listener.ComponentListenerSupport;
 import de.invesdwin.util.swing.listener.KeyListenerSupport;
+import de.invesdwin.util.time.date.FDate;
+import de.invesdwin.util.time.date.FDates;
+import de.invesdwin.util.time.date.FTimeUnit;
 import de.invesdwin.util.time.duration.Duration;
-import de.invesdwin.util.time.fdate.FDate;
-import de.invesdwin.util.time.fdate.FDates;
-import de.invesdwin.util.time.fdate.FTimeUnit;
 
 @ThreadSafe
 public class LogViewerView extends AView<LogViewerView, JPanel> {

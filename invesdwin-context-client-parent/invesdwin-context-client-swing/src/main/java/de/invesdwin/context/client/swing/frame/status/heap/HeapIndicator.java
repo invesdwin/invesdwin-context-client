@@ -16,8 +16,8 @@ import de.invesdwin.util.math.decimal.scaled.PercentScale;
 import de.invesdwin.util.swing.Components;
 import de.invesdwin.util.swing.Fonts;
 import de.invesdwin.util.swing.MouseEnteredListener;
+import de.invesdwin.util.time.date.FTimeUnit;
 import de.invesdwin.util.time.duration.Duration;
-import de.invesdwin.util.time.fdate.FTimeUnit;
 
 /**
  * https://stackoverflow.com/questions/1346105/java-swing-free-memory-component-needed

@@ -21,8 +21,8 @@ import de.invesdwin.util.concurrent.taskinfo.TaskInfoManager;
 import de.invesdwin.util.lang.Strings;
 import de.invesdwin.util.math.decimal.scaled.Percent;
 import de.invesdwin.util.math.decimal.scaled.PercentScale;
+import de.invesdwin.util.time.date.FTimeUnit;
 import de.invesdwin.util.time.duration.Duration;
-import de.invesdwin.util.time.fdate.FTimeUnit;
 
 @ThreadSafe
 public class StatusBarTaskInfoMonitor implements IRichApplicationHook, ITaskInfoListener {

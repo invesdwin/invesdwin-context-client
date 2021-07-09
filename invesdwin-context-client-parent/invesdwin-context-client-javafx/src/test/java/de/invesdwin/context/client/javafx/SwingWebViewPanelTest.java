@@ -11,7 +11,7 @@ import de.invesdwin.aspects.EventDispatchThreadUtil;
 import de.invesdwin.context.client.javafx.component.swing.SwingWebViewPanel;
 import de.invesdwin.context.client.javafx.util.FxApplicationThreadUtil;
 import de.invesdwin.context.test.ATest;
-import de.invesdwin.util.time.fdate.FTimeUnit;
+import de.invesdwin.util.time.date.FTimeUnit;
 
 @NotThreadSafe
 public class SwingWebViewPanelTest extends ATest {

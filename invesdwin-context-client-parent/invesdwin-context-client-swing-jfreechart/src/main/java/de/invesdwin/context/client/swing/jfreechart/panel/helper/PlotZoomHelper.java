@@ -35,8 +35,8 @@ import de.invesdwin.util.collections.fast.IFastIterableSet;
 import de.invesdwin.util.lang.Strings;
 import de.invesdwin.util.math.Doubles;
 import de.invesdwin.util.time.Instant;
+import de.invesdwin.util.time.date.FTimeUnit;
 import de.invesdwin.util.time.duration.Duration;
-import de.invesdwin.util.time.fdate.FTimeUnit;
 
 @NotThreadSafe
 public class PlotZoomHelper {

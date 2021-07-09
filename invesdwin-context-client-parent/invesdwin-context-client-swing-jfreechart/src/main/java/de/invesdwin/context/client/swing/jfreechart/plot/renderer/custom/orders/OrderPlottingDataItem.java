@@ -2,7 +2,7 @@ package de.invesdwin.context.client.swing.jfreechart.plot.renderer.custom.orders
 
 import javax.annotation.concurrent.NotThreadSafe;
 
-import de.invesdwin.util.time.fdate.FDate;
+import de.invesdwin.util.time.date.FDate;
 
 @NotThreadSafe
 public class OrderPlottingDataItem {

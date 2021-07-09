@@ -7,7 +7,7 @@ import org.jfree.chart.ui.TextAnchor;
 import de.invesdwin.context.client.swing.jfreechart.plot.renderer.custom.annotations.AnnotationPlottingDataset;
 import de.invesdwin.context.client.swing.jfreechart.plot.renderer.custom.annotations.LabelHorizontalAlignType;
 import de.invesdwin.context.client.swing.jfreechart.plot.renderer.custom.annotations.LabelVerticalAlignType;
-import de.invesdwin.util.time.fdate.FDate;
+import de.invesdwin.util.time.date.FDate;
 
 @NotThreadSafe
 public class LineAnnotationPlottingDataItem extends AAnnotationPlottingDataItem {

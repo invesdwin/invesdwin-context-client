@@ -12,7 +12,7 @@ import javax.swing.JMenuItem;
 
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.PlotConfigurationHelper;
 import de.invesdwin.util.swing.listener.MouseListenerSupport;
-import de.invesdwin.util.time.fdate.FDate;
+import de.invesdwin.util.time.date.FDate;
 
 @NotThreadSafe
 public class BookmarkMenuItem extends JMenu {

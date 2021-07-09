@@ -11,7 +11,7 @@ import de.invesdwin.norva.beanpath.annotation.Hidden;
 import de.invesdwin.nowicket.generated.guiservice.GuiService;
 import de.invesdwin.nowicket.generated.markup.annotation.GeneratedMarkup;
 import de.invesdwin.util.bean.AValueObject;
-import de.invesdwin.util.time.fdate.FDate;
+import de.invesdwin.util.time.date.FDate;
 
 @GeneratedMarkup
 @NotThreadSafe

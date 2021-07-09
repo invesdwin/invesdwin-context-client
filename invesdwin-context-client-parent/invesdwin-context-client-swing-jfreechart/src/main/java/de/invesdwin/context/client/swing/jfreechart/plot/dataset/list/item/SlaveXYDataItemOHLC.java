@@ -6,7 +6,7 @@ import de.invesdwin.context.client.swing.jfreechart.plot.dataset.list.ISlaveLazy
 import de.invesdwin.context.jfreechart.dataset.MutableOHLCDataItem;
 import de.invesdwin.context.jfreechart.dataset.MutableXYDataItemOHLC;
 import de.invesdwin.context.jfreechart.dataset.TimeRangedOHLCDataItem;
-import de.invesdwin.util.time.fdate.FDate;
+import de.invesdwin.util.time.date.FDate;
 
 @NotThreadSafe
 public class SlaveXYDataItemOHLC extends MutableXYDataItemOHLC {

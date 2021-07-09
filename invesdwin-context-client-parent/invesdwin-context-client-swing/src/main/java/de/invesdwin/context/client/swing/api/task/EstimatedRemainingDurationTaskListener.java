@@ -9,9 +9,9 @@ import org.jdesktop.application.TaskListener;
 
 import de.invesdwin.util.math.decimal.scaled.Percent;
 import de.invesdwin.util.math.decimal.scaled.PercentScale;
+import de.invesdwin.util.time.date.FTimeUnit;
 import de.invesdwin.util.time.duration.AEstimatedRemainingDuration;
 import de.invesdwin.util.time.duration.Duration;
-import de.invesdwin.util.time.fdate.FTimeUnit;
 
 @ThreadSafe
 @SuppressWarnings("rawtypes")
