@@ -25,7 +25,7 @@ import de.invesdwin.util.error.Throwables;
 import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.lang.Strings;
 import de.invesdwin.util.math.Integers;
-import de.invesdwin.util.math.expression.MultipleExpressionParser;
+import de.invesdwin.util.math.expression.multiple.MultipleExpressionParser;
 import de.invesdwin.util.math.expression.tokenizer.IPosition;
 import de.invesdwin.util.math.expression.tokenizer.ParseException;
 
