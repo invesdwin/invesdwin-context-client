@@ -29,7 +29,7 @@ public final class MenuBarConfigs {
             final String newSubMenuName = titleSplit[i];
             if (i == lastIndex) {
                 Assertions.checkNotBlank(newSubMenuName, "At: %s", title);
-                menu.add(new ShowViewMenuItem(chartView, WorkingAreaLocation.Center) {
+                curSubMenu.add(new ShowViewMenuItem(chartView, WorkingAreaLocation.Center) {
                     @Override
                     protected String newTitle(final ResourceMap resourceMap) {
                         return newSubMenuName;
