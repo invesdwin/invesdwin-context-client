@@ -50,13 +50,13 @@ public final class MenuBarConfigs {
             final Component child = children[i];
             if (child instanceof JMenu) {
                 final JMenu cChild = (JMenu) child;
-                if (newSubMenuName.equals(cChild.getName())) {
+                if (newSubMenuName.equals(cChild.getText())) {
                     return cChild;
                 }
             }
         }
         final JMenu newSubMenu = new JMenu(newSubMenuName);
-        curSubMenu.add(newSubMenuName);
+        curSubMenu.add(newSubMenu);
         return newSubMenu;
     }
 
