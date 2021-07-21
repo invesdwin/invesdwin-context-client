@@ -139,6 +139,9 @@ public class PlotSourceXYSeriesCollection extends XYSeriesCollection implements 
 
     @Override
     public boolean isLegendValueVisible(final int series, final int item) {
+        if (getItemCount(series) == 0) {
+            return false;
+        }
         return !Double.isNaN(getYValue(series, item));
     }
 
