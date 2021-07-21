@@ -21,7 +21,7 @@ public final class MenuBarConfigs {
     }
 
     public static void addSubMenuView(final AView<?, ?> chartView, final JMenu menu) {
-        final String title = chartView.getResourceMap().getString(AView.KEY_VIEW_TITLE);
+        final String title = chartView.getTitle();
         final String[] titleSplit = Strings.splitPreserveAllTokens(title, SUB_MENU_SEPARATOR);
         final int lastIndex = titleSplit.length - 1;
         JMenu curSubMenu = menu;
