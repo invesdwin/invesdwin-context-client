@@ -709,7 +709,7 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
 
             //load slave items
             //this is actually lastItemIndex+1, so don't use <=
-            for (int i = firstAppendIndex; i < lastItemIndex; i++) {
+            for (int i = firstAppendIndex; i < lastItemIndex && i < data.size(); i++) {
                 final MasterOHLCDataItem item = data.get(i);
                 item.loadSlaveItems(item.getEndTime());
             }
