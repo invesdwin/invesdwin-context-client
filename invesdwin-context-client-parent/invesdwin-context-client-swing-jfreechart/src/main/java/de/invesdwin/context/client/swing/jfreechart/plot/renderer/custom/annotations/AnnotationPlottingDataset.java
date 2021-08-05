@@ -11,8 +11,6 @@ import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.series.e
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.series.indicator.IIndicatorSeriesProvider;
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.listener.IRangeListener;
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.listener.RangeListenerSupport;
-import de.invesdwin.context.client.swing.jfreechart.plot.dataset.IIndexedDateTimeXYDataset;
-import de.invesdwin.context.client.swing.jfreechart.plot.dataset.IPlotSourceDataset;
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.IndexedDateTimeOHLCDataset;
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.list.ISlaveLazyDatasetListener;
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.list.MasterLazyDatasetList;
@@ -30,8 +28,7 @@ import de.invesdwin.util.math.expression.IExpression;
 import de.invesdwin.util.time.date.FDate;
 
 @NotThreadSafe
-public class AnnotationPlottingDataset extends AbstractXYDataset
-        implements IPlotSourceDataset, IIndexedDateTimeXYDataset {
+public class AnnotationPlottingDataset extends AbstractXYDataset implements IAnnotationPlottingDataset {
 
     public static final int MAX_ANNOTATIONS = 10_000;
     private static final int TRIM_ANNOTATIONS = 12_000;
@@ -104,6 +101,7 @@ public class AnnotationPlottingDataset extends AbstractXYDataset
         }
     }
 
+    @Override
     public WrappedExecutorService getExecutor() {
         return executor;
     }
@@ -204,10 +202,12 @@ public class AnnotationPlottingDataset extends AbstractXYDataset
         return masterDataset.getDateTimeEndAsItemIndex(series, time);
     }
 
+    @Override
     public String[] getAnnotationIds() {
         return annotationId_item.asKeyArray(String.class);
     }
 
+    @Override
     public void addOrUpdate(final AAnnotationPlottingDataItem item) {
         final long firstLoadedKeyMillis = (long) getXValueAsDateTimeEnd(0, 0);
         final long lastLoadedKeyMillis = (long) getXValueAsDateTimeEnd(0, getItemCount(0) - 1);
@@ -222,10 +222,12 @@ public class AnnotationPlottingDataset extends AbstractXYDataset
         }
     }
 
+    @Override
     public AAnnotationPlottingDataItem get(final String annotationId) {
         return annotationId_item.get(annotationId);
     }
 
+    @Override
     public void remove(final String annotationId) {
         annotationId_item.remove(annotationId);
     }
@@ -235,6 +237,7 @@ public class AnnotationPlottingDataset extends AbstractXYDataset
         return false;
     }
 
+    @Override
     public ICloseableIterable<AAnnotationPlottingDataItem> getVisibleItems(final int firstItem, final int lastItem) {
         return new ASkippingIterable<AAnnotationPlottingDataItem>(
                 WrapperCloseableIterable.maybeWrap(annotationId_item.values())) {
