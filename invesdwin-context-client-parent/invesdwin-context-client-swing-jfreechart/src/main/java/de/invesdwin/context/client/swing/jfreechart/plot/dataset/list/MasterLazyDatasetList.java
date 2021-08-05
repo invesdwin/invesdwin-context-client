@@ -149,9 +149,14 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
         if (getData().isEmpty()) {
             return;
         }
-        final FDate from = getFirstLoadedItem().getEndTime();
-        final FDate to = getLastLoadedItem().getEndTime();
-        reloadData(from, to, null);
+        try {
+            final FDate from = getFirstLoadedItem().getEndTime();
+            final FDate to = getLastLoadedItem().getEndTime();
+            reloadData(from, to, null);
+        } catch (final IndexOutOfBoundsException e) {
+            //ignore, might have been emptied in the mean time
+            return;
+        }
     }
 
     @Override
