@@ -40,8 +40,13 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
      * all the smaller panning actions
      */
     private static final int MAX_STEP_ITEM_COUNT = PlotZoomHelper.MAX_ZOOM_ITEM_COUNT;
-    private static final int MAX_ITEM_COUNT = MAX_STEP_ITEM_COUNT * 5;
-    private static final int TRIM_ITEM_COUNT = MAX_STEP_ITEM_COUNT * 7;
+
+    private static final int MAX_ITEM_COUNT_TRAILING_MULTIPLIER = 5;
+    private static final int TRIM_ITEM_COUNT_TRAILING_MILTIPLIER = 7;
+
+    private static final int MAX_ITEM_COUNT = MAX_STEP_ITEM_COUNT * MAX_ITEM_COUNT_TRAILING_MULTIPLIER;
+    private static final int TRIM_ITEM_COUNT = MAX_STEP_ITEM_COUNT * TRIM_ITEM_COUNT_TRAILING_MILTIPLIER;
+
     private final WrappedExecutorService executor;
     private final WrappedExecutorService loadSlaveItemsExecutor;
     private final IMasterLazyDatasetProvider provider;
@@ -283,7 +288,23 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
     private synchronized Range maybeTrimDataRange(final Range range, final MutableBoolean rangeChanged) {
         Range updatedRange = range;
         final List<MasterOHLCDataItem> data = getData();
-        if (data.size() > TRIM_ITEM_COUNT) {
+        final boolean trailing = isTrailingRange(range);
+        if (trailing) {
+            //trim only before
+            final int visibleRange = (int) range.getLength();
+            if (data.size() < visibleRange * TRIM_ITEM_COUNT_TRAILING_MILTIPLIER) {
+                return range;
+            }
+            final int tooManyBefore = data.size() - (visibleRange * MAX_ITEM_COUNT_TRAILING_MULTIPLIER);
+            if (tooManyBefore > visibleRange) {
+                chartPanel.incrementUpdatingCount(); //prevent flickering
+                try {
+                    updatedRange = removeTooManyBefore(range, rangeChanged, data, tooManyBefore);
+                } finally {
+                    chartPanel.decrementUpdatingCount();
+                }
+            }
+        } else if (data.size() > TRIM_ITEM_COUNT) {
             //trim both ends based on center
             final int centralValueAdj = Integers.max(0, (int) range.getLowerBound())
                     + Integers.min(data.size() - 1, (int) range.getUpperBound()) / 2;

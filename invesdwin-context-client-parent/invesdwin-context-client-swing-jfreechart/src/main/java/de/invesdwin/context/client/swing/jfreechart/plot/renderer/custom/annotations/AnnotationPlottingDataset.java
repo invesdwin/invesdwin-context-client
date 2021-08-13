@@ -1,7 +1,9 @@
 package de.invesdwin.context.client.swing.jfreechart.plot.renderer.custom.annotations;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.NavigableSet;
 import java.util.Set;
@@ -303,15 +305,15 @@ public class AnnotationPlottingDataset extends AbstractXYDataset implements IAnn
     }
 
     @Override
-    public ILock getItemsLock() {
-        return itemsLock;
-    }
-
-    @GuardedBy("itemsLock")
-    @Override
     public ICloseableIterable<AAnnotationPlottingDataItem> getVisibleItems(final int firstItem, final int lastItem) {
         final long fromMillis = (long) masterDataset.getXValueAsDateTimeStart(0, firstItem);
-        final SortedSet<AnnotationItem> tail = items.tailSet(new AnnotationItem(fromMillis, "", null));
+        final List<AnnotationItem> tail;
+        itemsLock.lock();
+        try {
+            tail = new ArrayList<>(items.tailSet(new AnnotationItem(fromMillis, "", null)));
+        } finally {
+            itemsLock.unlock();
+        }
         final ATransformingIterable<AnnotationItem, AAnnotationPlottingDataItem> transforming = new ATransformingIterable<AnnotationItem, AAnnotationPlottingDataItem>(
                 WrapperCloseableIterable.maybeWrap(tail)) {
             @Override
@@ -455,7 +457,13 @@ public class AnnotationPlottingDataset extends AbstractXYDataset implements IAnn
     }
 
     private void updateItemsLoaded(final boolean forced, final TimeRange visibleTimeRange) {
-        final long firstLoadedKeyMillis = visibleTimeRange.getFrom().millisValue();
+        //we need to search for start time, otherwise entries will be plotted one bar too early
+        final long firstLoadedKeyMillis;
+        if (visibleTimeRange != null && visibleTimeRange.getFrom() != null) {
+            firstLoadedKeyMillis = visibleTimeRange.getFrom().millisValue();
+        } else {
+            firstLoadedKeyMillis = (long) getXValueAsDateTimeEnd(0, 0);
+        }
         final long lastLoadedKeyMillis = (long) getXValueAsDateTimeEnd(0, getItemCount(0) - 1);
         if (forced || prevFirstLoadedKeyMillis != firstLoadedKeyMillis
                 || prevLastLoadedKeyMillis != lastLoadedKeyMillis) {

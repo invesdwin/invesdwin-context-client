@@ -1,7 +1,9 @@
 package de.invesdwin.context.client.swing.jfreechart.plot.renderer.custom.orders;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.NavigableSet;
 import java.util.SortedSet;
@@ -295,7 +297,13 @@ public class OrderPlottingDataset extends AbstractXYDataset implements IPlotSour
     @GuardedBy("itemsLock")
     public ICloseableIterable<OrderPlottingDataItem> getVisibleItems(final int firstItem, final int lastItem) {
         final long fromMillis = (long) masterDataset.getXValueAsDateTimeStart(0, firstItem);
-        final SortedSet<OrderItem> tail = items.tailSet(new OrderItem(fromMillis, "", null));
+        final List<OrderItem> tail;
+        itemsLock.lock();
+        try {
+            tail = new ArrayList<>(items.tailSet(new OrderItem(fromMillis, "", null)));
+        } finally {
+            itemsLock.unlock();
+        }
         final ATransformingIterable<OrderItem, OrderPlottingDataItem> transforming = new ATransformingIterable<OrderItem, OrderPlottingDataItem>(
                 WrapperCloseableIterable.maybeWrap(tail)) {
             @Override
@@ -310,10 +318,6 @@ public class OrderPlottingDataset extends AbstractXYDataset implements IPlotSour
                         || element.getCloseTimeLoadedIndex() < firstItem;
             }
         };
-    }
-
-    public ILock getItemsLock() {
-        return itemsLock;
     }
 
     public boolean isLastTradeProfit() {
@@ -448,8 +452,13 @@ public class OrderPlottingDataset extends AbstractXYDataset implements IPlotSour
 
     private void updateItemsLoaded(final boolean forced, final TimeRange visibleTimeRange) {
         //we need to search for start time, otherwise entries will be plotted one bar too early
-        final long firstLoadedKeyMillis = visibleTimeRange.getFrom().millisValue();
-        final long lastLoadedKeyMillis = (long) getXValueAsDateTimeEnd(0, getItemCount(0) - 1);
+        final long firstLoadedKeyMillis;
+        if (visibleTimeRange != null && visibleTimeRange.getFrom() != null) {
+            firstLoadedKeyMillis = visibleTimeRange.getFrom().millisValue();
+        } else {
+            firstLoadedKeyMillis = (long) getXValueAsDateTimeStart(0, 0);
+        }
+        final long lastLoadedKeyMillis = (long) getXValueAsDateTimeStart(0, getItemCount(0) - 1);
         if (forced || prevFirstLoadedKeyMillis != firstLoadedKeyMillis
                 || prevLastLoadedKeyMillis != lastLoadedKeyMillis) {
             final boolean trailingLoaded = masterDataset.isTrailingLoaded();
