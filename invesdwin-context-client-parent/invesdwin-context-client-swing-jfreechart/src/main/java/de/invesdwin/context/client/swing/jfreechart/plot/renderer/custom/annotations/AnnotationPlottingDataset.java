@@ -1,5 +1,10 @@
 package de.invesdwin.context.client.swing.jfreechart.plot.renderer.custom.annotations;
 
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+
 import javax.annotation.concurrent.NotThreadSafe;
 
 import org.jfree.chart.plot.XYPlot;
@@ -18,7 +23,6 @@ import de.invesdwin.context.client.swing.jfreechart.plot.dataset.list.SlaveLazyD
 import de.invesdwin.context.client.swing.jfreechart.plot.renderer.custom.annotations.item.AAnnotationPlottingDataItem;
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.collections.factory.ILockCollectionFactory;
-import de.invesdwin.util.collections.fast.IFastIterableMap;
 import de.invesdwin.util.collections.iterable.ASkippingIterable;
 import de.invesdwin.util.collections.iterable.ICloseableIterable;
 import de.invesdwin.util.collections.iterable.WrapperCloseableIterable;
@@ -32,6 +36,7 @@ public class AnnotationPlottingDataset extends AbstractXYDataset implements IAnn
 
     public static final int MAX_ANNOTATIONS = 10_000;
     private static final int TRIM_ANNOTATIONS = 12_000;
+    private static final int MAX_REMOVED_ANNOTATIONS = 1_000_000;
 
     private final String seriesKey;
     private String seriesTitle;
@@ -41,9 +46,8 @@ public class AnnotationPlottingDataset extends AbstractXYDataset implements IAnn
     private DatasetGroup group;
     private String initialPlotPaneId;
     private String rangeAxisId;
-    private final IFastIterableMap<String, AAnnotationPlottingDataItem> annotationId_item = ILockCollectionFactory
-            .getInstance(true)
-            .newFastIterableLinkedMap();
+    private final Map<String, AAnnotationPlottingDataItem> annotationId_item = new ConcurrentHashMap<>();
+    private final Set<String> removedAnnotationIds = ILockCollectionFactory.getInstance(true).newSet();
     private IIndicatorSeriesProvider indicatorSeriesProvider;
     private IExpression[] indicatorSeriesArguments;
     private IExpressionSeriesProvider expressionSeriesProvider;
@@ -203,21 +207,31 @@ public class AnnotationPlottingDataset extends AbstractXYDataset implements IAnn
     }
 
     @Override
-    public String[] getAnnotationIds() {
-        return annotationId_item.asKeyArray(String.class);
+    public Iterable<String> getAnnotationIds() {
+        final Set<String> keySet = annotationId_item.keySet();
+        return keySet;
     }
 
     @Override
     public void addOrUpdate(final AAnnotationPlottingDataItem item) {
+        if (removedAnnotationIds.contains(item.getAnnotationId())) {
+            //ignore obsolete annotation
+            return;
+        }
         final long firstLoadedKeyMillis = (long) getXValueAsDateTimeEnd(0, 0);
         final long lastLoadedKeyMillis = (long) getXValueAsDateTimeEnd(0, getItemCount(0) - 1);
         final boolean trailingLoaded = masterDataset.isTrailingLoaded();
         item.updateItemLoaded(firstLoadedKeyMillis, lastLoadedKeyMillis, trailingLoaded, this);
         annotationId_item.put(item.getAnnotationId(), item);
         if (annotationId_item.size() > TRIM_ANNOTATIONS) {
+            final Iterator<String> iterator = annotationId_item.keySet().iterator();
             while (annotationId_item.size() > MAX_ANNOTATIONS) {
-                final String first = annotationId_item.keySet().iterator().next();
-                annotationId_item.remove(first);
+                final String first = iterator.next();
+                iterator.remove();
+                removedAnnotationIds.add(first);
+            }
+            if (removedAnnotationIds.size() > MAX_REMOVED_ANNOTATIONS) {
+                removedAnnotationIds.clear();
             }
         }
     }

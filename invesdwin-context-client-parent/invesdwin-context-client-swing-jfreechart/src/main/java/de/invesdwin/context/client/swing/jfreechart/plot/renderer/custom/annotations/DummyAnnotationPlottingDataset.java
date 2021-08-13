@@ -8,7 +8,6 @@ import de.invesdwin.util.collections.iterable.EmptyCloseableIterable;
 import de.invesdwin.util.collections.iterable.ICloseableIterable;
 import de.invesdwin.util.concurrent.Executors;
 import de.invesdwin.util.concurrent.WrappedExecutorService;
-import de.invesdwin.util.lang.Strings;
 import de.invesdwin.util.time.date.FDate;
 
 @Immutable
@@ -47,8 +46,8 @@ public final class DummyAnnotationPlottingDataset extends DummyXYDataset impleme
     }
 
     @Override
-    public String[] getAnnotationIds() {
-        return Strings.EMPTY_ARRAY;
+    public Iterable<String> getAnnotationIds() {
+        return EmptyCloseableIterable.getInstance();
     }
 
     @Override

@@ -10,7 +10,7 @@ public interface IAnnotationPlottingDataset extends IPlotSourceDataset, IIndexed
 
     WrappedExecutorService getExecutor();
 
-    String[] getAnnotationIds();
+    Iterable<String> getAnnotationIds();
 
     void addOrUpdate(AAnnotationPlottingDataItem item);
 
