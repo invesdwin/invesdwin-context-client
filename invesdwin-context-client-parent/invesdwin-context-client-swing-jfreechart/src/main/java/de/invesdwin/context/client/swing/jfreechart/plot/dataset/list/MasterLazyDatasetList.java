@@ -288,23 +288,7 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
     private synchronized Range maybeTrimDataRange(final Range range, final MutableBoolean rangeChanged) {
         Range updatedRange = range;
         final List<MasterOHLCDataItem> data = getData();
-        final boolean trailing = isTrailingRange(range);
-        if (trailing) {
-            //trim only before
-            final int visibleRange = (int) range.getLength();
-            if (data.size() < visibleRange * TRIM_ITEM_COUNT_TRAILING_MILTIPLIER) {
-                return range;
-            }
-            final int tooManyBefore = data.size() - (visibleRange * MAX_ITEM_COUNT_TRAILING_MULTIPLIER);
-            if (tooManyBefore > visibleRange) {
-                chartPanel.incrementUpdatingCount(); //prevent flickering
-                try {
-                    updatedRange = removeTooManyBefore(range, rangeChanged, data, tooManyBefore);
-                } finally {
-                    chartPanel.decrementUpdatingCount();
-                }
-            }
-        } else if (data.size() > TRIM_ITEM_COUNT) {
+        if (data.size() > TRIM_ITEM_COUNT) {
             //trim both ends based on center
             final int centralValueAdj = Integers.max(0, (int) range.getLowerBound())
                     + Integers.min(data.size() - 1, (int) range.getUpperBound()) / 2;
@@ -329,6 +313,26 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
                 } finally {
                     chartPanel.decrementUpdatingCount();
                 }
+            }
+        }
+        return updatedRange;
+    }
+
+    private synchronized Range maybeTrimDataRangeTrailing(final Range range, final MutableBoolean rangeChanged) {
+        Range updatedRange = range;
+        final List<MasterOHLCDataItem> data = getData();
+        //trim only before
+        final int visibleRange = (int) range.getLength();
+        if (data.size() < visibleRange * TRIM_ITEM_COUNT_TRAILING_MILTIPLIER) {
+            return updatedRange;
+        }
+        final int tooManyBefore = data.size() - (visibleRange * MAX_ITEM_COUNT_TRAILING_MULTIPLIER);
+        if (tooManyBefore > visibleRange) {
+            chartPanel.incrementUpdatingCount(); //prevent flickering
+            try {
+                updatedRange = removeTooManyBefore(range, rangeChanged, data, tooManyBefore);
+            } finally {
+                chartPanel.decrementUpdatingCount();
             }
         }
         return updatedRange;
@@ -493,14 +497,7 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
                             final int removeMasterIndex = data.indexOf(items.get(nextItemsIndex));
                             if (removeMasterIndex >= 0) {
                                 synchronized (MasterLazyDatasetList.this) {
-                                    for (int i = 0; i < tooManyAfter; i++) {
-                                        data.remove(removeMasterIndex);
-                                    }
-                                    if (!slaveDatasetListeners.isEmpty()) {
-                                        for (final ISlaveLazyDatasetListener slave : slaveDatasetListeners) {
-                                            slave.removeMiddleItems(removeMasterIndex, tooManyAfter);
-                                        }
-                                    }
+                                    removeTooManyAfter(data, tooManyAfter, removeMasterIndex);
                                 }
                             }
                         }
@@ -518,6 +515,20 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
                     maybeLoadSlaveItems(priority, loadedItems);
                 } catch (final Throwable t) {
                     Err.process(new RuntimeException("Ignoring, chart might have been closed", t));
+                }
+            }
+
+            private void removeTooManyAfter(final List<MasterOHLCDataItem> data, final int tooManyAfter,
+                    final int removeMasterIndex) {
+                int removed = 0;
+                while (removed < tooManyAfter && removeMasterIndex < data.size()) {
+                    data.remove(removeMasterIndex);
+                    removed++;
+                }
+                if (!slaveDatasetListeners.isEmpty() && removed > 0) {
+                    for (final ISlaveLazyDatasetListener slave : slaveDatasetListeners) {
+                        slave.removeMiddleItems(removeMasterIndex, removed);
+                    }
                 }
             }
 
@@ -751,9 +762,22 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
                 }
             }
             maxUpperBound = data.size() - 1;
+
+            triggerMaybeTrimDataRangeTrailing(appendCount);
+
             return true;
         } else {
             return false;
+        }
+    }
+
+    private void triggerMaybeTrimDataRangeTrailing(final int appendCount) {
+        if (appendCount > 0) {
+            final MutableBoolean rangeChanged = new MutableBoolean();
+            final Range updatedRange = maybeTrimDataRangeTrailing(chartPanel.getDomainAxis().getRange(), rangeChanged);
+            if (rangeChanged.booleanValue()) {
+                chartPanel.getDomainAxis().setRange(updatedRange);
+            }
         }
     }
 
