@@ -15,7 +15,7 @@ public interface IAnnotationPlottingDataset extends IPlotSourceDataset, IIndexed
     /**
      * Returns true if the item was removed due to size limitations
      */
-    boolean addOrUpdate(AAnnotationPlottingDataItem item);
+    boolean addOrUpdateOrRemove(AAnnotationPlottingDataItem item);
 
     AAnnotationPlottingDataItem get(String annotationId);
 

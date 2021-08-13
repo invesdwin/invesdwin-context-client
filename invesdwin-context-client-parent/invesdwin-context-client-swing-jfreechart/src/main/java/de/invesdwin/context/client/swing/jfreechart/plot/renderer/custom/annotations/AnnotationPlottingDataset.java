@@ -213,7 +213,7 @@ public class AnnotationPlottingDataset extends AbstractXYDataset implements IAnn
     }
 
     @Override
-    public boolean addOrUpdate(final AAnnotationPlottingDataItem item) {
+    public boolean addOrUpdateOrRemove(final AAnnotationPlottingDataItem item) {
         if (removedAnnotationIds.contains(item.getAnnotationId())) {
             //ignore obsolete annotation
             return true;

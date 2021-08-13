@@ -51,7 +51,7 @@ public final class DummyAnnotationPlottingDataset extends DummyXYDataset impleme
     }
 
     @Override
-    public boolean addOrUpdate(final AAnnotationPlottingDataItem item) {
+    public boolean addOrUpdateOrRemove(final AAnnotationPlottingDataItem item) {
         return true;
     }
 
