@@ -341,8 +341,12 @@ public class InteractiveChartPanel extends JPanel {
     }
 
     public TimeRange getVisibleTimeRange() {
-        final IndexedDateTimeOHLCDataset masterDataset = getMasterDataset();
         final Range range = getDomainAxis().getRange();
+        return getTimeRange(range);
+    }
+
+    public TimeRange getTimeRange(final Range range) {
+        final IndexedDateTimeOHLCDataset masterDataset = getMasterDataset();
         final List<? extends TimeRangedOHLCDataItem> data = masterDataset.getData();
         if (data.isEmpty()) {
             return null;

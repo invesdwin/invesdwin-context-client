@@ -1,7 +1,13 @@
 package de.invesdwin.context.client.swing.jfreechart.plot.renderer.custom.orders;
 
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
+import java.util.NavigableSet;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
+import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.NotThreadSafe;
 
 import org.jfree.chart.plot.XYPlot;
@@ -9,6 +15,7 @@ import org.jfree.data.Range;
 import org.jfree.data.general.DatasetGroup;
 import org.jfree.data.xy.AbstractXYDataset;
 
+import de.invesdwin.context.client.swing.jfreechart.panel.InteractiveChartPanel;
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.series.expression.IExpressionSeriesProvider;
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.series.indicator.IIndicatorSeriesProvider;
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.listener.IRangeListener;
@@ -19,15 +26,20 @@ import de.invesdwin.context.client.swing.jfreechart.plot.dataset.IndexedDateTime
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.list.ISlaveLazyDatasetListener;
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.list.MasterLazyDatasetList;
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.list.SlaveLazyDatasetListenerSupport;
+import de.invesdwin.context.client.swing.jfreechart.plot.renderer.custom.annotations.AnnotationPlottingDataset;
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.collections.factory.ILockCollectionFactory;
 import de.invesdwin.util.collections.iterable.ASkippingIterable;
+import de.invesdwin.util.collections.iterable.ATransformingIterable;
 import de.invesdwin.util.collections.iterable.ICloseableIterable;
 import de.invesdwin.util.collections.iterable.WrapperCloseableIterable;
 import de.invesdwin.util.concurrent.Executors;
 import de.invesdwin.util.concurrent.WrappedExecutorService;
+import de.invesdwin.util.concurrent.lock.ILock;
+import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.math.expression.IExpression;
 import de.invesdwin.util.time.date.FDate;
+import de.invesdwin.util.time.range.TimeRange;
 
 @NotThreadSafe
 public class OrderPlottingDataset extends AbstractXYDataset implements IPlotSourceDataset, IIndexedDateTimeXYDataset {
@@ -43,9 +55,13 @@ public class OrderPlottingDataset extends AbstractXYDataset implements IPlotSour
     private DatasetGroup group;
     private String initialPlotPaneId;
     private String rangeAxisId;
-    private final Map<String, OrderPlottingDataItem> orderId_item = ILockCollectionFactory.getInstance(true)
-            .newFastIterableLinkedMap();
-    private boolean lastTradeProfit = true;
+    private final ILock itemsLock = ILockCollectionFactory.getInstance(true)
+            .newLock(AnnotationPlottingDataset.class.getSimpleName() + "_itemsLock");
+    @GuardedBy("itemsLock")
+    private final NavigableSet<OrderItem> items = new TreeSet<>();
+    @GuardedBy("itemsLock")
+    private final Map<String, OrderItem> orderId_item = new HashMap<>();
+    private final boolean lastTradeProfit = true;
     private IIndicatorSeriesProvider indicatorSeriesProvider;
     private IExpression[] indicatorSeriesArguments;
     private IExpressionSeriesProvider expressionSeriesProvider;
@@ -68,14 +84,18 @@ public class OrderPlottingDataset extends AbstractXYDataset implements IPlotSour
             this.rangeListener = new RangeListenerSupport() {
                 @Override
                 public void onRangeChanged(final Range range) {
-                    updateItemsLoaded(false);
+                    final InteractiveChartPanel chartPanel = master.getChartPanel();
+                    final TimeRange visibleTimeRange = chartPanel.getTimeRange(range);
+                    updateItemsLoaded(false, visibleTimeRange);
                 }
             };
             master.registerRangeListener(rangeListener);
             this.slaveDatasetListener = new SlaveLazyDatasetListenerSupport() {
                 @Override
                 public void afterLoadItems(final boolean async) {
-                    updateItemsLoaded(async);
+                    final InteractiveChartPanel chartPanel = master.getChartPanel();
+                    final TimeRange visibleTimeRange = chartPanel.getVisibleTimeRange();
+                    updateItemsLoaded(async, visibleTimeRange);
                 }
 
                 @Override
@@ -85,7 +105,9 @@ public class OrderPlottingDataset extends AbstractXYDataset implements IPlotSour
 
                 @Override
                 public void removeStartItems(final int tooManyBefore) {
-                    updateItemsLoaded(true);
+                    final InteractiveChartPanel chartPanel = master.getChartPanel();
+                    final TimeRange visibleTimeRange = chartPanel.getVisibleTimeRange();
+                    updateItemsLoaded(true, visibleTimeRange);
                 }
 
                 @Override
@@ -192,6 +214,7 @@ public class OrderPlottingDataset extends AbstractXYDataset implements IPlotSour
         return masterDataset.getXValueAsDateTimeEnd(series, item);
     }
 
+    @Override
     public int getDateTimeStartAsItemIndex(final int series, final FDate time) {
         return masterDataset.getDateTimeStartAsItemIndex(series, time);
     }
@@ -201,24 +224,67 @@ public class OrderPlottingDataset extends AbstractXYDataset implements IPlotSour
         return masterDataset.getDateTimeEndAsItemIndex(series, time);
     }
 
-    public void addOrUpdate(final OrderPlottingDataItem item) {
+    public void addOrUpdate(final OrderPlottingDataItem order) {
         //we need to search for start time, otherwise entries will be plotted one bar too early
         final long firstLoadedKeyMillis = (long) getXValueAsDateTimeStart(0, 0);
         final long lastLoadedKeyMillis = (long) getXValueAsDateTimeStart(0, getItemCount(0) - 1);
         final boolean trailingLoaded = masterDataset.isTrailingLoaded();
-        item.updateItemLoaded(firstLoadedKeyMillis, lastLoadedKeyMillis, trailingLoaded, this);
-        orderId_item.put(item.getOrderId(), item);
-        lastTradeProfit = item.isProfit();
-        if (orderId_item.size() > TRIM_ORDERS) {
-            while (orderId_item.size() > MAX_ORDERS) {
-                final String first = orderId_item.keySet().iterator().next();
-                orderId_item.remove(first);
+        order.updateItemLoaded(firstLoadedKeyMillis, lastLoadedKeyMillis, trailingLoaded, this);
+        FDate closeTime = order.getCloseTime();
+        if (closeTime == null) {
+            closeTime = FDate.MAX_DATE;
+        }
+        final OrderItem item = new OrderItem(closeTime.millisValue(), order.getOrderId(), order);
+        itemsLock.lock();
+        try {
+            final OrderItem existing = orderId_item.put(order.getOrderId(), item);
+            if (existing != null) {
+                if (existing.endTimeMillis == item.endTimeMillis) {
+                    existing.setOrder(order);
+                } else {
+                    items.remove(existing);
+                    items.add(item);
+                }
+            } else {
+                items.add(item);
             }
+            if (items.size() > TRIM_ORDERS) {
+                final Iterator<OrderItem> iterator = items.iterator();
+                while (items.size() > MAX_ORDERS) {
+                    final OrderItem first = iterator.next();
+                    iterator.remove();
+                    orderId_item.remove(first.getOrderId());
+                }
+            }
+        } finally {
+            itemsLock.unlock();
+        }
+    }
+
+    public OrderPlottingDataItem get(final String orderId) {
+        itemsLock.lock();
+        try {
+            final OrderItem item = orderId_item.get(orderId);
+            if (item == null) {
+                return null;
+            }
+            return item.getOrder();
+        } finally {
+            itemsLock.unlock();
         }
     }
 
     public void remove(final String orderId) {
-        orderId_item.remove(orderId);
+        itemsLock.lock();
+        try {
+            final OrderItem item = orderId_item.remove(orderId);
+            if (item == null) {
+                return;
+            }
+            items.remove(item);
+        } finally {
+            itemsLock.unlock();
+        }
     }
 
     @Override
@@ -226,14 +292,28 @@ public class OrderPlottingDataset extends AbstractXYDataset implements IPlotSour
         return false;
     }
 
+    @GuardedBy("itemsLock")
     public ICloseableIterable<OrderPlottingDataItem> getVisibleItems(final int firstItem, final int lastItem) {
-        return new ASkippingIterable<OrderPlottingDataItem>(WrapperCloseableIterable.maybeWrap(orderId_item.values())) {
+        final long fromMillis = (long) masterDataset.getXValueAsDateTimeStart(0, firstItem);
+        final SortedSet<OrderItem> tail = items.tailSet(new OrderItem(fromMillis, "", null));
+        final ATransformingIterable<OrderItem, OrderPlottingDataItem> transforming = new ATransformingIterable<OrderItem, OrderPlottingDataItem>(
+                WrapperCloseableIterable.maybeWrap(tail)) {
+            @Override
+            protected OrderPlottingDataItem transform(final OrderItem value) {
+                return value.getOrder();
+            }
+        };
+        return new ASkippingIterable<OrderPlottingDataItem>(transforming) {
             @Override
             protected boolean skip(final OrderPlottingDataItem element) {
                 return !element.isItemLoaded() || element.getOpenTimeLoadedIndex() > lastItem
                         || element.getCloseTimeLoadedIndex() < firstItem;
             }
         };
+    }
+
+    public ILock getItemsLock() {
+        return itemsLock;
     }
 
     public boolean isLastTradeProfit() {
@@ -356,24 +436,85 @@ public class OrderPlottingDataset extends AbstractXYDataset implements IPlotSour
     }
 
     private void modifyItemLoadedIndexes(final int fromIndex, final int addend) {
-        for (final OrderPlottingDataItem dataItem : orderId_item.values()) {
-            dataItem.modifyItemLoadedIndexes(fromIndex, addend);
+        itemsLock.lock();
+        try {
+            for (final OrderItem item : items) {
+                item.getOrder().modifyItemLoadedIndexes(fromIndex, addend);
+            }
+        } finally {
+            itemsLock.unlock();
         }
     }
 
-    private void updateItemsLoaded(final boolean forced) {
+    private void updateItemsLoaded(final boolean forced, final TimeRange visibleTimeRange) {
         //we need to search for start time, otherwise entries will be plotted one bar too early
-        final long firstLoadedKeyMillis = (long) getXValueAsDateTimeStart(0, 0);
-        final long lastLoadedKeyMillis = (long) getXValueAsDateTimeStart(0, getItemCount(0) - 1);
+        final long firstLoadedKeyMillis = visibleTimeRange.getFrom().millisValue();
+        final long lastLoadedKeyMillis = (long) getXValueAsDateTimeEnd(0, getItemCount(0) - 1);
         if (forced || prevFirstLoadedKeyMillis != firstLoadedKeyMillis
                 || prevLastLoadedKeyMillis != lastLoadedKeyMillis) {
             final boolean trailingLoaded = masterDataset.isTrailingLoaded();
-            for (final OrderPlottingDataItem dataItem : orderId_item.values()) {
-                dataItem.updateItemLoaded(firstLoadedKeyMillis, lastLoadedKeyMillis, trailingLoaded,
-                        OrderPlottingDataset.this);
+            itemsLock.lock();
+            try {
+                final SortedSet<OrderItem> tail = items.tailSet(new OrderItem(firstLoadedKeyMillis, "", null));
+                for (final OrderItem item : tail) {
+                    item.getOrder()
+                            .updateItemLoaded(firstLoadedKeyMillis, lastLoadedKeyMillis, trailingLoaded,
+                                    OrderPlottingDataset.this);
+                }
+            } finally {
+                itemsLock.unlock();
             }
             prevFirstLoadedKeyMillis = firstLoadedKeyMillis;
             prevLastLoadedKeyMillis = lastLoadedKeyMillis;
+        }
+    }
+
+    private static final class OrderItem implements Comparable<OrderItem> {
+        private final String orderId;
+        private final long endTimeMillis;
+        private final int hashCode;
+        private OrderPlottingDataItem order;
+
+        private OrderItem(final long endTimeMillis, final String orderId, final OrderPlottingDataItem order) {
+            this.orderId = orderId;
+            this.endTimeMillis = endTimeMillis;
+            this.hashCode = Objects.hashCode(endTimeMillis, orderId);
+            this.order = order;
+        }
+
+        public void setOrder(final OrderPlottingDataItem order) {
+            this.order = order;
+        }
+
+        public String getOrderId() {
+            return orderId;
+        }
+
+        public OrderPlottingDataItem getOrder() {
+            return order;
+        }
+
+        @Override
+        public int hashCode() {
+            return hashCode;
+        }
+
+        @Override
+        public boolean equals(final Object obj) {
+            if (obj instanceof OrderItem) {
+                final OrderItem cObj = (OrderItem) obj;
+                return endTimeMillis == cObj.endTimeMillis && orderId.equals(cObj.orderId);
+            }
+            return false;
+        }
+
+        @Override
+        public int compareTo(final OrderItem o) {
+            final int compared = Long.compare(endTimeMillis, o.endTimeMillis);
+            if (compared != 0) {
+                return compared;
+            }
+            return orderId.compareTo(o.orderId);
         }
     }
 

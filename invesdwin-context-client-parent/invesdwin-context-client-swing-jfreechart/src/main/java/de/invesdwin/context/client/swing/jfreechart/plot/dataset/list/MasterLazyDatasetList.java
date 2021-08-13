@@ -89,6 +89,11 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
     }
 
     @Override
+    public InteractiveChartPanel getChartPanel() {
+        return chartPanel;
+    }
+
+    @Override
     public synchronized void resetRange() {
         if (getData().isEmpty() || getLastLoadedItem().getEndTime().isBefore(getResetReferenceTime())) {
             newData();

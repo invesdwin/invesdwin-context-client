@@ -49,6 +49,7 @@ import de.invesdwin.context.client.swing.jfreechart.plot.renderer.Renderers;
 import de.invesdwin.context.client.swing.jfreechart.plot.renderer.custom.CustomProfitLossRenderer;
 import de.invesdwin.context.client.swing.jfreechart.plot.renderer.custom.ICustomRendererType;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
+import de.invesdwin.util.concurrent.lock.ILock;
 import de.invesdwin.util.lang.Strings;
 import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.swing.icon.AlphaImageIcon;
@@ -281,26 +282,32 @@ public class CustomOrderPlottingRenderer extends AbstractXYItemRenderer
             final LineWidthType lineWidth) {
         //CHECKSTYLE:ON
         final Map<Integer, List<String>> index_notes = new LinkedHashMap<Integer, List<String>>();
-        final ICloseableIterator<OrderPlottingDataItem> visibleItems = cDataset.getVisibleItems(firstItem, lastItem)
-                .iterator();
+        final ILock itemsLock = cDataset.getItemsLock();
+        itemsLock.lock();
         try {
-            while (true) {
-                final OrderPlottingDataItem next = visibleItems.next();
-                drawLine(g2, dataArea, info, plot, domainAxis, rangeAxis, rendererIndex, rangeAxisFormat, domainEdge,
-                        rangeEdge, lineWidth, next);
-                final String note = next.getNote();
-                if (Strings.isNotBlank(note)) {
-                    final int noteIndex = next.getOpenTimeLoadedIndex();
-                    List<String> notes = index_notes.get(noteIndex);
-                    if (notes == null) {
-                        notes = new ArrayList<String>();
-                        index_notes.put(noteIndex, notes);
+            final ICloseableIterator<OrderPlottingDataItem> visibleItems = cDataset.getVisibleItems(firstItem, lastItem)
+                    .iterator();
+            try {
+                while (true) {
+                    final OrderPlottingDataItem next = visibleItems.next();
+                    drawLine(g2, dataArea, info, plot, domainAxis, rangeAxis, rendererIndex, rangeAxisFormat,
+                            domainEdge, rangeEdge, lineWidth, next);
+                    final String note = next.getNote();
+                    if (Strings.isNotBlank(note)) {
+                        final int noteIndex = next.getOpenTimeLoadedIndex();
+                        List<String> notes = index_notes.get(noteIndex);
+                        if (notes == null) {
+                            notes = new ArrayList<String>();
+                            index_notes.put(noteIndex, notes);
+                        }
+                        notes.add(note);
                     }
-                    notes.add(note);
                 }
+            } catch (final NoSuchElementException e) {
+                //end reached
             }
-        } catch (final NoSuchElementException e) {
-            //end reached
+        } finally {
+            itemsLock.unlock();
         }
         return index_notes;
     }

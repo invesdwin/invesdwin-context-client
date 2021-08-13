@@ -8,6 +8,8 @@ import de.invesdwin.util.collections.iterable.EmptyCloseableIterable;
 import de.invesdwin.util.collections.iterable.ICloseableIterable;
 import de.invesdwin.util.concurrent.Executors;
 import de.invesdwin.util.concurrent.WrappedExecutorService;
+import de.invesdwin.util.concurrent.lock.ILock;
+import de.invesdwin.util.concurrent.lock.disabled.DisabledLock;
 import de.invesdwin.util.time.date.FDate;
 
 @Immutable
@@ -46,11 +48,6 @@ public final class DummyAnnotationPlottingDataset extends DummyXYDataset impleme
     }
 
     @Override
-    public Iterable<String> getAnnotationIds() {
-        return EmptyCloseableIterable.getInstance();
-    }
-
-    @Override
     public boolean addOrUpdateOrRemove(final AAnnotationPlottingDataItem item) {
         return true;
     }
@@ -67,6 +64,11 @@ public final class DummyAnnotationPlottingDataset extends DummyXYDataset impleme
     @Override
     public ICloseableIterable<AAnnotationPlottingDataItem> getVisibleItems(final int firstItem, final int lastItem) {
         return EmptyCloseableIterable.getInstance();
+    }
+
+    @Override
+    public ILock getItemsLock() {
+        return DisabledLock.INSTANCE;
     }
 
 }

@@ -35,6 +35,7 @@ import de.invesdwin.context.client.swing.jfreechart.plot.renderer.custom.annotat
 import de.invesdwin.context.client.swing.jfreechart.plot.renderer.custom.annotations.item.LabelAnnotationPlottingDataItem;
 import de.invesdwin.context.client.swing.jfreechart.plot.renderer.custom.annotations.item.LineAnnotationPlottingDataItem;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
+import de.invesdwin.util.concurrent.lock.ILock;
 import de.invesdwin.util.error.UnknownArgumentException;
 import de.invesdwin.util.lang.Strings;
 import de.invesdwin.util.math.Doubles;
@@ -123,26 +124,32 @@ public class CustomAnnotationPlottingRenderer extends AbstractXYItemRenderer imp
         final Stroke stroke = lookupSeriesStroke(series);
         final Paint color = lookupSeriesPaint(series);
 
-        final ICloseableIterator<AAnnotationPlottingDataItem> visibleItems = cDataset
-                .getVisibleItems(firstItem, lastItem)
-                .iterator();
+        final ILock itemsLock = cDataset.getItemsLock();
+        itemsLock.lock();
         try {
-            while (true) {
-                final AAnnotationPlottingDataItem next = visibleItems.next();
-                if (next instanceof LineAnnotationPlottingDataItem) {
-                    final LineAnnotationPlottingDataItem cNext = (LineAnnotationPlottingDataItem) next;
-                    drawLine(g2, dataArea, info, plot, domainAxis, rangeAxis, rendererIndex, rangeAxisFormat,
-                            domainEdge, rangeEdge, stroke, color, cNext);
-                } else if (next instanceof LabelAnnotationPlottingDataItem) {
-                    final LabelAnnotationPlottingDataItem cNext = (LabelAnnotationPlottingDataItem) next;
-                    drawLabel(g2, dataArea, info, plot, domainAxis, rangeAxis, rendererIndex, rangeAxisFormat,
-                            domainEdge, rangeEdge, stroke, color, cNext);
-                } else {
-                    throw UnknownArgumentException.newInstance(Class.class, next.getClass());
+            final ICloseableIterator<AAnnotationPlottingDataItem> visibleItems = cDataset
+                    .getVisibleItems(firstItem, lastItem)
+                    .iterator();
+            try {
+                while (true) {
+                    final AAnnotationPlottingDataItem next = visibleItems.next();
+                    if (next instanceof LineAnnotationPlottingDataItem) {
+                        final LineAnnotationPlottingDataItem cNext = (LineAnnotationPlottingDataItem) next;
+                        drawLine(g2, dataArea, info, plot, domainAxis, rangeAxis, rendererIndex, rangeAxisFormat,
+                                domainEdge, rangeEdge, stroke, color, cNext);
+                    } else if (next instanceof LabelAnnotationPlottingDataItem) {
+                        final LabelAnnotationPlottingDataItem cNext = (LabelAnnotationPlottingDataItem) next;
+                        drawLabel(g2, dataArea, info, plot, domainAxis, rangeAxis, rendererIndex, rangeAxisFormat,
+                                domainEdge, rangeEdge, stroke, color, cNext);
+                    } else {
+                        throw UnknownArgumentException.newInstance(Class.class, next.getClass());
+                    }
                 }
+            } catch (final NoSuchElementException e) {
+                //end reached
             }
-        } catch (final NoSuchElementException e) {
-            //end reached
+        } finally {
+            itemsLock.unlock();
         }
     }
 

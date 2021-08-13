@@ -7,6 +7,8 @@ public interface IChartPanelAwareDatasetList {
 
     void setChartPanel(InteractiveChartPanel chartPanel);
 
+    InteractiveChartPanel getChartPanel();
+
     int getMinLowerBound();
 
     int getMaxUpperBound();

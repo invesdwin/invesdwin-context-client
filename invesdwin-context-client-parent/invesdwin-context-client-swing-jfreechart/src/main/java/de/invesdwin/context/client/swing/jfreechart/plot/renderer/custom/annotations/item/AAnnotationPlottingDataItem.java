@@ -3,6 +3,7 @@ package de.invesdwin.context.client.swing.jfreechart.plot.renderer.custom.annota
 import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.context.client.swing.jfreechart.plot.renderer.custom.annotations.AnnotationPlottingDataset;
+import de.invesdwin.util.time.date.FDate;
 
 @NotThreadSafe
 public abstract class AAnnotationPlottingDataItem {
@@ -45,4 +46,8 @@ public abstract class AAnnotationPlottingDataItem {
     }
 
     protected abstract int innerGetEndTimeLoadedIndex();
+
+    public abstract FDate getStartTime();
+
+    public abstract FDate getEndTime();
 }

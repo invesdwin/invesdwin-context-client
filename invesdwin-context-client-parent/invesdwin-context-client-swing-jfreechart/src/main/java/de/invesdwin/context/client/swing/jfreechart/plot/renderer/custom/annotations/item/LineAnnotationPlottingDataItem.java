@@ -40,6 +40,7 @@ public class LineAnnotationPlottingDataItem extends AAnnotationPlottingDataItem 
         this.labelVerticalAlign = labelVerticalAlign;
     }
 
+    @Override
     public FDate getStartTime() {
         return startTime;
     }
@@ -48,6 +49,7 @@ public class LineAnnotationPlottingDataItem extends AAnnotationPlottingDataItem 
         return startPrice;
     }
 
+    @Override
     public FDate getEndTime() {
         return endTime;
     }

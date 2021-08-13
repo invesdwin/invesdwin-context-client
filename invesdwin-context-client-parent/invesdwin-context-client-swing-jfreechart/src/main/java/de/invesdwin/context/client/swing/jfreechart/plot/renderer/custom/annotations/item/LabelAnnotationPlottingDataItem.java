@@ -94,4 +94,14 @@ public class LabelAnnotationPlottingDataItem extends AAnnotationPlottingDataItem
         return labelHorizontalAlign.getTextAnchor(labelVerticalAlign);
     }
 
+    @Override
+    public FDate getStartTime() {
+        return time;
+    }
+
+    @Override
+    public FDate getEndTime() {
+        return time;
+    }
+
 }

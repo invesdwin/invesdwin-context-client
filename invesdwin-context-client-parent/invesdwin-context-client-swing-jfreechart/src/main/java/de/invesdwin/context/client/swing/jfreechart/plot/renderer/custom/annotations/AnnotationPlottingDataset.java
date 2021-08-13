@@ -1,9 +1,14 @@
 package de.invesdwin.context.client.swing.jfreechart.plot.renderer.custom.annotations;
 
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.NavigableSet;
 import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
+import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.NotThreadSafe;
 
 import org.jfree.chart.plot.XYPlot;
@@ -11,6 +16,7 @@ import org.jfree.data.Range;
 import org.jfree.data.general.DatasetGroup;
 import org.jfree.data.xy.AbstractXYDataset;
 
+import de.invesdwin.context.client.swing.jfreechart.panel.InteractiveChartPanel;
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.series.expression.IExpressionSeriesProvider;
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.series.indicator.IIndicatorSeriesProvider;
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.listener.IRangeListener;
@@ -23,12 +29,16 @@ import de.invesdwin.context.client.swing.jfreechart.plot.renderer.custom.annotat
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.collections.factory.ILockCollectionFactory;
 import de.invesdwin.util.collections.iterable.ASkippingIterable;
+import de.invesdwin.util.collections.iterable.ATransformingIterable;
 import de.invesdwin.util.collections.iterable.ICloseableIterable;
 import de.invesdwin.util.collections.iterable.WrapperCloseableIterable;
 import de.invesdwin.util.concurrent.Executors;
 import de.invesdwin.util.concurrent.WrappedExecutorService;
+import de.invesdwin.util.concurrent.lock.ILock;
+import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.math.expression.IExpression;
 import de.invesdwin.util.time.date.FDate;
+import de.invesdwin.util.time.range.TimeRange;
 
 @NotThreadSafe
 public class AnnotationPlottingDataset extends AbstractXYDataset implements IAnnotationPlottingDataset {
@@ -45,8 +55,12 @@ public class AnnotationPlottingDataset extends AbstractXYDataset implements IAnn
     private DatasetGroup group;
     private String initialPlotPaneId;
     private String rangeAxisId;
-    private final Map<String, AAnnotationPlottingDataItem> annotationId_item = ILockCollectionFactory.getInstance(true)
-            .newLinkedMap();
+    private final ILock itemsLock = ILockCollectionFactory.getInstance(true)
+            .newLock(AnnotationPlottingDataset.class.getSimpleName() + "_itemsLock");
+    @GuardedBy("itemsLock")
+    private final NavigableSet<AnnotationItem> items = new TreeSet<>();
+    @GuardedBy("itemsLock")
+    private final Map<String, AnnotationItem> annotationId_item = new HashMap<>();
     private final Set<String> removedAnnotationIds = ILockCollectionFactory.getInstance(true).newSet();
     private IIndicatorSeriesProvider indicatorSeriesProvider;
     private IExpression[] indicatorSeriesArguments;
@@ -70,14 +84,18 @@ public class AnnotationPlottingDataset extends AbstractXYDataset implements IAnn
             this.rangeListener = new RangeListenerSupport() {
                 @Override
                 public void onRangeChanged(final Range range) {
-                    updateItemsLoaded(false);
+                    final InteractiveChartPanel chartPanel = master.getChartPanel();
+                    final TimeRange visibleTimeRange = chartPanel.getTimeRange(range);
+                    updateItemsLoaded(false, visibleTimeRange);
                 }
             };
             master.registerRangeListener(rangeListener);
             this.slaveDatasetListener = new SlaveLazyDatasetListenerSupport() {
                 @Override
                 public void afterLoadItems(final boolean async) {
-                    updateItemsLoaded(async);
+                    final InteractiveChartPanel chartPanel = master.getChartPanel();
+                    final TimeRange visibleTimeRange = chartPanel.getVisibleTimeRange();
+                    updateItemsLoaded(async, visibleTimeRange);
                 }
 
                 @Override
@@ -87,7 +105,9 @@ public class AnnotationPlottingDataset extends AbstractXYDataset implements IAnn
 
                 @Override
                 public void removeStartItems(final int tooManyBefore) {
-                    updateItemsLoaded(true);
+                    final InteractiveChartPanel chartPanel = master.getChartPanel();
+                    final TimeRange visibleTimeRange = chartPanel.getVisibleTimeRange();
+                    updateItemsLoaded(true, visibleTimeRange);
                 }
 
                 @Override
@@ -207,44 +227,74 @@ public class AnnotationPlottingDataset extends AbstractXYDataset implements IAnn
     }
 
     @Override
-    public Iterable<String> getAnnotationIds() {
-        final Set<String> keySet = annotationId_item.keySet();
-        return keySet;
-    }
-
-    @Override
-    public boolean addOrUpdateOrRemove(final AAnnotationPlottingDataItem item) {
-        if (removedAnnotationIds.contains(item.getAnnotationId())) {
+    public boolean addOrUpdateOrRemove(final AAnnotationPlottingDataItem annotation) {
+        if (removedAnnotationIds.contains(annotation.getAnnotationId())) {
             //ignore obsolete annotation
             return true;
         }
         final long firstLoadedKeyMillis = (long) getXValueAsDateTimeEnd(0, 0);
         final long lastLoadedKeyMillis = (long) getXValueAsDateTimeEnd(0, getItemCount(0) - 1);
         final boolean trailingLoaded = masterDataset.isTrailingLoaded();
-        item.updateItemLoaded(firstLoadedKeyMillis, lastLoadedKeyMillis, trailingLoaded, this);
-        annotationId_item.put(item.getAnnotationId(), item);
-        if (annotationId_item.size() > TRIM_ANNOTATIONS) {
-            final Iterator<String> iterator = annotationId_item.keySet().iterator();
-            while (annotationId_item.size() > MAX_ANNOTATIONS) {
-                final String first = iterator.next();
-                iterator.remove();
-                removedAnnotationIds.add(first);
+        annotation.updateItemLoaded(firstLoadedKeyMillis, lastLoadedKeyMillis, trailingLoaded, this);
+        final AnnotationItem item = new AnnotationItem(annotation.getEndTime().millisValue(),
+                annotation.getAnnotationId(), annotation);
+        itemsLock.lock();
+        try {
+            final AnnotationItem existing = annotationId_item.put(annotation.getAnnotationId(), item);
+            if (existing != null) {
+                if (existing.endTimeMillis == item.endTimeMillis) {
+                    existing.setAnnotation(annotation);
+                } else {
+                    items.remove(existing);
+                    items.add(item);
+                }
+            } else {
+                items.add(item);
             }
-            if (removedAnnotationIds.size() > MAX_REMOVED_ANNOTATIONS) {
-                removedAnnotationIds.clear();
+            if (items.size() > TRIM_ANNOTATIONS) {
+                final Iterator<AnnotationItem> iterator = items.iterator();
+                while (items.size() > MAX_ANNOTATIONS) {
+                    final AnnotationItem first = iterator.next();
+                    iterator.remove();
+                    removedAnnotationIds.add(first.getAnnotationId());
+                    annotationId_item.remove(first.getAnnotationId());
+                }
+                if (removedAnnotationIds.size() > MAX_REMOVED_ANNOTATIONS) {
+                    removedAnnotationIds.clear();
+                }
             }
+        } finally {
+            itemsLock.unlock();
         }
         return false;
     }
 
     @Override
     public AAnnotationPlottingDataItem get(final String annotationId) {
-        return annotationId_item.get(annotationId);
+        itemsLock.lock();
+        try {
+            final AnnotationItem item = annotationId_item.get(annotationId);
+            if (item == null) {
+                return null;
+            }
+            return item.getAnnotation();
+        } finally {
+            itemsLock.unlock();
+        }
     }
 
     @Override
     public void remove(final String annotationId) {
-        annotationId_item.remove(annotationId);
+        itemsLock.lock();
+        try {
+            final AnnotationItem item = annotationId_item.remove(annotationId);
+            if (item == null) {
+                return;
+            }
+            items.remove(item);
+        } finally {
+            itemsLock.unlock();
+        }
     }
 
     @Override
@@ -253,9 +303,23 @@ public class AnnotationPlottingDataset extends AbstractXYDataset implements IAnn
     }
 
     @Override
+    public ILock getItemsLock() {
+        return itemsLock;
+    }
+
+    @GuardedBy("itemsLock")
+    @Override
     public ICloseableIterable<AAnnotationPlottingDataItem> getVisibleItems(final int firstItem, final int lastItem) {
-        return new ASkippingIterable<AAnnotationPlottingDataItem>(
-                WrapperCloseableIterable.maybeWrap(annotationId_item.values())) {
+        final long fromMillis = (long) masterDataset.getXValueAsDateTimeStart(0, firstItem);
+        final SortedSet<AnnotationItem> tail = items.tailSet(new AnnotationItem(fromMillis, "", null));
+        final ATransformingIterable<AnnotationItem, AAnnotationPlottingDataItem> transforming = new ATransformingIterable<AnnotationItem, AAnnotationPlottingDataItem>(
+                WrapperCloseableIterable.maybeWrap(tail)) {
+            @Override
+            protected AAnnotationPlottingDataItem transform(final AnnotationItem value) {
+                return value.getAnnotation();
+            }
+        };
+        return new ASkippingIterable<AAnnotationPlottingDataItem>(transforming) {
             @Override
             protected boolean skip(final AAnnotationPlottingDataItem element) {
                 return !element.isItemLoaded() || element.getStartTimeLoadedIndex() > lastItem
@@ -380,23 +444,86 @@ public class AnnotationPlottingDataset extends AbstractXYDataset implements IAnn
     }
 
     private void modifyItemLoadedIndexes(final int fromIndex, final int addend) {
-        for (final AAnnotationPlottingDataItem dataItem : annotationId_item.values()) {
-            dataItem.modifyItemLoadedIndexes(fromIndex, addend);
+        itemsLock.lock();
+        try {
+            for (final AnnotationItem item : items) {
+                item.getAnnotation().modifyItemLoadedIndexes(fromIndex, addend);
+            }
+        } finally {
+            itemsLock.unlock();
         }
     }
 
-    private void updateItemsLoaded(final boolean forced) {
-        final long firstLoadedKeyMillis = (long) getXValueAsDateTimeEnd(0, 0);
+    private void updateItemsLoaded(final boolean forced, final TimeRange visibleTimeRange) {
+        final long firstLoadedKeyMillis = visibleTimeRange.getFrom().millisValue();
         final long lastLoadedKeyMillis = (long) getXValueAsDateTimeEnd(0, getItemCount(0) - 1);
         if (forced || prevFirstLoadedKeyMillis != firstLoadedKeyMillis
                 || prevLastLoadedKeyMillis != lastLoadedKeyMillis) {
             final boolean trailingLoaded = masterDataset.isTrailingLoaded();
-            for (final AAnnotationPlottingDataItem dataItem : annotationId_item.values()) {
-                dataItem.updateItemLoaded(firstLoadedKeyMillis, lastLoadedKeyMillis, trailingLoaded,
-                        AnnotationPlottingDataset.this);
+            itemsLock.lock();
+            try {
+                final SortedSet<AnnotationItem> tail = items
+                        .tailSet(new AnnotationItem(firstLoadedKeyMillis, "", null));
+                for (final AnnotationItem item : tail) {
+                    item.getAnnotation()
+                            .updateItemLoaded(firstLoadedKeyMillis, lastLoadedKeyMillis, trailingLoaded,
+                                    AnnotationPlottingDataset.this);
+                }
+            } finally {
+                itemsLock.unlock();
             }
             prevFirstLoadedKeyMillis = firstLoadedKeyMillis;
             prevLastLoadedKeyMillis = lastLoadedKeyMillis;
+        }
+    }
+
+    private static final class AnnotationItem implements Comparable<AnnotationItem> {
+        private final String annotationId;
+        private final long endTimeMillis;
+        private final int hashCode;
+        private AAnnotationPlottingDataItem annotation;
+
+        private AnnotationItem(final long endTimeMillis, final String annotationId,
+                final AAnnotationPlottingDataItem annotation) {
+            this.annotationId = annotationId;
+            this.endTimeMillis = endTimeMillis;
+            this.hashCode = Objects.hashCode(endTimeMillis, annotationId);
+            this.annotation = annotation;
+        }
+
+        public void setAnnotation(final AAnnotationPlottingDataItem annotation) {
+            this.annotation = annotation;
+        }
+
+        public String getAnnotationId() {
+            return annotationId;
+        }
+
+        public AAnnotationPlottingDataItem getAnnotation() {
+            return annotation;
+        }
+
+        @Override
+        public int hashCode() {
+            return hashCode;
+        }
+
+        @Override
+        public boolean equals(final Object obj) {
+            if (obj instanceof AnnotationItem) {
+                final AnnotationItem cObj = (AnnotationItem) obj;
+                return endTimeMillis == cObj.endTimeMillis && annotationId.equals(cObj.annotationId);
+            }
+            return false;
+        }
+
+        @Override
+        public int compareTo(final AnnotationItem o) {
+            final int compared = Long.compare(endTimeMillis, o.endTimeMillis);
+            if (compared != 0) {
+                return compared;
+            }
+            return annotationId.compareTo(o.annotationId);
         }
     }
 
