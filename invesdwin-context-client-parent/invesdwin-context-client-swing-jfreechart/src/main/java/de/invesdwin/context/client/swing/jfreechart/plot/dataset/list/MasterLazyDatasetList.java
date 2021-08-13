@@ -318,26 +318,6 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
         return updatedRange;
     }
 
-    private synchronized Range maybeTrimDataRangeTrailing(final Range range, final MutableBoolean rangeChanged) {
-        Range updatedRange = range;
-        final List<MasterOHLCDataItem> data = getData();
-        //trim only before
-        final int visibleRange = (int) range.getLength();
-        if (data.size() < visibleRange * TRIM_ITEM_COUNT_TRAILING_MILTIPLIER) {
-            return updatedRange;
-        }
-        final int tooManyBefore = data.size() - (visibleRange * MAX_ITEM_COUNT_TRAILING_MULTIPLIER);
-        if (tooManyBefore > visibleRange) {
-            chartPanel.incrementUpdatingCount(); //prevent flickering
-            try {
-                updatedRange = removeTooManyBefore(range, rangeChanged, data, tooManyBefore);
-            } finally {
-                chartPanel.decrementUpdatingCount();
-            }
-        }
-        return updatedRange;
-    }
-
     private void removeTooManyAfter(final List<MasterOHLCDataItem> data, final int tooManyAfter) {
         chartPanel.incrementUpdatingCount();
         try {
@@ -763,7 +743,7 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
             }
             maxUpperBound = data.size() - 1;
 
-            triggerMaybeTrimDataRangeTrailing(appendCount);
+            maybeTrimDataRangeTrailing(appendCount);
 
             return true;
         } else {
@@ -771,13 +751,25 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
         }
     }
 
-    private void triggerMaybeTrimDataRangeTrailing(final int appendCount) {
-        if (appendCount > 0) {
-            final MutableBoolean rangeChanged = new MutableBoolean();
-            final Range updatedRange = maybeTrimDataRangeTrailing(chartPanel.getDomainAxis().getRange(), rangeChanged);
-            if (rangeChanged.booleanValue()) {
-                chartPanel.getDomainAxis().setRange(updatedRange);
-            }
+    private void maybeTrimDataRangeTrailing(final int appendCount) {
+        if (appendCount <= 0) {
+            return;
+        }
+        final Range range = chartPanel.getDomainAxis().getRange();
+        Range updatedRange = range;
+        final List<MasterOHLCDataItem> data = getData();
+        //trim only before
+        final int visibleRange = (int) range.getLength();
+        if (data.size() < visibleRange * TRIM_ITEM_COUNT_TRAILING_MILTIPLIER) {
+            return;
+        }
+        final MutableBoolean rangeChanged = new MutableBoolean();
+        final int tooManyBefore = data.size() - (visibleRange * MAX_ITEM_COUNT_TRAILING_MULTIPLIER);
+        if (tooManyBefore > visibleRange) {
+            updatedRange = removeTooManyBefore(range, rangeChanged, data, tooManyBefore);
+        }
+        if (rangeChanged.booleanValue()) {
+            chartPanel.getDomainAxis().setRange(updatedRange);
         }
     }
 
