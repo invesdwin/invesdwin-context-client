@@ -213,10 +213,10 @@ public class AnnotationPlottingDataset extends AbstractXYDataset implements IAnn
     }
 
     @Override
-    public void addOrUpdate(final AAnnotationPlottingDataItem item) {
+    public boolean addOrUpdate(final AAnnotationPlottingDataItem item) {
         if (removedAnnotationIds.contains(item.getAnnotationId())) {
             //ignore obsolete annotation
-            return;
+            return true;
         }
         final long firstLoadedKeyMillis = (long) getXValueAsDateTimeEnd(0, 0);
         final long lastLoadedKeyMillis = (long) getXValueAsDateTimeEnd(0, getItemCount(0) - 1);
@@ -234,6 +234,7 @@ public class AnnotationPlottingDataset extends AbstractXYDataset implements IAnn
                 removedAnnotationIds.clear();
             }
         }
+        return false;
     }
 
     @Override

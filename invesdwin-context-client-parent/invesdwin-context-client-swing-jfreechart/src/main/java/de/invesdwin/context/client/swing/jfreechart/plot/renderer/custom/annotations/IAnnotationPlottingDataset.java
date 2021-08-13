@@ -12,7 +12,10 @@ public interface IAnnotationPlottingDataset extends IPlotSourceDataset, IIndexed
 
     Iterable<String> getAnnotationIds();
 
-    void addOrUpdate(AAnnotationPlottingDataItem item);
+    /**
+     * Returns true if the item was removed due to size limitations
+     */
+    boolean addOrUpdate(AAnnotationPlottingDataItem item);
 
     AAnnotationPlottingDataItem get(String annotationId);
 
