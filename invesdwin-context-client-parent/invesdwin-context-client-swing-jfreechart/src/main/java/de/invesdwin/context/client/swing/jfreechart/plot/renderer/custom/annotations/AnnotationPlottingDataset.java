@@ -3,7 +3,6 @@ package de.invesdwin.context.client.swing.jfreechart.plot.renderer.custom.annota
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
@@ -46,7 +45,8 @@ public class AnnotationPlottingDataset extends AbstractXYDataset implements IAnn
     private DatasetGroup group;
     private String initialPlotPaneId;
     private String rangeAxisId;
-    private final Map<String, AAnnotationPlottingDataItem> annotationId_item = new ConcurrentHashMap<>();
+    private final Map<String, AAnnotationPlottingDataItem> annotationId_item = ILockCollectionFactory.getInstance(true)
+            .newLinkedMap();
     private final Set<String> removedAnnotationIds = ILockCollectionFactory.getInstance(true).newSet();
     private IIndicatorSeriesProvider indicatorSeriesProvider;
     private IExpression[] indicatorSeriesArguments;
