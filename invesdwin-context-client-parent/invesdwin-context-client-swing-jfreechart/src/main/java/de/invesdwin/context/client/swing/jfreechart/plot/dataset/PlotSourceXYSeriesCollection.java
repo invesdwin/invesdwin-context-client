@@ -7,13 +7,13 @@ import javax.annotation.concurrent.NotThreadSafe;
 
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.data.Range;
-import org.jfree.data.general.DatasetUtils;
 import org.jfree.data.xy.XYRangeInfo;
 import org.jfree.data.xy.XYSeries;
 import org.jfree.data.xy.XYSeriesCollection;
 
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.series.expression.IExpressionSeriesProvider;
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.series.indicator.IIndicatorSeriesProvider;
+import de.invesdwin.context.jfreechart.dataset.Datasets;
 import de.invesdwin.context.jfreechart.dataset.ListXYSeriesOHLC;
 import de.invesdwin.context.jfreechart.dataset.MutableXYDataItemOHLC;
 import de.invesdwin.util.assertions.Assertions;
@@ -133,7 +133,7 @@ public class PlotSourceXYSeriesCollection extends XYSeriesCollection implements 
                 return new Range(minimum, maximum);
             }
         } else {
-            return DatasetUtils.iterateToFindRangeBounds(this, visibleSeriesKeys, xRange, includeInterval);
+            return Datasets.iterateToFindRangeBoundsXYIntervalDataset(this, visibleSeriesKeys, xRange, includeInterval);
         }
     }
 

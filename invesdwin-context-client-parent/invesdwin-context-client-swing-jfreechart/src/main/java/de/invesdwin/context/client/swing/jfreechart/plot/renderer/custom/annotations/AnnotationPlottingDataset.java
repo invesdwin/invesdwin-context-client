@@ -17,6 +17,7 @@ import org.jfree.chart.plot.XYPlot;
 import org.jfree.data.Range;
 import org.jfree.data.general.DatasetGroup;
 import org.jfree.data.xy.AbstractXYDataset;
+import org.jfree.data.xy.XYRangeInfo;
 
 import de.invesdwin.context.client.swing.jfreechart.panel.InteractiveChartPanel;
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.series.expression.IExpressionSeriesProvider;
@@ -43,7 +44,7 @@ import de.invesdwin.util.time.date.FDate;
 import de.invesdwin.util.time.range.TimeRange;
 
 @NotThreadSafe
-public class AnnotationPlottingDataset extends AbstractXYDataset implements IAnnotationPlottingDataset {
+public class AnnotationPlottingDataset extends AbstractXYDataset implements IAnnotationPlottingDataset, XYRangeInfo {
 
     public static final int MAX_ANNOTATIONS = 10_000;
     private static final int TRIM_ANNOTATIONS = 12_000;
@@ -196,6 +197,12 @@ public class AnnotationPlottingDataset extends AbstractXYDataset implements IAnn
     @Override
     public double getYValue(final int series, final int item) {
         return masterDataset.getYValue(series, item);
+    }
+
+    @Override
+    public Range getRangeBounds(final List visibleSeriesKeys, final Range xRange, final boolean includeInterval) {
+        //skip this dataset since master is only relevant anyway
+        return null;
     }
 
     @Override

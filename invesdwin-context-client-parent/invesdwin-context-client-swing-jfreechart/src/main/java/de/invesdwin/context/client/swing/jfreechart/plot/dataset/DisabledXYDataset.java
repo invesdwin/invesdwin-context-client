@@ -1,10 +1,14 @@
 package de.invesdwin.context.client.swing.jfreechart.plot.dataset;
 
+import java.util.List;
+
 import javax.annotation.concurrent.Immutable;
 
 import org.jfree.chart.plot.XYPlot;
+import org.jfree.data.Range;
 import org.jfree.data.xy.AbstractXYDataset;
 import org.jfree.data.xy.XYDataset;
+import org.jfree.data.xy.XYRangeInfo;
 
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.series.expression.IExpressionSeriesProvider;
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.series.indicator.IIndicatorSeriesProvider;
@@ -12,7 +16,7 @@ import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.math.expression.IExpression;
 
 @Immutable
-public class DisabledXYDataset extends AbstractXYDataset implements IPlotSourceDataset {
+public class DisabledXYDataset extends AbstractXYDataset implements IPlotSourceDataset, XYRangeInfo {
 
     private final IPlotSourceDataset enabledDataset;
 
@@ -218,6 +222,13 @@ public class DisabledXYDataset extends AbstractXYDataset implements IPlotSourceD
     @Override
     public IndexedDateTimeOHLCDataset getMasterDataset() {
         return enabledDataset.getMasterDataset();
+    }
+
+    @SuppressWarnings("rawtypes")
+    @Override
+    public Range getRangeBounds(final List visibleSeriesKeys, final Range xRange, final boolean includeInterval) {
+        //disabled
+        return null;
     }
 
 }

@@ -16,6 +16,7 @@ import org.jfree.chart.plot.XYPlot;
 import org.jfree.data.Range;
 import org.jfree.data.general.DatasetGroup;
 import org.jfree.data.xy.AbstractXYDataset;
+import org.jfree.data.xy.XYRangeInfo;
 
 import de.invesdwin.context.client.swing.jfreechart.panel.InteractiveChartPanel;
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.series.expression.IExpressionSeriesProvider;
@@ -44,7 +45,8 @@ import de.invesdwin.util.time.date.FDate;
 import de.invesdwin.util.time.range.TimeRange;
 
 @NotThreadSafe
-public class OrderPlottingDataset extends AbstractXYDataset implements IPlotSourceDataset, IIndexedDateTimeXYDataset {
+public class OrderPlottingDataset extends AbstractXYDataset
+        implements IPlotSourceDataset, IIndexedDateTimeXYDataset, XYRangeInfo {
 
     public static final int MAX_ORDERS = 10_000;
     private static final int TRIM_ORDERS = 12_000;
@@ -194,6 +196,12 @@ public class OrderPlottingDataset extends AbstractXYDataset implements IPlotSour
     @Override
     public double getYValue(final int series, final int item) {
         return masterDataset.getYValue(series, item);
+    }
+
+    @Override
+    public Range getRangeBounds(final List visibleSeriesKeys, final Range xRange, final boolean includeInterval) {
+        //skip this dataset since master is only relevant anyway
+        return null;
     }
 
     @Override
