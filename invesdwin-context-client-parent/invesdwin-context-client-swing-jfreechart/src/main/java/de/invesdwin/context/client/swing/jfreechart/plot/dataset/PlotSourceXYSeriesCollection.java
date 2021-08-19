@@ -133,7 +133,7 @@ public class PlotSourceXYSeriesCollection extends XYSeriesCollection implements 
                 return new Range(minimum, maximum);
             }
         } else {
-            return Datasets.iterateToFindRangeBoundsXYIntervalDataset(this, visibleSeriesKeys, xRange, includeInterval);
+            return Datasets.iterateToFindRangeBoundsIntervalXYDataset(this, visibleSeriesKeys, xRange, includeInterval);
         }
     }
 
