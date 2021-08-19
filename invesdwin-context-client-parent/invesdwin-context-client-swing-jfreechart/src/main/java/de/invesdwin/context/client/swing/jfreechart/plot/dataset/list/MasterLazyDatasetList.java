@@ -743,7 +743,12 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
             }
             maxUpperBound = data.size() - 1;
 
-            maybeTrimDataRangeTrailing(appendCount);
+            /*
+             * we don't have to trim the dataset since Datasets.iterateToFindRangeBounds is fast enough with large
+             * datasets, though DataSet implementations have to implement the XYRangeInfo interface and use Datasets to
+             * dermine the range faster than AbstractXYDataset.
+             */
+            //            maybeTrimDataRangeTrailing(appendCount);
 
             return true;
         } else {
