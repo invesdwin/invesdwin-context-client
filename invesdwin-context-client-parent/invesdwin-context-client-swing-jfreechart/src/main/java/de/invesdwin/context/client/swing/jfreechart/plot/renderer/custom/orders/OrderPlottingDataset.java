@@ -318,10 +318,6 @@ public class OrderPlottingDataset extends AbstractXYDataset
                 WrapperCloseableIterable.maybeWrap(tail)) {
             @Override
             protected OrderPlottingDataItem transform(final OrderItem value) {
-                final OrderItem existing = orderId_item.get(value.getOrderId());
-                if (existing != value) {
-                    throw new IllegalStateException("existing [" + existing + "] != value [" + value + "]");
-                }
                 return value.getOrder();
             }
         };
