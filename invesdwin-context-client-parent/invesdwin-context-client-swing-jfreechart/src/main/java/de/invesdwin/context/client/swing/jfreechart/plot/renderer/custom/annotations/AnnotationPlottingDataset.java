@@ -249,16 +249,18 @@ public class AnnotationPlottingDataset extends AbstractXYDataset implements IAnn
                 annotation.getAnnotationId(), annotation);
         itemsLock.lock();
         try {
-            final AnnotationItem existing = annotationId_item.put(annotation.getAnnotationId(), item);
+            final AnnotationItem existing = annotationId_item.get(annotation.getAnnotationId());
             if (existing != null) {
                 if (existing.endTimeMillis == item.endTimeMillis) {
                     existing.setAnnotation(annotation);
                 } else {
                     items.remove(existing);
                     items.add(item);
+                    annotationId_item.put(annotation.getAnnotationId(), item);
                 }
             } else {
                 items.add(item);
+                annotationId_item.put(annotation.getAnnotationId(), item);
             }
             if (items.size() > TRIM_ANNOTATIONS) {
                 final Iterator<AnnotationItem> iterator = items.iterator();

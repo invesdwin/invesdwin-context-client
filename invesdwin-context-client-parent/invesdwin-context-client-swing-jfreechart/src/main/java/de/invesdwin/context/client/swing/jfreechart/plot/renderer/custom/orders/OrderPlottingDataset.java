@@ -247,16 +247,18 @@ public class OrderPlottingDataset extends AbstractXYDataset
         final OrderItem item = new OrderItem(closeTime.millisValue(), order.getOrderId(), order);
         itemsLock.lock();
         try {
-            final OrderItem existing = orderId_item.put(order.getOrderId(), item);
+            final OrderItem existing = orderId_item.get(order.getOrderId());
             if (existing != null) {
                 if (existing.endTimeMillis == item.endTimeMillis) {
                     existing.setOrder(order);
                 } else {
                     items.remove(existing);
                     items.add(item);
+                    orderId_item.put(order.getOrderId(), item);
                 }
             } else {
                 items.add(item);
+                orderId_item.put(order.getOrderId(), item);
             }
             if (items.size() > TRIM_ORDERS) {
                 final Iterator<OrderItem> iterator = items.iterator();
@@ -316,6 +318,10 @@ public class OrderPlottingDataset extends AbstractXYDataset
                 WrapperCloseableIterable.maybeWrap(tail)) {
             @Override
             protected OrderPlottingDataItem transform(final OrderItem value) {
+                final OrderItem existing = orderId_item.get(value.getOrderId());
+                if (existing != value) {
+                    throw new IllegalStateException("existing [" + existing + "] != value [" + value + "]");
+                }
                 return value.getOrder();
             }
         };
