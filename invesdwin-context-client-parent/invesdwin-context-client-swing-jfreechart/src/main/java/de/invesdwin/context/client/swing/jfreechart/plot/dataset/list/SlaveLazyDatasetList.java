@@ -104,7 +104,7 @@ public class SlaveLazyDatasetList extends ALazyDatasetList<SlaveXYDataItemOHLC> 
                 public void run() {
                     try {
                         final List<SlaveXYDataItemOHLC> data = getData();
-                        for (int i = 0; i < master.size(); i++) {
+                        for (int i = 0; i < master.size() && i < data.size(); i++) {
                             final MasterOHLCDataItem masterItem = master.get(i);
                             final FDate key = masterItem.getEndTime();
                             final SlaveXYDataItemOHLC slaveItem = data.get(i);
