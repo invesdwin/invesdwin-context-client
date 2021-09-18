@@ -113,7 +113,7 @@ public class BindingGroup implements IComponentBinding {
 
     @Override
     public void submit() {
-        final IComponentBinding[] array = bindings.asArray(IComponentBinding.class);
+        final IComponentBinding[] array = bindings.asArray(IComponentBinding.EMPTY_ARRAY);
         for (int i = 0; i < array.length; i++) {
             array[i].submit();
         }
@@ -139,7 +139,7 @@ public class BindingGroup implements IComponentBinding {
                 }
             }
         }
-        final IComponentBinding[] array = bindings.asArray(IComponentBinding.class);
+        final IComponentBinding[] array = bindings.asArray(IComponentBinding.EMPTY_ARRAY);
         for (int i = 0; i < array.length; i++) {
             final String invalidMessage = array[i].validate();
             if (Strings.isNotBlank(invalidMessage)) {
@@ -170,7 +170,7 @@ public class BindingGroup implements IComponentBinding {
 
     @Override
     public void commit() {
-        final IComponentBinding[] array = bindings.asArray(IComponentBinding.class);
+        final IComponentBinding[] array = bindings.asArray(IComponentBinding.EMPTY_ARRAY);
         for (int i = 0; i < array.length; i++) {
             array[i].commit();
         }
@@ -178,7 +178,7 @@ public class BindingGroup implements IComponentBinding {
 
     @Override
     public void rollback() {
-        final IComponentBinding[] array = bindings.asArray(IComponentBinding.class);
+        final IComponentBinding[] array = bindings.asArray(IComponentBinding.EMPTY_ARRAY);
         for (int i = 0; i < array.length; i++) {
             array[i].rollback();
         }
@@ -186,7 +186,7 @@ public class BindingGroup implements IComponentBinding {
 
     @Override
     public void update() {
-        final IComponentBinding[] array = bindings.asArray(IComponentBinding.class);
+        final IComponentBinding[] array = bindings.asArray(IComponentBinding.EMPTY_ARRAY);
         for (int i = 0; i < array.length; i++) {
             array[i].update();
         }

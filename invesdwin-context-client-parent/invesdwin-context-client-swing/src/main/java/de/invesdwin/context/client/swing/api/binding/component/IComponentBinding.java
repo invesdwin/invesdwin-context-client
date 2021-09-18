@@ -2,6 +2,8 @@ package de.invesdwin.context.client.swing.api.binding.component;
 
 public interface IComponentBinding {
 
+    IComponentBinding[] EMPTY_ARRAY = new IComponentBinding[0];
+
     String getBeanPath();
 
     /**

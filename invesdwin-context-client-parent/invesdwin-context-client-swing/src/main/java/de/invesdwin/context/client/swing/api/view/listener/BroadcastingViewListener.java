@@ -22,7 +22,7 @@ public class BroadcastingViewListener implements IViewListener, Cloneable {
 
     @Override
     public void onOpen() {
-        final IViewListener[] array = listeners.asArray(IViewListener.class);
+        final IViewListener[] array = listeners.asArray(IViewListener.EMPTY_ARRAY);
         for (int i = 0; i < array.length; i++) {
             array[i].onOpen();
         }
@@ -30,7 +30,7 @@ public class BroadcastingViewListener implements IViewListener, Cloneable {
 
     @Override
     public void onClose() {
-        final IViewListener[] array = listeners.asArray(IViewListener.class);
+        final IViewListener[] array = listeners.asArray(IViewListener.EMPTY_ARRAY);
         for (int i = 0; i < array.length; i++) {
             array[i].onClose();
         }
@@ -38,7 +38,7 @@ public class BroadcastingViewListener implements IViewListener, Cloneable {
 
     @Override
     public void onShowing() {
-        final IViewListener[] array = listeners.asArray(IViewListener.class);
+        final IViewListener[] array = listeners.asArray(IViewListener.EMPTY_ARRAY);
         for (int i = 0; i < array.length; i++) {
             array[i].onShowing();
         }

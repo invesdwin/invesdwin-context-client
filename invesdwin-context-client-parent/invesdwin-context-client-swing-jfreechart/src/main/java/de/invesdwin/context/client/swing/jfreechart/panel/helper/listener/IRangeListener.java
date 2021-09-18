@@ -5,6 +5,8 @@ import org.jfree.data.Range;
 
 public interface IRangeListener {
 
+    IRangeListener[] EMPTY_ARRAY = new IRangeListener[0];
+
     Range beforeLimitRange(Range range, MutableBoolean rangeChanged);
 
     Range afterLimitRange(Range range, MutableBoolean rangeChanged);

@@ -225,7 +225,7 @@ public class PlotZoomHelper {
         Range range = domainAxis.getRange();
         final MutableBoolean rangeChanged = new MutableBoolean(false);
         if (!rangeListeners.isEmpty()) {
-            final IRangeListener[] array = rangeListeners.asArray(IRangeListener.class);
+            final IRangeListener[] array = rangeListeners.asArray(IRangeListener.EMPTY_ARRAY);
             for (int i = 0; i < array.length; i++) {
                 range = array[i].beforeLimitRange(range, rangeChanged);
             }
@@ -253,7 +253,7 @@ public class PlotZoomHelper {
         }
         range = limitRangeZoom(range, rangeChanged, minLowerBound, maxUpperBound);
         if (!rangeListeners.isEmpty()) {
-            final IRangeListener[] array = rangeListeners.asArray(IRangeListener.class);
+            final IRangeListener[] array = rangeListeners.asArray(IRangeListener.EMPTY_ARRAY);
             for (int i = 0; i < array.length; i++) {
                 range = array[i].afterLimitRange(range, rangeChanged);
             }

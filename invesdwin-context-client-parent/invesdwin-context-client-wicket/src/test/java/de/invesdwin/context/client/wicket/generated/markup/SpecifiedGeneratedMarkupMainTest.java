@@ -9,6 +9,7 @@ import org.junit.Test;
 
 import de.invesdwin.context.test.ATest;
 import de.invesdwin.nowicket.generated.markup.SpecifiedGeneratedMarkupMain;
+import de.invesdwin.util.lang.Strings;
 
 @NotThreadSafe
 public class SpecifiedGeneratedMarkupMainTest extends ATest {
@@ -21,6 +22,6 @@ public class SpecifiedGeneratedMarkupMainTest extends ATest {
         }
         params.add("-d");
         params.add(SpecifiedGeneratedMarkupTest.DESTINATION.getPath());
-        SpecifiedGeneratedMarkupMain.main(params.toArray(new String[0]));
+        SpecifiedGeneratedMarkupMain.main(params.toArray(Strings.EMPTY_ARRAY));
     }
 }
