@@ -224,11 +224,12 @@ public class CustomOrderPlottingRenderer extends AbstractXYItemRenderer
             final XYPlot plot, final ValueAxis domainAxis, final OrderPlottingDataset cDataset, final int rendererIndex,
             final NumberAxis cRangeAxis, final Map<Integer, List<String>> index_notes) {
         //CHECKSTYLE:ON
-        final Map<Integer, XYNoteIconAnnotation> newMap = new TreeMap<>(Integers.COMPARATOR.asDescending());
+        final Map<Integer, XYNoteIconAnnotation> newMap = new TreeMap<>(
+                Integers.COMPARATOR.asDescending().asNotNullSafe());
         for (final Entry<Integer, List<String>> entry : index_notes.entrySet()) {
             final int noteIndex = entry.getKey();
             final List<String> notes = entry.getValue();
-            Strings.COMPARATOR.asAscending().sort(notes);
+            Strings.COMPARATOR.asAscending().asNotNullSafe().sort(notes);
 
             int countProfit = 0;
             int countLoss = 0;
