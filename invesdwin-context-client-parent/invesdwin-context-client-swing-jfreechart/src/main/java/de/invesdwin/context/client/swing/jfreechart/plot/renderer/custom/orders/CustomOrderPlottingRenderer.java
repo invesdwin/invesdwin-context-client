@@ -77,7 +77,7 @@ public class CustomOrderPlottingRenderer extends AbstractXYItemRenderer
     private ImageIcon noteBothIcon;
 
     private Map<Integer, XYNoteIconAnnotation> noteIndex_noteAnnotation = new TreeMap<>(
-            Integers.COMPARATOR.asDescending());
+            Integers.COMPARATOR.asDescending().asNotNullSafe());
 
     public CustomOrderPlottingRenderer(final PlotConfigurationHelper plotConfigurationHelper,
             final OrderPlottingDataset dataset) {
@@ -228,7 +228,7 @@ public class CustomOrderPlottingRenderer extends AbstractXYItemRenderer
         for (final Entry<Integer, List<String>> entry : index_notes.entrySet()) {
             final int noteIndex = entry.getKey();
             final List<String> notes = entry.getValue();
-            Strings.COMPARATOR.sortAscending(notes);
+            Strings.COMPARATOR.asAscending().sort(notes);
 
             int countProfit = 0;
             int countLoss = 0;

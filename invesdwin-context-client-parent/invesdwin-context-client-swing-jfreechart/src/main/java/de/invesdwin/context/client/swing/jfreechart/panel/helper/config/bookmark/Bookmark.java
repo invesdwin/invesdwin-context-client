@@ -2,16 +2,17 @@ package de.invesdwin.context.client.swing.jfreechart.panel.helper.config.bookmar
 
 import javax.annotation.concurrent.NotThreadSafe;
 
-import de.invesdwin.util.lang.ADelegateComparator;
+import de.invesdwin.util.lang.comparator.ACriteriaComparator;
+import de.invesdwin.util.lang.comparator.IComparator;
 import de.invesdwin.util.time.date.FDate;
 import de.invesdwin.util.time.range.TimeRange;
 
 @NotThreadSafe
 public class Bookmark extends TimeRange {
 
-    public static final ADelegateComparator<Bookmark> COMPARATOR = new ADelegateComparator<Bookmark>() {
+    public static final IComparator<Bookmark> COMPARATOR = new ACriteriaComparator<Bookmark>() {
         @Override
-        protected Comparable<?> getCompareCriteria(final Bookmark e) {
+        public Comparable<?> getCompareCriteriaNotNullSafe(final Bookmark e) {
             return e.getLastUsed();
         }
     };
