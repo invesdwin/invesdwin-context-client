@@ -92,10 +92,12 @@ public class IndexedDateTimeNumberFormat extends NumberFormat {
             format = millisecondFormat;
         } else if (duration.isLessThan(SECOND_THRESHOLD) && FDates.isSameMinute(date, prevDate)) {
             format = secondFormat;
-        } else if (duration.isLessThan(MINUTE_THRESHOLD) && FDates.isSameDay(date, prevDate)) {
+        } else if (duration.isLessThan(MINUTE_THRESHOLD) && FDates.isSameJulianDay(date, prevDate)) {
             format = minuteFormat;
-        } else {
+        } else if (date.isWithoutTime()) {
             format = dateFormat;
+        } else {
+            format = minuteFormat;
         }
         return format.format(date.dateValue());
     }
