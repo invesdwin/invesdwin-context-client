@@ -23,7 +23,7 @@ public class RedirectedModelPage extends ASampleWebPage {
                 if ("multiFileDownload".equals(e.getWicketId())) {
                     final ModelDownloadLink downloadLink = new ModelDownloadLink((AnchorHtmlElement) e);
                     downloadLink.setDeleteAfterDownload(true);
-                    downloadLink.setCacheDuration(org.apache.wicket.util.time.Duration.NONE);
+                    downloadLink.setCacheDuration(java.time.Duration.ZERO);
                     return downloadLink;
                 }
                 return super.create(e);
