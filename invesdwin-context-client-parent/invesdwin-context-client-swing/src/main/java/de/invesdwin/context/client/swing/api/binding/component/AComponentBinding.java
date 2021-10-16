@@ -306,7 +306,7 @@ public abstract class AComponentBinding<C extends JComponent, V> implements ICom
     }
 
     protected Object getTarget() {
-        final BeanClassContainer container = (BeanClassContainer) element.getContainer();
+        final BeanClassContainer container = element.getContainer().unwrap(BeanClassContainer.class);
         return container.getTargetFromRoot(getRoot());
     }
 

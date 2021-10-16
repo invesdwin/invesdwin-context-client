@@ -227,7 +227,7 @@ public class SubmitButtonBinding implements IComponentBinding {
     }
 
     protected Object getTarget() {
-        final BeanClassContainer container = (BeanClassContainer) element.getContainer();
+        final BeanClassContainer container = element.getContainer().unwrap(BeanClassContainer.class);
         return container.getTargetFromRoot(getRoot());
     }
 
