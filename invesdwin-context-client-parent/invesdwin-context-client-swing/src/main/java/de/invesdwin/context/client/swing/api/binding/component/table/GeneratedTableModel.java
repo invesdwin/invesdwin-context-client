@@ -9,8 +9,8 @@ import javax.swing.table.AbstractTableModel;
 import org.apache.commons.lang3.BooleanUtils;
 
 import de.invesdwin.context.client.swing.api.binding.BindingGroup;
+import de.invesdwin.norva.beanpath.impl.clazz.BeanClassContainer;
 import de.invesdwin.norva.beanpath.impl.clazz.BeanClassType;
-import de.invesdwin.norva.beanpath.impl.object.BeanObjectContainer;
 import de.invesdwin.norva.beanpath.spi.element.APropertyBeanPathElement;
 import de.invesdwin.norva.beanpath.spi.element.simple.modifier.SelectionBeanPathPropertyModifier;
 import de.invesdwin.norva.beanpath.spi.element.table.ATableBeanPathElement;
@@ -158,8 +158,8 @@ public class GeneratedTableModel extends AbstractTableModel {
     }
 
     protected Object getTarget() {
-        final BeanObjectContainer container = (BeanObjectContainer) element.getContainer();
-        return container.getObject();
+        final BeanClassContainer container = (BeanClassContainer) element.getContainer();
+        return container.getObjectFromRoot(bindingGroup.getModel());
     }
 
     @Override
