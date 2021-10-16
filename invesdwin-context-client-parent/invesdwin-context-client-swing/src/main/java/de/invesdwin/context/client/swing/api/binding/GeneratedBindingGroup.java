@@ -34,10 +34,9 @@ import de.invesdwin.context.client.swing.api.view.AModel;
 import de.invesdwin.context.client.swing.api.view.AView;
 import de.invesdwin.context.client.swing.util.NamedModelComponentFinder;
 import de.invesdwin.context.client.swing.util.Views;
-import de.invesdwin.norva.beanpath.impl.object.BeanObjectContainer;
-import de.invesdwin.norva.beanpath.impl.object.BeanObjectContext;
-import de.invesdwin.norva.beanpath.impl.object.BeanObjectProcessor;
-import de.invesdwin.norva.beanpath.impl.object.IRootObjectReference;
+import de.invesdwin.norva.beanpath.impl.clazz.BeanClassContext;
+import de.invesdwin.norva.beanpath.impl.clazz.BeanClassProcessor;
+import de.invesdwin.norva.beanpath.impl.clazz.BeanClassProcessorConfig;
 import de.invesdwin.norva.beanpath.spi.BeanPathUtil;
 import de.invesdwin.norva.beanpath.spi.element.AActionBeanPathElement;
 import de.invesdwin.norva.beanpath.spi.element.AChoiceBeanPathElement;
@@ -94,18 +93,8 @@ public final class GeneratedBindingGroup {
     }
 
     public BindingGroup bind() {
-        final BeanObjectContext context = new BeanObjectContext(new BeanObjectContainer(new IRootObjectReference() {
-            @Override
-            public Object getRootObject() {
-                return view.getModel();
-            }
-        })) {
-            @Override
-            public boolean getDefaultEager() {
-                return true;
-            }
-        };
-        new BeanObjectProcessor(context).process();
+        final BeanClassContext context = BeanClassProcessor
+                .getContext(BeanClassProcessorConfig.getDefaultEager(view.getModel().getClass()));
 
         bindingGroup = new BindingGroup(view, context, newSubmitButtonExceptionHandler());
 

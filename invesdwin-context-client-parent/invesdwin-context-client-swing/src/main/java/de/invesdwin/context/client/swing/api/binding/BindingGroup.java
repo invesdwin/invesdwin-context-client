@@ -21,7 +21,7 @@ import de.invesdwin.context.client.swing.api.binding.component.button.SubmitButt
 import de.invesdwin.context.client.swing.api.guiservice.GuiService;
 import de.invesdwin.context.client.swing.api.view.AModel;
 import de.invesdwin.context.client.swing.api.view.AView;
-import de.invesdwin.norva.beanpath.impl.object.BeanObjectContext;
+import de.invesdwin.norva.beanpath.impl.clazz.BeanClassContext;
 import de.invesdwin.norva.beanpath.spi.element.AActionBeanPathElement;
 import de.invesdwin.norva.beanpath.spi.element.IBeanPathElement;
 import de.invesdwin.norva.beanpath.spi.element.RootBeanPathElement;
@@ -47,14 +47,14 @@ public class BindingGroup implements IComponentBinding {
     };
 
     private final AView<?, ?> view;
-    private final BeanObjectContext modelContext;
+    private final BeanClassContext modelContext;
     private final ISubmitButtonExceptionHandler submitButtonExceptionHandler;
     private String invalidMessage = null;
     private SubmitButtonBinding defaultCloseOperation;
     private RootTitleBinding rootTitleBinding;
     private volatile boolean submitButtonRunning;
 
-    public BindingGroup(final AView<?, ?> view, final BeanObjectContext modelContext,
+    public BindingGroup(final AView<?, ?> view, final BeanClassContext modelContext,
             final ISubmitButtonExceptionHandler submitButtonExceptionHandler) {
         this.view = view;
         this.modelContext = modelContext;
@@ -69,7 +69,7 @@ public class BindingGroup implements IComponentBinding {
         return view.getModel();
     }
 
-    public BeanObjectContext getModelContext() {
+    public BeanClassContext getModelContext() {
         return modelContext;
     }
 

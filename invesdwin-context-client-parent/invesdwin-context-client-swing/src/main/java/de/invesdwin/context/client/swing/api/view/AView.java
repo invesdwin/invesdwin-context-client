@@ -17,7 +17,7 @@ import de.invesdwin.context.client.swing.util.AViewVisitor;
 import de.invesdwin.context.client.swing.util.ComponentStandardizer;
 import de.invesdwin.context.client.swing.util.Views;
 import de.invesdwin.norva.beanpath.annotation.Hidden;
-import de.invesdwin.norva.beanpath.impl.object.BeanObjectContext;
+import de.invesdwin.norva.beanpath.impl.clazz.BeanClassContext;
 import de.invesdwin.norva.beanpath.spi.element.IBeanPathElement;
 import de.invesdwin.norva.beanpath.spi.element.RootBeanPathElement;
 import de.invesdwin.util.assertions.Assertions;
@@ -133,7 +133,7 @@ public abstract class AView<M extends AModel, C extends JComponent> extends AMod
         String visibleName = null;
         final BindingGroup bindingGroup = getBindingGroup();
         if (bindingGroup != null) {
-            final BeanObjectContext modelContext = bindingGroup.getModelContext();
+            final BeanClassContext modelContext = bindingGroup.getModelContext();
             if (modelContext != null) {
                 final IBeanPathElement rootElement = modelContext.getElementRegistry()
                         .getElement(RootBeanPathElement.ROOT_BEAN_PATH);
