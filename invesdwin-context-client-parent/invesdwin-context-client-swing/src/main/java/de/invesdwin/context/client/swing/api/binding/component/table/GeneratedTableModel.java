@@ -41,7 +41,7 @@ public class GeneratedTableModel extends AbstractTableModel {
             final BindingGroup bindingGroup, final GeneratedTableSelectionModel selectionModel) {
         this.eagerSubmitRunnable = eagerSubmitRunnable;
         this.element = element;
-        this.columns = element.getColumns();
+        this.columns = element.getColumnsFromRoot(bindingGroup.getModel());
         this.bindingGroup = bindingGroup;
         this.selectionModel = selectionModel;
     }
@@ -50,7 +50,7 @@ public class GeneratedTableModel extends AbstractTableModel {
         this.rows = new ArrayList<>(newValues);
         selectionModel.setValueIsFrozen(true);
         try {
-            final List<ITableColumnBeanPathElement> newColumns = element.getColumns();
+            final List<ITableColumnBeanPathElement> newColumns = element.getColumnsFromRoot(bindingGroup.getModel());
             final int newRowCount = rows.size();
             final int newColumnCount = newColumns.size();
             if (!Objects.equals(newColumns, columns)) {

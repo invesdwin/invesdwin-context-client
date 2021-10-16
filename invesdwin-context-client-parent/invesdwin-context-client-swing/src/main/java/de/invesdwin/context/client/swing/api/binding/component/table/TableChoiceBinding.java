@@ -68,7 +68,7 @@ public class TableChoiceBinding extends AComponentBinding<JTable, List<?>> {
 
         //model selection is handled via a special checkbox column
         if (element.getSelectionButtonColumn() != null) {
-            if (element.getColumns().contains(element.getSelectionButtonColumn())) {
+            if (element.getColumnsFromRoot(getBindingGroup().getModel()).contains(element.getSelectionButtonColumn())) {
                 //selection via button column
                 component.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
                 component.setRowSelectionAllowed(false);
