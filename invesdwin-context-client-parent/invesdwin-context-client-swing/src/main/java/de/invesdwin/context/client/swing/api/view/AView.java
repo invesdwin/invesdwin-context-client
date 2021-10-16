@@ -137,7 +137,7 @@ public abstract class AView<M extends AModel, C extends JComponent> extends AMod
             if (modelContext != null) {
                 final IBeanPathElement rootElement = modelContext.getElementRegistry()
                         .getElement(RootBeanPathElement.ROOT_BEAN_PATH);
-                final String title = rootElement.getTitle(bindingGroup.getModel());
+                final String title = rootElement.getTitleFromRoot(bindingGroup.getModel());
                 if (!Objects.equals(title, rootElement.getVisibleName())) {
                     return bindingGroup.i18n(title);
                 } else {

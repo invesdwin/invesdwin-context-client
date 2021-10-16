@@ -201,8 +201,8 @@ public class BindingGroup implements IComponentBinding {
         return RootBeanPathElement.ROOT_BEAN_PATH;
     }
 
-    public String getTitle(final IBeanPathElement element, final Object target) {
-        final String title = element.getTitle(target);
+    public String getTitleFromTarget(final IBeanPathElement element, final Object target) {
+        final String title = element.getTitleFromTarget(target);
         if (title == null) {
             return null;
         }

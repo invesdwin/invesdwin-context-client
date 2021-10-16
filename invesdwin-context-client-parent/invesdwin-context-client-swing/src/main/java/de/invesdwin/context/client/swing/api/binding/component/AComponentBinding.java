@@ -256,24 +256,23 @@ public abstract class AComponentBinding<C extends JComponent, V> implements ICom
         }
         updating = true;
         try {
-            final AModel model = bindingGroup.getModel();
-            final V modelValue = getValueFromRoot(model);
+            final AModel root = getRoot();
+            final V modelValue = getValueFromRoot(root);
             prevModelValue = fromModelToComponent(modelValue);
 
             final Object target = getTarget();
-            setEnabled(element.isEnabled(target));
-            Components.setVisible(component, element.isVisible(target));
-
-            updateValidation(target);
+            setEnabled(element.isEnabledFromTarget(root, target));
+            Components.setVisible(component, element.isVisibleFromTarget(root, target));
+            updateValidation(root);
         } finally {
             updating = false;
         }
     }
 
-    protected void updateValidation(final Object target) {
+    protected void updateValidation(final Object root) {
         if (showingInvalidMessage != null) {
             setBorder(INVALID_MESSAGE_BORDER);
-            String combinedToolTip = bindingGroup.i18n(element.getTooltip(target));
+            String combinedToolTip = bindingGroup.i18n(element.getTooltipFromRoot(root));
             if (Strings.isNotBlank(combinedToolTip)) {
                 combinedToolTip += "\n\n" + showingInvalidMessage;
             } else {
@@ -282,7 +281,7 @@ public abstract class AComponentBinding<C extends JComponent, V> implements ICom
             setToolTipText(combinedToolTip);
         } else {
             setBorder(originalBorder);
-            setToolTipText(bindingGroup.i18n(element.getTooltip(target)));
+            setToolTipText(bindingGroup.i18n(element.getTooltipFromRoot(root)));
         }
     }
 
@@ -302,9 +301,13 @@ public abstract class AComponentBinding<C extends JComponent, V> implements ICom
         return getModifier().getValueFromRoot(model);
     }
 
+    protected AModel getRoot() {
+        return bindingGroup.getModel();
+    }
+
     protected Object getTarget() {
         final BeanClassContainer container = (BeanClassContainer) element.getContainer();
-        return container.getObjectFromRoot(bindingGroup.getModel());
+        return container.getTargetFromRoot(getRoot());
     }
 
     protected boolean isModifiable() {
@@ -329,7 +332,7 @@ public abstract class AComponentBinding<C extends JComponent, V> implements ICom
     }
 
     protected String getTitle() {
-        return bindingGroup.getTitle(element, getTarget());
+        return bindingGroup.getTitleFromTarget(element, getTarget());
     }
 
     public static String surroundTitle(final String title) {

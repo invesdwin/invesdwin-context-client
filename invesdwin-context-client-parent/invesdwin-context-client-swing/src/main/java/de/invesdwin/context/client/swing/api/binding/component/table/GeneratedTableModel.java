@@ -159,12 +159,12 @@ public class GeneratedTableModel extends AbstractTableModel {
 
     protected Object getTarget() {
         final BeanClassContainer container = (BeanClassContainer) element.getContainer();
-        return container.getObjectFromRoot(bindingGroup.getModel());
+        return container.getTargetFromRoot(bindingGroup.getModel());
     }
 
     @Override
     public String getColumnName(final int column) {
-        return bindingGroup.getTitle(columns.get(column), null);
+        return bindingGroup.getTitleFromTarget(columns.get(column), null);
     }
 
     @Override
@@ -220,7 +220,7 @@ public class GeneratedTableModel extends AbstractTableModel {
         final ITableColumnBeanPathElement column = columns.get(columnIndex);
         if (column instanceof APropertyBeanPathElement) {
             final Object row = rows.get(rowIndex);
-            return column.isEnabled(row);
+            return column.isEnabledFromTarget(bindingGroup.getModel(), row);
         } else if (column instanceof TableSelectionButtonColumnBeanPathElement) {
             return true;
         } else if (column instanceof TableButtonColumnBeanPathElement) {
@@ -262,7 +262,7 @@ public class GeneratedTableModel extends AbstractTableModel {
     public String getTooltipAt(final int rowIndex, final int columnIndex) {
         final ITableColumnBeanPathElement column = columns.get(columnIndex);
         final Object row = rows.get(rowIndex);
-        return bindingGroup.i18n(column.getTooltip(row));
+        return bindingGroup.i18n(column.getTooltipFromTarget(bindingGroup.getModel(), row));
     }
 
 }

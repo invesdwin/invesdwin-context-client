@@ -15,7 +15,6 @@ import de.invesdwin.context.client.swing.api.binding.BindingGroup;
 import de.invesdwin.context.client.swing.api.binding.component.AComponentBinding;
 import de.invesdwin.context.client.swing.api.binding.component.IComponentBinding;
 import de.invesdwin.context.client.swing.api.guiservice.GuiService;
-import de.invesdwin.context.client.swing.api.view.AModel;
 import de.invesdwin.context.client.swing.api.view.AView;
 import de.invesdwin.context.client.swing.util.SubmitAllViewsHelper;
 import de.invesdwin.norva.beanpath.impl.clazz.BeanClassContainer;
@@ -119,8 +118,8 @@ public class SubmitButtonBinding implements IComponentBinding {
 
     private void invoke() {
         try {
-            final AModel model = bindingGroup.getModel();
-            final Object result = element.getInvoker().invokeFromRoot(model);
+            final Object root = getRoot();
+            final Object result = element.getInvoker().invokeFromRoot(root);
             processResult(result);
         } catch (final UndeclaredThrowableException e) {
             handleButtonException(component, e.getUndeclaredThrowable());
@@ -205,14 +204,15 @@ public class SubmitButtonBinding implements IComponentBinding {
 
     @Override
     public void update() {
+        final Object root = getRoot();
         final Object target = getTarget();
-        final String title = bindingGroup.getTitle(element, target);
+        final String title = bindingGroup.getTitleFromTarget(element, target);
         Components.setText(component, title);
-        Components.setEnabled(component, element.isEnabled(target));
-        Components.setVisible(component, element.isVisible(target));
+        Components.setEnabled(component, element.isEnabledFromTarget(root, target));
+        Components.setVisible(component, element.isVisibleFromTarget(root, target));
         if (showingInvalidMessage != null) {
             Components.setBorder(component, AComponentBinding.INVALID_MESSAGE_BORDER);
-            String combinedTooltip = bindingGroup.i18n(element.getTooltip(target));
+            String combinedTooltip = bindingGroup.i18n(element.getTooltipFromTarget(root, target));
             if (Strings.isNotBlank(combinedTooltip)) {
                 combinedTooltip += "\n\n" + showingInvalidMessage;
             } else {
@@ -221,14 +221,18 @@ public class SubmitButtonBinding implements IComponentBinding {
             Components.setToolTipText(component, combinedTooltip, mouseEnteredListener.isMouseEntered());
         } else {
             Components.setBorder(component, originalBorder);
-            Components.setToolTipText(component, bindingGroup.i18n(element.getTooltip(target)),
+            Components.setToolTipText(component, bindingGroup.i18n(element.getTooltipFromTarget(root, target)),
                     mouseEnteredListener.isMouseEntered());
         }
     }
 
     protected Object getTarget() {
         final BeanClassContainer container = (BeanClassContainer) element.getContainer();
-        return container.getObjectFromRoot(bindingGroup.getModel());
+        return container.getTargetFromRoot(getRoot());
+    }
+
+    protected Object getRoot() {
+        return bindingGroup.getModel();
     }
 
     public boolean isDefaultCloseOperation() {
