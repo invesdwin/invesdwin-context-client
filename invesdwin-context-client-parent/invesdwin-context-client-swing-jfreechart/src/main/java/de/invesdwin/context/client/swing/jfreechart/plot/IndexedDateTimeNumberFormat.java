@@ -49,10 +49,10 @@ public class IndexedDateTimeNumberFormat extends NumberFormat {
     }
 
     private String formatItem(final int item) {
-        final long prevEndTime = (long) dataset.getXValueAsDateTimeEnd(0, item - 1);
-        final long endTime = (long) dataset.getXValueAsDateTimeEnd(0, item);
-        final String endTimeStr = formatTime(prevEndTime, endTime);
-        return endTimeStr;
+        final long prevStartTime = (long) dataset.getXValueAsDateTimeStart(0, item - 1);
+        final long startTime = (long) dataset.getXValueAsDateTimeStart(0, item);
+        final String startTimeStr = formatTime(prevStartTime, startTime);
+        return startTimeStr;
     }
 
     @Override
