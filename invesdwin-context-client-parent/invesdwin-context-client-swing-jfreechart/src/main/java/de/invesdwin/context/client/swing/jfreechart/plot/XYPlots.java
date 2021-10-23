@@ -203,7 +203,7 @@ public final class XYPlots {
         }
     }
 
-    private static void addMarker(final XYPlot plot, final int index, final ValueMarker marker, final Layer layer,
+    public static void addMarker(final XYPlot plot, final int index, final ValueMarker marker, final Layer layer,
             final double value, final boolean notify) {
         if (Doubles.isNaN(marker.getValue())) {
             marker.setValue(value);
@@ -213,7 +213,7 @@ public final class XYPlots {
         }
     }
 
-    private static void removeMarker(final XYPlot plot, final int index, final ValueMarker marker, final Layer layer,
+    public static void removeMarker(final XYPlot plot, final int index, final ValueMarker marker, final Layer layer,
             final boolean notify) {
         if (plot.removeDomainMarker(index, marker, layer, notify)) {
             marker.setValue(Double.NaN);
