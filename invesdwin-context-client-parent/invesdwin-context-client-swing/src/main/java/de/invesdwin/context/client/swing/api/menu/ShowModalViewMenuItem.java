@@ -134,11 +134,11 @@ public class ShowModalViewMenuItem extends JMenuItem {
         return GeneratedBindingGroup.newDefaultSubmitButtonExceptionHandler();
     }
 
-    public ShowModalViewMenuItem withCaching() {
-        return withCaching(true);
+    public ShowModalViewMenuItem setCaching() {
+        return setCaching(true);
     }
 
-    public ShowModalViewMenuItem withCaching(final boolean caching) {
+    public ShowModalViewMenuItem setCaching(final boolean caching) {
         this.caching = caching;
         return this;
     }

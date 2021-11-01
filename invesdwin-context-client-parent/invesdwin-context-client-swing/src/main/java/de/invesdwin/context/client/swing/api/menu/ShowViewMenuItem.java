@@ -135,11 +135,11 @@ public class ShowViewMenuItem extends JMenuItem {
         return GeneratedBindingGroup.newDefaultSubmitButtonExceptionHandler();
     }
 
-    public ShowViewMenuItem withCaching() {
-        return withCaching(true);
+    public ShowViewMenuItem setCaching() {
+        return setCaching(true);
     }
 
-    public ShowViewMenuItem withCaching(final boolean caching) {
+    public ShowViewMenuItem setCaching(final boolean caching) {
         if (cachedViewInstance != null) {
             //ignore change
             return this;
