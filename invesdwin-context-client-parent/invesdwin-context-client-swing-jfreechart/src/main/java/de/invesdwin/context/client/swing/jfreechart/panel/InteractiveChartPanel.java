@@ -699,7 +699,7 @@ public class InteractiveChartPanel extends JPanel {
         private InteractiveChartPanelFinalizer() {
             this.executorUpdateLimit = Executors
                     .newFixedThreadPool(InteractiveChartPanel.class.getSimpleName() + "_UPDATE_LIMIT", 1)
-                    .withDynamicThreadName(false);
+                    .setDynamicThreadName(false);
         }
 
         @Override

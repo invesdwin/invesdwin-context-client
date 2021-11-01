@@ -38,7 +38,7 @@ public final class ValidatingExpressionData {
     public static final int TOOLTIP_WORD_WRAP_LIMIT = 120;
     public static final ToolTipFormatter SPACED_TOOLTIP_FORMATTER = Components.getDefaultToolTipFormatter()
             .clone()
-            .withLineBreaks(ArrayUtils.addAll(new String[] { "<br>  " },
+            .setLineBreaks(ArrayUtils.addAll(new String[] { "<br>  " },
                     Components.getDefaultToolTipFormatter().getLineBreaks()));
     private static final String CLIENT_PROP = ValidatingExpressionData.class.getSimpleName();
 

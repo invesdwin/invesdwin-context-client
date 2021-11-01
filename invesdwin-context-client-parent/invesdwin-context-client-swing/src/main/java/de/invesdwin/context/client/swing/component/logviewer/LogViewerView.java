@@ -79,7 +79,7 @@ public class LogViewerView extends AView<LogViewerView, JPanel> {
         if (scheduledExecutor == null) {
             //reduce cpu load by using max 1 thread
             scheduledExecutor = Executors.newScheduledThreadPool(LogViewerView.class.getSimpleName() + "_SCHEDULER", 1)
-                    .withDynamicThreadName(false);
+                    .setDynamicThreadName(false);
         }
         return scheduledExecutor;
     }

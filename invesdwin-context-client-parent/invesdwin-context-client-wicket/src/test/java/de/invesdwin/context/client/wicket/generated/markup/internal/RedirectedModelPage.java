@@ -16,7 +16,7 @@ public class RedirectedModelPage extends ASampleWebPage {
 
     public RedirectedModelPage(final RedirectedModel model) {
         super(Model.of(model));
-        new GeneratedBinding(this).withBindingInterceptor(new BindingInterceptor() {
+        new GeneratedBinding(this).addBindingInterceptor(new BindingInterceptor() {
             @Override
             protected Component create(final IHtmlElement<?, ?> e) {
                 //see http://stackoverflow.com/questions/7646270/how-to-use-wickets-downloadlink-with-a-file-generated-on-the-fly

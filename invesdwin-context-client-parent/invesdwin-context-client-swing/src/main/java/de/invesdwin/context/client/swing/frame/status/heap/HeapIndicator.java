@@ -88,9 +88,9 @@ public class HeapIndicator extends JProgressBar {
 
     private String toGigaBytes(final ByteSize byteSize) {
         return byteSize.toStringBuilder()
-                .withScale(ByteSizeScale.GIGABYTES)
-                .withDecimalDigits(1)
-                .withSymbol(true)
+                .setScale(ByteSizeScale.GIGABYTES)
+                .setDecimalDigits(1)
+                .setSymbol(true)
                 .toString();
     }
 }

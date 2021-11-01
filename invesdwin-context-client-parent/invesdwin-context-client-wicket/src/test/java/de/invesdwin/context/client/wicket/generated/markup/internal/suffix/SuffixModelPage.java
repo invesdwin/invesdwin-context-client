@@ -19,7 +19,7 @@ public class SuffixModelPage extends ASampleWebPage {
 
     public SuffixModelPage(final SuffixModelSuffix model) {
         super(Model.of(model));
-        new GeneratedBinding(this).withBindingInterceptor(new BindingInterceptor() {
+        new GeneratedBinding(this).addBindingInterceptor(new BindingInterceptor() {
             @Override
             protected Component create(final IHtmlElement<?, ?> e) {
                 if ("suffixPanel".equals(e.getWicketId())) {

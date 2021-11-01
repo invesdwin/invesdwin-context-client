@@ -13,7 +13,7 @@ public final class DefaultTaskService extends TaskService {
 
     public DefaultTaskService() {
         super(TaskService.DEFAULT_NAME,
-                Executors.newCachedThreadPool(DefaultTaskService.class.getSimpleName()).withDynamicThreadName(false));
+                Executors.newCachedThreadPool(DefaultTaskService.class.getSimpleName()).setDynamicThreadName(false));
     }
 
 }
