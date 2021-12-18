@@ -3,7 +3,7 @@ package de.invesdwin.context.client.wicket.internal;
 import javax.annotation.concurrent.NotThreadSafe;
 
 import org.apache.wicket.util.tester.WicketTester;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import de.invesdwin.context.client.wicket.test.WebApplicationStub;
 import de.invesdwin.context.test.ATest;

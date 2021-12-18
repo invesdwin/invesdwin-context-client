@@ -29,8 +29,8 @@ import org.apache.http.impl.auth.SPNegoSchemeFactory;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.security.kerberos.client.config.SunJaasKrb5LoginConfig;
 
@@ -97,7 +97,7 @@ public class KerberosLoginTest extends ATest {
     }
 
     @Test
-    @Ignore("does not seem to work properly with apacheds; works fine with MIT Kerberos")
+    @Disabled("does not seem to work properly with apacheds; works fine with MIT Kerberos")
     public void testKerberosRestTemplate() throws Exception {
         //with keytab
         final String responseFromKeytab = new ProxyEnabledKerberosRestTemplate(keytab, PRINCIPAL).getForObject(
@@ -115,7 +115,7 @@ public class KerberosLoginTest extends ATest {
      */
     @SuppressWarnings("deprecation")
     @Test
-    @Ignore("does not seem to work")
+    @Disabled("does not seem to work")
     public void testKerberosHttpClient() throws Exception {
         // Depending on your AD configuration, this file is not needed
         final File krb5Config = createKrb5Configuration("INVESDWIN.DE",
