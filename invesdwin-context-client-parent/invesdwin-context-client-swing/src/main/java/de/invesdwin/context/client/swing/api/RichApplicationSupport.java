@@ -50,7 +50,7 @@ public class RichApplicationSupport implements IRichApplication {
     }
 
     @Override
-    public IMenuBarConfig getMenuBarConfig() {
+    public IMenuBarConfig newMenuBarConfig() {
         return null;
     }
 

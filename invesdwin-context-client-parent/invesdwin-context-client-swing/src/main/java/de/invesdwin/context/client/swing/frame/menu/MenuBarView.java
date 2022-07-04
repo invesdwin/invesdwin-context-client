@@ -10,6 +10,7 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JSeparator;
+import javax.swing.event.PopupMenuEvent;
 
 import org.jdesktop.application.Action;
 import org.jdesktop.application.ResourceMap;
@@ -21,6 +22,7 @@ import de.invesdwin.context.client.swing.api.menu.MenuBarConfigSupport;
 import de.invesdwin.context.client.swing.api.view.AView;
 import de.invesdwin.context.client.swing.frame.app.DelegateRichApplication;
 import de.invesdwin.util.swing.Dialogs;
+import de.invesdwin.util.swing.listener.PopupMenuListenerSupport;
 
 @ThreadSafe
 public class MenuBarView extends AView<MenuBarView, JMenuBar> {
@@ -33,7 +35,7 @@ public class MenuBarView extends AView<MenuBarView, JMenuBar> {
      */
     @Override
     protected JMenuBar initComponent() {
-        IMenuBarConfig menuBarConfig = richApplication.getMenuBarConfig();
+        IMenuBarConfig menuBarConfig = richApplication.newMenuBarConfig();
         if (menuBarConfig == null) {
             menuBarConfig = new MenuBarConfigSupport();
         }
@@ -108,18 +110,31 @@ public class MenuBarView extends AView<MenuBarView, JMenuBar> {
     }
 
     private void addViewMenu(final IMenuBarConfig menuBarConfig, final JMenuBar menuBar) {
-        final List<JMenuItem> viewMenuItems = menuBarConfig.getViewMenuItems();
-        if (viewMenuItems != null && viewMenuItems.size() > 0) {
+        final List<JMenuItem> initialViewMenuItems = menuBarConfig.getViewMenuItems();
+        if (initialViewMenuItems != null && initialViewMenuItems.size() > 0) {
             final JMenu mnView = new JMenu();
             mnView.setName("view");
             menuBar.add(mnView);
-            for (final JMenuItem viewMenuItem : viewMenuItems) {
-                if (viewMenuItem == null) {
-                    mnView.add(new JSeparator());
-                } else {
-                    mnView.add(viewMenuItem);
+
+            mnView.getPopupMenu().addPopupMenuListener(new PopupMenuListenerSupport() {
+
+                @Override
+                public void popupMenuWillBecomeVisible(final PopupMenuEvent e) {
+                    final List<JMenuItem> viewMenuItems = menuBarConfig.getViewMenuItems();
+                    for (final JMenuItem viewMenuItem : viewMenuItems) {
+                        if (viewMenuItem == null) {
+                            mnView.add(new JSeparator());
+                        } else {
+                            mnView.add(viewMenuItem);
+                        }
+                    }
                 }
-            }
+
+                @Override
+                public void popupMenuWillBecomeInvisible(final PopupMenuEvent e) {
+                    mnView.removeAll();
+                }
+            });
         }
     }
 

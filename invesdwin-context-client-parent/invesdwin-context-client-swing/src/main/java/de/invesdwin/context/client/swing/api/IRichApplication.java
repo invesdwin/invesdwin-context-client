@@ -23,7 +23,7 @@ public interface IRichApplication {
 
     Dimension getInitialFrameSize();
 
-    IMenuBarConfig getMenuBarConfig();
+    IMenuBarConfig newMenuBarConfig();
 
     void initializeDone();
 
