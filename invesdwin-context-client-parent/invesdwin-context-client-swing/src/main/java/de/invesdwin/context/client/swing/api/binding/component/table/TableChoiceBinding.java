@@ -1,5 +1,6 @@
 package de.invesdwin.context.client.swing.api.binding.component.table;
 
+import java.awt.event.MouseEvent;
 import java.util.List;
 import java.util.Optional;
 
@@ -14,6 +15,7 @@ import de.invesdwin.context.client.swing.api.view.AModel;
 import de.invesdwin.norva.beanpath.spi.element.simple.modifier.IBeanPathPropertyModifier;
 import de.invesdwin.norva.beanpath.spi.element.table.ATableBeanPathElement;
 import de.invesdwin.util.swing.Components;
+import de.invesdwin.util.swing.listener.MouseListenerSupport;
 
 @NotThreadSafe
 public class TableChoiceBinding extends AComponentBinding<JTable, List<?>> {
@@ -58,6 +60,17 @@ public class TableChoiceBinding extends AComponentBinding<JTable, List<?>> {
         }
         component.setDefaultRenderer(Boolean.class,
                 new GeneratedTableCellRenderer(tableModel, component.getDefaultRenderer(Boolean.class)));
+
+        //support removing sorting via MIDDLE_CLICK
+        component.getTableHeader().addMouseListener(new MouseListenerSupport() {
+            @Override
+            public void mouseReleased(final MouseEvent e) {
+                if (e.getButton() == MouseEvent.BUTTON2) {
+                    //https://stackoverflow.com/questions/10627927/how-to-un-sort-a-jtable
+                    component.getRowSorter().setSortKeys(null);
+                }
+            }
+        });
     }
 
     protected TableSelectionBinding configureSelectionMode(final JTable component) {
