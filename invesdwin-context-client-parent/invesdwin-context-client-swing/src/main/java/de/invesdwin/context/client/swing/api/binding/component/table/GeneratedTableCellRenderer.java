@@ -33,7 +33,7 @@ public class GeneratedTableCellRenderer implements TableCellRenderer {
         final JComponent component = (JComponent) delegate.getTableCellRendererComponent(table, value, isSelected,
                 hasFocus, row, column);
         if (component.getToolTipText() == null) {
-            final String tooltip = model.getTooltipAt(row, column);
+            final String tooltip = model.getTooltipAt(row, table.convertColumnIndexToModel(column));
             Components.setToolTipText(component, tooltip, false);
         }
         prevComponent = component;

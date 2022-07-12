@@ -76,7 +76,7 @@ public class TableChoiceBinding extends AComponentBinding<JTable, List<?>> {
     protected TableSelectionBinding configureSelectionMode(final JTable component) {
         component.setCellSelectionEnabled(false);
         component.setColumnSelectionAllowed(false);
-        component.getTableHeader().setReorderingAllowed(false);
+        //        component.getTableHeader().setReorderingAllowed(false);
         component.setAutoCreateRowSorter(true);
 
         //model selection is handled via a special checkbox column
