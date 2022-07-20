@@ -33,7 +33,17 @@ public interface IGuiService {
      * This method places the view next to the current focus owning view.
      */
     default void showView(final AView<?, ?> view) {
-        showView(view, null);
+        showView(view, null, true);
+    }
+
+    /**
+     * If a view is already visible with an equal model, then that is being replaced with the new view. Otherwise this
+     * view is just displayed in a new dockable.
+     * 
+     * This method places the view next to the current focus owning view.
+     */
+    default void showView(final AView<?, ?> view, final boolean requestFocus) {
+        showView(view, null, requestFocus);
     }
 
     /**
@@ -42,7 +52,17 @@ public interface IGuiService {
      * 
      * When location is null, view will be placed next to the current focus owning view.
      */
-    void showView(AView<?, ?> view, IWorkingAreaLocation location);
+    default void showView(final AView<?, ?> view, final IWorkingAreaLocation location) {
+        showView(view, location, true);
+    }
+
+    /**
+     * If a view is already visible with an equal model, then that is being replaced with the new view. Otherwise this
+     * view is just displayed in a new dockable.
+     * 
+     * When location is null, view will be placed next to the current focus owning view.
+     */
+    void showView(AView<?, ?> view, IWorkingAreaLocation location, boolean requestFocus);
 
     boolean isModalViewShowing();
 

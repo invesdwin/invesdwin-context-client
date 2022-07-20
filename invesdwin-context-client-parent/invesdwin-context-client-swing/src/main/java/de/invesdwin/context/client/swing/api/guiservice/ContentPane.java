@@ -13,6 +13,7 @@ import org.jdesktop.application.Application;
 
 import bibliothek.gui.dock.common.SingleCDockable;
 import bibliothek.gui.dock.common.intern.CDockable;
+import de.invesdwin.aspects.EventDispatchThreadUtil;
 import de.invesdwin.aspects.annotation.EventDispatchThread;
 import de.invesdwin.aspects.annotation.EventDispatchThread.InvocationType;
 import de.invesdwin.context.client.swing.api.view.AView;
@@ -106,8 +107,18 @@ public class ContentPane {
         application.hideMainFrame();
     }
 
-    @EventDispatchThread(InvocationType.INVOKE_AND_WAIT)
     public void showView(final AView<?, ?> view, final IWorkingAreaLocation location) {
+        showView(view, location, true);
+    }
+
+    @EventDispatchThread(InvocationType.INVOKE_AND_WAIT)
+    public void showView(final AView<?, ?> view, final IWorkingAreaLocation location, final boolean requestFocus) {
+        final AView<?, ?> restoreFocusedView;
+        if (!requestFocus) {
+            restoreFocusedView = getFocusedView();
+        } else {
+            restoreFocusedView = null;
+        }
         if (containsView(view)) {
             final IDockable dockable = view.getDockable();
             dockable.requestFocus();
@@ -121,6 +132,20 @@ public class ContentPane {
                 addView(view, location);
             }
         }
+        if (restoreFocusedView != null) {
+            EventDispatchThreadUtil.invokeLater(new Runnable() {
+                @Override
+                public void run() {
+                    restoreFocusedView.getDockable().requestFocus();
+                }
+            });
+        }
+    }
+
+    public AView<?, ?> getFocusedView() {
+        final SingleCDockable focusedDockable = (SingleCDockable) contentPaneView.getFocusedDockable();
+        final AView<?, ?> focusedView = id_visibleView.get(focusedDockable.getUniqueId());
+        return focusedView;
     }
 
     private AView<?, ?> findViewWithEqualModel(final AView<?, ?> view) {

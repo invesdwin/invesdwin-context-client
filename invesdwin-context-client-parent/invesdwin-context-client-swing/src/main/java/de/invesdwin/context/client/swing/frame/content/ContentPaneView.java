@@ -152,6 +152,10 @@ public class ContentPaneView extends AView<ContentPaneView, JPanel> {
         return panel;
     }
 
+    public CDockable getFocusedDockable() {
+        return control.getFocusedCDockable();
+    }
+
     public IDockable addView(final AView<?, ?> view, final IWorkingAreaLocation location) {
         if (control == null) {
             Assertions.checkNotNull(getComponent());

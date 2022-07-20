@@ -173,8 +173,8 @@ public class GuiService implements IGuiService {
     }
 
     @Override
-    public void showView(final AView<?, ?> view, final IWorkingAreaLocation location) {
-        getContentPane().showView(view, location);
+    public void showView(final AView<?, ?> view, final IWorkingAreaLocation location, final boolean requestFocus) {
+        getContentPane().showView(view, location, requestFocus);
     }
 
     @Override
