@@ -12,6 +12,8 @@ import de.invesdwin.context.client.swing.frame.content.IWorkingAreaLocation;
 
 public interface IGuiService {
 
+    Dimension PACK_DIMENSION = new Dimension(-1, -1);
+
     StatusBar getStatusBar();
 
     ContentPane getContentPane();

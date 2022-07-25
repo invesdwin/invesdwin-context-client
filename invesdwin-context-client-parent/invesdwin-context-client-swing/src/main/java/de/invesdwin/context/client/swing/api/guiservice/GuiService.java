@@ -122,7 +122,9 @@ public class GuiService implements IGuiService {
         view.setDockable(dialog);
         dialog.pack();
         if (dimension != null) {
-            dialog.setSize(dimension);
+            if (dimension.getHeight() > 0D && dimension.getWidth() > 0D) {
+                dialog.setSize(dimension);
+            }
         } else {
             dialog.setSize(new Dimension(400, 200));
         }
@@ -134,9 +136,6 @@ public class GuiService implements IGuiService {
                 Views.triggerOnShowing(view);
             }
         });
-        if (dimension == null) {
-            dialog.pack();
-        }
         //this call blocks for modal dialogs, which is expected
         dialog.setVisible(true);
         EventDispatchThreadUtil.invokeLater(new Runnable() {
