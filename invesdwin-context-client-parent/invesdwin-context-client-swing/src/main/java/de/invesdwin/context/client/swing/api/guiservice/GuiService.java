@@ -134,6 +134,9 @@ public class GuiService implements IGuiService {
                 Views.triggerOnShowing(view);
             }
         });
+        if (dimension == null) {
+            dialog.pack();
+        }
         //this call blocks for modal dialogs, which is expected
         dialog.setVisible(true);
         EventDispatchThreadUtil.invokeLater(new Runnable() {
