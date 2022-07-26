@@ -10,16 +10,27 @@ public abstract class ATableRendererRowsProvider<E> {
 
     public abstract List<E> getRows();
 
-    public E getRow(final JTable table, final int viewRowIndex) {
+    public E getViewRow(final JTable table, final int viewRowIndex) {
         final List<E> rows = getRows();
         if (rows.isEmpty()) {
             return null;
         }
-        final int modelRowIdx = table.convertRowIndexToModel(viewRowIndex);
-        if (modelRowIdx >= rows.size()) {
+        final int modelRowIndex = table.convertRowIndexToModel(viewRowIndex);
+        if (modelRowIndex >= rows.size()) {
             return null;
         }
-        return rows.get(modelRowIdx);
+        return rows.get(modelRowIndex);
+    }
+
+    public E getModelRow(final int modelRowIndex) {
+        final List<E> rows = getRows();
+        if (rows.isEmpty()) {
+            return null;
+        }
+        if (modelRowIndex >= rows.size()) {
+            return null;
+        }
+        return rows.get(modelRowIndex);
     }
 
 }

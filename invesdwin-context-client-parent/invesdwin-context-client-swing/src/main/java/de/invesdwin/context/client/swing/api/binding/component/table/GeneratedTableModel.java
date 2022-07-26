@@ -76,7 +76,15 @@ public class GeneratedTableModel extends AbstractTableModel {
                     //    at java.desktop/javax.swing.table.AbstractTableModel.fireTableCellUpdated(AbstractTableModel.java:276)
                     //  * at de.invesdwin.context.client.swing.api.binding.component.table.GeneratedTableModel.updatePrevTableModel(GeneratedTableModel.java:90) *
                     resetPrevTableModel(newRowCount, newColumnCount);
-                    fireTableDataChanged();
+                    try {
+                        fireTableDataChanged();
+                    } catch (final NullPointerException t) {
+                        //                        java.lang.NullPointerException: Cannot read field "modelIndex" because "viewToModel[i]" is null
+                        //                              * at de.invesdwin.util.swing.table.ComparableDefaultRowSorter.getViewToModelAsInts(ComparableDefaultRowSorter.java:678) *
+                        //                              * at de.invesdwin.util.swing.table.ComparableDefaultRowSorter.sort(ComparableDefaultRowSorter.java:517) *
+                        //                              * at de.invesdwin.util.swing.table.ComparableDefaultRowSorter.allRowsChanged(ComparableDefaultRowSorter.java:792) *
+                        //ignore
+                    }
                 }
             }
         } finally {
