@@ -192,6 +192,7 @@ public class GuiService implements IGuiService {
         updateAllViews(view.getComponent());
     }
 
+    //invokeAndWait to not overload the UI thread
     @Override
     @EventDispatchThread(InvocationType.INVOKE_AND_WAIT)
     public void updateAllViews(final Component component) {
@@ -203,6 +204,7 @@ public class GuiService implements IGuiService {
         submitAllViews(view.getComponent());
     }
 
+    //invokeAndWait to not overload the UI thread
     @Override
     @EventDispatchThread(InvocationType.INVOKE_AND_WAIT)
     public void submitAllViews(final Component component) {
