@@ -9,6 +9,8 @@ import org.jdesktop.application.TaskService;
 
 import de.invesdwin.context.client.swing.api.view.AView;
 import de.invesdwin.context.client.swing.frame.content.IWorkingAreaLocation;
+import de.invesdwin.util.time.Instant;
+import de.invesdwin.util.time.date.FDate;
 
 public interface IGuiService {
 
@@ -112,5 +114,9 @@ public interface IGuiService {
     boolean isAltGraphDown();
 
     boolean isModifierDown();
+
+    FDate getLastMouseClickTime();
+
+    Instant getLastMouseClickInstant();
 
 }

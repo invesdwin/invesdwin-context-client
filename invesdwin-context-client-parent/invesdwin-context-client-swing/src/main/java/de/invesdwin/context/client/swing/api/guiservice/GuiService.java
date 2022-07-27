@@ -36,6 +36,8 @@ import de.invesdwin.util.lang.Strings;
 import de.invesdwin.util.swing.Dialogs;
 import de.invesdwin.util.swing.listener.ComponentListenerSupport;
 import de.invesdwin.util.swing.listener.WindowListenerSupport;
+import de.invesdwin.util.time.Instant;
+import de.invesdwin.util.time.date.FDate;
 
 @ThreadSafe
 public class GuiService implements IGuiService {
@@ -239,6 +241,16 @@ public class GuiService implements IGuiService {
     @Override
     public boolean isModifierDown() {
         return getContentPane().isModifierDown();
+    }
+
+    @Override
+    public FDate getLastMouseClickTime() {
+        return getContentPane().getLastMouseClickTime();
+    }
+
+    @Override
+    public Instant getLastMouseClickInstant() {
+        return getContentPane().getLastMouseClickInstant();
     }
 
     public static String i18n(final Class<?> clazz, final String value) {

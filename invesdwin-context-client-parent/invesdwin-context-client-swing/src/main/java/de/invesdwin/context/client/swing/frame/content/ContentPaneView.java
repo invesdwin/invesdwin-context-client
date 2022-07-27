@@ -4,6 +4,7 @@ import java.awt.GridLayout;
 import java.awt.KeyEventDispatcher;
 import java.awt.KeyboardFocusManager;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseEvent;
 
 import javax.annotation.concurrent.NotThreadSafe;
 import javax.swing.JFrame;
@@ -29,6 +30,9 @@ import de.invesdwin.context.client.swing.frame.app.DelegateRichApplication;
 import de.invesdwin.context.client.swing.util.Views;
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.swing.listener.KeyListenerSupport;
+import de.invesdwin.util.swing.listener.MouseListenerSupport;
+import de.invesdwin.util.time.Instant;
+import de.invesdwin.util.time.date.FDate;
 
 @NotThreadSafe
 public class ContentPaneView extends AView<ContentPaneView, JPanel> {
@@ -41,6 +45,9 @@ public class ContentPaneView extends AView<ContentPaneView, JPanel> {
     private boolean shiftDown;
     private boolean altDown;
     private boolean altGraphDown;
+    private long lastMouseClickTime = FDate.MIN_DATE.millisValue();
+    @SuppressWarnings("deprecation")
+    private long lastMouseClickInstant = Instant.DUMMY.nanosValue();
 
     @Override
     protected JPanel initComponent() {
@@ -149,6 +156,14 @@ public class ContentPaneView extends AView<ContentPaneView, JPanel> {
             }
         });
 
+        control.getController().getGlobalMouseDispatcher().addMouseListener(new MouseListenerSupport() {
+            @Override
+            public void mouseReleased(final MouseEvent e) {
+                lastMouseClickTime = System.currentTimeMillis();
+                lastMouseClickInstant = System.nanoTime();
+            }
+        });
+
         return panel;
     }
 
@@ -253,5 +268,13 @@ public class ContentPaneView extends AView<ContentPaneView, JPanel> {
 
     public boolean isModifierDown() {
         return controlDown || shiftDown || altDown || altGraphDown || metaDown;
+    }
+
+    public FDate getLastMouseClickTime() {
+        return new FDate(lastMouseClickTime);
+    }
+
+    public Instant getLastMouseClickInstant() {
+        return new Instant(lastMouseClickInstant);
     }
 }

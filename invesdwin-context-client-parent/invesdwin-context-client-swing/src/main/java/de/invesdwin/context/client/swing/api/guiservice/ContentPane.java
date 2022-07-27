@@ -22,6 +22,8 @@ import de.invesdwin.context.client.swing.frame.content.IWorkingAreaLocation;
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.collections.loadingcache.ALoadingCache;
 import de.invesdwin.util.lang.Objects;
+import de.invesdwin.util.time.Instant;
+import de.invesdwin.util.time.date.FDate;
 
 @ThreadSafe
 public class ContentPane {
@@ -193,6 +195,14 @@ public class ContentPane {
 
     public boolean isModifierDown() {
         return contentPaneView.isModifierDown();
+    }
+
+    public FDate getLastMouseClickTime() {
+        return contentPaneView.getLastMouseClickTime();
+    }
+
+    public Instant getLastMouseClickInstant() {
+        return contentPaneView.getLastMouseClickInstant();
     }
 
 }
