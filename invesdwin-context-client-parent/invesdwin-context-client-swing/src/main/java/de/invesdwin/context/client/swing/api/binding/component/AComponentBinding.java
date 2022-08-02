@@ -18,6 +18,7 @@ import de.invesdwin.norva.beanpath.impl.clazz.BeanClassContainer;
 import de.invesdwin.norva.beanpath.spi.element.APropertyBeanPathElement;
 import de.invesdwin.norva.beanpath.spi.element.simple.modifier.IBeanPathPropertyModifier;
 import de.invesdwin.norva.beanpath.spi.element.utility.ValidateBeanPathElement;
+import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.lang.Strings;
 import de.invesdwin.util.swing.Components;
 import de.invesdwin.util.swing.MouseEnteredListener;
@@ -148,6 +149,13 @@ public abstract class AComponentBinding<C extends JComponent, V> implements ICom
             }
             setValueFromRoot(model, newModelValue);
             setInvalidMessage(null);
+            final V updatedModelValue = getValueFromRoot(model);
+            if (!Objects.equals(newModelValue, updatedModelValue)) {
+                //force update
+                prevModelValue = Optional.empty();
+                //model might derive some other value to display, sync it to component as a response
+                prevModelValue = fromModelToComponent(updatedModelValue);
+            }
             submitted = true;
         } catch (final Throwable t) {
             Err.process(t);
@@ -363,6 +371,11 @@ public abstract class AComponentBinding<C extends JComponent, V> implements ICom
 
     public boolean isFrozen() {
         return frozen;
+    }
+
+    @Override
+    public String toString() {
+        return Objects.toStringHelper(this).addValue(component.getName()).toString();
     }
 
 }

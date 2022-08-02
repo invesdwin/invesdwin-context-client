@@ -47,7 +47,6 @@ import de.invesdwin.norva.beanpath.spi.element.table.ATableBeanPathElement;
 import de.invesdwin.norva.beanpath.spi.element.utility.ContainerTitleBeanPathElement;
 import de.invesdwin.util.error.UnknownArgumentException;
 import de.invesdwin.util.lang.Strings;
-import de.invesdwin.util.swing.button.JCheckBoxButton;
 
 @NotThreadSafe
 @SuppressWarnings("rawtypes")
@@ -108,13 +107,17 @@ public final class GeneratedBindingGroup {
                     binding = bindJMenuItem((JMenuItem) c);
                 } else if (c instanceof JButton) {
                     binding = bindJButton((JButton) c);
-                    if (c instanceof JCheckBoxButton) {
-                        final JCheckBoxButton checkboxButton = (JCheckBoxButton) c;
-                        final IComponentBinding checkboxBinding = bindJCheckBox(checkboxButton.getCheckbox());
-                        if (checkboxBinding != null) {
-                            bindingGroup.addBinding(binding);
-                        }
-                    }
+                    /*
+                     * WARNING: JCheckBox inside JCheckBoxButton will be traversed automatically, so no additional
+                     * handling required. This prevents duplicate submits.
+                     */
+                    //                    if (c instanceof JCheckBoxButton) {
+                    //                        final JCheckBoxButton checkboxButton = (JCheckBoxButton) c;
+                    //                        final IComponentBinding checkboxBinding = bindJCheckBox(checkboxButton.getCheckbox());
+                    //                        if (checkboxBinding != null) {
+                    //                            bindingGroup.addBinding(binding);
+                    //                        }
+                    //                    }
                 } else if (c instanceof JTextComponent) {
                     binding = bindJTextComponent((JTextComponent) c);
                 } else if (c instanceof JLabel) {

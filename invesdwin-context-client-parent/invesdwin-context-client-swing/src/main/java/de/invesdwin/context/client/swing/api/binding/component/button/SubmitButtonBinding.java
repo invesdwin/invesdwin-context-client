@@ -20,6 +20,7 @@ import de.invesdwin.context.client.swing.util.SubmitAllViewsHelper;
 import de.invesdwin.norva.beanpath.impl.clazz.BeanClassContainer;
 import de.invesdwin.norva.beanpath.spi.element.AActionBeanPathElement;
 import de.invesdwin.util.assertions.Assertions;
+import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.lang.Strings;
 import de.invesdwin.util.swing.Components;
 import de.invesdwin.util.swing.MouseEnteredListener;
@@ -248,6 +249,11 @@ public class SubmitButtonBinding implements IComponentBinding {
 
     public void doClick() {
         component.doClick();
+    }
+
+    @Override
+    public String toString() {
+        return Objects.toStringHelper(this).addValue(component.getName()).toString();
     }
 
 }

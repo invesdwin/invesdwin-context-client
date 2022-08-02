@@ -5,6 +5,7 @@ import javax.swing.AbstractButton;
 import javax.swing.Action;
 
 import de.invesdwin.context.client.swing.api.binding.component.IComponentBinding;
+import de.invesdwin.util.lang.Objects;
 
 @NotThreadSafe
 public class ActionButtonBinding implements IComponentBinding {
@@ -60,6 +61,11 @@ public class ActionButtonBinding implements IComponentBinding {
     @Override
     public void update() {
         //noop
+    }
+
+    @Override
+    public String toString() {
+        return Objects.toStringHelper(this).addValue(component.getName()).toString();
     }
 
 }
