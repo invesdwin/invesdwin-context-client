@@ -1,7 +1,6 @@
 package de.invesdwin.context.client.swing.api.binding.component;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -16,6 +15,7 @@ import de.invesdwin.context.client.swing.api.binding.BindingGroup;
 import de.invesdwin.context.client.swing.api.view.AModel;
 import de.invesdwin.norva.beanpath.spi.element.AChoiceBeanPathElement;
 import de.invesdwin.norva.beanpath.spi.element.simple.modifier.IBeanPathPropertyModifier;
+import de.invesdwin.util.collections.Collections;
 import de.invesdwin.util.lang.Objects;
 
 @NotThreadSafe

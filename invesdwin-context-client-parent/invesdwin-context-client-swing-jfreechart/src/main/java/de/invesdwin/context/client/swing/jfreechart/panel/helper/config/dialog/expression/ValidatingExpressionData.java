@@ -8,12 +8,11 @@ import javax.annotation.concurrent.Immutable;
 import javax.swing.Icon;
 import javax.swing.JLabel;
 
-import org.apache.commons.lang3.ArrayUtils;
-
 import de.invesdwin.aspects.EventDispatchThreadUtil;
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.series.AddSeriesPanel;
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.series.AddSeriesPanelLayout;
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.series.expression.IExpressionSeriesProvider;
+import de.invesdwin.util.collections.Arrays;
 import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.lang.Strings;
 import de.invesdwin.util.math.expression.IExpression;
@@ -38,8 +37,8 @@ public final class ValidatingExpressionData {
     public static final int TOOLTIP_WORD_WRAP_LIMIT = 120;
     public static final ToolTipFormatter SPACED_TOOLTIP_FORMATTER = Components.getDefaultToolTipFormatter()
             .clone()
-            .setLineBreaks(ArrayUtils.addAll(new String[] { "<br>  " },
-                    Components.getDefaultToolTipFormatter().getLineBreaks()));
+            .setLineBreaks(
+                    Arrays.addAll(new String[] { "<br>  " }, Components.getDefaultToolTipFormatter().getLineBreaks()));
     private static final String CLIENT_PROP = ValidatingExpressionData.class.getSimpleName();
 
     private final Future<?> future;

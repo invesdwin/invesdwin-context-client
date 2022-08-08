@@ -1,19 +1,18 @@
 package de.invesdwin.context.client.wicket.generated.markup.internal.bugfix;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
 import javax.annotation.concurrent.NotThreadSafe;
-
-import org.hibernate.validator.constraints.NotEmpty;
+import javax.validation.constraints.NotEmpty;
 
 import de.invesdwin.context.client.wicket.generated.markup.internal.SampleModel;
 import de.invesdwin.context.client.wicket.generated.markup.internal.TabbedContainerSampleModel;
 import de.invesdwin.norva.beanpath.annotation.Tabbed;
 import de.invesdwin.nowicket.generated.markup.annotation.GeneratedMarkup;
 import de.invesdwin.util.bean.AValueObject;
+import de.invesdwin.util.collections.Arrays;
 
 @GeneratedMarkup
 @NotThreadSafe
@@ -126,7 +125,8 @@ public class Bugfix extends AValueObject {
         return null;
     }
 
-    public void submit() {}
+    public void submit() {
+    }
 
     public List<BugfixComplexValueObject> getTable() {
         return table;

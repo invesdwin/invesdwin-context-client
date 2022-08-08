@@ -4,7 +4,6 @@ import java.awt.Toolkit;
 import java.beans.Beans;
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.ServiceLoader;
 
@@ -25,6 +24,7 @@ import de.invesdwin.context.client.swing.api.guiservice.GuiService;
 import de.invesdwin.context.client.swing.frame.app.DelegateRichApplication;
 import de.invesdwin.context.log.Log;
 import de.invesdwin.util.assertions.Assertions;
+import de.invesdwin.util.collections.Arrays;
 import de.invesdwin.util.error.Throwables;
 import de.invesdwin.util.lang.Strings;
 import de.invesdwin.util.lang.reflection.Reflections;

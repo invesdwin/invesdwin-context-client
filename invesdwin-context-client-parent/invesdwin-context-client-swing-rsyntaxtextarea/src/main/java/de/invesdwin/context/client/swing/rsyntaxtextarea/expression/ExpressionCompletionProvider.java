@@ -2,7 +2,6 @@ package de.invesdwin.context.client.swing.rsyntaxtextarea.expression;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -20,6 +19,7 @@ import org.fife.ui.autocomplete.Util;
 import de.invesdwin.context.client.swing.rsyntaxtextarea.expression.completion.AliasedFunctionCompletion;
 import de.invesdwin.context.client.swing.rsyntaxtextarea.expression.completion.AliasedVariableCompletion;
 import de.invesdwin.context.client.swing.rsyntaxtextarea.expression.completion.IAliasedCompletion;
+import de.invesdwin.util.collections.Collections;
 import de.invesdwin.util.lang.Strings;
 import de.invesdwin.util.math.expression.ExpressionParser;
 import de.invesdwin.util.math.expression.IFunctionParameterInfo;

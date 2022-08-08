@@ -3,7 +3,6 @@ package de.invesdwin.context.client.swing.jfreechart.panel.helper.legend;
 import java.awt.Color;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Set;
@@ -32,6 +31,7 @@ import de.invesdwin.context.client.swing.jfreechart.plot.dataset.DisabledXYDatas
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.IPlotSourceDataset;
 import de.invesdwin.context.client.swing.jfreechart.plot.renderer.DisabledXYItemRenderer;
 import de.invesdwin.context.client.swing.jfreechart.plot.renderer.IDatasetSourceXYItemRenderer;
+import de.invesdwin.util.collections.Collections;
 import de.invesdwin.util.lang.Colors;
 
 @NotThreadSafe

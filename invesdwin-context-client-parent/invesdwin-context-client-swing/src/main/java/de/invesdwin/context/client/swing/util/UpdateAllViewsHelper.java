@@ -2,7 +2,6 @@ package de.invesdwin.context.client.swing.util;
 
 import java.awt.Component;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Set;
@@ -11,6 +10,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.context.client.swing.api.guiservice.GuiService;
 import de.invesdwin.context.client.swing.api.view.AView;
+import de.invesdwin.util.collections.Collections;
 
 @NotThreadSafe
 public class UpdateAllViewsHelper {

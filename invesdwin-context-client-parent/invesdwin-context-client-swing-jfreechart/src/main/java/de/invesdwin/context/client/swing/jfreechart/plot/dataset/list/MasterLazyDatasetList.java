@@ -1,7 +1,6 @@
 package de.invesdwin.context.client.swing.jfreechart.plot.dataset.list;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -21,6 +20,7 @@ import de.invesdwin.context.client.swing.jfreechart.panel.helper.listener.IRange
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.list.item.MasterOHLCDataItem;
 import de.invesdwin.context.jfreechart.dataset.TimeRangedOHLCDataItem;
 import de.invesdwin.context.log.error.Err;
+import de.invesdwin.util.collections.Collections;
 import de.invesdwin.util.collections.iterable.ICloseableIterable;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
 import de.invesdwin.util.concurrent.WrappedExecutorService;

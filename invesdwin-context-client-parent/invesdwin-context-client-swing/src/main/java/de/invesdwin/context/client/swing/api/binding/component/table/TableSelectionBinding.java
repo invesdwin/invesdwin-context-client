@@ -3,7 +3,6 @@ package de.invesdwin.context.client.swing.api.binding.component.table;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -17,6 +16,7 @@ import de.invesdwin.context.client.swing.api.binding.BindingGroup;
 import de.invesdwin.context.client.swing.api.binding.component.AComponentBinding;
 import de.invesdwin.norva.beanpath.spi.element.simple.modifier.IBeanPathPropertyModifier;
 import de.invesdwin.norva.beanpath.spi.element.table.ATableBeanPathElement;
+import de.invesdwin.util.collections.Collections;
 import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.swing.listener.KeyListenerSupport;
 import de.invesdwin.util.swing.listener.MouseListenerSupport;
