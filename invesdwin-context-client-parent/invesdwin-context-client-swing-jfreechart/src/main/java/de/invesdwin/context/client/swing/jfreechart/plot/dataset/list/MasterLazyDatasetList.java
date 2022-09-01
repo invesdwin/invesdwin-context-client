@@ -717,7 +717,7 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
         if (replacedCount > 0 || appendCount > 0) {
             final int finalLastItemIndex = lastItemIndex;
             final int finalAppendCount = appendCount;
-            final Runnable loadSlaveData = () -> loadSlaveData(data, rangeBefore, finalLastItemIndex, firstAppendIndex,
+            final Runnable loadSlaveData = () -> appendSlaveData(data, rangeBefore, finalLastItemIndex, firstAppendIndex,
                     finalAppendCount);
             if (appendCount >= RELOAD_TRAILING_ITEM_COUNT) {
                 newSyncTask(loadSlaveData).run();
@@ -730,7 +730,7 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
         }
     }
 
-    private void loadSlaveData(final List<MasterOHLCDataItem> data, final Range rangeBefore, final int lastItemIndex,
+    private void appendSlaveData(final List<MasterOHLCDataItem> data, final Range rangeBefore, final int lastItemIndex,
             final int firstAppendIndex, final int appendCount) {
         /*
          * we need to replace at least the last two elements, otherwise if the slave does not draw incomplete bars, the
