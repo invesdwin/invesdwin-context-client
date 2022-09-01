@@ -715,45 +715,57 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
             // end reached
         }
         if (replacedCount > 0 || appendCount > 0) {
-            /*
-             * we need to replace at least the last two elements, otherwise if the slave does not draw incomplete bars,
-             * the NaN bar will always be appended without the real value appearing
-             */
-            appendSlaves(appendCount);
-            lastUpdateTime = getLastLoadedItem().getEndTime();
-
-            if (appendCount > 0) {
-                //trail range
-                final Range updatedRange = new Range(rangeBefore.getLowerBound() + appendCount,
-                        rangeBefore.getUpperBound() + appendCount);
-                chartPanel.getDomainAxis().setRange(updatedRange);
+            final int finalLastItemIndex = lastItemIndex;
+            final int finalAppendCount = appendCount;
+            final Runnable loadSlaveData = () -> loadSlaveData(data, rangeBefore, finalLastItemIndex, firstAppendIndex,
+                    finalAppendCount);
+            if (appendCount >= RELOAD_TRAILING_ITEM_COUNT) {
+                newSyncTask(loadSlaveData).run();
+            } else {
+                loadSlaveData.run();
             }
-
-            //load slave items
-            //this is actually lastItemIndex+1, so don't use <=
-            final int size = Integers.min(lastItemIndex, data.size());
-            for (int i = firstAppendIndex; i < size; i++) {
-                final MasterOHLCDataItem item = data.get(i);
-                item.loadSlaveItems(item.getEndTime());
-            }
-            if (!slaveDatasetListeners.isEmpty()) {
-                for (final ISlaveLazyDatasetListener slave : slaveDatasetListeners) {
-                    slave.afterLoadItems(false);
-                }
-            }
-            maxUpperBound = data.size() - 1;
-
-            /*
-             * we don't have to trim the dataset since Datasets.iterateToFindRangeBounds is fast enough with large
-             * datasets, though DataSet implementations have to implement the XYRangeInfo interface and use Datasets to
-             * dermine the range faster than AbstractXYDataset.
-             */
-            //            maybeTrimDataRangeTrailing(appendCount);
-
             return true;
         } else {
             return false;
         }
+    }
+
+    private void loadSlaveData(final List<MasterOHLCDataItem> data, final Range rangeBefore, final int lastItemIndex,
+            final int firstAppendIndex, final int appendCount) {
+        /*
+         * we need to replace at least the last two elements, otherwise if the slave does not draw incomplete bars, the
+         * NaN bar will always be appended without the real value appearing
+         */
+        appendSlaves(appendCount);
+        lastUpdateTime = getLastLoadedItem().getEndTime();
+
+        if (appendCount > 0) {
+            //trail range
+            final Range updatedRange = new Range(rangeBefore.getLowerBound() + appendCount,
+                    rangeBefore.getUpperBound() + appendCount);
+            chartPanel.getDomainAxis().setRange(updatedRange);
+        }
+
+        //load slave items
+        //this is actually lastItemIndex+1, so don't use <=
+        final int size = Integers.min(lastItemIndex, data.size());
+        for (int i = firstAppendIndex; i < size; i++) {
+            final MasterOHLCDataItem item = data.get(i);
+            item.loadSlaveItems(item.getEndTime());
+        }
+        if (!slaveDatasetListeners.isEmpty()) {
+            for (final ISlaveLazyDatasetListener slave : slaveDatasetListeners) {
+                slave.afterLoadItems(false);
+            }
+        }
+        maxUpperBound = data.size() - 1;
+
+        /*
+         * we don't have to trim the dataset since Datasets.iterateToFindRangeBounds is fast enough with large datasets,
+         * though DataSet implementations have to implement the XYRangeInfo interface and use Datasets to dermine the
+         * range faster than AbstractXYDataset.
+         */
+        //            maybeTrimDataRangeTrailing(appendCount);
     }
 
     private void maybeTrimDataRangeTrailing(final int appendCount) {
