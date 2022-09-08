@@ -11,8 +11,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
 
 import de.agilecoders.wicket.core.markup.html.bootstrap.button.dropdown.MenuBookmarkablePageLink;
-import de.agilecoders.wicket.core.markup.html.bootstrap.image.GlyphIconType;
-import de.agilecoders.wicket.core.markup.html.bootstrap.navbar.Navbar;
+import de.agilecoders.wicket.core.markup.html.bootstrap.navbar.Navbar.ComponentPosition;
 import de.agilecoders.wicket.core.markup.html.bootstrap.navbar.NavbarButton;
 import de.agilecoders.wicket.core.markup.html.bootstrap.navbar.NavbarComponents;
 import de.agilecoders.wicket.core.markup.html.bootstrap.navbar.NavbarDropDownButton;
@@ -29,6 +28,8 @@ import de.invesdwin.context.client.wicket.saml.page.SamlLogoutPage;
 import de.invesdwin.nowicket.application.AWebPage;
 import de.invesdwin.nowicket.application.auth.ABaseWebApplication;
 import de.invesdwin.nowicket.application.auth.Roles;
+import de.invesdwin.nowicket.component.header.font.FontAwesome6IconType;
+import de.invesdwin.nowicket.component.navbar.Navbar;
 import de.invesdwin.nowicket.page.auth.defaultpage.DefaultSignInPage;
 import de.invesdwin.nowicket.page.auth.defaultpage.DefaultSignOutPage;
 
@@ -43,10 +44,10 @@ public abstract class AExampleWebPage extends AWebPage {
     protected Navbar newNavbar(final String id) {
         final Navbar navbar = super.newNavbar(id);
 
-        navbar.addComponents(NavbarComponents.transform(Navbar.ComponentPosition.LEFT,
+        navbar.addComponents(NavbarComponents.transform(ComponentPosition.LEFT,
                 new NavbarButton<Void>(GuestbookExamplePage.class, new ResourceModel("menu.guestbook"))
-                        .setIconType(GlyphIconType.book)));
-        navbar.addComponents(NavbarComponents.transform(Navbar.ComponentPosition.LEFT,
+                        .setIconType(FontAwesome6IconType.book_s)));
+        navbar.addComponents(NavbarComponents.transform(ComponentPosition.LEFT,
                 new NavbarDropDownButton(new ResourceModel("menu.secure.local")) {
 
                     @Override
@@ -76,7 +77,7 @@ public abstract class AExampleWebPage extends AWebPage {
 
                 }));
 
-        navbar.addComponents(NavbarComponents.transform(Navbar.ComponentPosition.LEFT,
+        navbar.addComponents(NavbarComponents.transform(ComponentPosition.LEFT,
                 new NavbarDropDownButton(new ResourceModel("menu.secure.saml")) {
 
                     @Override
@@ -104,7 +105,7 @@ public abstract class AExampleWebPage extends AWebPage {
 
                 }));
 
-        navbar.addComponents(NavbarComponents.transform(Navbar.ComponentPosition.LEFT,
+        navbar.addComponents(NavbarComponents.transform(ComponentPosition.LEFT,
                 new NavbarDropDownButton(new ResourceModel("menu.secure.kerberos")) {
 
                     @Override
@@ -132,7 +133,7 @@ public abstract class AExampleWebPage extends AWebPage {
 
                 }));
 
-        navbar.addComponents(NavbarComponents.transform(Navbar.ComponentPosition.LEFT,
+        navbar.addComponents(NavbarComponents.transform(ComponentPosition.LEFT,
                 new NavbarDropDownButton(new ResourceModel("menu.secure.cas")) {
 
                     @Override

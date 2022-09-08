@@ -5,12 +5,13 @@ import javax.annotation.concurrent.NotThreadSafe;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 
-import de.agilecoders.wicket.core.markup.html.bootstrap.image.GlyphIconType;
-import de.agilecoders.wicket.core.markup.html.bootstrap.navbar.Navbar;
+import de.agilecoders.wicket.core.markup.html.bootstrap.navbar.Navbar.ComponentPosition;
 import de.agilecoders.wicket.core.markup.html.bootstrap.navbar.NavbarButton;
 import de.agilecoders.wicket.core.markup.html.bootstrap.navbar.NavbarComponents;
 import de.invesdwin.nowicket.application.AWebPage;
 import de.invesdwin.nowicket.application.auth.ABaseWebApplication;
+import de.invesdwin.nowicket.component.header.font.FontAwesome6IconType;
+import de.invesdwin.nowicket.component.navbar.Navbar;
 
 @NotThreadSafe
 public abstract class ASampleWebPage extends AWebPage {
@@ -25,10 +26,11 @@ public abstract class ASampleWebPage extends AWebPage {
 
         navbar.setBrandName(Model.of("Sample"));
 
-        navbar.addComponents(NavbarComponents.transform(
-                Navbar.ComponentPosition.LEFT,
-                new NavbarButton<Void>(ABaseWebApplication.get().getHomePage(), Model.of("Home")).setIconType(GlyphIconType.home),
-                new NavbarButton<Void>(SampleModelPage.class, Model.of("Sample Menu Item")).setIconType(GlyphIconType.bell)));
+        navbar.addComponents(NavbarComponents.transform(ComponentPosition.LEFT,
+                new NavbarButton<Void>(ABaseWebApplication.get().getHomePage(), Model.of("Home"))
+                        .setIconType(FontAwesome6IconType.house_s),
+                new NavbarButton<Void>(SampleModelPage.class, Model.of("Sample Menu Item"))
+                        .setIconType(FontAwesome6IconType.bell_s)));
 
         return navbar;
     }
