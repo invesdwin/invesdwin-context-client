@@ -8,8 +8,8 @@
 			<div wicket:id="modal"></div>
 			<fieldset>
 				<legend wicket:id="nested_legend">Nested</legend>
-				<div class="form-group">
-					<label class="control-label col-sm-2" wicket:for="nested.one">
+				<div class="form-group row">
+					<label class="col-form-label col-sm-2" wicket:for="nested.one">
 						<wicket:label>
                                  One 
                             </wicket:label>
@@ -18,8 +18,8 @@
 						<input type="text" class="form-control" wicket:id="nested.one"></input>
 					</div>
 				</div>
-				<div class="form-group">
-					<label class="control-label col-sm-2"
+				<div class="form-group row">
+					<label class="col-form-label col-sm-2"
 						wicket:for="nested.someCalendar"> <wicket:label>
                                  Some Calendar 
                             </wicket:label></label>
@@ -28,8 +28,8 @@
 							wicket:id="nested.someCalendar"></input>
 					</div>
 				</div>
-				<div class="form-group">
-					<label class="control-label col-sm-2" wicket:for="nested.someDate">
+				<div class="form-group row">
+					<label class="col-form-label col-sm-2" wicket:for="nested.someDate">
 						<wicket:label>
                                  Some Date 
                             </wicket:label>
@@ -39,8 +39,8 @@
 							wicket:id="nested.someDate"></input>
 					</div>
 				</div>
-				<div class="form-group">
-					<label class="control-label col-sm-2" wicket:for="nested.someEnum">
+				<div class="form-group row">
+					<label class="col-form-label col-sm-2" wicket:for="nested.someEnum">
 						<wicket:label>
                                  Some Enum 
                             </wicket:label>
@@ -49,8 +49,8 @@
 						<select class="form-control" wicket:id="nested.someEnum"></select>
 					</div>
 				</div>
-				<div class="form-group">
-					<label class="control-label col-sm-2" wicket:for="nested.three">
+				<div class="form-group row">
+					<label class="col-form-label col-sm-2" wicket:for="nested.three">
 						<wicket:label>
                                  Three 
                             </wicket:label>
@@ -59,8 +59,8 @@
 						<input type="text" class="form-control" wicket:id="nested.three"></input>
 					</div>
 				</div>
-				<div class="form-group">
-					<label class="control-label col-sm-2" wicket:for="nested.two">
+				<div class="form-group row">
+					<label class="col-form-label col-sm-2" wicket:for="nested.two">
 						<wicket:label>
                                  Two 
                             </wicket:label>
@@ -69,108 +69,108 @@
 						<input type="text" class="form-control" wicket:id="nested.two"></input>
 					</div>
 				</div>
-				<div class="form-group">
+				<div class="form-group row">
 					<div class="col-sm-6">
 						<div class="btn-toolbar">
 							<div class="btn-group">
-								<button type="submit" class="btn btn-default"
+								<button type="submit" class="btn btn-secondary"
 									wicket:id="nested.someButton">Some Button</button>
 							</div>
 						</div>
 					</div>
 				</div>
-				<div class="form-group">
+				<div class="form-group row">
 					<div class="col-sm-6">
 						<div class="btn-toolbar">
 							<div class="btn-group">
-								<button type="submit" class="btn btn-default"
+								<button type="submit" class="btn btn-secondary"
 									wicket:id="nested.someButtonToo">Some Button Too</button>
 							</div>
 						</div>
 					</div>
 				</div>
 			</fieldset>
-			<div class="form-group">
+			<div class="form-group row">
 				<div class="col-sm-6">
 					<div class="btn-toolbar">
 						<div class="btn-group">
-							<button type="submit" class="btn btn-default" wicket:id="back">Back</button>
+							<button type="submit" class="btn btn-secondary" wicket:id="back">Back</button>
 						</div>
 					</div>
 				</div>
 			</div>
-			<div class="form-group">
-				<label class="control-label col-sm-2" wicket:for="fileUpload">
+			<div class="form-group row">
+				<label class="col-form-label col-sm-2" wicket:for="fileUpload">
 					<wicket:label>
                              File Upload 
                         </wicket:label>
 				</label>
 				<div wicket:id="fileUpload_gridColumn" class="col-sm-4">
-					<input type="file" class="btn btn-default" wicket:id="fileUpload"></input>
+					<input type="file" class="btn btn-secondary" wicket:id="fileUpload"></input>
 				</div>
 			</div>
-			<div class="form-group">
-				<label class="control-label col-sm-2" wicket:for="multiFileUpload">
+			<div class="form-group row">
+				<label class="col-form-label col-sm-2" wicket:for="multiFileUpload">
 					<wicket:label>
                              Multi File Upload 
                         </wicket:label>
 				</label>
 				<div wicket:id="multiFileUpload_gridColumn" class="col-sm-4">
-					<input multiple="multiple" class="btn btn-default"
+					<input multiple="multiple" class="btn btn-secondary"
 						wicket:id="multiFileUpload" type="file"></input>
 				</div>
 			</div>
-			<div class="form-group">
+			<div class="form-group row">
 				<div class="col-sm-6">
 					<div class="btn-toolbar">
 						<div class="btn-group">
-							<a class="btn btn-default" wicket:id="fileDownload">File
+							<a class="btn btn-secondary" wicket:id="fileDownload">File
 								Download</a>
 						</div>
 					</div>
 				</div>
 			</div>
-			<div class="form-group">
+			<div class="form-group row">
 				<div class="col-sm-6">
 					<div class="btn-toolbar">
 						<div class="btn-group">
-							<button type="submit" class="btn btn-default"
+							<button type="submit" class="btn btn-secondary"
 								wicket:id="offerFileDownload">Offer File Download</button>
 						</div>
 					</div>
 				</div>
 			</div>
-			<div class="form-group">
+			<div class="form-group row">
 				<div class="col-sm-6">
 					<div class="btn-toolbar">
 						<div class="btn-group">
-							<a class="btn btn-default" wicket:id="multiFileDownload">Multi
+							<a class="btn btn-secondary" wicket:id="multiFileDownload">Multi
 								File Download</a>
 						</div>
 					</div>
 				</div>
 			</div>
-			<div class="form-group">
+			<div class="form-group row">
 				<div class="col-sm-6">
 					<div class="btn-toolbar">
 						<div class="btn-group">
-							<a class="btn btn-default" wicket:id="resourceDownload">Resource
+							<a class="btn btn-secondary" wicket:id="resourceDownload">Resource
 								Download</a>
 						</div>
 					</div>
 				</div>
 			</div>
-			<div class="form-group">
+			<div class="form-group row">
 				<div class="col-sm-6">
 					<div class="btn-toolbar">
 						<div class="btn-group">
-							<a class="btn btn-default" wicket:id="resourceReferenceDownload">Resource
+							<a class="btn btn-secondary" wicket:id="resourceReferenceDownload">Resource
 								Reference Download</a>
 						</div>
 					</div>
 				</div>
 			</div>
-			<div class="form-group">
+			<div class="form-group row">
 				<div class="col-sm-6">
 					<div class="btn-toolbar">
 						<div class="btn-group">
@@ -179,7 +179,7 @@
 					</div>
 				</div>
 			</div>
-			<div class="form-group">
+			<div class="form-group row">
 				<div class="col-sm-6">
 					<div class="btn-toolbar">
 						<div class="btn-group">
@@ -188,16 +188,16 @@
 					</div>
 				</div>
 			</div>
-			<div class="form-group">
+			<div class="form-group row">
 				<div class="col-sm-6">
 					<div class="btn-toolbar">
 						<div class="btn-group">
-							<a class="btn btn-default" wicket:id="uriLink">Uri Link</a>
+							<a class="btn btn-secondary" wicket:id="uriLink">Uri Link</a>
 						</div>
 					</div>
 				</div>
 			</div>
-			<div class="form-group">
+			<div class="form-group row">
 				<div class="col-sm-6">
 					<div class="btn-toolbar">
 						<div class="btn-group">
@@ -206,27 +206,27 @@
 					</div>
 				</div>
 			</div>
-			<div class="form-group">
+			<div class="form-group row">
 				<div class="col-sm-6">
 					<div class="btn-toolbar">
 						<div class="btn-group">
-							<a class="btn btn-default" wicket:id="wicketUrlLink">Wicket
+							<a class="btn btn-secondary" wicket:id="wicketUrlLink">Wicket
 								Url Link</a>
 						</div>
 					</div>
 				</div>
 			</div>
-			<div class="form-group">
+			<div class="form-group row">
 				<div class="col-sm-6">
 					<div class="btn-toolbar">
 						<div class="btn-group">
-							<a class="btn btn-default" wicket:id="stringUrlLinkRelative">String
+							<a class="btn btn-secondary" wicket:id="stringUrlLinkRelative">String
 								Url Link Relative</a>
 						</div>
 					</div>
 				</div>
 			</div>
-			<div class="form-group">
+			<div class="form-group row">
 				<div class="col-sm-6">
 					<div class="btn-toolbar">
 						<div class="btn-group">
@@ -235,17 +235,17 @@
 					</div>
 				</div>
 			</div>
-			<div class="form-group">
+			<div class="form-group row">
 				<div class="col-sm-6">
 					<div class="btn-toolbar">
 						<div class="btn-group">
-							<a class="btn btn-default" wicket:id="wicketUrlLinkRelative">Wicket
+							<a class="btn btn-secondary" wicket:id="wicketUrlLinkRelative">Wicket
 								Url Link Relative</a>
 						</div>
 					</div>
 				</div>
 			</div>
-			<div class="form-group">
+			<div class="form-group row">
 				<div class="col-sm-6">
 					<div class="btn-toolbar">
 						<div class="btn-group">
@@ -254,7 +254,7 @@
 					</div>
 				</div>
 			</div>
-			<div class="form-group">
+			<div class="form-group row">
 				<div class="col-sm-6">
 					<div class="btn-toolbar">
 						<div class="btn-group">
@@ -263,7 +263,7 @@
 					</div>
 				</div>
 			</div>
-			<div class="form-group">
+			<div class="form-group row">
 				<div class="col-sm-6">
 					<div class="btn-toolbar">
 						<div class="btn-group">
@@ -272,7 +272,7 @@
 					</div>
 				</div>
 			</div>
-			<div class="form-group">
+			<div class="form-group row">
 				<div class="col-sm-6">
 					<div class="btn-toolbar">
 						<div class="btn-group">
@@ -281,7 +281,7 @@
 					</div>
 				</div>
 			</div>
-			<div class="form-group">
+			<div class="form-group row">
 				<div class="col-sm-6">
 					<div class="btn-toolbar">
 						<div class="btn-group">
@@ -290,7 +290,7 @@
 					</div>
 				</div>
 			</div>
-			<div class="form-group">
+			<div class="form-group row">
 				<div class="col-sm-6">
 					<div class="btn-toolbar">
 						<div class="btn-group">
@@ -299,7 +299,7 @@
 					</div>
 				</div>
 			</div>
-			<div class="form-group">
+			<div class="form-group row">
 				<div class="col-sm-6">
 					<div class="btn-toolbar">
 						<div class="btn-group">
@@ -308,7 +308,7 @@
 					</div>
 				</div>
 			</div>
-			<div class="form-group">
+			<div class="form-group row">
 				<div class="col-sm-6">
 					<div class="btn-toolbar">
 						<div class="btn-group">

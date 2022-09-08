@@ -6,7 +6,7 @@
             <form class="form-horizontal" wicket:id="form"> 
                 <!-- <div wicket:id='feedback'></div>  --> 
                 <div wicket:id="modal"></div> 
-                <div class="form-group"> 
+                <div class="form-group row"> 
                     <div wicket:id="someBoolean_gridColumn" class="col-sm-offset-2 col-sm-4"> 
                         <div class="checkbox"> 
                             <label wicket:for="someBoolean"><input type="checkbox" wicket:id="someBoolean"></input> 
@@ -16,8 +16,8 @@
                         </div> 
                     </div> 
                 </div> 
-                <div class="form-group"> 
-                    <label class="control-label col-sm-2" wicket:for="someCalendar"> 
+                <div class="form-group row"> 
+                    <label class="col-form-label col-sm-2" wicket:for="someCalendar"> 
                         <wicket:label>
                              Some Calendar 
                         </wicket:label></label> 
@@ -25,8 +25,8 @@
                         <input type="date" class="form-control" wicket:id="someCalendar"></input> 
                     </div> 
                 </div> 
-                <div class="form-group"> 
-                    <label class="control-label col-sm-2" wicket:for="someComboBoxArray"> 
+                <div class="form-group row"> 
+                    <label class="col-form-label col-sm-2" wicket:for="someComboBoxArray"> 
                         <wicket:label>
                              Some Combo Box Array 
                         </wicket:label></label> 
@@ -34,8 +34,8 @@
                         <input type="radio" class="form-control" wicket:id="someComboBoxArray"></input> 
                     </div> 
                 </div> 
-                <div class="form-group"> 
-                    <label class="control-label col-sm-2" wicket:for="someDate"> 
+                <div class="form-group row"> 
+                    <label class="col-form-label col-sm-2" wicket:for="someDate"> 
                         <wicket:label>
                              Some Date 
                         </wicket:label></label> 
@@ -43,7 +43,7 @@
                         <input type="date" class="form-control" wicket:id="someDate"></input> 
                     </div> 
                 </div> 
-                <div class="form-group"> 
+                <div class="form-group row"> 
                     <div wicket:id="somePrimitiveBoolean_gridColumn" class="col-sm-offset-2 col-sm-4"> 
                         <div class="checkbox"> 
                             <label wicket:for="somePrimitiveBoolean"><input type="checkbox" wicket:id="somePrimitiveBoolean"></input> 
@@ -53,8 +53,8 @@
                         </div> 
                     </div> 
                 </div> 
-                <div class="form-group"> 
-                    <label class="control-label col-sm-2" wicket:for="someProperty"> 
+                <div class="form-group row"> 
+                    <label class="col-form-label col-sm-2" wicket:for="someProperty"> 
                         <wicket:label>
                              Some Property 
                         </wicket:label></label> 
@@ -74,155 +74,155 @@
                         <table class="table table-condensed table-hover table-striped" wicket:id="someTableList"></table> 
                     </div> 
                 </fieldset> 
-                <div class="form-group"> 
+                <div class="form-group row"> 
                     <div class="col-sm-6"> 
                         <div class="btn-toolbar"> 
                             <div class="btn-group"> 
-                                <button type="submit" class="btn btn-default" wicket:id="redirectButton">Redirect Button</button> 
+                                <button type="submit" class="btn btn-secondary" wicket:id="redirectButton">Redirect Button</button> 
                             </div> 
                         </div> 
                     </div> 
                 </div> 
-                <div class="form-group"> 
+                <div class="form-group row"> 
                     <div class="col-sm-6"> 
                         <div class="btn-toolbar"> 
                             <div class="btn-group"> 
-                                <button type="submit" class="btn btn-default" wicket:id="showModalPanel">Show Modal Panel</button> 
+                                <button type="submit" class="btn btn-secondary" wicket:id="showModalPanel">Show Modal Panel</button> 
                             </div> 
                         </div> 
                     </div> 
                 </div> 
-                <div class="form-group"> 
+                <div class="form-group row"> 
                     <div class="col-sm-6"> 
                         <div class="btn-toolbar"> 
                             <div class="btn-group"> 
-                                <button type="submit" class="btn-primary btn" wicket:id="someButton">Some Button</button> 
+                                <button type="submit" class="btn btn-primary" wicket:id="someButton">Some Button</button> 
                             </div> 
                         </div> 
                     </div> 
                 </div> 
-                <div class="form-group"> 
+                <div class="form-group row"> 
                     <div class="col-sm-6"> 
                         <div class="btn-toolbar"> 
                             <div class="btn-group"> 
-                                <button type="submit" class="btn btn-default" wicket:id="throwCheckedExceptionWithMessage">Throw Checked Exception With Message</button> 
+                                <button type="submit" class="btn btn-secondary" wicket:id="throwCheckedExceptionWithMessage">Throw Checked Exception With Message</button> 
                             </div> 
                         </div> 
                     </div> 
                 </div> 
-                <div class="form-group"> 
+                <div class="form-group row"> 
                     <div class="col-sm-6"> 
                         <div class="btn-toolbar"> 
                             <div class="btn-group"> 
-                                <button type="submit" class="btn btn-default" wicket:id="throwCheckedExceptionWithoutMessage">Throw Checked Exception Without Message</button> 
+                                <button type="submit" class="btn btn-secondary" wicket:id="throwCheckedExceptionWithoutMessage">Throw Checked Exception Without Message</button> 
                             </div> 
                         </div> 
                     </div> 
                 </div> 
-                <div class="form-group"> 
+                <div class="form-group row"> 
                     <div class="col-sm-6"> 
                         <div class="btn-toolbar"> 
                             <div class="btn-group"> 
-                                <button type="submit" class="btn btn-default" wicket:id="throwUncheckedExceptionWithMessage">Throw Unchecked Exception With Message</button> 
+                                <button type="submit" class="btn btn-secondary" wicket:id="throwUncheckedExceptionWithMessage">Throw Unchecked Exception With Message</button> 
                             </div> 
                         </div> 
                     </div> 
                 </div> 
-                <div class="form-group"> 
+                <div class="form-group row"> 
                     <div class="col-sm-6"> 
                         <div class="btn-toolbar"> 
                             <div class="btn-group"> 
-                                <button type="submit" class="btn btn-default" wicket:id="throwUncheckedExceptionWithoutMessage">Throw Unchecked Exception Without Message</button> 
+                                <button type="submit" class="btn btn-secondary" wicket:id="throwUncheckedExceptionWithoutMessage">Throw Unchecked Exception Without Message</button> 
                             </div> 
                         </div> 
                     </div> 
                 </div> 
-                <div class="form-group"> 
+                <div class="form-group row"> 
                     <div class="col-sm-6"> 
                         <div class="btn-toolbar"> 
                             <div class="btn-group"> 
-                                <button type="submit" class="btn btn-default" wicket:id="forcedButton">Forced Button</button> 
+                                <button type="submit" class="btn btn-secondary" wicket:id="forcedButton">Forced Button</button> 
                             </div> 
                         </div> 
                     </div> 
                 </div> 
-                <div class="form-group"> 
+                <div class="form-group row"> 
                     <div class="col-sm-6"> 
                         <div class="btn-toolbar"> 
                             <div class="btn-group"> 
-                                <button type="submit" class="btn btn-default" wicket:id="reset">Reset</button> 
+                                <button type="submit" class="btn btn-secondary" wicket:id="reset">Reset</button> 
                             </div> 
                         </div> 
                     </div> 
                 </div> 
-                <div class="form-group"> 
+                <div class="form-group row"> 
                     <div class="col-sm-6"> 
                         <div class="btn-toolbar"> 
                             <div class="btn-group"> 
-                                <button type="submit" class="btn btn-default" wicket:id="openCustomModal">Open Custom Modal</button> 
+                                <button type="submit" class="btn btn-secondary" wicket:id="openCustomModal">Open Custom Modal</button> 
                             </div> 
                         </div> 
                     </div> 
                 </div> 
-                <div class="form-group"> 
+                <div class="form-group row"> 
                     <div class="col-sm-6"> 
                         <div class="btn-toolbar"> 
                             <div class="btn-group"> 
-                                <button type="submit" class="btn btn-default" wicket:id="showUnorderedListModal">Show Unordered List Modal</button> 
+                                <button type="submit" class="btn btn-secondary" wicket:id="showUnorderedListModal">Show Unordered List Modal</button> 
                             </div> 
                         </div> 
                     </div> 
                 </div> 
-                <div class="form-group"> 
+                <div class="form-group row"> 
                     <div class="col-sm-6"> 
                         <div class="btn-toolbar"> 
                             <div class="btn-group"> 
-                                <button type="submit" class="btn btn-default" wicket:id="someDisabledButton">Some Disabled Button</button> 
+                                <button type="submit" class="btn btn-secondary" wicket:id="someDisabledButton">Some Disabled Button</button> 
                             </div> 
                         </div> 
                     </div> 
                 </div> 
-                <div class="form-group"> 
+                <div class="form-group row"> 
                     <div class="col-sm-6"> 
                         <div class="btn-toolbar"> 
                             <div class="btn-group"> 
-                                <button type="submit" class="btn btn-default" wicket:id="redirectToTabbedSample">Redirect To Tabbed Sample</button> 
+                                <button type="submit" class="btn btn-secondary" wicket:id="redirectToTabbedSample">Redirect To Tabbed Sample</button> 
                             </div> 
                         </div> 
                     </div> 
                 </div> 
-                <div class="form-group"> 
+                <div class="form-group row"> 
                     <div class="col-sm-6"> 
                         <div class="btn-toolbar"> 
                             <div class="btn-group"> 
-                                <button type="submit" class="btn btn-default" wicket:id="showSelectSampleModal">Show Select Sample Modal</button> 
+                                <button type="submit" class="btn btn-secondary" wicket:id="showSelectSampleModal">Show Select Sample Modal</button> 
                             </div> 
                         </div> 
                     </div> 
                 </div> 
-                <div class="form-group"> 
+                <div class="form-group row"> 
                     <div class="col-sm-6"> 
                         <div class="btn-toolbar"> 
                             <div class="btn-group"> 
-                                <button type="submit" class="btn btn-default" wicket:id="bugfix">Bugfix</button> 
+                                <button type="submit" class="btn btn-secondary" wicket:id="bugfix">Bugfix</button> 
                             </div> 
                         </div> 
                     </div> 
                 </div> 
-                <div class="form-group"> 
+                <div class="form-group row"> 
                     <div class="col-sm-6"> 
                         <div class="btn-toolbar"> 
                             <div class="btn-group"> 
-                                <button type="submit" class="btn btn-default" wicket:id="bugfixRemoveFrom">Bugfix Remove From</button> 
+                                <button type="submit" class="btn btn-secondary" wicket:id="bugfixRemoveFrom">Bugfix Remove From</button> 
                             </div> 
                         </div> 
                     </div> 
                 </div> 
-                <div class="form-group">
+                <div class="form-group row">
                     <div class="col-sm-6">
                         <div class="btn-toolbar">
                             <div class="btn-group">
-                                <button type="submit" class="btn btn-default" wicket:id="suffixModelSuffix">Suffix Model Suffix</button>
+                                <button type="submit" class="btn btn-secondary" wicket:id="suffixModelSuffix">Suffix Model Suffix</button>
                             </div>
                         </div>
                     </div>
