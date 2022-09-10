@@ -4,9 +4,9 @@ import java.util.List;
 
 import javax.annotation.concurrent.NotThreadSafe;
 import javax.inject.Inject;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
-import org.hibernate.validator.constraints.NotBlank;
 import org.springframework.beans.factory.annotation.Configurable;
 
 import de.invesdwin.context.client.wicket.examples.guestbook.persistence.GuestbookEntryDao;
@@ -66,8 +66,10 @@ public class GuestbookExample extends AValueObject {
 
     public String validateEmail(final String newValue) {
         if (newValue != null) {
-            return newValue.matches("^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$") ? null
-                    : "is not valid";
+            return newValue.matches(
+                    "^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$")
+                            ? null
+                            : "is not valid";
         }
 
         return null;
