@@ -20,8 +20,8 @@ import de.invesdwin.nowicket.generated.binding.processor.element.IHtmlElement;
 import de.invesdwin.nowicket.generated.binding.processor.element.SelectHtmlElement;
 import de.invesdwin.nowicket.generated.binding.processor.element.TabbedHtmlElement;
 import de.invesdwin.nowicket.generated.binding.processor.visitor.builder.BindingInterceptor;
-import de.invesdwin.nowicket.generated.binding.processor.visitor.builder.component.collapsible.ModelAccordion;
 import de.invesdwin.nowicket.generated.binding.processor.visitor.builder.component.collapsible.ModelCollapsibleList;
+import de.invesdwin.nowicket.generated.binding.processor.visitor.builder.component.collapsible.accordion.ModelAccordion;
 import de.invesdwin.nowicket.generated.binding.processor.visitor.builder.component.palette.ModelPalette;
 
 @NotThreadSafe
@@ -72,9 +72,9 @@ public class BugfixPage extends AWebPage {
                     };
                     return new ModelAccordion(e.getWicketId(), tabs) {
                         @Override
-                        protected AccordionCollapsible newAccordionCollapsible(final String componentId, final ITab tab,
+                        protected Collapsible newAccordionCollapsible(final String componentId, final ITab tab,
                                 final int index) {
-                            return new AccordionCollapsible(componentId, tab, index) {
+                            return new Collapsible(componentId, tab, index) {
                                 @Override
                                 protected Component newTitle(final String markupId, final ITab tab) {
                                     final IModel<String> badgeModel = new IModel<String>() {
