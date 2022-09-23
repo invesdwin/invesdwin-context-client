@@ -66,11 +66,6 @@ public class DelegateWebApplication extends AWebApplication {
     }
 
     @Override
-    public String getSessionEncryptionKey() {
-        return "3LJVpcMBUj2cZpDdRd9ykvNhER3HBZ49A59TmLZVfE9sF884Mx7AAXGgZmCJ2UfM";
-    }
-
-    @Override
     public Set<String> getClasspathBasePackages() {
         return ContextProperties.getBasePackages();
     }
