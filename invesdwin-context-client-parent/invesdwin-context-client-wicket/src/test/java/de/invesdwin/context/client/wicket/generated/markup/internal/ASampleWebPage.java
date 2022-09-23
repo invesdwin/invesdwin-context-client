@@ -8,9 +8,9 @@ import org.apache.wicket.model.Model;
 import de.agilecoders.wicket.core.markup.html.bootstrap.navbar.Navbar.ComponentPosition;
 import de.agilecoders.wicket.core.markup.html.bootstrap.navbar.NavbarButton;
 import de.agilecoders.wicket.core.markup.html.bootstrap.navbar.NavbarComponents;
+import de.agilecoders.wicket.extensions.markup.html.bootstrap.icon.FontAwesome6IconType;
 import de.invesdwin.nowicket.application.AWebPage;
 import de.invesdwin.nowicket.application.auth.ABaseWebApplication;
-import de.invesdwin.nowicket.component.header.font.FontAwesome6IconType;
 import de.invesdwin.nowicket.component.navbar.Navbar;
 
 @NotThreadSafe
