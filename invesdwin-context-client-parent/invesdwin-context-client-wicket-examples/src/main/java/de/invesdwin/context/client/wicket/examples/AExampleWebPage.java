@@ -28,7 +28,7 @@ import de.invesdwin.nowicket.application.AWebPage;
 import de.invesdwin.nowicket.application.auth.ABaseWebApplication;
 import de.invesdwin.nowicket.application.auth.Roles;
 import de.invesdwin.nowicket.component.header.font.FontAwesome6IconType;
-import de.invesdwin.nowicket.component.navbar.ANavbarDropDownButton;
+import de.invesdwin.nowicket.component.navbar.NavbarDropDownButton;
 import de.invesdwin.nowicket.component.navbar.Navbar;
 import de.invesdwin.nowicket.page.auth.defaultpage.DefaultSignInPage;
 import de.invesdwin.nowicket.page.auth.defaultpage.DefaultSignOutPage;
@@ -48,7 +48,7 @@ public abstract class AExampleWebPage extends AWebPage {
                 new NavbarButton<Void>(GuestbookExamplePage.class, new ResourceModel("menu.guestbook"))
                         .setIconType(FontAwesome6IconType.book_s)));
         navbar.addComponents(NavbarComponents.transform(ComponentPosition.LEFT,
-                new ANavbarDropDownButton(new ResourceModel("menu.secure.local")) {
+                new NavbarDropDownButton(new ResourceModel("menu.secure.local")) {
 
                     @Override
                     public boolean isActive(final Component item) {
@@ -78,7 +78,7 @@ public abstract class AExampleWebPage extends AWebPage {
                 }));
 
         navbar.addComponents(NavbarComponents.transform(ComponentPosition.LEFT,
-                new ANavbarDropDownButton(new ResourceModel("menu.secure.saml")) {
+                new NavbarDropDownButton(new ResourceModel("menu.secure.saml")) {
 
                     @Override
                     public boolean isActive(final Component item) {
@@ -106,7 +106,7 @@ public abstract class AExampleWebPage extends AWebPage {
                 }));
 
         navbar.addComponents(NavbarComponents.transform(ComponentPosition.LEFT,
-                new ANavbarDropDownButton(new ResourceModel("menu.secure.kerberos")) {
+                new NavbarDropDownButton(new ResourceModel("menu.secure.kerberos")) {
 
                     @Override
                     public boolean isActive(final Component item) {
@@ -134,7 +134,7 @@ public abstract class AExampleWebPage extends AWebPage {
                 }));
 
         navbar.addComponents(NavbarComponents.transform(ComponentPosition.LEFT,
-                new ANavbarDropDownButton(new ResourceModel("menu.secure.cas")) {
+                new NavbarDropDownButton(new ResourceModel("menu.secure.cas")) {
 
                     @Override
                     public boolean isActive(final Component item) {
