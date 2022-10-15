@@ -6,7 +6,7 @@ import javax.annotation.concurrent.Immutable;
 
 import org.apache.commons.lang3.CharUtils;
 
-import de.invesdwin.util.lang.Strings;
+import de.invesdwin.util.lang.string.Strings;
 import de.invesdwin.util.swing.AComponentFinder;
 
 @Immutable

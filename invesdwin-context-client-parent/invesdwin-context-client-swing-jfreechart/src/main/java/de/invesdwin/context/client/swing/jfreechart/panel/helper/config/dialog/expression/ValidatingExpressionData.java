@@ -14,7 +14,7 @@ import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.series.A
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.series.expression.IExpressionSeriesProvider;
 import de.invesdwin.util.collections.Arrays;
 import de.invesdwin.util.lang.Objects;
-import de.invesdwin.util.lang.Strings;
+import de.invesdwin.util.lang.string.Strings;
 import de.invesdwin.util.math.expression.IExpression;
 import de.invesdwin.util.swing.Components;
 import de.invesdwin.util.swing.icon.ChangeColorImageFilter;

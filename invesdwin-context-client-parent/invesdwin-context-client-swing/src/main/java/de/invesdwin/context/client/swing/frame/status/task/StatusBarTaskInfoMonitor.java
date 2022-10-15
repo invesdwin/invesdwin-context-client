@@ -18,7 +18,7 @@ import de.invesdwin.util.concurrent.Threads;
 import de.invesdwin.util.concurrent.taskinfo.ITaskInfoListener;
 import de.invesdwin.util.concurrent.taskinfo.TaskInfo;
 import de.invesdwin.util.concurrent.taskinfo.TaskInfoManager;
-import de.invesdwin.util.lang.Strings;
+import de.invesdwin.util.lang.string.Strings;
 import de.invesdwin.util.math.decimal.scaled.Percent;
 import de.invesdwin.util.math.decimal.scaled.PercentScale;
 import de.invesdwin.util.time.date.FTimeUnit;

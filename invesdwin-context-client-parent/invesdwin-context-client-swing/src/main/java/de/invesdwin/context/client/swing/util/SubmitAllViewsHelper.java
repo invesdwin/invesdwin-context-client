@@ -10,7 +10,7 @@ import javax.annotation.concurrent.Immutable;
 import de.invesdwin.context.client.swing.api.binding.BindingGroup;
 import de.invesdwin.context.client.swing.api.guiservice.GuiService;
 import de.invesdwin.context.client.swing.api.view.AView;
-import de.invesdwin.util.lang.Strings;
+import de.invesdwin.util.lang.string.Strings;
 
 @Immutable
 public class SubmitAllViewsHelper extends UpdateAllViewsHelper {

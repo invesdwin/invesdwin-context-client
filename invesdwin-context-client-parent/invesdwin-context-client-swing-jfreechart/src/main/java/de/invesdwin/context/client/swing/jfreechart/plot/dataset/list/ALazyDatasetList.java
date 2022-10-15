@@ -9,7 +9,7 @@ import java.util.ListIterator;
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
-import de.invesdwin.util.lang.Strings;
+import de.invesdwin.util.lang.string.Strings;
 
 @ThreadSafe
 public abstract class ALazyDatasetList<E> implements List<E> {

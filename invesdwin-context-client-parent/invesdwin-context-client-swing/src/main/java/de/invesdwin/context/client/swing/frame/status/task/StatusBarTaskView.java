@@ -24,7 +24,7 @@ import de.invesdwin.context.client.swing.api.hook.IRichApplicationHook;
 import de.invesdwin.context.client.swing.api.task.EstimatedRemainingDurationTaskListener;
 import de.invesdwin.context.client.swing.api.view.AView;
 import de.invesdwin.context.client.swing.frame.app.DelegateRichApplication;
-import de.invesdwin.util.lang.Strings;
+import de.invesdwin.util.lang.string.Strings;
 import de.invesdwin.util.swing.Components;
 import de.invesdwin.util.swing.MouseEnteredListener;
 import de.invesdwin.util.time.date.FTimeUnit;

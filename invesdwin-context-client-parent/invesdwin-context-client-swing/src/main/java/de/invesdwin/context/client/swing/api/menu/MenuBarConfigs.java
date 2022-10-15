@@ -13,7 +13,7 @@ import de.invesdwin.context.client.swing.api.view.AView;
 import de.invesdwin.context.client.swing.frame.content.IWorkingAreaLocation;
 import de.invesdwin.context.client.swing.frame.content.WorkingAreaLocation;
 import de.invesdwin.util.assertions.Assertions;
-import de.invesdwin.util.lang.Strings;
+import de.invesdwin.util.lang.string.Strings;
 
 @Immutable
 public final class MenuBarConfigs {

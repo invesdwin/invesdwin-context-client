@@ -32,7 +32,7 @@ import de.invesdwin.context.client.swing.frame.content.IWorkingAreaLocation;
 import de.invesdwin.context.client.swing.util.SubmitAllViewsHelper;
 import de.invesdwin.context.client.swing.util.UpdateAllViewsHelper;
 import de.invesdwin.context.client.swing.util.Views;
-import de.invesdwin.util.lang.Strings;
+import de.invesdwin.util.lang.string.Strings;
 import de.invesdwin.util.swing.Dialogs;
 import de.invesdwin.util.swing.listener.ComponentListenerSupport;
 import de.invesdwin.util.swing.listener.WindowListenerSupport;

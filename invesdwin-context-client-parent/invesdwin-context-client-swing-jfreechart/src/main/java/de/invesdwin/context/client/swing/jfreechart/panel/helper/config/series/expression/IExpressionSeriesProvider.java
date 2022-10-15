@@ -13,7 +13,7 @@ import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.SeriesRe
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.IPlotSourceDataset;
 import de.invesdwin.context.client.swing.rsyntaxtextarea.expression.ExpressionValidatingParser;
 import de.invesdwin.context.client.swing.rsyntaxtextarea.expression.completion.ExpressionAutoCompletion;
-import de.invesdwin.util.lang.Strings;
+import de.invesdwin.util.lang.string.Strings;
 import de.invesdwin.util.math.expression.IExpression;
 import de.invesdwin.util.math.expression.tokenizer.ParseException;
 

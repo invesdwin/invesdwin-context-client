@@ -36,7 +36,7 @@ import de.invesdwin.context.client.swing.jfreechart.plot.renderer.custom.annotat
 import de.invesdwin.context.client.swing.jfreechart.plot.renderer.custom.annotations.item.LineAnnotationPlottingDataItem;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
 import de.invesdwin.util.error.UnknownArgumentException;
-import de.invesdwin.util.lang.Strings;
+import de.invesdwin.util.lang.string.Strings;
 import de.invesdwin.util.math.Doubles;
 
 @NotThreadSafe

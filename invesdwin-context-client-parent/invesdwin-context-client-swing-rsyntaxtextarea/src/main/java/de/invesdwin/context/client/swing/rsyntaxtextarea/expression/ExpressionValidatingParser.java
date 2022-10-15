@@ -23,7 +23,7 @@ import de.invesdwin.aspects.EventDispatchThreadUtil;
 import de.invesdwin.util.concurrent.future.Futures;
 import de.invesdwin.util.error.Throwables;
 import de.invesdwin.util.lang.Objects;
-import de.invesdwin.util.lang.Strings;
+import de.invesdwin.util.lang.string.Strings;
 import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.math.expression.multiple.MultipleExpressionParser;
 import de.invesdwin.util.math.expression.tokenizer.IPosition;

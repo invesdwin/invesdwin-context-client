@@ -49,7 +49,7 @@ import de.invesdwin.context.client.swing.jfreechart.plot.renderer.Renderers;
 import de.invesdwin.context.client.swing.jfreechart.plot.renderer.custom.CustomProfitLossRenderer;
 import de.invesdwin.context.client.swing.jfreechart.plot.renderer.custom.ICustomRendererType;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
-import de.invesdwin.util.lang.Strings;
+import de.invesdwin.util.lang.string.Strings;
 import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.swing.icon.AlphaImageIcon;
 import de.invesdwin.util.swing.icon.ChangeColorImageFilter;

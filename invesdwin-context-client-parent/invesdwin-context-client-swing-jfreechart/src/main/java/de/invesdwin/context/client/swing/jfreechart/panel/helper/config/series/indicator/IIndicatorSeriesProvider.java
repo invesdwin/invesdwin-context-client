@@ -2,7 +2,7 @@ package de.invesdwin.context.client.swing.jfreechart.panel.helper.config.series.
 
 import de.invesdwin.context.client.swing.jfreechart.panel.InteractiveChartPanel;
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.IPlotSourceDataset;
-import de.invesdwin.util.lang.Strings;
+import de.invesdwin.util.lang.string.Strings;
 import de.invesdwin.util.math.expression.IExpression;
 
 public interface IIndicatorSeriesProvider {

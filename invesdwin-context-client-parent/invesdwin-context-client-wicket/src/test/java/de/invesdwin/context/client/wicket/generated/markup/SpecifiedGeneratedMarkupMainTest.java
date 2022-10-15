@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 
 import de.invesdwin.context.test.ATest;
 import de.invesdwin.nowicket.generated.markup.SpecifiedGeneratedMarkupMain;
-import de.invesdwin.util.lang.Strings;
+import de.invesdwin.util.lang.string.Strings;
 
 @NotThreadSafe
 public class SpecifiedGeneratedMarkupMainTest extends ATest {

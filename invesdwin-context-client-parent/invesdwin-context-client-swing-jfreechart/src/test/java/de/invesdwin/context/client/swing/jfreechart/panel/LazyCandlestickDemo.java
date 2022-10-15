@@ -56,8 +56,8 @@ import de.invesdwin.util.collections.loadingcache.historical.query.IHistoricalCa
 import de.invesdwin.util.concurrent.Executors;
 import de.invesdwin.util.concurrent.WrappedExecutorService;
 import de.invesdwin.util.error.UnknownArgumentException;
-import de.invesdwin.util.lang.UniqueNameGenerator;
 import de.invesdwin.util.lang.reflection.Reflections;
+import de.invesdwin.util.lang.string.UniqueNameGenerator;
 import de.invesdwin.util.math.expression.IExpression;
 import de.invesdwin.util.math.expression.eval.BooleanConstantExpression;
 import de.invesdwin.util.math.expression.eval.EnumerationExpression;

@@ -2,7 +2,7 @@ package de.invesdwin.context.client.swing.api.binding.converter;
 
 import javax.annotation.concurrent.Immutable;
 
-import de.invesdwin.util.lang.Strings;
+import de.invesdwin.util.lang.string.Strings;
 
 @Immutable
 public final class ObjectToStringConverter implements IConverter<Object, String> {

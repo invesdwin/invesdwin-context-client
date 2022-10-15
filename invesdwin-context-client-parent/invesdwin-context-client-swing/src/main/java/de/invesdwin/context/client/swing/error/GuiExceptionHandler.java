@@ -28,7 +28,7 @@ import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.collections.Collections;
 import de.invesdwin.util.concurrent.future.ImmutableFuture;
 import de.invesdwin.util.error.Throwables;
-import de.invesdwin.util.lang.description.HtmlToPlainText;
+import de.invesdwin.util.lang.string.description.HtmlToPlainText;
 import de.invesdwin.util.shutdown.ShutdownHookManager;
 import de.invesdwin.util.swing.Components;
 import de.invesdwin.util.swing.Dialogs;
