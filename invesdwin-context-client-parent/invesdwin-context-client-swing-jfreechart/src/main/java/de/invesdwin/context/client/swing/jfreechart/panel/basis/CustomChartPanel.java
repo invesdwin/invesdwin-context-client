@@ -42,7 +42,6 @@ import org.jfree.chart.plot.Zoomable;
 import org.jfree.data.Range;
 
 import de.invesdwin.context.log.error.Err;
-import de.invesdwin.util.math.Doubles;
 import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.math.decimal.scaled.Percent;
 import de.invesdwin.util.math.decimal.scaled.PercentScale;
@@ -662,18 +661,13 @@ public class CustomChartPanel extends JPanel implements ChartChangeListener, Cha
             this.scaleX = 1.0;
             this.scaleY = 1.0;
 
-            final double maximumDrawHeightAdj = maybeAdjustMaximumDrawHeight(drawWidth, drawHeight,
-                    this.maximumDrawWidth, this.maximumDrawHeight);
-            final double maximumDrawWidthAdj = maybeAdjustMaximumDrawWidth(drawWidth, drawHeight, this.maximumDrawWidth,
-                    maximumDrawHeightAdj);
-
             if (drawWidth < this.minimumDrawWidth) {
                 this.scaleX = drawWidth / this.minimumDrawWidth;
                 drawWidth = this.minimumDrawWidth;
                 scale = true;
-            } else if (drawWidth > maximumDrawWidthAdj) {
-                this.scaleX = drawWidth / maximumDrawWidthAdj;
-                drawWidth = maximumDrawWidthAdj;
+            } else if (drawWidth > this.maximumDrawWidth) {
+                this.scaleX = drawWidth / this.maximumDrawWidth;
+                drawWidth = this.maximumDrawWidth;
                 scale = true;
             }
 
@@ -681,9 +675,9 @@ public class CustomChartPanel extends JPanel implements ChartChangeListener, Cha
                 this.scaleY = drawHeight / this.minimumDrawHeight;
                 drawHeight = this.minimumDrawHeight;
                 scale = true;
-            } else if (drawHeight > maximumDrawHeightAdj) {
-                this.scaleY = drawHeight / maximumDrawHeightAdj;
-                drawHeight = maximumDrawHeightAdj;
+            } else if (drawHeight > this.maximumDrawHeight) {
+                this.scaleY = drawHeight / this.maximumDrawHeight;
+                drawHeight = this.maximumDrawHeight;
                 scale = true;
             }
 
@@ -692,49 +686,64 @@ public class CustomChartPanel extends JPanel implements ChartChangeListener, Cha
             // are we using the chart buffer?
             if (this.useBuffer) {
 
+                // for better rendering on the HiDPI monitors upscaling the buffer to the "native" resoution
+                // instead of using logical one provided by Swing
+                final AffineTransform globalTransform = ((Graphics2D) g).getTransform();
+                final double globalScaleX = globalTransform.getScaleX();
+                final double globalScaleY = globalTransform.getScaleY();
+
+                final int scaledWidth = (int) (available.getWidth() * globalScaleX);
+                final int scaledHeight = (int) (available.getHeight() * globalScaleY);
+
                 // do we need to resize the buffer?
-                if (isPaintAllowed()) {
-                    if ((this.chartBuffer == null) || (this.chartBufferWidth != available.getWidth())
-                            || (this.chartBufferHeight != available.getHeight())) {
-                        this.chartBufferWidth = (int) available.getWidth();
-                        this.chartBufferHeight = (int) available.getHeight();
-                        final GraphicsConfiguration gc = g2.getDeviceConfiguration();
-                        this.chartBuffer = gc.createCompatibleImage(this.chartBufferWidth, this.chartBufferHeight,
-                                Transparency.TRANSLUCENT);
-                        this.refreshBuffer = true;
+                if ((this.chartBuffer == null) || (this.chartBufferWidth != scaledWidth)
+                        || (this.chartBufferHeight != scaledHeight)) {
+                    this.chartBufferWidth = scaledWidth;
+                    this.chartBufferHeight = scaledHeight;
+                    final GraphicsConfiguration gc = g2.getDeviceConfiguration();
+
+                    this.chartBuffer = gc.createCompatibleImage(this.chartBufferWidth, this.chartBufferHeight,
+                            Transparency.TRANSLUCENT);
+                    this.refreshBuffer = true;
+                }
+
+                // do we need to redraw the buffer?
+                if (this.refreshBuffer) {
+
+                    this.refreshBuffer = false; // clear the flag
+
+                    // scale graphics of the buffer to the same value as global
+                    // Swing graphics - this allow to paint all elements as usual
+                    // but applies all necessary smoothing
+                    final Graphics2D bufferG2 = (Graphics2D) this.chartBuffer.getGraphics();
+                    bufferG2.scale(globalScaleX, globalScaleY);
+
+                    final Rectangle2D bufferArea = new Rectangle2D.Double(0, 0, available.getWidth(),
+                            available.getHeight());
+
+                    // make the background of the buffer clear and transparent
+                    final Composite savedComposite = bufferG2.getComposite();
+                    bufferG2.setComposite(AlphaComposite.getInstance(AlphaComposite.CLEAR, 0.0f));
+                    final Rectangle r = new Rectangle(0, 0, (int) available.getWidth(), (int) available.getHeight());
+                    bufferG2.fill(r);
+                    bufferG2.setComposite(savedComposite);
+
+                    if (scale) {
+                        final AffineTransform saved = bufferG2.getTransform();
+                        final AffineTransform st = AffineTransform.getScaleInstance(this.scaleX, this.scaleY);
+                        bufferG2.transform(st);
+                        this.chart.draw(bufferG2, chartArea, this.anchor, this.info);
+                        bufferG2.setTransform(saved);
+                    } else {
+                        this.chart.draw(bufferG2, bufferArea, this.anchor, this.info);
                     }
-
-                    // do we need to redraw the buffer?
-                    if (this.refreshBuffer) {
-
-                        this.refreshBuffer = false; // clear the flag
-
-                        final Rectangle2D bufferArea = new Rectangle2D.Double(0, 0, this.chartBufferWidth,
-                                this.chartBufferHeight);
-
-                        // make the background of the buffer clear and transparent
-                        final Graphics2D bufferG2 = (Graphics2D) this.chartBuffer.getGraphics();
-                        final Composite savedComposite = bufferG2.getComposite();
-                        bufferG2.setComposite(AlphaComposite.getInstance(AlphaComposite.CLEAR, 0.0f));
-                        final Rectangle r = new Rectangle(0, 0, this.chartBufferWidth, this.chartBufferHeight);
-                        bufferG2.fill(r);
-                        bufferG2.setComposite(savedComposite);
-
-                        if (scale) {
-                            final AffineTransform saved = bufferG2.getTransform();
-                            final AffineTransform st = AffineTransform.getScaleInstance(this.scaleX, this.scaleY);
-                            bufferG2.transform(st);
-                            this.chart.draw(bufferG2, chartArea, this.anchor, this.info);
-                            bufferG2.setTransform(saved);
-                        } else {
-                            this.chart.draw(bufferG2, bufferArea, this.anchor, this.info);
-                        }
-
-                    }
+                    bufferG2.dispose();
                 }
 
                 // zap the buffer onto the panel...
-                g2.drawImage(this.chartBuffer, insets.left, insets.top, this);
+                g2.drawImage(this.chartBuffer, insets.left, insets.top, (int) available.getWidth(),
+                        (int) available.getHeight(), this);
+                g2.addRenderingHints(this.chart.getRenderingHints()); // bug#187
 
             } else { // redrawing the chart every time...
                 final AffineTransform saved = g2.getTransform();
@@ -757,28 +766,6 @@ public class CustomChartPanel extends JPanel implements ChartChangeListener, Cha
             Err.process(new RuntimeException("Must be some race condition, retrying", t)); //log and ignore
             paintComponent(g);
         }
-    }
-
-    private double maybeAdjustMaximumDrawWidth(final double drawWidth, final double drawHeight,
-            final double maximumDrawWidth, final double maximumDrawHeight) {
-        if (drawHeight > maximumDrawHeight) {
-            final double aspectRatioHeightToWidthMultiplier = Doubles.divide(drawWidth, drawHeight);
-            if (aspectRatioHeightToWidthMultiplier > 0D) {
-                return maximumDrawHeight * aspectRatioHeightToWidthMultiplier;
-            }
-        }
-        return maximumDrawWidth;
-    }
-
-    private double maybeAdjustMaximumDrawHeight(final double drawWidth, final double drawHeight,
-            final double maximumDrawWidth, final double maximumDrawHeight) {
-        if (drawWidth > maximumDrawWidth) {
-            final double aspectRatioWidthToHeightMultiplier = Doubles.divide(drawHeight, drawWidth);
-            if (aspectRatioWidthToHeightMultiplier > 0D) {
-                return maximumDrawWidth * aspectRatioWidthToHeightMultiplier;
-            }
-        }
-        return maximumDrawHeight;
     }
 
     protected boolean isPaintAllowed() {
