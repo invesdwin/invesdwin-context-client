@@ -43,11 +43,13 @@ import org.jfree.chart.util.PublicCloneable;
 import org.jfree.chart.util.SerialUtils;
 import org.jfree.chart.util.SortOrder;
 
+import de.invesdwin.util.swing.HiDPI;
+
 @NotThreadSafe
 public class CustomLegendTitle extends Title implements Cloneable, PublicCloneable, Serializable {
 
     /** The default item font. */
-    public static final Font DEFAULT_ITEM_FONT = new Font("SansSerif", Font.PLAIN, 12);
+    public static final Font DEFAULT_ITEM_FONT = new Font("SansSerif", Font.PLAIN, HiDPI.scale(12));
 
     /** The default item paint. */
     public static final Paint DEFAULT_ITEM_PAINT = Color.black;

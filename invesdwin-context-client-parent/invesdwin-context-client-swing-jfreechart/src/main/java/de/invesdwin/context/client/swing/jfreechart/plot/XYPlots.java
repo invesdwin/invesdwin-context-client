@@ -23,6 +23,7 @@ import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.math.decimal.Decimal;
 import de.invesdwin.util.math.decimal.scaled.Percent;
 import de.invesdwin.util.math.decimal.scaled.PercentScale;
+import de.invesdwin.util.swing.HiDPI;
 
 @Immutable
 public final class XYPlots {
@@ -33,10 +34,9 @@ public final class XYPlots {
             return value;
         }
     };
-    public static final Font DEFAULT_FONT = new Font("Verdana", Font.PLAIN, 9);
+    public static final Font DEFAULT_FONT = new Font("Verdana", Font.PLAIN, HiDPI.scale(9));
 
-    private XYPlots() {
-    }
+    private XYPlots() {}
 
     public static int getFreeDatasetIndex(final XYPlot plot) {
         for (int i = 0; i < plot.getDatasetCount(); i++) {

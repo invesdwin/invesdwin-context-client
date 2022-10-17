@@ -80,10 +80,10 @@ public class CustomChartPanel extends JPanel implements ChartChangeListener, Cha
     public static final int DEFAULT_MINIMUM_DRAW_HEIGHT = 1;
 
     /** The default limit above which chart scaling kicks in. */
-    public static final int DEFAULT_MAXIMUM_DRAW_WIDTH = 1920;
+    public static final int DEFAULT_MAXIMUM_DRAW_WIDTH = 3840;
 
     /** The default limit above which chart scaling kicks in. */
-    public static final int DEFAULT_MAXIMUM_DRAW_HEIGHT = 1080;
+    public static final int DEFAULT_MAXIMUM_DRAW_HEIGHT = 2160;
 
     /** The minimum size required to perform a zoom on a rectangle */
     public static final int DEFAULT_ZOOM_TRIGGER_DISTANCE = 10;
