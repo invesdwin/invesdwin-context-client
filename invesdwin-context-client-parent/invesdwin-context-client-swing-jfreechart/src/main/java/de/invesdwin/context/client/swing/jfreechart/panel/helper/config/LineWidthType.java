@@ -6,6 +6,7 @@ import java.awt.Stroke;
 import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.error.UnknownArgumentException;
+import de.invesdwin.util.swing.HiDPI;
 
 @Immutable
 public enum LineWidthType {
@@ -32,7 +33,7 @@ public enum LineWidthType {
     public static LineWidthType valueOf(final Stroke stroke) {
         if (stroke instanceof BasicStroke) {
             final BasicStroke cStroke = (BasicStroke) stroke;
-            return valueOf(cStroke.getLineWidth());
+            return valueOf(HiDPI.descale(cStroke.getLineWidth()));
         }
         throw UnknownArgumentException.newInstance(Stroke.class, stroke);
     }

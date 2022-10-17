@@ -8,6 +8,7 @@ import java.util.Map;
 import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.util.error.UnknownArgumentException;
+import de.invesdwin.util.swing.HiDPI;
 
 @Immutable
 public enum LineStyleType {
@@ -45,7 +46,7 @@ public enum LineStyleType {
     LineStyleType(final String text) {
         this.text = text;
         for (final LineWidthType width : LineWidthType.values()) {
-            width_stroke.put(width, newStroke(width.getWidth()));
+            width_stroke.put(width, newStroke(HiDPI.scale(width.getWidth())));
         }
     }
 
