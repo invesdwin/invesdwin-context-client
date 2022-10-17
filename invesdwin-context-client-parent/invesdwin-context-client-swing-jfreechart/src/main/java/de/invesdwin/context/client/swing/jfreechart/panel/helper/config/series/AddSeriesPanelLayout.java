@@ -22,13 +22,14 @@ import javax.swing.table.DefaultTableModel;
 
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.icons.PlotIcons;
 import de.invesdwin.context.client.swing.rsyntaxtextarea.DynamicRSyntaxTextAreaPanel;
+import de.invesdwin.util.swing.HiDPI;
 import de.invesdwin.util.swing.button.JSplitButton;
 
 @NotThreadSafe
 public class AddSeriesPanelLayout extends JPanel {
 
-    public static final Dimension DIMENSION_TEXTFIELD = new Dimension(50, 28);
-    public static final ImageIcon ICON_EXPRESSION = PlotIcons.EXPRESSION.newIcon(14);
+    public static final Dimension DIMENSION_TEXTFIELD = HiDPI.scale(new Dimension(50, 28));
+    public static final ImageIcon ICON_EXPRESSION = PlotIcons.EXPRESSION.newIcon(HiDPI.scale(14));
     //CHECKSTYLE:OFF
     public final JPanel pnl_expression;
     public final DynamicRSyntaxTextAreaPanel tf_expression;
@@ -84,7 +85,7 @@ public class AddSeriesPanelLayout extends JPanel {
         pnl_indicator.add(pnl_search, BorderLayout.NORTH);
 
         lbl_search = new JLabel("");
-        lbl_search.setIcon(PlotIcons.SEARCH.newIcon(14));
+        lbl_search.setIcon(PlotIcons.SEARCH.newIcon(HiDPI.scale(14)));
         pnl_search.add(lbl_search, BorderLayout.WEST);
 
         final JScrollPane scrl_indicator = new JScrollPane();

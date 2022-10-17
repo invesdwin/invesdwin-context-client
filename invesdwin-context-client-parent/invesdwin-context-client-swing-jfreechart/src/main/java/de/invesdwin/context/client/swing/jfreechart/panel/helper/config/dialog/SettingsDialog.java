@@ -16,12 +16,13 @@ import javax.swing.KeyStroke;
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.PlotConfigurationHelper;
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.legend.HighlightedLegendInfo;
 import de.invesdwin.util.swing.Dialogs;
+import de.invesdwin.util.swing.HiDPI;
 import de.invesdwin.util.swing.listener.WindowListenerSupport;
 
 @NotThreadSafe
 public class SettingsDialog extends JDialog {
 
-    public static final int MAX_WIDTH = 800;
+    public static final int MAX_WIDTH = HiDPI.scale(800);
     private final SettingsPanel panel;
 
     public SettingsDialog(final PlotConfigurationHelper plotConfigurationHelper,
@@ -50,7 +51,7 @@ public class SettingsDialog extends JDialog {
         }, KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0), JComponent.WHEN_IN_FOCUSED_WINDOW);
 
         setResizable(true);
-        setMinimumSize(new Dimension(400, 300));
+        setMinimumSize(HiDPI.scale(new Dimension(400, 300)));
         pack();
         if (getWidth() > MAX_WIDTH) {
             setSize(MAX_WIDTH, getHeight());

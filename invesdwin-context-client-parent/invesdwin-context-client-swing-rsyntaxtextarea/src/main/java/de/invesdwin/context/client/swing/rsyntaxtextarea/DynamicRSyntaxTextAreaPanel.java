@@ -19,6 +19,7 @@ import de.invesdwin.context.client.swing.rsyntaxtextarea.expression.ExpressionRS
 import de.invesdwin.context.client.swing.rsyntaxtextarea.expression.ExpressionTokenMaker;
 import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.swing.Components;
+import de.invesdwin.util.swing.HiDPI;
 import de.invesdwin.util.swing.listener.ComponentListenerSupport;
 import de.invesdwin.util.swing.listener.DocumentListenerSupport;
 
@@ -44,6 +45,7 @@ public class DynamicRSyntaxTextAreaPanel extends JPanel {
         textArea.setCaretStyle(RSyntaxTextArea.OVERWRITE_MODE, CaretStyle.BLOCK_STYLE);
         textArea.setSyntaxEditingStyle(getSyntaxEditingStyle());
         textArea.setParserDelay(250);
+        textArea.setFont(HiDPI.scale(textArea.getFont()));
         scrollPane = new RTextScrollPane();
         scrollPane.setViewportView(textArea);
         scrollPane.setLineNumbersEnabled(getMinRows() > 1);

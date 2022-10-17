@@ -51,6 +51,7 @@ import de.invesdwin.context.client.swing.jfreechart.plot.renderer.custom.ICustom
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
 import de.invesdwin.util.lang.string.Strings;
 import de.invesdwin.util.math.Integers;
+import de.invesdwin.util.swing.HiDPI;
 import de.invesdwin.util.swing.icon.AlphaImageIcon;
 import de.invesdwin.util.swing.icon.ChangeColorImageFilter;
 
@@ -64,7 +65,7 @@ public class CustomOrderPlottingRenderer extends AbstractXYItemRenderer
     public static final Color BOTH_COLOR = new Color(230, 145, 56);
     public static final float NOTE_ALPHA = 0.2F;
     private static final ValueAxis ABSOLUTE_AXIS = XYPlots.DRAWING_ABSOLUTE_AXIS;
-    private static final int NOTE_ICON_SIZE = 20;
+    private static final int NOTE_ICON_SIZE = HiDPI.scale(20);
 
     private static final LineStyleType LINE_STYLE_DEFAULT = LineStyleType.Solid;
     private static final LineStyleType LINE_STYLE_PENDING = LineStyleType.Dashed;

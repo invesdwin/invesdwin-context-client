@@ -33,6 +33,7 @@ import de.invesdwin.context.client.swing.jfreechart.plot.renderer.DisabledXYItem
 import de.invesdwin.context.client.swing.jfreechart.plot.renderer.IDatasetSourceXYItemRenderer;
 import de.invesdwin.util.collections.Collections;
 import de.invesdwin.util.lang.Colors;
+import de.invesdwin.util.swing.HiDPI;
 
 @NotThreadSafe
 public class PlotLegendHelper {
@@ -65,9 +66,9 @@ public class PlotLegendHelper {
     public PlotLegendHelper(final InteractiveChartPanel chartPanel) {
         this.chartPanel = chartPanel;
 
-        addAnnotation = new XYIconAnnotation(0.5D, 0.5D, PlotIcons.ADD.newIcon(16, 0.3F));
-        removeAnnotation = new XYIconAnnotation(0.5D, 0.5D, PlotIcons.REMOVE.newIcon(16, 0.3F));
-        trashAnnotation = new XYIconAnnotation(0.5D, 0.5D, PlotIcons.TRASH.newIcon(16, 0.3F));
+        addAnnotation = new XYIconAnnotation(0.5D, 0.5D, PlotIcons.ADD.newIcon(HiDPI.scale(16), 0.3F));
+        removeAnnotation = new XYIconAnnotation(0.5D, 0.5D, PlotIcons.REMOVE.newIcon(HiDPI.scale(16), 0.3F));
+        trashAnnotation = new XYIconAnnotation(0.5D, 0.5D, PlotIcons.TRASH.newIcon(HiDPI.scale(16), 0.3F));
     }
 
     public void update() {
