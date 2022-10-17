@@ -6,11 +6,11 @@ import java.awt.event.ComponentEvent;
 
 import javax.annotation.concurrent.ThreadSafe;
 import javax.swing.BorderFactory;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import de.invesdwin.context.client.swing.api.view.AView;
 import de.invesdwin.util.swing.Components;
+import de.invesdwin.util.swing.HiDPI;
 import de.invesdwin.util.swing.listener.ComponentListenerSupport;
 
 @ThreadSafe
@@ -60,7 +60,7 @@ public class HeapIndicatorView extends AView<HeapIndicatorView, JPanel> {
 
     private void calculateProgressbarPreferredSize() {
         final Dimension pgbPreferredSize = new Dimension();
-        pgbPreferredSize.height = new JLabel().getFont().getSize() + 2;
+        pgbPreferredSize.height = HiDPI.scale(HeapIndicator.FONT_SIZE + 2);
         pgbPreferredSize.width = pgbPreferredSize.height * 7;
         pgbHeapIndicator.setPreferredSize(pgbPreferredSize);
     }
