@@ -19,6 +19,7 @@ import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableModel;
 
 import de.invesdwin.context.client.swing.api.view.AView;
+import de.invesdwin.util.swing.HiDPI;
 
 @NotThreadSafe
 public class TestModelView extends AView<TestModel, JPanel> {
@@ -169,7 +170,7 @@ public class TestModelView extends AView<TestModel, JPanel> {
         nextJButton.setName("next");
         nextJButton.setIcon(new ImageIcon(
                 new ImageIcon(TestModelView.class.getResource("/de/invesdwin/context/client/swing/icon.png")).getImage()
-                        .getScaledInstance(24, 24, java.awt.Image.SCALE_SMOOTH)));
+                        .getScaledInstance(HiDPI.scale(24), HiDPI.scale(24), java.awt.Image.SCALE_SMOOTH)));
         final GridBagConstraints gbc_nextJButton = new GridBagConstraints();
         gbc_nextJButton.anchor = GridBagConstraints.EAST;
         gbc_nextJButton.gridx = 2;
