@@ -15,6 +15,7 @@ import javax.swing.UnsupportedLookAndFeelException;
 
 import org.jdesktop.application.Application;
 import org.jdesktop.application.ApplicationContext;
+import org.jdesktop.application.ApplicationContextAccessor;
 import org.jdesktop.application.FrameView;
 import org.jdesktop.application.LocalStorage;
 import org.jdesktop.application.ProxyActions;
@@ -31,6 +32,7 @@ import de.invesdwin.context.client.swing.api.exit.AMainFrameCloseOperation;
 import de.invesdwin.context.client.swing.api.hook.IRichApplicationHook;
 import de.invesdwin.context.client.swing.error.GuiExceptionHandler;
 import de.invesdwin.context.client.swing.frame.RichApplicationProperties;
+import de.invesdwin.context.client.swing.frame.app.resource.ModifiedResourceManager;
 import de.invesdwin.context.client.swing.frame.splash.ConfiguredSplashScreen;
 import de.invesdwin.context.client.swing.util.ComponentStandardizer;
 import de.invesdwin.context.log.error.Err;
@@ -75,6 +77,7 @@ public class DelegateRichApplication extends SingleFrameApplication {
         Assertions.assertThat(GuiExceptionHandler.INSTANCE).isNotNull();
         ToolTipManager.sharedInstance()
                 .setDismissDelay(new Duration(10, FTimeUnit.MINUTES).intValue(FTimeUnit.MILLISECONDS));
+        ApplicationContextAccessor.setResourceManager(getContext(), new ModifiedResourceManager(getContext()));
     }
 
     /**
