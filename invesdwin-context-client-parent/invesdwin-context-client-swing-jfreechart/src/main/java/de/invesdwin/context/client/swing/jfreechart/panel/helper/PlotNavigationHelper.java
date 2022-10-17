@@ -28,6 +28,7 @@ import de.invesdwin.context.client.swing.jfreechart.plot.annotation.XYNoteAnnota
 import de.invesdwin.context.client.swing.jfreechart.plot.annotation.XYNoteIconAnnotation;
 import de.invesdwin.context.client.swing.jfreechart.plot.renderer.INoteRenderer;
 import de.invesdwin.util.math.Doubles;
+import de.invesdwin.util.swing.HiDPI;
 
 @NotThreadSafe
 public class PlotNavigationHelper {
@@ -103,7 +104,7 @@ public class PlotNavigationHelper {
     }
 
     private XYIconAnnotation newIcon(final PlotIcons icon, final int xModification, final float alpha) {
-        final XYIconAnnotation annotation = new XYIconAnnotation(0.5D, 0.05D, icon.newIcon(24, alpha)) {
+        final XYIconAnnotation annotation = new XYIconAnnotation(0.5D, 0.05D, icon.newIcon(HiDPI.scale(24), alpha)) {
             @Override
             protected double modifyYInput(final double y) {
                 return Doubles.min(y * chartPanel.getCombinedPlot().getSubplots().size(), 0.5D);
@@ -111,7 +112,7 @@ public class PlotNavigationHelper {
 
             @Override
             protected float modifyXOutput(final float x) {
-                return x + xModification;
+                return x + HiDPI.scale(xModification);
             }
 
         };
