@@ -24,6 +24,7 @@ import de.invesdwin.context.client.swing.jfreechart.panel.helper.icons.PlotIcons
 import de.invesdwin.context.client.swing.rsyntaxtextarea.DynamicRSyntaxTextAreaPanel;
 import de.invesdwin.util.swing.HiDPI;
 import de.invesdwin.util.swing.button.JSplitButton;
+import de.invesdwin.util.swing.table.JTableWithHorizontalScroll;
 
 @NotThreadSafe
 public class AddSeriesPanelLayout extends JPanel {
@@ -91,7 +92,7 @@ public class AddSeriesPanelLayout extends JPanel {
         final JScrollPane scrl_indicator = new JScrollPane();
         pnl_indicator.add(scrl_indicator, BorderLayout.CENTER);
 
-        tbl_indicator = new JTable(new DefaultTableModel(
+        tbl_indicator = new JTableWithHorizontalScroll(new DefaultTableModel(
                 new Object[][] { { "1", "2" }, { "3", "4" }, { "5", "6" }, { "7", "8" }, { "9", "10" }, { "11", "12" },
                         { "13", "14" }, { "15", "16" }, { "17", "18" }, { "19", "20" }, },
                 new String[] { "New column", "New column" }));
