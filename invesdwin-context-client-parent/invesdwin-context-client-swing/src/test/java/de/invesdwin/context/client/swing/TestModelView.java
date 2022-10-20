@@ -20,6 +20,7 @@ import javax.swing.table.DefaultTableModel;
 
 import de.invesdwin.context.client.swing.api.view.AView;
 import de.invesdwin.util.swing.HiDPI;
+import de.invesdwin.util.swing.table.JTableWithHorizontalScroll;
 
 @NotThreadSafe
 public class TestModelView extends AView<TestModel, JPanel> {
@@ -136,7 +137,7 @@ public class TestModelView extends AView<TestModel, JPanel> {
         gbc_scrollPane_1.gridy = 3;
         component.add(scrollPane_1, gbc_scrollPane_1);
 
-        table = new JTable();
+        table = new JTableWithHorizontalScroll();
         scrollPane_1.setViewportView(table);
         table.setModel(new DefaultTableModel(new Object[][] { { null, null }, },
                 new String[] { "columnInteger", "columnString", "columnBoolean" }));
