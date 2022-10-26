@@ -26,8 +26,10 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
+// CHECKSTYLE:OFF
 @NotThreadSafe
 public class AdvancedBrowser {
+    //CHECKSTYLE:ON
 
     private static final String AT_REST = " ";
 
