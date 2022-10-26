@@ -1,7 +1,5 @@
 package de.invesdwin.context.client.swt;
 
-import javax.annotation.concurrent.NotThreadSafe;
-
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.browser.Browser;
 import org.eclipse.swt.browser.CloseWindowListener;
@@ -26,14 +24,11 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
-// CHECKSTYLE:OFF
-@NotThreadSafe
-public class AdvancedBrowser {
-    //CHECKSTYLE:ON
+public final class AdvancedBrowser {
 
     private static final String AT_REST = " ";
 
-    public AdvancedBrowser(final String location) {
+    private AdvancedBrowser(final String location) {
         final Display display = new Display();
         final Shell shell = new Shell(display);
         shell.setText("Advanced Browser");
