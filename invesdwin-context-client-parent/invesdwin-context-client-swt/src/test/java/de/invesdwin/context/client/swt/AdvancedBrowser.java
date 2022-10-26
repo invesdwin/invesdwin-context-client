@@ -197,4 +197,8 @@ public class AdvancedBrowser {
         }
     }
 
+    public static void main(final String[] args) {
+        new AdvancedBrowser("http://tradingview.com");
+    }
+
 }
