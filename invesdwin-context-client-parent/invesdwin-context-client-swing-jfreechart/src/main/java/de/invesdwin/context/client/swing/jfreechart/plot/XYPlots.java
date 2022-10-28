@@ -16,6 +16,7 @@ import org.jfree.chart.ui.RectangleEdge;
 import org.jfree.data.general.Dataset;
 import org.jfree.data.xy.XYDataset;
 
+import de.invesdwin.context.client.swing.jfreechart.panel.InteractiveChartPanel;
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.DisabledXYDataset;
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.IPlotSourceDataset;
 import de.invesdwin.util.math.Doubles;
@@ -220,4 +221,7 @@ public final class XYPlots {
         }
     }
 
+    public static void resetAllRangePannables(final InteractiveChartPanel chartPanel) {
+        chartPanel.getCombinedPlot().getSubplots().forEach(xyPlot -> xyPlot.setRangePannable(false));
+    }
 }

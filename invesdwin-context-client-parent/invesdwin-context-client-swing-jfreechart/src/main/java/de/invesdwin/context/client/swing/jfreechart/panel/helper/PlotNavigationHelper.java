@@ -22,6 +22,8 @@ import org.jfree.chart.renderer.xy.XYItemRenderer;
 import de.invesdwin.context.client.swing.jfreechart.panel.InteractiveChartPanel;
 import de.invesdwin.context.client.swing.jfreechart.panel.basis.CustomCombinedDomainXYPlot;
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.icons.PlotIcons;
+import de.invesdwin.context.client.swing.jfreechart.plot.Axises;
+import de.invesdwin.context.client.swing.jfreechart.plot.XYPlots;
 import de.invesdwin.context.client.swing.jfreechart.plot.annotation.XYIconAnnotation;
 import de.invesdwin.context.client.swing.jfreechart.plot.annotation.XYIconAnnotationEntity;
 import de.invesdwin.context.client.swing.jfreechart.plot.annotation.XYNoteAnnotation;
@@ -453,11 +455,12 @@ public class PlotNavigationHelper {
                 } else {
                     chartPanel.resetRange(chartPanel.getInitialVisibleItemCount());
                 }
+                Axises.resetAllAutoRanges(chartPanel);
+                XYPlots.resetAllRangePannables(chartPanel);
             } else if (iconAnnotation == configure) {
                 chartPanel.getPlotConfigurationHelper().displayPopupMenu(mouseX, mouseY);
             }
         }
-
     }
 
     private boolean stopButtonTimer() {

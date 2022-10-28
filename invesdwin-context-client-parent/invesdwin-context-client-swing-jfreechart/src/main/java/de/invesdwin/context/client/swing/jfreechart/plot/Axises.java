@@ -11,6 +11,8 @@ import org.jfree.chart.plot.PlotRenderingInfo;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.util.Args;
 
+import de.invesdwin.context.client.swing.jfreechart.panel.InteractiveChartPanel;
+
 @Immutable
 public final class Axises {
 
@@ -83,5 +85,17 @@ public final class Axises {
             }
         }
         return true;
+    }
+
+    /**
+     * Sets all the autoRange-Parameters on every axis of the plots/sublots back to true.
+     */
+
+    public static void resetAllAutoRanges(final InteractiveChartPanel chartPanel) {
+        for (final XYPlot xyPlot : chartPanel.getCombinedPlot().getSubplots()) {
+            for (int i = 0; i < xyPlot.getRangeAxisCount(); i++) {
+                xyPlot.getRangeAxis(i).setAutoRange(true);
+            }
+        }
     }
 }
