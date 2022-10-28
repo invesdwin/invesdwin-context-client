@@ -52,6 +52,9 @@ public class PlotZoomHelper {
     private static final double ZOOM_FACTOR = 0.1D;
     private static final double ZOOM_OUT_FACTOR = 1D + ZOOM_FACTOR;
     private static final double ZOOM_IN_FACTOR = 1 / ZOOM_OUT_FACTOR;
+    private static final double DRAG_ZOOM_FACTOR = 0.025D;
+    private static final double DRAG_ZOOM_OUT_FACTOR = 1D + DRAG_ZOOM_FACTOR;
+    private static final double DRAG_ZOOM_IN_FACTOR = 1 / DRAG_ZOOM_OUT_FACTOR;
     private static final Duration ZOOMABLE_THRESHOLD = new Duration(10, FTimeUnit.MILLISECONDS);
     private static final double EDGE_ANCHOR_TOLERANCE = 0.1D;
     private Instant lastZoomable = new Instant();
@@ -60,6 +63,8 @@ public class PlotZoomHelper {
     private final XYAnnotation zoomAnnotation;
     private final TextTitle zoomTitle;
     private final Timer zoomTitleTimer;
+
+    private AxisDragInfo axisDragInfo;
 
     private final IFastIterableSet<IRangeListener> rangeListeners = ILockCollectionFactory.getInstance(false)
             .newFastIterableLinkedSet();
@@ -362,20 +367,40 @@ public class PlotZoomHelper {
     }
 
     public void mousePressed(final MouseEvent e) {
-        final PlotRenderingInfo pinfo = this.chartPanel.getChartPanel().getChartRenderingInfo().getPlotInfo();
         final Point2D point2D = this.chartPanel.getChartPanel().translateScreenToJava2D(e.getPoint());
-        //Double-Click on the axis
-        if (e.getClickCount() == 2
-                && Axises.isAxisArea(this.chartPanel.getChartPanel().getChartRenderingInfo().getPlotInfo(), point2D)) {
-            final int subplotIndex = Axises.getSubplotIndexFromPlotArea(pinfo, point2D);
-            final XYPlot xyPlot = chartPanel.getCombinedPlot().getSubplots().get(subplotIndex);
-            final ValueAxis rangeAxis = Axises.getRangeAxis(
-                    this.chartPanel.getChartPanel().getChartRenderingInfo().getPlotInfo(), point2D, xyPlot);
-            if (rangeAxis != null) {
-                rangeAxis.setAutoRange(true);
-                // We make the xyplot y-pannable if at least one axis/indicator is on AutoRange = false.
-                xyPlot.setRangePannable(!Axises.isEveryAxisAutoRange(xyPlot));
+
+        if (Axises.isAxisArea(this.chartPanel.getChartPanel().getChartRenderingInfo().getPlotInfo(), point2D)) {
+            final ValueAxis rangeAxis = Axises.getRangeAxis(this.chartPanel, point2D);
+            axisDragInfo = new AxisDragInfo(point2D, rangeAxis);
+            handleAxisDoubleClick(e, rangeAxis, point2D);
+        }
+    }
+
+    public void mouseReleased(final MouseEvent e) {
+        axisDragInfo = null;
+    }
+
+    public void mouseDragged(final MouseEvent e) {
+        if (axisDragInfo != null) {
+            final Point2D point2D = this.chartPanel.getChartPanel().translateScreenToJava2D(e.getPoint());
+            //Check in which direction the mouse was dragged. If it was dragged down we widen the range, if it was dragged up we narrow the range of the axis.
+            if (axisDragInfo.getPreviousDragPoint().getY() > point2D.getY()) {
+                axisDragInfo.getRangeAxis().resizeRange(DRAG_ZOOM_IN_FACTOR);
+            } else if (axisDragInfo.getPreviousDragPoint().getY() < point2D.getY()) {
+                axisDragInfo.getRangeAxis().resizeRange(DRAG_ZOOM_OUT_FACTOR);
             }
+            axisDragInfo.setPreviousDragPoint(point2D);
+        }
+    }
+
+    private void handleAxisDoubleClick(final MouseEvent e, final ValueAxis rangeAxis, final Point2D point2D) {
+        //Double-Click on the axis
+        if (e.getClickCount() == 2 && rangeAxis != null) {
+            rangeAxis.setAutoRange(true);
+            // We make the xyplot y-pannable if at least one axis/indicator is on AutoRange = false.
+            final XYPlot xyPlot = (XYPlot) rangeAxis.getPlot();
+            xyPlot.setRangePannable(!Axises.isEveryAxisAutoRange(xyPlot));
+
         }
     }
 }

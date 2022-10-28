@@ -54,6 +54,13 @@ public final class Axises {
                 : null;
     }
 
+    public static ValueAxis getRangeAxis(final InteractiveChartPanel chartPanel, final Point2D point2D) {
+        final PlotRenderingInfo plotInfo = chartPanel.getChartPanel().getChartRenderingInfo().getPlotInfo();
+        final int subplotIndex = Axises.getSubplotIndexFromPlotArea(plotInfo, point2D);
+        final XYPlot xyPlot = chartPanel.getCombinedPlot().getSubplots().get(subplotIndex);
+        return Axises.getRangeAxis(plotInfo, point2D, xyPlot);
+    }
+
     /**
      * return the RangeAxis to the corresponding mouse-coordinates. There can be several axis attached to one plot which
      * might be visible/invisible and attached to either the left - or right-side of the plot.

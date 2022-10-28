@@ -541,6 +541,7 @@ public class InteractiveChartPanel extends JPanel {
                 plotLegendHelper.mouseReleased(e);
                 plotResizeHelper.mouseReleased(e);
                 plotNavigationHelper.mouseReleased(e);
+                plotZoomHelper.mouseReleased(e);
             } catch (final Throwable t) {
                 Err.process(new Exception("Ignoring", t));
             }
@@ -590,6 +591,7 @@ public class InteractiveChartPanel extends JPanel {
 
                 plotResizeHelper.mouseDragged(e);
                 plotLegendHelper.mouseDragged(e);
+                plotZoomHelper.mouseDragged(e);
                 if (plotLegendHelper.isHighlighting()) {
                     plotNavigationHelper.mouseExited();
                 } else {
