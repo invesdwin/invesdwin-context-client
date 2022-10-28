@@ -516,6 +516,7 @@ public class InteractiveChartPanel extends JPanel {
                 plotResizeHelper.mousePressed(e);
                 plotLegendHelper.mousePressed(e);
                 plotNavigationHelper.mousePressed(e);
+                plotZoomHelper.mousePressed(e);
                 if (new Duration(lastVerticalScroll).isGreaterThan(SCROLL_LOCK_DURATION)) {
                     if (e.getButton() == 4) {
                         plotPanHelper.panLeft();
@@ -722,5 +723,4 @@ public class InteractiveChartPanel extends JPanel {
     public boolean isInitialized() {
         return initialized;
     }
-
 }

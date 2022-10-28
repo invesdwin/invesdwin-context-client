@@ -4,6 +4,7 @@ import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
@@ -26,7 +27,9 @@ import org.jfree.chart.ui.RectangleAnchor;
 import org.jfree.data.Range;
 
 import de.invesdwin.context.client.swing.jfreechart.panel.InteractiveChartPanel;
+import de.invesdwin.context.client.swing.jfreechart.panel.basis.CustomCombinedDomainXYPlot;
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.listener.IRangeListener;
+import de.invesdwin.context.client.swing.jfreechart.plot.Axises;
 import de.invesdwin.context.client.swing.jfreechart.plot.annotation.priceline.XYPriceLineAnnotation;
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.list.IChartPanelAwareDatasetList;
 import de.invesdwin.context.jfreechart.dataset.TimeRangedOHLCDataItem;
@@ -124,15 +127,20 @@ public class PlotZoomHelper {
             lastZoomable = new Instant();
             zoomTitleTimer.restart();
         }
-        final XYPlot plot = (XYPlot) this.chartPanel.getChart().getPlot();
+        final CustomCombinedDomainXYPlot plot = chartPanel.getCombinedPlot();
 
         // don't zoom unless the mouse pointer is in the plot's data area
         final ChartRenderingInfo info = this.chartPanel.getChartPanel().getChartRenderingInfo();
         final PlotRenderingInfo pinfo = info.getPlotInfo();
-        if (!pinfo.getDataArea().contains(point)) {
-            return;
+        if (pinfo.getDataArea().contains(point)) {
+            handleZoomableDataArea(point, zoomFactor, plot, pinfo);
+        } else if (!pinfo.getDataArea().contains(point) && pinfo.getPlotArea().contains(point)) {
+            handleZoomableAxisArea(point, zoomFactor, plot, pinfo);
         }
+    }
 
+    private void handleZoomableDataArea(final Point2D point, final double zoomFactor,
+            final CustomCombinedDomainXYPlot plot, final PlotRenderingInfo pinfo) {
         final Range rangeBefore = chartPanel.getDomainAxis().getRange();
         final int lengthBefore = (int) rangeBefore.getLength();
         if (lengthBefore >= MAX_ZOOM_ITEM_COUNT && zoomFactor == ZOOM_OUT_FACTOR
@@ -153,6 +161,19 @@ public class PlotZoomHelper {
             chartPanel.update();
         } finally {
             chartPanel.decrementUpdatingCount();
+        }
+    }
+
+    private void handleZoomableAxisArea(final Point2D point, final double zoomFactor,
+            final CustomCombinedDomainXYPlot plot, final PlotRenderingInfo pinfo) {
+        final int subplotIndex = Axises.getSubplotIndexFromPlotArea(pinfo, point);
+        final XYPlot xyPlot = chartPanel.getCombinedPlot().getSubplots().get(subplotIndex);
+        final ValueAxis rangeAxis = Axises
+                .getRangeAxis(this.chartPanel.getChartPanel().getChartRenderingInfo().getPlotInfo(), point, xyPlot);
+        if (rangeAxis != null) {
+            rangeAxis.setAutoRange(false);
+            rangeAxis.resizeRange(zoomFactor);
+            xyPlot.setRangePannable(true);
         }
     }
 
@@ -340,4 +361,21 @@ public class PlotZoomHelper {
         return range;
     }
 
+    public void mousePressed(final MouseEvent e) {
+        final PlotRenderingInfo pinfo = this.chartPanel.getChartPanel().getChartRenderingInfo().getPlotInfo();
+        final Point2D point2D = this.chartPanel.getChartPanel().translateScreenToJava2D(e.getPoint());
+        //Double-Click on the axis
+        if (e.getClickCount() == 2
+                && Axises.isAxisArea(this.chartPanel.getChartPanel().getChartRenderingInfo().getPlotInfo(), point2D)) {
+            final int subplotIndex = Axises.getSubplotIndexFromPlotArea(pinfo, point2D);
+            final XYPlot xyPlot = chartPanel.getCombinedPlot().getSubplots().get(subplotIndex);
+            final ValueAxis rangeAxis = Axises.getRangeAxis(
+                    this.chartPanel.getChartPanel().getChartRenderingInfo().getPlotInfo(), point2D, xyPlot);
+            if (rangeAxis != null) {
+                rangeAxis.setAutoRange(true);
+                // We make the xyplot y-pannable if at least one axis/indicator is on AutoRange = false.
+                xyPlot.setRangePannable(!Axises.isEveryAxisAutoRange(xyPlot));
+            }
+        }
+    }
 }
