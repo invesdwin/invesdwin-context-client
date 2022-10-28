@@ -27,11 +27,11 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 @NotThreadSafe
-public class AdvancedBrowser {
+public final class AdvancedBrowser {
 
     private static final String AT_REST = " ";
 
-    public AdvancedBrowser(final String location) {
+    private AdvancedBrowser(final String location) {
         final Display display = new Display();
         final Shell shell = new Shell(display);
         shell.setText("Advanced Browser");
@@ -195,6 +195,10 @@ public class AdvancedBrowser {
         public void changed(final StatusTextEvent event) {
             status.setText(event.text);
         }
+    }
+
+    public static void main(final String[] args) {
+        new AdvancedBrowser("http://tradingview.com");
     }
 
 }
