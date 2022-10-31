@@ -51,10 +51,10 @@ public class PlotZoomHelper {
 
     private static final double ZOOM_FACTOR = 0.1D;
     private static final double ZOOM_OUT_FACTOR = 1D + ZOOM_FACTOR;
-    private static final double ZOOM_IN_FACTOR = 1 / ZOOM_OUT_FACTOR;
+    private static final double ZOOM_IN_FACTOR = 1D / ZOOM_OUT_FACTOR;
     private static final double DRAG_ZOOM_FACTOR = 0.035D;
     private static final double DRAG_ZOOM_OUT_FACTOR = 1D + DRAG_ZOOM_FACTOR;
-    private static final double DRAG_ZOOM_IN_FACTOR = 1 / DRAG_ZOOM_OUT_FACTOR;
+    private static final double DRAG_ZOOM_IN_FACTOR = 1D / DRAG_ZOOM_OUT_FACTOR;
     private static final Duration ZOOMABLE_THRESHOLD = new Duration(10, FTimeUnit.MILLISECONDS);
     private static final double EDGE_ANCHOR_TOLERANCE = 0.1D;
     private Instant lastZoomable = new Instant();
