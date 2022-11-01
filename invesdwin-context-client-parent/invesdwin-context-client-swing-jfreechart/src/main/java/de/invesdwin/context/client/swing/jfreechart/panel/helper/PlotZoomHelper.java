@@ -396,11 +396,20 @@ public class PlotZoomHelper {
     private void handleAxisDoubleClick(final MouseEvent e, final ValueAxis rangeAxis, final Point2D point2D) {
         //Double-Click on the axis
         if (e.getClickCount() == 2 && rangeAxis != null) {
-            rangeAxis.setAutoRange(true);
-            // We make the xyplot y-pannable if at least one axis/indicator is on AutoRange = false.
             final XYPlot xyPlot = (XYPlot) rangeAxis.getPlot();
-            xyPlot.setRangePannable(!Axises.isEveryAxisAutoRange(xyPlot));
 
+            if (e.isControlDown()) {
+                //reset every axis in the plot
+                for (int i = 0; i < xyPlot.getRangeAxisCount(); i++) {
+                    final ValueAxis rangeAxisInLoop = xyPlot.getRangeAxis(i);
+                    rangeAxisInLoop.setAutoRange(true);
+                }
+            } else {
+                //reset only the axis we clicked on
+                rangeAxis.setAutoRange(true);
+            }
+            // We make the xyplot y-pannable if at least one axis/indicator is on AutoRange = false.
+            xyPlot.setRangePannable(!Axises.isEveryAxisAutoRange(xyPlot));
         }
     }
 }
