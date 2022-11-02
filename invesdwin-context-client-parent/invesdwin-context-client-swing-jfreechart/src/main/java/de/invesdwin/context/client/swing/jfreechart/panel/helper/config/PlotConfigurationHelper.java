@@ -370,6 +370,14 @@ public class PlotConfigurationHelper {
                 sb.append(
                         "<li><b>Resetting</b>: Click the reset button to revert the zoom and pan to the latest chart data."
                                 + "<br>CTRL+Click to force a reload of the currently visible chart data.</li>");
+                sb.append(
+                        "<li><b>Y-Axis</b>: By default you can only pan on the X-Axis and the Y-Axis auto-ranges automatically depending on the data displayed."
+                                + "<br>You can zoom on the Y-Axis of each series by Mouse-Scrolling or Mouse-Dragging on each seperate indicator as well."
+                                + "<br>When you manually zoomed in or out on any of the series you are able to also pan on the Y-Axis of all series."
+                                + "<br>The zoom for each Y-Axis can be resetted by Double-Clicking the corresponding axis."
+                                + "<br>Strg + Double-Click on any series-Y-axis will reset the Y-axis-zoom for all series of the plot."
+                                + "<br>When every series Y-Axis is in Auto-Range-Mode (it automatically fits the displayed data): panning on the Y-Axis is disabled.</li>");
+                sb.append("</ul></li>");
                 sb.append("</ul></li>");
                 sb.append(
                         "<li><b>Exporting</b>: Right click anywhere on the chart to get a context menu that allows you to export the chart image to clipboard or to a file."
