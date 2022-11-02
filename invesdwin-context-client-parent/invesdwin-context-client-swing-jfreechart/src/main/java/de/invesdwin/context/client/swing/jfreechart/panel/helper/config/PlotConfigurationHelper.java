@@ -78,6 +78,8 @@ public class PlotConfigurationHelper {
 
     private final Map<String, IIndicatorSeriesProvider> indicatorSeriesProviders = new TreeMap<>();
     private IExpressionSeriesProvider expressionSeriesProvider;
+    private IPlotPopupMenuConfig plotPopupMenuConfig;
+
     private IBookmarkStorage bookmarkStorage = DEFAULT_BOOKMARK_STORAGE;
 
     public PlotConfigurationHelper(final InteractiveChartPanel chartPanel) {
@@ -105,7 +107,7 @@ public class PlotConfigurationHelper {
         titleItem.setEnabled(false);
 
         initSeriesVisibilityItems();
-        initAddIndicatorItem();
+        initAddSeriesItem();
         initBookmarkItems();
         initExportItems();
         initHelpItem();
@@ -133,6 +135,12 @@ public class PlotConfigurationHelper {
                     if (!indicatorSeriesProviders.isEmpty() || expressionSeriesProvider != null) {
                         popupMenu.add(addSeriesItem);
                         addSeparator = true;
+                    }
+                    if (plotPopupMenuConfig != null) {
+                        final List<JMenuItem> addMenuItems = plotPopupMenuConfig.getAddMenuItems();
+                        for (int i = 0; i < addMenuItems.size(); i++) {
+                            popupMenu.add(addMenuItems.get(i));
+                        }
                     }
                     if (bookmarkStorage != null) {
                         updateBookmarksItems();
@@ -302,7 +310,7 @@ public class PlotConfigurationHelper {
         });
     }
 
-    private void initAddIndicatorItem() {
+    private void initAddSeriesItem() {
         addSeriesItem = new JMenuItem("Add Series");
         addSeriesItem.addActionListener(new ActionListener() {
             @Override
@@ -508,6 +516,14 @@ public class PlotConfigurationHelper {
         if (rangeAxisId != null) {
             rangeAxisIds.add(rangeAxisId);
         }
+    }
+
+    public IPlotPopupMenuConfig getPlotPopupMenuConfig() {
+        return plotPopupMenuConfig;
+    }
+
+    public void setPlotPopupMenuConfig(final IPlotPopupMenuConfig plotPopupMenuConfig) {
+        this.plotPopupMenuConfig = plotPopupMenuConfig;
     }
 
 }
