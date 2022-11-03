@@ -93,8 +93,9 @@ public final class Axises {
         final PlotRenderingInfo plotInfo = chartPanel.getChartPanel().getChartRenderingInfo().getPlotInfo();
         final int subplotIndex = Axises.getSubplotIndexFromPlotArea(plotInfo, point2D);
         final ValueAxis rangeAxis = getRangeAxis(chartPanel, point2D, subplotIndex, plotInfo);
-        final Rectangle2D[] subplotAreas = chartPanel.getCombinedPlot().getSubplotAreas();
-        final double roundedPlotHeight = Math.round(subplotAreas[subplotIndex].getHeight());
+        final PlotRenderingInfo plotRenderingInfo = chartPanel.getChartPanel().getChartRenderingInfo().getPlotInfo();
+        final double roundedPlotHeight = Math
+                .round(plotRenderingInfo.getSubplotInfo(subplotIndex).getPlotArea().getHeight());
 
         return new AxisDragInfo(point2D, rangeAxis, subplotIndex, roundedPlotHeight);
     }
