@@ -370,9 +370,8 @@ public class PlotZoomHelper {
         final Point2D point2D = this.chartPanel.getChartPanel().translateScreenToJava2D(e.getPoint());
 
         if (Axises.isAxisArea(this.chartPanel.getChartPanel().getChartRenderingInfo().getPlotInfo(), point2D)) {
-            final ValueAxis rangeAxis = Axises.getRangeAxis(this.chartPanel, point2D);
-            axisDragInfo = new AxisDragInfo(point2D, rangeAxis);
-            handleAxisDoubleClick(e, rangeAxis, point2D);
+            axisDragInfo = Axises.createAxisDragInfo(chartPanel, point2D);
+            handleAxisDoubleClick(e, axisDragInfo.getRangeAxis(), point2D);
         }
     }
 
@@ -383,13 +382,28 @@ public class PlotZoomHelper {
     public void mouseDragged(final MouseEvent e) {
         if (axisDragInfo != null) {
             final Point2D point2D = this.chartPanel.getChartPanel().translateScreenToJava2D(e.getPoint());
-            //Check in which direction the mouse was dragged. If it was dragged down we widen the range, if it was dragged up we narrow the range of the axis.
-            if (axisDragInfo.getPreviousDragPoint().getY() > point2D.getY()) {
-                axisDragInfo.getRangeAxis().resizeRange(DRAG_ZOOM_IN_FACTOR);
-            } else if (axisDragInfo.getPreviousDragPoint().getY() < point2D.getY()) {
-                axisDragInfo.getRangeAxis().resizeRange(DRAG_ZOOM_OUT_FACTOR);
+            final double yChange = axisDragInfo.getInitialDragPoint().getY() - point2D.getY();
+            if (yChange == 0.0D) {
+                axisDragInfo.getRangeAxis().setRange(axisDragInfo.getInitalAxisRange());
+                return;
             }
-            axisDragInfo.setPreviousDragPoint(point2D);
+            axisDragInfo.getRangeAxis().setAutoRange(false);
+            //Check new mouse location (y-coordinate only) in reference to the initialDragStartMouse Position and zoom the axis accordingly
+            final double zoomFactor;
+            if (yChange > 0.0D) {
+                zoomFactor = 1D / (1D + Doubles.divide(Math.abs(yChange), axisDragInfo.getPlotHeight() / 2));
+            } else {
+                zoomFactor = 1D + Doubles.divide(Math.abs(yChange), axisDragInfo.getPlotHeight() / 2);
+            }
+
+            final double initialLowerBound = axisDragInfo.getInitalAxisRange().getLowerBound();
+            final double initialUpperBound = axisDragInfo.getInitalAxisRange().getUpperBound();
+            final double halfLengthInitialBounds = axisDragInfo.getInitalAxisRange().getLength() * zoomFactor / 2;
+            final double initialAnchorValue = ((initialUpperBound - initialLowerBound) / 2) + initialLowerBound;
+
+            axisDragInfo.getRangeAxis()
+                    .setRange(new Range(initialAnchorValue - halfLengthInitialBounds,
+                            initialAnchorValue + halfLengthInitialBounds));
         }
     }
 

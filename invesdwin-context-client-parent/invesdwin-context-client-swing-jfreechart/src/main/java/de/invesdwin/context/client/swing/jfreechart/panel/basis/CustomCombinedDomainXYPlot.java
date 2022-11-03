@@ -3,6 +3,8 @@ package de.invesdwin.context.client.swing.jfreechart.panel.basis;
 import java.awt.Color;
 import java.awt.Point;
 import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
+import java.lang.reflect.Field;
 import java.util.List;
 
 import javax.annotation.concurrent.NotThreadSafe;
@@ -99,4 +101,14 @@ public class CustomCombinedDomainXYPlot extends CombinedDomainXYPlot {
         super.remove(subplot);
     }
 
+    public Rectangle2D[] getSubplotAreas() {
+        try {
+            // searched for half an hour and didn't find a direct/easy way to get the dimensions of each plot... so reflection it is.
+            final Field privateSubplotAreas = CombinedDomainXYPlot.class.getDeclaredField("subplotAreas");
+            privateSubplotAreas.setAccessible(true);
+            return (Rectangle2D[]) privateSubplotAreas.get(this);
+        } catch (NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }

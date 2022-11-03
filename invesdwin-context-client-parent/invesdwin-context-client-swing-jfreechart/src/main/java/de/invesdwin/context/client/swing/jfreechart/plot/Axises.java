@@ -12,6 +12,7 @@ import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.util.Args;
 
 import de.invesdwin.context.client.swing.jfreechart.panel.InteractiveChartPanel;
+import de.invesdwin.context.client.swing.jfreechart.panel.helper.AxisDragInfo;
 
 @Immutable
 public final class Axises {
@@ -57,8 +58,12 @@ public final class Axises {
     public static ValueAxis getRangeAxis(final InteractiveChartPanel chartPanel, final Point2D point2D) {
         final PlotRenderingInfo plotInfo = chartPanel.getChartPanel().getChartRenderingInfo().getPlotInfo();
         final int subplotIndex = Axises.getSubplotIndexFromPlotArea(plotInfo, point2D);
-        final XYPlot xyPlot = chartPanel.getCombinedPlot().getSubplots().get(subplotIndex);
-        return Axises.getRangeAxis(plotInfo, point2D, xyPlot);
+        return getRangeAxis(chartPanel, point2D, subplotIndex, plotInfo);
+    }
+
+    private static ValueAxis getRangeAxis(final InteractiveChartPanel chartPanel, final Point2D point2D,
+            final int subplotIndex, final PlotRenderingInfo plotInfo) {
+        return Axises.getRangeAxis(plotInfo, point2D, chartPanel.getCombinedPlot().getSubplots().get(subplotIndex));
     }
 
     /**
@@ -78,6 +83,20 @@ public final class Axises {
             }
         }
         return null;
+    }
+
+    /**
+     * creates a container containing Information about the plot/axis when a mouse-drag started.
+     */
+
+    public static AxisDragInfo createAxisDragInfo(final InteractiveChartPanel chartPanel, final Point2D point2D) {
+        final PlotRenderingInfo plotInfo = chartPanel.getChartPanel().getChartRenderingInfo().getPlotInfo();
+        final int subplotIndex = Axises.getSubplotIndexFromPlotArea(plotInfo, point2D);
+        final ValueAxis rangeAxis = getRangeAxis(chartPanel, point2D, subplotIndex, plotInfo);
+        final Rectangle2D[] subplotAreas = chartPanel.getCombinedPlot().getSubplotAreas();
+        final double roundedPlotHeight = Math.round(subplotAreas[subplotIndex].getHeight());
+
+        return new AxisDragInfo(point2D, rangeAxis, subplotIndex, roundedPlotHeight);
     }
 
     /**
