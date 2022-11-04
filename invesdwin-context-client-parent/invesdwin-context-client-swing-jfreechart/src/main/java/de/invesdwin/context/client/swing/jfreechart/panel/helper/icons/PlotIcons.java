@@ -16,6 +16,7 @@ public enum PlotIcons {
     CONFIGURE("configure_128.png"),
     ZOOM_IN("zoomIn_128.png"),
     PAN_RIGHT("panRight_128.png"),
+    PAN_LIVE("panLive_128.png"),
 
     //legend
     ADD("add_256.png"),

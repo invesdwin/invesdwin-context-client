@@ -1,6 +1,8 @@
 package de.invesdwin.context.client.swing.jfreechart.panel.helper;
 
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseWheelEvent;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
@@ -32,6 +34,7 @@ public class PlotPanHelper {
                 0 - chartPanel.getAllowedRangeGap(length));
         final Range newRange = new Range(newLowerBound, newLowerBound + length);
         chartPanel.getDomainAxis().setRange(newRange);
+        maybeToggleVisibilityPanLiveIcon();
         chartPanel.update();
     }
 
@@ -45,7 +48,34 @@ public class PlotPanHelper {
                 chartPanel.getMasterDataset().getItemCount(0) + chartPanel.getAllowedRangeGap(length));
         final Range newRange = new Range(newUpperBound - length, newUpperBound);
         chartPanel.getDomainAxis().setRange(newRange);
+        maybeToggleVisibilityPanLiveIcon();
         chartPanel.update();
+    }
+
+    /**
+     * pans the x-axis right till the most recent datapoint is visible.
+     */
+
+    public void panLive() {
+        if (chartPanel.isUpdating()) {
+            return;
+        }
+        final Range range = chartPanel.getDomainAxis().getRange();
+        final double length = range.getLength();
+        final double newUpperBound = chartPanel.getMasterDataset().getItemCount(0)
+                + chartPanel.getAllowedRangeGap(length);
+        final Range newRange = new Range(newUpperBound - length, newUpperBound);
+        chartPanel.getDomainAxis().setRange(newRange);
+        maybeToggleVisibilityPanLiveIcon();
+        chartPanel.update();
+    }
+
+    public void maybeToggleVisibilityPanLiveIcon() {
+        if (chartPanel.getMasterDataset().getItemCount(0) > chartPanel.getDomainAxis().getRange().getUpperBound()) {
+            chartPanel.getPlotNavigationHelper().showPanLiveIcon();
+        } else {
+            chartPanel.getPlotNavigationHelper().hidePanLiveIcon();
+        }
     }
 
     public void keyPressed(final KeyEvent e) {
@@ -60,4 +90,11 @@ public class PlotPanHelper {
         scrollFactor = DEFAULT_SCROLL_FACTOR;
     }
 
+    public void mouseDragged(final MouseEvent e) {
+        maybeToggleVisibilityPanLiveIcon();
+    }
+
+    public void mouseWheelMoved(final MouseWheelEvent e) {
+        maybeToggleVisibilityPanLiveIcon();
+    }
 }
