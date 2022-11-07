@@ -387,7 +387,6 @@ public class PlotNavigationHelper {
         if (highlighted == panLive && panLiveVisible && !plot.getAnnotations().contains(panLive_highlighted)) {
             plot.removeAnnotation(panLive, false);
             plot.addAnnotation(panLive_highlighted, false);
-            //            this.navHighlighting = true;
             this.panLiveHighlighted = true;
         } else if (highlighted != panLive && panLiveVisible && !plot.getAnnotations().contains(panLive)) {
             plot.removeAnnotation(panLive_highlighted, false);
