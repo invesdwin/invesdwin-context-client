@@ -2,11 +2,14 @@ package de.invesdwin.context.client.swing.jfreechart.plot;
 
 import java.awt.Font;
 import java.awt.geom.Rectangle2D;
+import java.lang.reflect.Field;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.annotation.concurrent.Immutable;
 
+import org.jfree.chart.annotations.XYAnnotation;
 import org.jfree.chart.axis.AxisLocation;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.plot.ValueMarker;
@@ -19,6 +22,7 @@ import org.jfree.data.xy.XYDataset;
 import de.invesdwin.context.client.swing.jfreechart.panel.InteractiveChartPanel;
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.DisabledXYDataset;
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.IPlotSourceDataset;
+import de.invesdwin.util.lang.reflection.field.UnsafeField;
 import de.invesdwin.util.math.Doubles;
 import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.math.decimal.Decimal;
@@ -37,6 +41,19 @@ public final class XYPlots {
     };
     public static final Font DEFAULT_FONT = new Font("Verdana", Font.PLAIN, HiDPI.scale(9));
 
+    public static XYAnnotation[] ANNOTATION_EMPTY_ARRAY = new XYAnnotation[0];
+
+    private static final UnsafeField<List<XYAnnotation>> XYPLOT_ANNOTATIONS_FIELD;
+
+    static {
+        try {
+            final Field xyPlotAnnotationsField = XYPlot.class.getDeclaredField("annotations");
+            XYPLOT_ANNOTATIONS_FIELD = new UnsafeField<>(xyPlotAnnotationsField);
+        } catch (NoSuchFieldException | SecurityException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     private XYPlots() {}
 
     public static int getFreeDatasetIndex(final XYPlot plot) {
@@ -46,6 +63,13 @@ public final class XYPlots {
             }
         }
         return plot.getDatasetCount();
+    }
+
+    /**
+     * XYPlot.getAnnotations creates a new ArrayList (most likely to prevent concurrent modification exceptions)
+     */
+    public static List<XYAnnotation> getAnnotations(final XYPlot plot) {
+        return XYPLOT_ANNOTATIONS_FIELD.get(plot);
     }
 
     public static void updateRangeAxes(final XYPlot plot) {

@@ -384,11 +384,11 @@ public class PlotNavigationHelper {
     }
 
     private void addFreeAnnotations(final XYPlot plot, final XYIconAnnotation highlighted) {
-        if (highlighted == panLive && panLiveVisible && !plot.getAnnotations().contains(panLive_highlighted)) {
+        if (highlighted == panLive && panLiveVisible && !XYPlots.getAnnotations(plot).contains(panLive_highlighted)) {
             plot.removeAnnotation(panLive, false);
             plot.addAnnotation(panLive_highlighted, false);
             this.panLiveHighlighted = true;
-        } else if (highlighted != panLive && panLiveVisible && !plot.getAnnotations().contains(panLive)) {
+        } else if (highlighted != panLive && panLiveVisible && !XYPlots.getAnnotations(plot).contains(panLive)) {
             plot.removeAnnotation(panLive_highlighted, false);
             plot.addAnnotation(panLive, false);
             this.panLiveHighlighted = false;
@@ -405,12 +405,13 @@ public class PlotNavigationHelper {
         hideNote();
     }
 
-    @SuppressWarnings("unchecked")
     private void hideNote() {
         final XYPlot noteShowingOnPlotCopy = noteShowingOnPlot;
         if (noteShowingOnPlotCopy != null) {
-            final List<XYAnnotation> existingAnnotations = noteShowingOnPlotCopy.getAnnotations();
-            for (final XYAnnotation annotation : existingAnnotations) {
+            final XYAnnotation[] existingAnnotationsCopy = XYPlots.getAnnotations(noteShowingOnPlotCopy)
+                    .toArray(XYPlots.ANNOTATION_EMPTY_ARRAY);
+            for (int i = 0; i < existingAnnotationsCopy.length; i++) {
+                final XYAnnotation annotation = existingAnnotationsCopy[i];
                 if (annotation instanceof XYNoteAnnotation) {
                     noteShowingOnPlotCopy.removeAnnotation(annotation);
                 }
@@ -531,7 +532,7 @@ public class PlotNavigationHelper {
         panLiveVisible = true;
         final XYPlot lastSubPlot = getLastSubplot();
 
-        if (!lastSubPlot.getAnnotations().contains(panLive)) {
+        if (!XYPlots.getAnnotations(lastSubPlot).contains(panLive)) {
             lastSubPlot.addAnnotation(panLive);
         }
     }

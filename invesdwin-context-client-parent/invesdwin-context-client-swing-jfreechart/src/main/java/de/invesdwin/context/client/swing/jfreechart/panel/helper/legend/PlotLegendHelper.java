@@ -295,7 +295,7 @@ public class PlotLegendHelper {
             visibleEmptyPlot.setBackgroundPaint(DEFAULT_BACKGROUND_COLOR);
         } else {
             visibleEmptyPlot.setWeight(EMPTY_PLOT_WEIGHT);
-            if (!visibleEmptyPlot.getAnnotations().contains(addAnnotation)) {
+            if (!XYPlots.getAnnotations(visibleEmptyPlot).contains(addAnnotation)) {
                 visibleEmptyPlot.addAnnotation(addAnnotation);
                 visibleEmptyPlot.setBackgroundPaint(ADD_BACKGROUND_COLOR);
             }
@@ -317,9 +317,8 @@ public class PlotLegendHelper {
         }
     }
 
-    @SuppressWarnings("unchecked")
     private CustomLegendTitle getTitle(final XYPlot plot) {
-        final List<XYAnnotation> annotations = plot.getAnnotations();
+        final List<XYAnnotation> annotations = XYPlots.getAnnotations(plot);
         for (final XYAnnotation annotation : annotations) {
             if (annotation instanceof XYTitleAnnotation) {
                 final XYTitleAnnotation titleAnnotation = (XYTitleAnnotation) annotation;
