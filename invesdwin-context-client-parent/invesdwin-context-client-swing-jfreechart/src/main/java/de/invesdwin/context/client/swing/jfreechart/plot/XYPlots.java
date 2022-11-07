@@ -41,8 +41,6 @@ public final class XYPlots {
     };
     public static final Font DEFAULT_FONT = new Font("Verdana", Font.PLAIN, HiDPI.scale(9));
 
-    public static XYAnnotation[] ANNOTATION_EMPTY_ARRAY = new XYAnnotation[0];
-
     private static final UnsafeField<List<XYAnnotation>> XYPLOT_ANNOTATIONS_FIELD;
 
     static {

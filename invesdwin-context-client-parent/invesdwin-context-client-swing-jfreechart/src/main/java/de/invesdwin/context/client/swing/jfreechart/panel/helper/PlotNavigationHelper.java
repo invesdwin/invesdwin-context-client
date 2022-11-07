@@ -9,6 +9,7 @@ import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 import javax.annotation.concurrent.NotThreadSafe;
 import javax.swing.Timer;
@@ -29,6 +30,7 @@ import de.invesdwin.context.client.swing.jfreechart.plot.annotation.XYIconAnnota
 import de.invesdwin.context.client.swing.jfreechart.plot.annotation.XYNoteAnnotation;
 import de.invesdwin.context.client.swing.jfreechart.plot.annotation.XYNoteIconAnnotation;
 import de.invesdwin.context.client.swing.jfreechart.plot.renderer.INoteRenderer;
+import de.invesdwin.util.collections.iterable.buffer.BufferingIterator;
 import de.invesdwin.util.math.Doubles;
 import de.invesdwin.util.swing.HiDPI;
 
@@ -408,12 +410,25 @@ public class PlotNavigationHelper {
     private void hideNote() {
         final XYPlot noteShowingOnPlotCopy = noteShowingOnPlot;
         if (noteShowingOnPlotCopy != null) {
-            final XYAnnotation[] existingAnnotationsCopy = XYPlots.getAnnotations(noteShowingOnPlotCopy)
-                    .toArray(XYPlots.ANNOTATION_EMPTY_ARRAY);
-            for (int i = 0; i < existingAnnotationsCopy.length; i++) {
-                final XYAnnotation annotation = existingAnnotationsCopy[i];
+            BufferingIterator<XYAnnotation> annotationsToRemove = null;
+            final List<XYAnnotation> existingAnnotationsCopy = XYPlots.getAnnotations(noteShowingOnPlotCopy);
+            for (int i = 0; i < existingAnnotationsCopy.size(); i++) {
+                final XYAnnotation annotation = existingAnnotationsCopy.get(i);
                 if (annotation instanceof XYNoteAnnotation) {
-                    noteShowingOnPlotCopy.removeAnnotation(annotation);
+                    if (annotationsToRemove == null) {
+                        annotationsToRemove = new BufferingIterator<>();
+                    }
+                    annotationsToRemove.add(annotation);
+                }
+            }
+            if (annotationsToRemove != null) {
+                try {
+                    while (true) {
+                        final XYAnnotation annotationToRemove = annotationsToRemove.next();
+                        noteShowingOnPlotCopy.removeAnnotation(annotationToRemove);
+                    }
+                } catch (final NoSuchElementException e) {
+                    //end reached
                 }
             }
             noteShowingIconAnnotation = null;
