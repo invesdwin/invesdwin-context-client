@@ -8,10 +8,8 @@ import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.Set;
 
 import javax.annotation.concurrent.NotThreadSafe;
 import javax.swing.Timer;
@@ -74,7 +72,7 @@ public class PlotNavigationHelper {
 
     private XYPlot navShowingOnPlotPlot;
     private XYIconAnnotation navHighlightedAnnotation;
-    private final Set<Shape> navHighlightingAreas = new HashSet<>();
+    private final List<Shape> navHighlightingAreas = new ArrayList<>();
     private boolean navHighlighting = false;
     private boolean navVisible = false;
     private Timer navButtonTimer;
@@ -268,7 +266,7 @@ public class PlotNavigationHelper {
     }
 
     private boolean determineHighlighting(final int mouseX, final int mouseY) {
-        final Set<Shape> areas = getNavHighlightingAreas();
+        final List<Shape> areas = getNavHighlightingAreas();
         if (areas.isEmpty()) {
             return false;
         }
@@ -276,7 +274,7 @@ public class PlotNavigationHelper {
         return areas.stream().anyMatch(shape -> shape.contains(mouseX, mouseY));
     }
 
-    private Set<Shape> getNavHighlightingAreas() {
+    private List<Shape> getNavHighlightingAreas() {
         if (navHighlightingAreas.isEmpty()) {
             //NavBar/NavPanel
             Double minX = null;
@@ -295,15 +293,16 @@ public class PlotNavigationHelper {
                     maxY = Doubles.max(maxY, entityArea.getMaxY());
                 }
             }
-            if (minY == null) {
-                return null;
+            if (minY != null) {
+                final Rectangle2D.Double unscaled = new Rectangle2D.Double(minX, minY, maxX - minX, maxY - minY);
+                final Rectangle2D scaled = chartPanel.getChartPanel().scale(unscaled);
+                navHighlightingAreas.add(scaled);
             }
-            final Rectangle2D.Double unscaled = new Rectangle2D.Double(minX, minY, maxX - minX, maxY - minY);
-            final Rectangle2D scaled = chartPanel.getChartPanel().scale(unscaled);
-            navHighlightingAreas.add(scaled);
 
             //PanLive-Icon
-            navHighlightingAreas.add(panLive.getEntity().getArea());
+            if (panLive.getEntity() != null) {
+                navHighlightingAreas.add(panLive.getEntity().getArea());
+            }
         }
         return navHighlightingAreas;
     }
