@@ -478,6 +478,7 @@ public class InteractiveChartPanel extends JPanel {
                     }
                 }
                 configureRangeAxis();
+                plotPanHelper.maybeToggleVisibilityPanLiveIcon();
             }
         }
     }
@@ -592,7 +593,6 @@ public class InteractiveChartPanel extends JPanel {
                 plotResizeHelper.mouseDragged(e);
                 plotLegendHelper.mouseDragged(e);
                 plotZoomHelper.mouseDragged(e);
-                plotPanHelper.mouseDragged(e);
                 if (plotLegendHelper.isHighlighting()) {
                     plotNavigationHelper.mouseExited();
                 } else {
@@ -639,7 +639,6 @@ public class InteractiveChartPanel extends JPanel {
                         }
                     } else {
                         plotZoomHelper.mouseWheelMoved(e);
-                        plotPanHelper.mouseWheelMoved(e);
                     }
                     lastVerticalScroll = new FDate();
                 }

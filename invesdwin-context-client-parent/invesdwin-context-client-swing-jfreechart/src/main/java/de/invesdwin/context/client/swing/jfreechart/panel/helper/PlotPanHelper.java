@@ -1,8 +1,6 @@
 package de.invesdwin.context.client.swing.jfreechart.panel.helper;
 
 import java.awt.event.KeyEvent;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseWheelEvent;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
@@ -34,7 +32,6 @@ public class PlotPanHelper {
                 0 - chartPanel.getAllowedRangeGap(length));
         final Range newRange = new Range(newLowerBound, newLowerBound + length);
         chartPanel.getDomainAxis().setRange(newRange);
-        maybeToggleVisibilityPanLiveIcon();
         chartPanel.update();
     }
 
@@ -48,7 +45,6 @@ public class PlotPanHelper {
                 chartPanel.getMasterDataset().getItemCount(0) + chartPanel.getAllowedRangeGap(length));
         final Range newRange = new Range(newUpperBound - length, newUpperBound);
         chartPanel.getDomainAxis().setRange(newRange);
-        maybeToggleVisibilityPanLiveIcon();
         chartPanel.update();
     }
 
@@ -66,7 +62,6 @@ public class PlotPanHelper {
                 + chartPanel.getAllowedRangeGap(length);
         final Range newRange = new Range(newUpperBound - length, newUpperBound);
         chartPanel.getDomainAxis().setRange(newRange);
-        maybeToggleVisibilityPanLiveIcon();
         chartPanel.update();
     }
 
@@ -88,13 +83,5 @@ public class PlotPanHelper {
 
     public void keyReleased(final KeyEvent e) {
         scrollFactor = DEFAULT_SCROLL_FACTOR;
-    }
-
-    public void mouseDragged(final MouseEvent e) {
-        maybeToggleVisibilityPanLiveIcon();
-    }
-
-    public void mouseWheelMoved(final MouseWheelEvent e) {
-        maybeToggleVisibilityPanLiveIcon();
     }
 }
