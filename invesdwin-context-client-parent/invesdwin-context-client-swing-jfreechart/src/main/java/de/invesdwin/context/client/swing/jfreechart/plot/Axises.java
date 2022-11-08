@@ -42,7 +42,15 @@ public final class Axises {
      * Checks if the given Point2D is in the axis-area.
      */
     public static boolean isAxisArea(final PlotRenderingInfo plotInfo, final Point2D point2d) {
-        return !plotInfo.getDataArea().contains(point2d) && plotInfo.getPlotArea().contains(point2d);
+        for (int i = 0; i < plotInfo.getSubplotCount(); i++) {
+            final PlotRenderingInfo subPlotRenderingInfo = plotInfo.getSubplotInfo(i);
+            final Rectangle2D dataArea = subPlotRenderingInfo.getDataArea();
+            final Rectangle2D plotArea = subPlotRenderingInfo.getPlotArea();
+            if (dataArea != null && plotArea != null && !dataArea.contains(point2d) && plotArea.contains(point2d)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
