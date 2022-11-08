@@ -9,6 +9,7 @@ import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 import javax.annotation.concurrent.NotThreadSafe;
 import javax.swing.Timer;
@@ -29,6 +30,7 @@ import de.invesdwin.context.client.swing.jfreechart.plot.annotation.XYIconAnnota
 import de.invesdwin.context.client.swing.jfreechart.plot.annotation.XYNoteAnnotation;
 import de.invesdwin.context.client.swing.jfreechart.plot.annotation.XYNoteIconAnnotation;
 import de.invesdwin.context.client.swing.jfreechart.plot.renderer.INoteRenderer;
+import de.invesdwin.util.collections.iterable.buffer.BufferingIterator;
 import de.invesdwin.util.math.Doubles;
 import de.invesdwin.util.swing.HiDPI;
 
@@ -384,12 +386,11 @@ public class PlotNavigationHelper {
     }
 
     private void addFreeAnnotations(final XYPlot plot, final XYIconAnnotation highlighted) {
-        if (highlighted == panLive && panLiveVisible && !plot.getAnnotations().contains(panLive_highlighted)) {
+        if (highlighted == panLive && panLiveVisible && !XYPlots.getAnnotations(plot).contains(panLive_highlighted)) {
             plot.removeAnnotation(panLive, false);
             plot.addAnnotation(panLive_highlighted, false);
-            //            this.navHighlighting = true;
             this.panLiveHighlighted = true;
-        } else if (highlighted != panLive && panLiveVisible && !plot.getAnnotations().contains(panLive)) {
+        } else if (highlighted != panLive && panLiveVisible && !XYPlots.getAnnotations(plot).contains(panLive)) {
             plot.removeAnnotation(panLive_highlighted, false);
             plot.addAnnotation(panLive, false);
             this.panLiveHighlighted = false;
@@ -406,14 +407,28 @@ public class PlotNavigationHelper {
         hideNote();
     }
 
-    @SuppressWarnings("unchecked")
     private void hideNote() {
         final XYPlot noteShowingOnPlotCopy = noteShowingOnPlot;
         if (noteShowingOnPlotCopy != null) {
-            final List<XYAnnotation> existingAnnotations = noteShowingOnPlotCopy.getAnnotations();
-            for (final XYAnnotation annotation : existingAnnotations) {
+            BufferingIterator<XYAnnotation> annotationsToRemove = null;
+            final List<XYAnnotation> existingAnnotationsCopy = XYPlots.getAnnotations(noteShowingOnPlotCopy);
+            for (int i = 0; i < existingAnnotationsCopy.size(); i++) {
+                final XYAnnotation annotation = existingAnnotationsCopy.get(i);
                 if (annotation instanceof XYNoteAnnotation) {
-                    noteShowingOnPlotCopy.removeAnnotation(annotation);
+                    if (annotationsToRemove == null) {
+                        annotationsToRemove = new BufferingIterator<>();
+                    }
+                    annotationsToRemove.add(annotation);
+                }
+            }
+            if (annotationsToRemove != null) {
+                try {
+                    while (true) {
+                        final XYAnnotation annotationToRemove = annotationsToRemove.next();
+                        noteShowingOnPlotCopy.removeAnnotation(annotationToRemove);
+                    }
+                } catch (final NoSuchElementException e) {
+                    //end reached
                 }
             }
             noteShowingIconAnnotation = null;
@@ -532,7 +547,7 @@ public class PlotNavigationHelper {
         panLiveVisible = true;
         final XYPlot lastSubPlot = getLastSubplot();
 
-        if (!lastSubPlot.getAnnotations().contains(panLive)) {
+        if (!XYPlots.getAnnotations(lastSubPlot).contains(panLive)) {
             lastSubPlot.addAnnotation(panLive);
         }
     }
