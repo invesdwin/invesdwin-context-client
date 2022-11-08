@@ -25,15 +25,12 @@ import javax.swing.text.EditorKit;
 import org.apache.commons.io.input.CharSequenceReader;
 
 import de.invesdwin.aspects.EventDispatchThreadUtil;
-import de.invesdwin.aspects.annotation.EventDispatchThread;
-import de.invesdwin.aspects.annotation.EventDispatchThread.InvocationType;
 import de.invesdwin.context.client.swing.api.guiservice.GuiService;
 import de.invesdwin.context.client.swing.api.view.AView;
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.collections.iterable.ICloseableIterable;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
 import de.invesdwin.util.concurrent.Executors;
-import de.invesdwin.util.concurrent.Threads;
 import de.invesdwin.util.concurrent.WrappedScheduledExecutorService;
 import de.invesdwin.util.concurrent.reference.MutableReference;
 import de.invesdwin.util.lang.Objects;
@@ -62,17 +59,14 @@ public class LogViewerView extends AView<LogViewerView, JPanel> {
     private boolean background;
     private JEditorPane editor;
     private volatile Future<?> updateFuture;
-    private volatile Future<?> initFuture;
+    private volatile boolean initRequired = true;
     private JScrollPane scrollPane;
     private final Object updatingLock = new Object();
-    @GuardedBy("updatingLock")
-    private boolean updating;
     private boolean prevTrailing = true;
     private boolean prevPrevTrailing = true;
 
     public LogViewerView(final ILogViewerSource source) {
         this.source = source;
-        init();
     }
 
     public static synchronized WrappedScheduledExecutorService getScheduledExecutor() {
@@ -93,22 +87,25 @@ public class LogViewerView extends AView<LogViewerView, JPanel> {
         }
     }
 
-    private void init() {
+    private void init() throws InterruptedException {
         lastLogToMessages.clear();
         background = false;
         if (editor != null) {
             initEditor();
         }
         logTo = null;
+        initRequired = false;
     }
 
-    @EventDispatchThread(InvocationType.INVOKE_AND_WAIT)
-    private void initEditor() {
-        try {
-            editor.getDocument().remove(0, editor.getDocument().getLength());
-        } catch (final BadLocationException e) {
-            throw new RuntimeException(e);
-        }
+    private void initEditor() throws InterruptedException {
+        EventDispatchThreadUtil.invokeAndWait(() -> {
+            try {
+                editor.getDocument().remove(0, editor.getDocument().getLength());
+            } catch (final BadLocationException e) {
+                throw new RuntimeException(e);
+            }
+        });
+
     }
 
     public ILogViewerSource getSource() {
@@ -118,23 +115,12 @@ public class LogViewerView extends AView<LogViewerView, JPanel> {
 
     public void setSource(final ILogViewerSource source) {
         if (updateFuture != null) {
-            initFuture = getScheduledExecutor().submit(new Runnable() {
-                @Override
-                public void run() {
-                    synchronized (LogViewerView.this) {
-                        LogViewerView.this.source = source;
-                        init();
-                        update();
-                        initFuture = null;
-                    }
-                }
-            });
-        } else {
-            synchronized (this) {
-                LogViewerView.this.source = source;
-                init();
-            }
+            updateFuture.cancel(true);
+            updateFuture = null;
         }
+        LogViewerView.this.source = source;
+        initRequired = true;
+        initUpdateFuture();
     }
 
     protected Duration getRefreshInterval() {
@@ -202,31 +188,39 @@ public class LogViewerView extends AView<LogViewerView, JPanel> {
 
     @Override
     protected void onOpen() {
-        Assertions.checkNull(updateFuture);
         ACTIVE_LOGS.incrementAndGet();
+        initUpdateFuture();
+    }
+
+    private void initUpdateFuture() {
+        Assertions.checkNull(updateFuture);
+
         final Duration refreshInterval = getRefreshInterval();
         updateFuture = getScheduledExecutor().scheduleAtFixedRate(new Runnable() {
             @Override
             public void run() {
-                update();
+                try {
+                    update();
+                } catch (final InterruptedException e) {
+                    //noop
+                }
             }
         }, 0, refreshInterval.longValue(), refreshInterval.getTimeUnit().timeUnitValue());
     }
 
     @Override
     protected void onClose() {
-        Assertions.checkNotNull(updateFuture);
         ACTIVE_LOGS.decrementAndGet();
-        if (initFuture != null) {
-            initFuture.cancel(true);
-            initFuture = null;
+        final Future<?> updateFutureCopy = updateFuture;
+        if (updateFutureCopy != null) {
+            updateFutureCopy.cancel(true);
+            updateFuture = null;
         }
-        updateFuture.cancel(true);
-        updateFuture = null;
+
         maybeCloseScheduledExecutor();
     }
 
-    private synchronized void update() {
+    private synchronized void update() throws InterruptedException {
         if (!getComponent().isShowing()) {
             return;
         }
@@ -237,7 +231,10 @@ public class LogViewerView extends AView<LogViewerView, JPanel> {
         tailLog(logTo);
     }
 
-    private void tailLog(final FDate from) {
+    private void tailLog(final FDate from) throws InterruptedException {
+        if (initRequired) {
+            init();
+        }
         final ICloseableIterable<LogViewerEntry> entries = source.getLogViewerEntries(from, getMaxTrailingMessages());
         StringBuilder append = new StringBuilder();
         int count = 0;
@@ -258,9 +255,6 @@ public class LogViewerView extends AView<LogViewerView, JPanel> {
                     count++;
                     if (count >= 100) {
                         appendMessagesToDocument(append, trailingStateRef);
-                        if (Threads.isInterrupted()) {
-                            return;
-                        }
                         append = new StringBuilder();
                         count = 0;
                     }
@@ -278,36 +272,35 @@ public class LogViewerView extends AView<LogViewerView, JPanel> {
         return 10000;
     }
 
-    protected void onUpdate() {
-    }
+    protected void onUpdate() throws InterruptedException {}
 
-    @EventDispatchThread(InvocationType.INVOKE_AND_WAIT)
     private void appendMessagesToDocument(final StringBuilder message,
-            final MutableReference<TrailingState> trailingStateRef) {
-        if (message.length() > 0) {
-            if (editor.getDocument().getLength() > 0) {
-                message.insert(0, "\n");
-            }
-            try {
-                TrailingState trailingState = trailingStateRef.get();
-                if (trailingState == null) {
-                    trailingState = new TrailingState();
-                    trailingStateRef.set(trailingState);
+            final MutableReference<TrailingState> trailingStateRef) throws InterruptedException {
+        EventDispatchThreadUtil.invokeAndWait(() -> {
+            if (message.length() > 0) {
+                if (editor.getDocument().getLength() > 0) {
+                    message.insert(0, "\n");
                 }
-                synchronized (updatingLock) {
-                    getComponent().setIgnoreRepaint(true);
-                    updating = true;
-                }
-                //https://stackoverflow.com/questions/12916192/how-to-know-if-a-jscrollbar-has-reached-the-bottom-of-the-jscrollpane
-                final EditorKit kit = editor.getEditorKit();
-                final int position = editor.getDocument().getLength();
-                kit.read(new CharSequenceReader(message), editor.getDocument(), position);
-                trail(trailingState);
+                try {
+                    TrailingState trailingState = trailingStateRef.get();
+                    if (trailingState == null) {
+                        trailingState = new TrailingState();
+                        trailingStateRef.set(trailingState);
+                    }
+                    synchronized (updatingLock) {
+                        getComponent().setIgnoreRepaint(true);
+                    }
+                    //https://stackoverflow.com/questions/12916192/how-to-know-if-a-jscrollbar-has-reached-the-bottom-of-the-jscrollpane
+                    final EditorKit kit = editor.getEditorKit();
+                    final int position = editor.getDocument().getLength();
+                    kit.read(new CharSequenceReader(message), editor.getDocument(), position);
+                    trail(trailingState);
 
-            } catch (final Exception e) {
-                throw new RuntimeException(e);
+                } catch (final Exception e) {
+                    throw new RuntimeException(e);
+                }
             }
-        }
+        });
     }
 
     private void trail(final TrailingState trailingState) {
@@ -355,7 +348,6 @@ public class LogViewerView extends AView<LogViewerView, JPanel> {
             @Override
             public void run() {
                 synchronized (updatingLock) {
-                    updating = false;
                     getComponent().validate();
                     updateScrollBar(trailingState);
                     getComponent().setIgnoreRepaint(false);
