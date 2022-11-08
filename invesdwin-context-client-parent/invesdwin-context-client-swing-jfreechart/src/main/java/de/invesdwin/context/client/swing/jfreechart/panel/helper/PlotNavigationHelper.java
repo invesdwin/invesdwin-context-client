@@ -8,8 +8,10 @@ import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Set;
 
 import javax.annotation.concurrent.NotThreadSafe;
 import javax.swing.Timer;
@@ -72,7 +74,7 @@ public class PlotNavigationHelper {
 
     private XYPlot navShowingOnPlotPlot;
     private XYIconAnnotation navHighlightedAnnotation;
-    private Shape navHighlightingArea;
+    private final Set<Shape> navHighlightingAreas = new HashSet<>();
     private boolean navHighlighting = false;
     private boolean navVisible = false;
     private Timer navButtonTimer;
@@ -233,7 +235,7 @@ public class PlotNavigationHelper {
             if (newHighlightedAnnotation != this.navHighlightedAnnotation || navVisible != newVisible) {
                 removeAnnotations(navShowingOnPlotPlot, false);
                 addAnnotations(navShowingOnPlotPlot, newVisible, newHighlightedAnnotation);
-                navHighlightingArea = null;
+                navHighlightingAreas.clear();
                 this.navHighlightedAnnotation = newHighlightedAnnotation;
                 this.navVisible = newVisible;
                 if (navButtonTimerAnnotation != null && navHighlightedAnnotation != navButtonTimerAnnotation) {
@@ -266,15 +268,17 @@ public class PlotNavigationHelper {
     }
 
     private boolean determineHighlighting(final int mouseX, final int mouseY) {
-        final Shape area = getNavHighlightingArea();
-        if (area == null) {
+        final Set<Shape> areas = getNavHighlightingAreas();
+        if (areas.isEmpty()) {
             return false;
         }
-        return area.contains(mouseX, mouseY);
+
+        return areas.stream().anyMatch(shape -> shape.contains(mouseX, mouseY));
     }
 
-    private Shape getNavHighlightingArea() {
-        if (navHighlightingArea == null) {
+    private Set<Shape> getNavHighlightingAreas() {
+        if (navHighlightingAreas.isEmpty()) {
+            //NavBar/NavPanel
             Double minX = null;
             Double minY = null;
             Double maxX = null;
@@ -296,9 +300,12 @@ public class PlotNavigationHelper {
             }
             final Rectangle2D.Double unscaled = new Rectangle2D.Double(minX, minY, maxX - minX, maxY - minY);
             final Rectangle2D scaled = chartPanel.getChartPanel().scale(unscaled);
-            navHighlightingArea = scaled;
+            navHighlightingAreas.add(scaled);
+
+            //PanLive-Icon
+            navHighlightingAreas.add(panLive.getEntity().getArea());
         }
-        return navHighlightingArea;
+        return navHighlightingAreas;
     }
 
     private XYIconAnnotation getIconAnnotation(final XYIconAnnotationEntity l) {
