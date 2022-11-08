@@ -271,7 +271,12 @@ public class PlotNavigationHelper {
             return false;
         }
 
-        return areas.stream().anyMatch(shape -> shape.contains(mouseX, mouseY));
+        for (int i = 0; i < areas.size(); i++) {
+            if (areas.get(i).contains(mouseX, mouseY)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private List<Shape> getNavHighlightingAreas() {
