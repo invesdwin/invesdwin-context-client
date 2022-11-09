@@ -1105,4 +1105,12 @@ public class CustomChartPanel extends JPanel implements ChartChangeListener, Cha
         setCursor(DEFAULT_CURSOR);
     }
 
+    @Override
+    public void setCursor(final Cursor cursor) {
+        //make it lazy so we don't cause UI updates if not needed
+        if (getCursor() != cursor) {
+            super.setCursor(cursor);
+        }
+    }
+
 }

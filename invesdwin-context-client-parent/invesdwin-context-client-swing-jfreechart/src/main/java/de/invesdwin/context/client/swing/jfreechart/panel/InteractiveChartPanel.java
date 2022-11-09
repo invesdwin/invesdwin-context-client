@@ -667,6 +667,11 @@ public class InteractiveChartPanel extends JPanel {
         }
     }
 
+    @Override
+    public Cursor getCursor() {
+        return chartPanel.getCursor();
+    }
+
     private boolean isHighlighting() {
         return plotLegendHelper.isHighlighting() || plotNavigationHelper.isHighlighting()
                 || plotConfigurationHelper.isShowing();

@@ -1,5 +1,6 @@
 package de.invesdwin.context.client.swing.jfreechart.panel.helper;
 
+import java.awt.Cursor;
 import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.event.ActionEvent;
@@ -44,6 +45,8 @@ import de.invesdwin.util.time.duration.Duration;
 @NotThreadSafe
 public class PlotZoomHelper {
 
+    public static final Cursor VERTICAL_RESIZE_CURSOR = new Cursor(Cursor.N_RESIZE_CURSOR);
+
     public static final int MAX_ZOOM_ITEM_COUNT = 100_000;
     private static final int MIN_ZOOM_ITEM_COUNT = 10;
     private static final Duration ZOOM_ANNOTATION_TIMEOUT = new Duration(500, FTimeUnit.MILLISECONDS);
@@ -52,9 +55,6 @@ public class PlotZoomHelper {
     private static final double ZOOM_FACTOR = 0.1D;
     private static final double ZOOM_OUT_FACTOR = 1D + ZOOM_FACTOR;
     private static final double ZOOM_IN_FACTOR = 1D / ZOOM_OUT_FACTOR;
-    private static final double DRAG_ZOOM_FACTOR = 0.035D;
-    private static final double DRAG_ZOOM_OUT_FACTOR = 1D + DRAG_ZOOM_FACTOR;
-    private static final double DRAG_ZOOM_IN_FACTOR = 1D / DRAG_ZOOM_OUT_FACTOR;
     private static final Duration ZOOMABLE_THRESHOLD = new Duration(10, FTimeUnit.MILLISECONDS);
     private static final double EDGE_ANCHOR_TOLERANCE = 0.1D;
     private Instant lastZoomable = new Instant();
@@ -65,6 +65,7 @@ public class PlotZoomHelper {
     private final Timer zoomTitleTimer;
 
     private AxisDragInfo axisDragInfo;
+    private Cursor prevCursor;
 
     private final IFastIterableSet<IRangeListener> rangeListeners = ILockCollectionFactory.getInstance(false)
             .newFastIterableLinkedSet();
@@ -135,17 +136,16 @@ public class PlotZoomHelper {
         final CustomCombinedDomainXYPlot plot = chartPanel.getCombinedPlot();
 
         // don't zoom unless the mouse pointer is in the plot's data area
-        final ChartRenderingInfo info = this.chartPanel.getChartPanel().getChartRenderingInfo();
-        final PlotRenderingInfo pinfo = info.getPlotInfo();
-        if (pinfo.getDataArea().contains(point)) {
-            handleZoomableDataArea(point, zoomFactor, plot, pinfo);
-        } else if (!pinfo.getDataArea().contains(point) && pinfo.getPlotArea().contains(point)) {
-            handleZoomableAxisArea(point, zoomFactor, plot, pinfo);
+        final PlotRenderingInfo plotInfo = this.chartPanel.getChartPanel().getChartRenderingInfo().getPlotInfo();
+        if (plotInfo.getDataArea().contains(point)) {
+            handleZoomableDataArea(point, zoomFactor, plot);
+        } else if (!plotInfo.getDataArea().contains(point) && plotInfo.getPlotArea().contains(point)) {
+            handleZoomableAxisArea(point, zoomFactor, plot);
         }
     }
 
     private void handleZoomableDataArea(final Point2D point, final double zoomFactor,
-            final CustomCombinedDomainXYPlot plot, final PlotRenderingInfo pinfo) {
+            final CustomCombinedDomainXYPlot plot) {
         final Range rangeBefore = chartPanel.getDomainAxis().getRange();
         final int lengthBefore = (int) rangeBefore.getLength();
         if (lengthBefore >= MAX_ZOOM_ITEM_COUNT && zoomFactor == ZOOM_OUT_FACTOR
@@ -159,9 +159,10 @@ public class PlotZoomHelper {
             // do not notify while zooming each axis
             final boolean notifyState = plot.isNotify();
             plot.setNotify(false);
-            plot.zoomDomainAxes(zoomFactor, pinfo, point, true);
+            final PlotRenderingInfo plotInfo = this.chartPanel.getChartPanel().getChartRenderingInfo().getPlotInfo();
+            plot.zoomDomainAxes(zoomFactor, plotInfo, point, true);
 
-            applyEdgeAnchor(rangeBefore, lengthBefore, point.getX(), pinfo.getDataArea().getWidth());
+            applyEdgeAnchor(rangeBefore, lengthBefore, point.getX(), plotInfo.getDataArea().getWidth());
             plot.setNotify(notifyState); // this generates the change event too
             chartPanel.update();
         } finally {
@@ -170,11 +171,10 @@ public class PlotZoomHelper {
     }
 
     private void handleZoomableAxisArea(final Point2D point, final double zoomFactor,
-            final CustomCombinedDomainXYPlot plot, final PlotRenderingInfo pinfo) {
-        final int subplotIndex = Axises.getSubplotIndexFromPlotArea(pinfo, point);
+            final CustomCombinedDomainXYPlot plot) {
+        final int subplotIndex = Axises.getSubplotIndexFromPlotArea(chartPanel, point);
         final XYPlot xyPlot = chartPanel.getCombinedPlot().getSubplots().get(subplotIndex);
-        final ValueAxis rangeAxis = Axises
-                .getRangeAxis(this.chartPanel.getChartPanel().getChartRenderingInfo().getPlotInfo(), point, xyPlot);
+        final ValueAxis rangeAxis = Axises.getRangeAxis(chartPanel, point, xyPlot);
         if (rangeAxis != null) {
             rangeAxis.setAutoRange(false);
             rangeAxis.resizeRange(zoomFactor);
@@ -368,8 +368,7 @@ public class PlotZoomHelper {
 
     public void mousePressed(final MouseEvent e) {
         final Point2D point2D = this.chartPanel.getChartPanel().translateScreenToJava2D(e.getPoint());
-
-        if (Axises.isAxisArea(this.chartPanel.getChartPanel().getChartRenderingInfo().getPlotInfo(), point2D)) {
+        if (Axises.isAxisArea(chartPanel, point2D)) {
             axisDragInfo = Axises.createAxisDragInfo(chartPanel, point2D);
             handleAxisDoubleClick(e, axisDragInfo.getRangeAxis(), point2D);
         }
@@ -405,6 +404,19 @@ public class PlotZoomHelper {
                     .setRange(new Range(initialAnchorValue - halfLengthInitialBounds,
                             initialAnchorValue + halfLengthInitialBounds));
         }
+    }
+
+    public boolean mouseMoved(final MouseEvent e) {
+        final Point2D point2D = this.chartPanel.getChartPanel().translateScreenToJava2D(e.getPoint());
+        if (Axises.isAxisArea(chartPanel, point2D)) {
+            prevCursor = chartPanel.getCursor();
+            chartPanel.setCursor(VERTICAL_RESIZE_CURSOR);
+            return true;
+        } else if (prevCursor != null) {
+            chartPanel.setCursor(prevCursor);
+            prevCursor = null;
+        }
+        return false;
     }
 
     private void handleAxisDoubleClick(final MouseEvent e, final ValueAxis rangeAxis, final Point2D point2D) {

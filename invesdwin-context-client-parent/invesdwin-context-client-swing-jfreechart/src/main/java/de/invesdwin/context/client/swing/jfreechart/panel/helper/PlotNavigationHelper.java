@@ -108,7 +108,7 @@ public class PlotNavigationHelper {
         this.panRight_invisible = newIcon(PlotIcons.PAN_RIGHT, +60 + 15, INVISIBLE_ALPHA);
 
         this.visibleCheckAnnotations = new XYIconAnnotation[] { panLeft, panLeft_highlighted, panLeft_invisible,
-                panRight, panRight_highlighted };
+                panRight, panRight_highlighted, panRight_invisible };
 
         this.panLive = newIcon(PlotIcons.PAN_LIVE, 0.97D, 0.05D, 0, VISIBLE_ALPHA);
         this.panLive_highlighted = newIcon(PlotIcons.PAN_LIVE, 0.97D, 0.05D, 0, HIGHLIGHTED_ALPHA);
@@ -250,8 +250,7 @@ public class PlotNavigationHelper {
 
     private boolean findVisibleEntity(final int mouseX, final int mouseY) {
         final Rectangle2D.Double scaled = new Rectangle2D.Double(mouseX - 150, mouseY - 100, 300, 200);
-        final Rectangle2D unscaled = chartPanel.getChartPanel().unscale(scaled);
-        final Shape area = unscaled;
+        final Rectangle2D area = chartPanel.getChartPanel().unscale(scaled);
         for (int i = 0; i < visibleCheckAnnotations.length; i++) {
             final XYIconAnnotation annotation = visibleCheckAnnotations[i];
             final XYAnnotationEntity entity = annotation.getEntity();

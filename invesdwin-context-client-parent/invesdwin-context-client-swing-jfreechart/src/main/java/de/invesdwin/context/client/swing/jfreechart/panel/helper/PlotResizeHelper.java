@@ -72,24 +72,6 @@ public class PlotResizeHelper {
         plotResizeActive = false;
     }
 
-    private void initResizeCursor(final int mouseX, final int mouseY) {
-        final int subplotIndex = chartPanel.getCombinedPlot().getSubplotIndex(mouseX, mouseY);
-        if (subplotIndex == -1) {
-            boolean found = false;
-            final int subplotIndexAbove = chartPanel.getCombinedPlot().getSubplotIndex(mouseX, mouseY - 20);
-            if (subplotIndexAbove != -1) {
-                final int subplotIndexBelow = chartPanel.getCombinedPlot().getSubplotIndex(mouseX, mouseY + 20);
-                if (subplotIndexBelow != -1) {
-                    chartPanel.setCursor(RESIZE_CURSOR);
-                    found = true;
-                }
-            }
-            if (!found) {
-                chartPanel.setCursor(DEFAULT_CURSOR);
-            }
-        }
-    }
-
     private void resize() {
         if (plotResizePointStart != null && plotResizePointEnd != null) {
             boolean resized = false;
@@ -192,7 +174,24 @@ public class PlotResizeHelper {
     }
 
     public void mouseMoved(final MouseEvent e) {
-        initResizeCursor(e.getX(), e.getY());
+        final int mouseX = e.getX();
+        final int mouseY = e.getY();
+        final int subplotIndex = chartPanel.getCombinedPlot().getSubplotIndex(mouseX, mouseY);
+        if (subplotIndex == -1) {
+            boolean found = false;
+            final int subplotIndexAbove = chartPanel.getCombinedPlot().getSubplotIndex(mouseX, mouseY - 20);
+            if (subplotIndexAbove != -1) {
+                final int subplotIndexBelow = chartPanel.getCombinedPlot().getSubplotIndex(mouseX, mouseY + 20);
+                if (subplotIndexBelow != -1) {
+                    found = true;
+                }
+            }
+            if (found) {
+                chartPanel.setCursor(RESIZE_CURSOR);
+            } else if (!chartPanel.getPlotZoomHelper().mouseMoved(e)) {
+                chartPanel.setCursor(DEFAULT_CURSOR);
+            }
+        }
     }
 
     public void mousePressed(final MouseEvent e) {
