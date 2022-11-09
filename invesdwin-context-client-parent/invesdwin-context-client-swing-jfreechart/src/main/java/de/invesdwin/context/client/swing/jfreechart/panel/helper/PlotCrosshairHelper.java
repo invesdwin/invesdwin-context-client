@@ -32,8 +32,9 @@ import de.invesdwin.util.math.Doubles;
 
 @NotThreadSafe
 public class PlotCrosshairHelper {
+    public static final Cursor CROSSHAIR_CURSOR = new Cursor(Cursor.CROSSHAIR_CURSOR);
+
     private static final Font CROSSHAIR_FONT = XYPriceLineAnnotation.FONT;
-    private static final Cursor CROSSHAIR_CURSOR = new Cursor(Cursor.CROSSHAIR_CURSOR);
     private static final Color CROSSHAIR_COLOR = Color.BLACK;
     private static final Stroke CROSSHAIR_STROKE = new BasicStroke(0.5f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL,
             0, new float[] { 5, 6 }, 0);

@@ -1,6 +1,7 @@
 package de.invesdwin.context.client.swing.jfreechart.panel.helper;
 
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseEvent;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
@@ -51,8 +52,7 @@ public class PlotPanHelper {
     /**
      * pans the x-axis right till the most recent datapoint is visible.
      */
-
-    public void panLive() {
+    public void panLive(final MouseEvent e) {
         if (chartPanel.isUpdating()) {
             return;
         }
@@ -62,7 +62,10 @@ public class PlotPanHelper {
                 + chartPanel.getAllowedRangeGap(length);
         final Range newRange = new Range(newUpperBound - length, newUpperBound);
         chartPanel.getDomainAxis().setRange(newRange);
-        chartPanel.update();
+        //pan live button is removed, thus switch to crosshair
+        chartPanel.getPlotNavigationHelper().mouseMoved(e);
+        chartPanel.getPlotCrosshairHelper().mouseMoved(e);
+        chartPanel.update(false);
     }
 
     public void maybeToggleVisibilityPanLiveIcon() {

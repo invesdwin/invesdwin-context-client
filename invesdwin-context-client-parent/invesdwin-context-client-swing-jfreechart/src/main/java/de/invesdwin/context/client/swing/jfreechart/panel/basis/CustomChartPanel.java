@@ -973,7 +973,7 @@ public class CustomChartPanel extends JPanel implements ChartChangeListener, Cha
             // released...
             if (panLast != null) {
                 panLast = null;
-                setCursor(DEFAULT_CURSOR);
+                onMousePanningReleased(e);
             }
 
         }
@@ -1091,8 +1091,18 @@ public class CustomChartPanel extends JPanel implements ChartChangeListener, Cha
         }
     }
 
+    /**
+     * Can be overridden
+     */
     protected boolean isMousePanningAllowed() {
         return true;
+    }
+
+    /**
+     * Can be overridden
+     */
+    protected void onMousePanningReleased(final MouseEvent e) {
+        setCursor(DEFAULT_CURSOR);
     }
 
 }

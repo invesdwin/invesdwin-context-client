@@ -477,8 +477,8 @@ public class PlotNavigationHelper {
             } else if (annotation == panLive) {
                 action = new ActionListener() {
                     @Override
-                    public void actionPerformed(final ActionEvent e) {
-                        chartPanel.getPlotPanHelper().panLive();
+                    public void actionPerformed(final ActionEvent ae) {
+                        chartPanel.getPlotPanHelper().panLive(e);
                     }
                 };
             } else if (annotation == zoomIn) {
@@ -570,6 +570,7 @@ public class PlotNavigationHelper {
 
         lastSubPlot.removeAnnotation(panLive);
         lastSubPlot.removeAnnotation(panLive_highlighted);
+        navHighlightingAreas.clear();
     }
 
     private XYPlot getLastSubplot() {

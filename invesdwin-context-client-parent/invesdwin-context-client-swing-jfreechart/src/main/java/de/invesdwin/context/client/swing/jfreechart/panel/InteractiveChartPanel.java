@@ -137,6 +137,11 @@ public class InteractiveChartPanel extends JPanel {
             }
 
             @Override
+            protected void onMousePanningReleased(final MouseEvent e) {
+                getPlotCrosshairHelper().mouseMoved(e);
+            }
+
+            @Override
             protected boolean isPaintAllowed() {
                 return updatingCount.get() == 0;
             }
@@ -387,6 +392,10 @@ public class InteractiveChartPanel extends JPanel {
     }
 
     public void update() {
+        update(true);
+    }
+
+    public void update(final boolean disableCrosshair) {
         //have max 2 queue
         if (finalizer.executorUpdateLimit.getPendingCount() <= 1) {
             final Runnable task = new Runnable() {
@@ -408,7 +417,9 @@ public class InteractiveChartPanel extends JPanel {
                                 incrementUpdatingCount();
                                 try {
                                     //need to do this in EDT, or we get ArrayIndexOutOfBounds exception
-                                    plotCrosshairHelper.disableCrosshair();
+                                    if (disableCrosshair) {
+                                        plotCrosshairHelper.disableCrosshair();
+                                    }
                                     configureRangeAxis();
                                     plotLegendHelper.update();
                                 } catch (final Throwable t) {

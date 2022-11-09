@@ -60,6 +60,9 @@ public class PlotResizeHelper {
     }
 
     private void cleanup() {
+        if (plotResizeActive) {
+            chartPanel.setCursor(DEFAULT_CURSOR);
+        }
         plotResizeAboveIndex = null;
         plotResizeAbove = null;
         plotResizeBelowIndex = null;
@@ -67,7 +70,6 @@ public class PlotResizeHelper {
         plotResizePointStart = null;
         plotResizePointEnd = null;
         plotResizeActive = false;
-        chartPanel.setCursor(DEFAULT_CURSOR);
     }
 
     private void initResizeCursor(final int mouseX, final int mouseY) {

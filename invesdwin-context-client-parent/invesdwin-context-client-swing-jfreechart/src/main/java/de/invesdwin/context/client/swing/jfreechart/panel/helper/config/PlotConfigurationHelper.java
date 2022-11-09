@@ -30,6 +30,7 @@ import org.jfree.chart.plot.XYPlot;
 
 import de.invesdwin.context.client.swing.jfreechart.panel.InteractiveChartPanel;
 import de.invesdwin.context.client.swing.jfreechart.panel.basis.CustomChartTransferable;
+import de.invesdwin.context.client.swing.jfreechart.panel.helper.PlotResizeHelper;
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.bookmark.Bookmark;
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.bookmark.BookmarkMenuItem;
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.bookmark.HeapBookmarkStorage;
@@ -412,6 +413,7 @@ public class PlotConfigurationHelper {
     }
 
     public void displayPopupMenu(final int x, final int y) {
+        chartPanel.getChartPanel().setCursor(PlotResizeHelper.DEFAULT_CURSOR);
         this.popupMenu.show(chartPanel, x, y);
     }
 
