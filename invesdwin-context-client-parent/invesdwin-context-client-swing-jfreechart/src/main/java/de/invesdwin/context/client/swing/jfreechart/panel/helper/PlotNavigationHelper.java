@@ -305,7 +305,7 @@ public class PlotNavigationHelper {
             }
 
             //PanLive-Icon
-            if (panLive.getEntity() != null) {
+            if (panLive.getEntity() != null && panLiveVisible) {
                 navHighlightingAreas.add(panLive.getEntity().getArea());
             }
         }
