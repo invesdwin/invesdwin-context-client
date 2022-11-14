@@ -20,6 +20,7 @@ import de.invesdwin.context.client.swing.api.binding.component.CheckBoxBinding;
 import de.invesdwin.context.client.swing.api.binding.component.CheckBoxMenuItemBinding;
 import de.invesdwin.context.client.swing.api.binding.component.ComboBoxBinding;
 import de.invesdwin.context.client.swing.api.binding.component.IComponentBinding;
+import de.invesdwin.context.client.swing.api.binding.component.KeyGrabberTextFieldBinding;
 import de.invesdwin.context.client.swing.api.binding.component.ListBinding;
 import de.invesdwin.context.client.swing.api.binding.component.RootTitleBinding;
 import de.invesdwin.context.client.swing.api.binding.component.SpinnerBinding;
@@ -47,6 +48,7 @@ import de.invesdwin.norva.beanpath.spi.element.table.ATableBeanPathElement;
 import de.invesdwin.norva.beanpath.spi.element.utility.ContainerTitleBeanPathElement;
 import de.invesdwin.util.error.UnknownArgumentException;
 import de.invesdwin.util.lang.string.Strings;
+import de.invesdwin.util.swing.text.KeyGrabberTextField;
 
 @NotThreadSafe
 @SuppressWarnings("rawtypes")
@@ -118,6 +120,8 @@ public final class GeneratedBindingGroup {
                     //                            bindingGroup.addBinding(binding);
                     //                        }
                     //                    }
+                } else if (c instanceof KeyGrabberTextField) {
+                    binding = bindKeyGrabberTextField((KeyGrabberTextField) c);
                 } else if (c instanceof JTextComponent) {
                     binding = bindJTextComponent((JTextComponent) c);
                 } else if (c instanceof JLabel) {
@@ -187,6 +191,11 @@ public final class GeneratedBindingGroup {
     protected IComponentBinding bindJTextComponent(final JTextComponent component) {
         final APropertyBeanPathElement element = getElement(component);
         return new TextComponentBinding(component, element, bindingGroup);
+    }
+
+    protected IComponentBinding bindKeyGrabberTextField(final KeyGrabberTextField component) {
+        final APropertyBeanPathElement element = getElement(component);
+        return new KeyGrabberTextFieldBinding(component, element, bindingGroup);
     }
 
     protected IComponentBinding bindJCheckBoxMenuItem(final JCheckBoxMenuItem component) {

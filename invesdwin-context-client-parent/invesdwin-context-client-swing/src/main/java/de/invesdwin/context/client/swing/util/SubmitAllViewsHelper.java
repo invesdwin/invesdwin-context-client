@@ -21,7 +21,7 @@ public class SubmitAllViewsHelper extends UpdateAllViewsHelper {
     public void process(final AView<?, ?> view, final Component component) {
         final List<AView<?, ?>> views = getViews(view, component);
         submit(views);
-        final String invalidMessage = validate(views);
+        final String invalidMessage = validate(views, false);
         if (invalidMessage == null) {
             commit(views);
         } else {
@@ -41,12 +41,12 @@ public class SubmitAllViewsHelper extends UpdateAllViewsHelper {
         }
     }
 
-    protected String validate(final List<AView<?, ?>> views) {
+    protected String validate(final List<AView<?, ?>> views, final boolean force) {
         String combinedInvalidMessage = null;
         final Set<String> duplicateMessageFilter = new HashSet<>();
         for (int i = 0; i < views.size(); i++) {
             final BindingGroup bindingGroup = views.get(i).getBindingGroup();
-            final String invalidMessage = bindingGroup.validate();
+            final String invalidMessage = bindingGroup.validate(force);
             if (Strings.isNotBlank(invalidMessage) && duplicateMessageFilter.add(invalidMessage)) {
                 if (combinedInvalidMessage != null) {
                     combinedInvalidMessage += "\n";

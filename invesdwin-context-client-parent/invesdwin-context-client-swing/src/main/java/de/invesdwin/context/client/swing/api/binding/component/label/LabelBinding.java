@@ -71,4 +71,10 @@ public class LabelBinding extends AComponentBinding<JLabel, Object> {
         return false;
     }
 
+    @Override
+    public void reset() {
+        super.reset();
+        prevComponentValue = null;
+    }
+
 }

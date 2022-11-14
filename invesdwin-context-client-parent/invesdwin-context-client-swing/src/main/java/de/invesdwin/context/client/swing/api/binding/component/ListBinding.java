@@ -23,7 +23,7 @@ import de.invesdwin.util.lang.Objects;
 public class ListBinding extends AComponentBinding<JList, List<?>> {
 
     private final AChoiceBeanPathElement element;
-    private ArrayList prevChoices;
+    private List prevChoices = Collections.emptyList();
     private String[] prevRenderedChoices;
     private int[] prevSelectedIndices;
 
@@ -106,6 +106,14 @@ public class ListBinding extends AComponentBinding<JList, List<?>> {
             return;
         }
         super.setValueFromRoot(root, value);
+    }
+
+    @Override
+    public void reset() {
+        super.reset();
+        prevChoices = Collections.emptyList();
+        prevRenderedChoices = null;
+        prevSelectedIndices = null;
     }
 
 }

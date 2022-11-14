@@ -133,4 +133,9 @@ public class SpinnerBinding extends AComponentBinding<JSpinner, Object> {
         return element.getModifier();
     }
 
+    @Override
+    public void reset() {
+        super.reset();
+        prevComponentValue = null;
+    }
 }

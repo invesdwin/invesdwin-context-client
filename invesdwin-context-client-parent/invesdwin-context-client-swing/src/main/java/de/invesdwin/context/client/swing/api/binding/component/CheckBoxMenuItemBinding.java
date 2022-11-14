@@ -49,4 +49,9 @@ public class CheckBoxMenuItemBinding extends AComponentBinding<JCheckBoxMenuItem
         return component.isSelected();
     }
 
+    @Override
+    public void reset() {
+        super.reset();
+        prevModelValue = null;
+    }
 }

@@ -32,7 +32,7 @@ public class ActionButtonBinding implements IComponentBinding {
     }
 
     @Override
-    public String validate() {
+    public String validate(final boolean force) {
         //noop
         return null;
     }
@@ -66,6 +66,11 @@ public class ActionButtonBinding implements IComponentBinding {
     @Override
     public String toString() {
         return Objects.toStringHelper(this).addValue(component.getName()).toString();
+    }
+
+    @Override
+    public void reset() {
+        //noop
     }
 
 }

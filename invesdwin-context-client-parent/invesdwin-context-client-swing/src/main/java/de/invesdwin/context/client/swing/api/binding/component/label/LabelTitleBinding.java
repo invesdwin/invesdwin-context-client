@@ -55,4 +55,9 @@ public class LabelTitleBinding extends LabelBinding {
         //noop
     }
 
+    @Override
+    public void reset() {
+        super.reset();
+        prevModelValue = null;
+    }
 }

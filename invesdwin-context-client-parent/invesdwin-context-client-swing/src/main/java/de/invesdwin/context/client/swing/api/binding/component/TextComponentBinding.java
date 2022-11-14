@@ -126,4 +126,9 @@ public class TextComponentBinding extends AComponentBinding<JTextComponent, Obje
         }
     }
 
+    @Override
+    public void reset() {
+        super.reset();
+        prevComponentValue = null;
+    }
 }

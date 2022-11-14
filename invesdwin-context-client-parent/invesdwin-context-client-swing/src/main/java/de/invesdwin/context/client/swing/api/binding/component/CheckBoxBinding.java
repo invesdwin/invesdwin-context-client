@@ -49,4 +49,9 @@ public class CheckBoxBinding extends AComponentBinding<JCheckBox, Boolean> {
         return component.isSelected();
     }
 
+    @Override
+    public void reset() {
+        super.reset();
+        prevModelValue = null;
+    }
 }
