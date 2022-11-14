@@ -71,9 +71,10 @@ public class SubmitButtonBinding implements IComponentBinding {
                     }
 
                     @Override
-                    protected String validate(final List<AView<?, ?>> views) {
+                    protected String validate(final List<AView<?, ?>> views, final boolean force) {
                         //ignore all validation errors
                         invoke();
+                        super.validate(views, true);// The Button might have side-effects that need to be revalidated.
                         return null;
                     }
                 };
@@ -96,15 +97,15 @@ public class SubmitButtonBinding implements IComponentBinding {
                     }
 
                     @Override
-                    protected String validate(final List<AView<?, ?>> views) {
-                        final String invalidMessage = super.validate(views);
+                    protected String validate(final List<AView<?, ?>> views, final boolean force) {
+                        final String invalidMessage = super.validate(views, force);
                         if (invalidMessage != null) {
                             showingInvalidMessage = invalidMessage;
                             return invalidMessage;
                         } else {
                             invoke();
                             //validate again after invoking
-                            return super.validate(views);
+                            return super.validate(views, force);
                         }
                     }
                 };
@@ -177,7 +178,7 @@ public class SubmitButtonBinding implements IComponentBinding {
     }
 
     @Override
-    public String validate() {
+    public String validate(final boolean force) {
         //noop
         return null;
     }
@@ -254,6 +255,11 @@ public class SubmitButtonBinding implements IComponentBinding {
     @Override
     public String toString() {
         return Objects.toStringHelper(this).addValue(component.getName()).toString();
+    }
+
+    @Override
+    public void reset() {
+        //noop
     }
 
 }

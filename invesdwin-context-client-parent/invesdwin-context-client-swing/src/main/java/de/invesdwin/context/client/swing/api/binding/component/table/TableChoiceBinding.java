@@ -145,4 +145,11 @@ public class TableChoiceBinding extends AComponentBinding<JTable, List<?>> {
         return getModifier().getValueFromRoot(getTarget());
     }
 
+    @Override
+    public void reset() {
+        super.reset();
+        if (selectionBinding != null) {
+            selectionBinding.reset();
+        }
+    }
 }

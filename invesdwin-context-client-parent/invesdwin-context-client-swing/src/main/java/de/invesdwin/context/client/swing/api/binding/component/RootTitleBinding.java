@@ -23,12 +23,10 @@ public class RootTitleBinding implements IComponentBinding {
     }
 
     @Override
-    public void submit() {
-    }
+    public void submit() {}
 
     @Override
-    public void setInvalidMessage(final String invalidMessage) {
-    }
+    public void setInvalidMessage(final String invalidMessage) {}
 
     @Override
     public String getInvalidMessage() {
@@ -36,17 +34,15 @@ public class RootTitleBinding implements IComponentBinding {
     }
 
     @Override
-    public String validate() {
+    public String validate(final boolean force) {
         return null;
     }
 
     @Override
-    public void commit() {
-    }
+    public void commit() {}
 
     @Override
-    public void rollback() {
-    }
+    public void rollback() {}
 
     @Override
     public void update() {
@@ -70,4 +66,8 @@ public class RootTitleBinding implements IComponentBinding {
         }
     }
 
+    @Override
+    public void reset() {
+        //noop
+    }
 }

@@ -188,4 +188,10 @@ public class TableSelectionBinding extends AComponentBinding<JTable, List<?>> {
         return selectedIndexes;
     }
 
+    @Override
+    public void reset() {
+        super.reset();
+        prevSelectedIndexesInModel = Collections.emptyList();
+    }
+
 }

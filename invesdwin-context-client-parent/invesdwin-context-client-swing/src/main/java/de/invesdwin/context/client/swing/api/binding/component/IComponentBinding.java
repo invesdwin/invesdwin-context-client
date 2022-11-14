@@ -18,7 +18,12 @@ public interface IComponentBinding {
     /**
      * Validates the current model value.
      */
-    String validate();
+    String validate(boolean force);
+
+    /**
+     * Ensures that the next update from model to view always happens despite lazy checks.
+     */
+    void reset();
 
     /**
      * Removes the record of the previous model value, thus making it impossible to roll back anymore. Making the

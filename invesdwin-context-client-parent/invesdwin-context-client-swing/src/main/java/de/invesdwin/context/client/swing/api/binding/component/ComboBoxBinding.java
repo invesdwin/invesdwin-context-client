@@ -12,6 +12,7 @@ import javax.swing.JComboBox;
 import de.invesdwin.context.client.swing.api.binding.BindingGroup;
 import de.invesdwin.norva.beanpath.spi.element.AChoiceBeanPathElement;
 import de.invesdwin.norva.beanpath.spi.element.simple.modifier.IBeanPathPropertyModifier;
+import de.invesdwin.util.collections.Collections;
 import de.invesdwin.util.lang.Objects;
 
 @NotThreadSafe
@@ -19,7 +20,7 @@ import de.invesdwin.util.lang.Objects;
 public class ComboBoxBinding extends AComponentBinding<JComboBox, Object> {
 
     private final AChoiceBeanPathElement element;
-    private List<Object> prevChoices = new ArrayList<>();
+    private List<Object> prevChoices = Collections.emptyList();
     private String[] prevRenderedChoices;
     private Optional<String> prevRenderedModelValue;
 
@@ -84,4 +85,11 @@ public class ComboBoxBinding extends AComponentBinding<JComboBox, Object> {
         return element.getModifier();
     }
 
+    @Override
+    public void reset() {
+        super.reset();
+        prevChoices = Collections.emptyList();
+        prevRenderedChoices = null;
+        prevRenderedModelValue = null;
+    }
 }
