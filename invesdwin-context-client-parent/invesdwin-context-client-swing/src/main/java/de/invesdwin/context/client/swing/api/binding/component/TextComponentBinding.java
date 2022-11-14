@@ -55,7 +55,7 @@ public class TextComponentBinding extends AComponentBinding<JTextComponent, Obje
             component.getDocument().addDocumentListener(new DocumentListenerSupport() {
                 @Override
                 protected void update(final DocumentEvent e) {
-                    if (!isFocusOwner && !isSettingText) {
+                    if (isFocusOwner && !isSettingText) {
                         eagerSubmitRunnable.run();
                     }
                 }
