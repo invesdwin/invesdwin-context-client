@@ -62,7 +62,6 @@ public class TextComponentBinding extends AComponentBinding<JTextComponent, Obje
             });
         }
         this.originalBackground = component.getBackground();
-
     }
 
     @Override
