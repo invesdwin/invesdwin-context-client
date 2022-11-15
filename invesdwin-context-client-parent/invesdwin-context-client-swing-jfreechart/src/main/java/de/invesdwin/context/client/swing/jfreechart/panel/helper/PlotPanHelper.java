@@ -53,9 +53,6 @@ public class PlotPanHelper {
      * pans the x-axis right till the most recent datapoint is visible.
      */
     public void panLive(final MouseEvent e) {
-        if (chartPanel.isUpdating()) {
-            return;
-        }
         final Range range = chartPanel.getDomainAxis().getRange();
         final double length = range.getLength();
         final double newUpperBound = chartPanel.getMasterDataset().getItemCount(0)
