@@ -7,6 +7,8 @@ import java.awt.datatransfer.Clipboard;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.geom.Point2D;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
@@ -18,6 +20,7 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 import javax.annotation.concurrent.NotThreadSafe;
+import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JFileChooser;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
@@ -26,6 +29,7 @@ import javax.swing.event.PopupMenuEvent;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 import org.jfree.chart.ChartUtils;
+import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.plot.XYPlot;
 
 import de.invesdwin.context.client.swing.jfreechart.panel.InteractiveChartPanel;
@@ -40,6 +44,7 @@ import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.series.A
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.series.expression.IExpressionSeriesProvider;
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.series.indicator.IIndicatorSeriesProvider;
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.legend.HighlightedLegendInfo;
+import de.invesdwin.context.client.swing.jfreechart.plot.Axises;
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.IPlotSourceDataset;
 import de.invesdwin.util.lang.string.Strings;
 import de.invesdwin.util.swing.Dialogs;
@@ -76,10 +81,12 @@ public class PlotConfigurationHelper {
     private JMenuItem copyToClipboardItem;
     private JMenuItem saveAsPNGItem;
     private JMenuItem helpItem;
+    private JCheckBoxMenuItem autoRangeItem;
 
     private final Map<String, IIndicatorSeriesProvider> indicatorSeriesProviders = new TreeMap<>();
     private IExpressionSeriesProvider expressionSeriesProvider;
     private IPlotPopupMenuConfig plotPopupMenuConfig;
+    private Point2D mousePositionOnPopupMenu;
 
     private IBookmarkStorage bookmarkStorage = DEFAULT_BOOKMARK_STORAGE;
 
@@ -107,6 +114,7 @@ public class PlotConfigurationHelper {
         titleItem = new JMenuItem("");
         titleItem.setEnabled(false);
 
+        initAutoRangeItem();
         initSeriesVisibilityItems();
         initAddSeriesItem();
         initBookmarkItems();
@@ -132,6 +140,13 @@ public class PlotConfigurationHelper {
                         addSeriesConfigMenuItems();
                     }
                 } else {
+                    if (Axises.isAxisArea(chartPanel, mousePositionOnPopupMenu)) {
+                        final ValueAxis rangeAxis = Axises.getRangeAxis(chartPanel, mousePositionOnPopupMenu);
+                        autoRangeItem.setSelected(rangeAxis.isAutoRange());
+                        popupMenu.add(autoRangeItem);
+                        popupMenu.addSeparator();
+                    }
+
                     boolean addSeparator = false;
                     if (!indicatorSeriesProviders.isEmpty() || expressionSeriesProvider != null) {
                         popupMenu.add(addSeriesItem);
@@ -249,6 +264,46 @@ public class PlotConfigurationHelper {
             }
         });
 
+    }
+
+    private void initAutoRangeItem() {
+        this.autoRangeItem = new JCheckBoxMenuItem("Auto-Range");
+        this.autoRangeItem.setSelected(true);
+
+        this.autoRangeItem.addMouseListener(new MouseListener() {
+            @Override
+            public void mouseReleased(final MouseEvent e) {
+                if (e.isControlDown()) {
+                    Axises.resetAllAutoRanges(chartPanel);
+                } else {
+                    final ValueAxis rangeAxis = Axises.getRangeAxis(chartPanel, mousePositionOnPopupMenu);
+                    //Should never be null. Safety first though.
+                    if (rangeAxis != null) {
+                        rangeAxis.setAutoRange(autoRangeItem.isSelected());
+                    }
+                }
+            }
+
+            @Override
+            public void mousePressed(final MouseEvent e) {
+                //noop
+            }
+
+            @Override
+            public void mouseExited(final MouseEvent e) {
+                //noop
+            }
+
+            @Override
+            public void mouseEntered(final MouseEvent e) {
+                //noop
+            }
+
+            @Override
+            public void mouseClicked(final MouseEvent e) {
+                //noop
+            }
+        });
     }
 
     private void initBookmarkItems() {
@@ -455,7 +510,10 @@ public class PlotConfigurationHelper {
 
     public void mouseReleased(final MouseEvent e) {
         if (e.isPopupTrigger()) {
+            this.mousePositionOnPopupMenu = this.chartPanel.getChartPanel().translateScreenToJava2D(e.getPoint());
             displayPopupMenu(e.getX(), e.getY());
+        } else {
+            this.mousePositionOnPopupMenu = null;
         }
     }
 
@@ -527,5 +585,4 @@ public class PlotConfigurationHelper {
     public void setPlotPopupMenuConfig(final IPlotPopupMenuConfig plotPopupMenuConfig) {
         this.plotPopupMenuConfig = plotPopupMenuConfig;
     }
-
 }
