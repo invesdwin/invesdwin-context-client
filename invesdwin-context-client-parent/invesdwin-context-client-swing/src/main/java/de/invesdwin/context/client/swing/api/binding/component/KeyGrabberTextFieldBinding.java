@@ -71,10 +71,6 @@ public class KeyGrabberTextFieldBinding extends AComponentBinding<KeyGrabberText
 
     @Override
     protected void setEnabled(final boolean enabled) {
-        if (!this.component.getName().contains("last")) {
-            System.out.println("setEnabled: " + this.component.getName() + " " + enabled);
-        }
-
         Components.setEditable(component, enabled);
         if (enabled) {
             if (originalBackground == null) {
