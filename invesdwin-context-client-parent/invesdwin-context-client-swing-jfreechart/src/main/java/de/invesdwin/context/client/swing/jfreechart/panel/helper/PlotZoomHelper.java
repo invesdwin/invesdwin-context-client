@@ -67,7 +67,7 @@ public class PlotZoomHelper {
     private AxisDragInfo axisDragInfo;
     private Cursor prevCursor;
 
-    private final IFastIterableSet<IRangeListener> rangeListeners = ILockCollectionFactory.getInstance(false)
+    private final IFastIterableSet<IRangeListener> rangeListeners = ILockCollectionFactory.getInstance(true)
             .newFastIterableLinkedSet();
 
     public PlotZoomHelper(final InteractiveChartPanel chartPanel) {
