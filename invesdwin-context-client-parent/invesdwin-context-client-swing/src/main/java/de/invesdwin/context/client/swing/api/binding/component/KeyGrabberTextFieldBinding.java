@@ -1,10 +1,8 @@
 package de.invesdwin.context.client.swing.api.binding.component;
 
-import java.awt.Color;
 import java.util.Optional;
 
 import javax.annotation.concurrent.NotThreadSafe;
-import javax.swing.UIManager;
 
 import de.invesdwin.context.client.swing.api.binding.BindingGroup;
 import de.invesdwin.norva.beanpath.impl.clazz.BeanClassType;
@@ -19,7 +17,6 @@ import de.invesdwin.util.swing.text.KeyGrabberTextField;
 public class KeyGrabberTextFieldBinding extends AComponentBinding<KeyGrabberTextField, Hotkey> {
 
     private Optional<Hotkey> prevComponentValue;
-    private final Color originalBackground;
     private boolean isSettingText = false;
 
     public KeyGrabberTextFieldBinding(final KeyGrabberTextField component, final APropertyBeanPathElement element,
@@ -38,8 +35,6 @@ public class KeyGrabberTextFieldBinding extends AComponentBinding<KeyGrabberText
                 }
             });
         }
-        this.originalBackground = component.getBackground();
-
     }
 
     @Override
@@ -67,20 +62,6 @@ public class KeyGrabberTextFieldBinding extends AComponentBinding<KeyGrabberText
     @Override
     protected IBeanPathPropertyModifier<Hotkey> getModifier() {
         return (IBeanPathPropertyModifier) element.getModifier();
-    }
-
-    @Override
-    protected void setEnabled(final boolean enabled) {
-        Components.setEditable(component, enabled);
-        if (enabled) {
-            if (originalBackground == null) {
-                Components.setBackground(component, UIManager.getColor("TextField.background"));
-            } else {
-                Components.setBackground(component, originalBackground);
-            }
-        } else {
-            Components.setBackground(component, UIManager.getColor("TextField.inactiveBackground"));
-        }
     }
 
     @Override
