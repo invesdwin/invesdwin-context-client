@@ -68,7 +68,7 @@ public abstract class AComponentBinding<C extends JComponent, V> implements ICom
                     private final BindingSubmitAllViewsHelper helper = new BindingSubmitAllViewsHelper(
                             AComponentBinding.this) {
                         @Override
-                        protected String validate(final List<AView<?, ?>> views, final boolean force) {
+                        protected String validate(final List<AView<?, ?>> views) {
                             //only show conversion errors, ignore any other validation errors
                             return invalidMessage;
                         }
@@ -167,27 +167,19 @@ public abstract class AComponentBinding<C extends JComponent, V> implements ICom
     protected abstract IBeanPathPropertyModifier<V> getModifier();
 
     @Override
-    public String validate(final boolean force) {
+    public String validate() {
         if (isFrozen()) {
             return invalidMessage;
         }
         if (!isModifiable()) {
             return invalidMessage;
         }
-        if (force) {
-            if (invalidMessage != null) {
-                rollback(true);
-                reset();
-                update();
-            }
-        } else if (invalidMessage != null) {
-            return invalidMessage;
-        }
         if (validateElement != null) {
-            //validate using custom validator only once all properties have been synchronized
+            invalidMessage = null;
+            showingInvalidMessage = null;
             final AModel model = bindingGroup.getModel();
-            final Object modelValue = getValueFromRoot(model);
-            final String invalid = validateElement.validateFromRoot(model, modelValue);
+            final V newModelValue = fromComponentToModel();
+            final String invalid = validateElement.validateFromRoot(model, newModelValue);
             if (Strings.isNotBlank(invalid)) {
                 setInvalidMessage(invalid);
                 return invalidMessage;
@@ -197,7 +189,24 @@ public abstract class AComponentBinding<C extends JComponent, V> implements ICom
     }
 
     @Override
-    public void reset() {}
+    public final void reset() {
+        if (isFrozen()) {
+            return;
+        }
+        if (!isModifiable()) {
+            return;
+        }
+        submitted = false;
+        showingInvalidMessage = null;
+        invalidMessage = null;
+        resetCaches();
+        update();
+    }
+
+    /**
+     * Ensures that the next call to update will not be skipped due to lazy checks
+     */
+    protected abstract void resetCaches();
 
     @Override
     public void setInvalidMessage(final String invalidMessage) {
@@ -236,27 +245,21 @@ public abstract class AComponentBinding<C extends JComponent, V> implements ICom
 
     @Override
     public void rollback() {
-        rollback(false);
-    }
-
-    private void rollback(final boolean force) {
         if (isFrozen()) {
             return;
         }
         if (!isModifiable()) {
             return;
         }
-        if (!force) {
-            if (!submitted) {
-                showingInvalidMessage = invalidMessage;
-                invalidMessage = null;
-                return;
-            }
-            if (invalidMessage == null) {
-                //keep valid values, only roll back issues
-                commit();
-                return;
-            }
+        if (!submitted) {
+            showingInvalidMessage = invalidMessage;
+            invalidMessage = null;
+            return;
+        }
+        if (invalidMessage == null) {
+            //keep valid values, only roll back issues
+            commit();
+            return;
         }
 
         final AModel model = bindingGroup.getModel();
@@ -267,11 +270,7 @@ public abstract class AComponentBinding<C extends JComponent, V> implements ICom
             setInvalidMessage(t.getLocalizedMessage());
         }
         submitted = false;
-        if (force) {
-            showingInvalidMessage = null;
-        } else {
-            showingInvalidMessage = invalidMessage;
-        }
+        showingInvalidMessage = invalidMessage;
         invalidMessage = null;
     }
 
@@ -300,6 +299,10 @@ public abstract class AComponentBinding<C extends JComponent, V> implements ICom
     }
 
     protected void updateValidation(final Object root) {
+        if (invalidMessage != null) {
+            showingInvalidMessage = invalidMessage;
+            invalidMessage = null;
+        }
         if (showingInvalidMessage != null) {
             setBorder(INVALID_MESSAGE_BORDER);
             String combinedToolTip = bindingGroup.i18n(element.getTooltipFromRoot(root));

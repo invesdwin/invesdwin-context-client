@@ -18,10 +18,11 @@ public interface IComponentBinding {
     /**
      * Validates the current model value.
      */
-    String validate(boolean force);
+    String validate();
 
     /**
-     * Ensures that the next update from model to view always happens despite lazy checks.
+     * Synchronized from model to component and discards previous validations. Can be used to apply side effects of
+     * forced buttons.
      */
     void reset();
 

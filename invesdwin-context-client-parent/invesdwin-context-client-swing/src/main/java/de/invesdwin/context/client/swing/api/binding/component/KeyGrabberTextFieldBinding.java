@@ -75,8 +75,7 @@ public class KeyGrabberTextFieldBinding extends AComponentBinding<KeyGrabberText
     }
 
     @Override
-    public void reset() {
-        super.reset();
+    protected void resetCaches() {
         prevComponentValue = null;
     }
 }

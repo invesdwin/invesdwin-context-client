@@ -56,8 +56,7 @@ public class LabelTitleBinding extends LabelBinding {
     }
 
     @Override
-    public void reset() {
-        super.reset();
+    protected void resetCaches() {
         prevModelValue = null;
     }
 }

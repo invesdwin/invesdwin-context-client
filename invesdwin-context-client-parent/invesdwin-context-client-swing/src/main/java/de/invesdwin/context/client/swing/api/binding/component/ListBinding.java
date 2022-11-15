@@ -109,8 +109,7 @@ public class ListBinding extends AComponentBinding<JList, List<?>> {
     }
 
     @Override
-    public void reset() {
-        super.reset();
+    protected void resetCaches() {
         prevChoices = Collections.emptyList();
         prevRenderedChoices = null;
         prevSelectedIndices = null;

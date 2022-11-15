@@ -32,7 +32,7 @@ public class ActionButtonBinding implements IComponentBinding {
     }
 
     @Override
-    public String validate(final boolean force) {
+    public String validate() {
         //noop
         return null;
     }

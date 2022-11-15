@@ -120,7 +120,7 @@ public class BindingGroup implements IComponentBinding {
     }
 
     @Override
-    public String validate(final boolean force) {
+    public String validate() {
         final Set<String> invalidMessages = new LinkedHashSet<>();
         final ConstraintViolationException exception = BeanValidator.getInstance().validate(getModel());
         if (exception != null) {
@@ -141,7 +141,7 @@ public class BindingGroup implements IComponentBinding {
         }
         final IComponentBinding[] array = bindings.asArray(IComponentBinding.EMPTY_ARRAY);
         for (int i = 0; i < array.length; i++) {
-            final String invalidMessage = array[i].validate(force);
+            final String invalidMessage = array[i].validate();
             if (Strings.isNotBlank(invalidMessage)) {
                 invalidMessages.add(invalidMessage);
             }
