@@ -39,7 +39,7 @@ public class KeyGrabberTextFieldBinding extends AComponentBinding<KeyGrabberText
 
     @Override
     protected boolean isModifiable() {
-        return super.isModifiable() && component.isEditable();
+        return super.isModifiable() && component.isHotkeyEditable();
     }
 
     @Override
@@ -71,7 +71,7 @@ public class KeyGrabberTextFieldBinding extends AComponentBinding<KeyGrabberText
 
     @Override
     protected void setEnabled(final boolean enabled) {
-        Components.setEditable(component, enabled);
+        component.setHotkeyEditable(enabled);
     }
 
     @Override
