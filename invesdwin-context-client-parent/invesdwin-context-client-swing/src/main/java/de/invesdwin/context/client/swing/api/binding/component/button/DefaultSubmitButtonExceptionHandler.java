@@ -6,6 +6,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.context.client.swing.api.guiservice.GuiService;
 import de.invesdwin.context.client.swing.util.Views;
+import de.invesdwin.context.log.error.Err;
 import de.invesdwin.util.lang.string.Strings;
 import de.invesdwin.util.swing.Components;
 import de.invesdwin.util.swing.Dialogs;
@@ -19,7 +20,7 @@ public class DefaultSubmitButtonExceptionHandler implements ISubmitButtonExcepti
     @Override
     public void handleSubmitButtonException(final Component component, final Throwable t) {
         if (shouldSwallowException(t)) {
-            LOG.catching(org.slf4j.ext.XLogger.Level.WARN, new RuntimeException("Button exception swallowed...", t));
+            logSwallowExceptionMessage(t);
         } else {
             if (shouldShowExceptionMessage(t)) {
                 logShowExceptionMessage(t);
@@ -29,13 +30,14 @@ public class DefaultSubmitButtonExceptionHandler implements ISubmitButtonExcepti
                 final String message = Components.getDefaultToolTipFormatter().format(t.getMessage());
                 showExceptionMessage(component, t, title, message);
             } else {
+                //at least log this unexpected exception
                 propagateException(t);
             }
         }
     }
 
     protected void propagateException(final Throwable t) {
-        throw new RuntimeException("Propagated button exception...", t);
+        throw logPropagateExceptionMessage(t);
     }
 
     protected boolean shouldShowExceptionMessage(final Throwable t) {
@@ -59,6 +61,14 @@ public class DefaultSubmitButtonExceptionHandler implements ISubmitButtonExcepti
     public void logShowExceptionMessage(final Throwable t) {
         LOG.catching(org.slf4j.ext.XLogger.Level.WARN,
                 new RuntimeException("Showing message dialog for button exception...", t));
+    }
+
+    public RuntimeException logPropagateExceptionMessage(final Throwable t) {
+        return Err.process(new RuntimeException("Propagated button exception...", t));
+    }
+
+    private void logSwallowExceptionMessage(final Throwable t) {
+        LOG.catching(org.slf4j.ext.XLogger.Level.WARN, new RuntimeException("Button exception swallowed...", t));
     }
 
 }
