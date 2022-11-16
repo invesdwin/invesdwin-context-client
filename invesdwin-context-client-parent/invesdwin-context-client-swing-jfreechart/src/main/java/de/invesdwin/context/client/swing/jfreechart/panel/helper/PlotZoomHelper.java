@@ -182,35 +182,20 @@ public class PlotZoomHelper {
         final ValueAxis rangeAxis = Axises.getRangeAxis(chartPanel, point, xyPlot);
         if (rangeAxis != null) {
             rangeAxis.setAutoRange(false);
-            //            final Range range = rangeAxis.getRange();
-            //            final Range autoRange = Axises.calculateAutoRange(rangeAxis);
-            //            final double centralValuePropertion = range.getCentralValue() / autoRange.getCentralValue();
-            //            final double autoRangeCentralValue = autoRange.getCentralValue();
-            //            final double lowerDistance = Doubles.distance(autoRangeCentralValue, range.getLowerBound());
-            //            final double upperDistance = Doubles.distance(autoRangeCentralValue, range.getUpperBound());
-            //            final double length = range.getLength();
-            //            final double lowerPropertion = lowerDistance / length;
-            //            final double upperProportion = upperDistance / length;
-            //            final double newLowerDistance = length * lowerPropertion * zoomFactor;
-            //            final double newUpperDistance = length * (1 - lowerPropertion) * zoomFactor;
-            //            //TODO calc center of autoRange and use it as anchor
-            //            System.out.println(autoRangeCentralValue + " : " + zoomFactor + " " + lowerDistance + " x "
-            //                    + lowerPropertion + " - " + newLowerDistance + " == " + upperDistance + " x " + upperProportion
-            //                    + " - " + newUpperDistance);
-            //
-            //            final Range newRange = new Range(autoRangeCentralValue - newLowerDistance,
-            //                    autoRangeCentralValue + newUpperDistance);
-            //
-            //            final double newLowerDistanceNew = Doubles.distance(autoRangeCentralValue, newRange.getLowerBound());
-            //            final double newUpperDistanceNew = Doubles.distance(autoRangeCentralValue, newRange.getUpperBound());
-            //            final double newLength = length;
-            //            final double newLowerPropertion = newLowerDistanceNew / length;
-            //            final double newUpperProportion = newUpperDistanceNew / length;
-            //            final double newCentralValuePropertion = newRange.getCentralValue() / autoRange.getCentralValue();
-            //
-            //            rangeAxis.setRange(newRange);
-            //                        rangeAxis.resizeRange(zoomFactor, Axises.calculateAutoRangeCenter(rangeAxis));
-            xyPlot.getRangeAxis().resizeRange(zoomFactor);
+
+            final Range range = rangeAxis.getRange();
+            final double halfLength = range.getLength() * zoomFactor / 2;
+
+            final Range autoRange = Axises.calculateAutoRange(rangeAxis);
+            final double autoCentralValue = autoRange.getCentralValue();
+            final double centralValue = range.getCentralValue();
+            final double centralValueOffset = centralValue - autoCentralValue;
+            final double adjustedCentralValueOffset = centralValueOffset * zoomFactor;
+
+            final Range adjusted = new Range(autoCentralValue - halfLength + adjustedCentralValueOffset,
+                    autoCentralValue + halfLength + adjustedCentralValueOffset);
+
+            rangeAxis.setRange(adjusted);
             xyPlot.setRangePannable(true);
         }
     }
@@ -415,11 +400,13 @@ public class PlotZoomHelper {
         if (axisDragInfo != null) {
             final Point2D point2D = this.chartPanel.getChartPanel().translateScreenToJava2D(e.getPoint());
             final double yChange = axisDragInfo.getInitialDragPoint().getY() - point2D.getY();
+            final Range range = axisDragInfo.getInitalAxisRange();
+            final ValueAxis rangeAxis = axisDragInfo.getRangeAxis();
             if (yChange == 0.0D) {
-                axisDragInfo.getRangeAxis().setRange(axisDragInfo.getInitalAxisRange());
+                rangeAxis.setRange(range);
                 return;
             }
-            axisDragInfo.getRangeAxis().setAutoRange(false);
+            rangeAxis.setAutoRange(false);
             //Check new mouse location (y-coordinate only) in reference to the initialDragStartMouse Position and zoom the axis accordingly
             final double zoomFactor;
             if (yChange > 0.0D) {
@@ -428,14 +415,16 @@ public class PlotZoomHelper {
                 zoomFactor = 1D + Doubles.divide(Math.abs(yChange), axisDragInfo.getPlotHeight() / 2);
             }
 
-            final double initialLowerBound = axisDragInfo.getInitalAxisRange().getLowerBound();
-            final double initialUpperBound = axisDragInfo.getInitalAxisRange().getUpperBound();
-            final double halfLengthInitialBounds = axisDragInfo.getInitalAxisRange().getLength() * zoomFactor / 2;
-            final double initialAnchorValue = ((initialUpperBound - initialLowerBound) / 2) + initialLowerBound;
+            final double halfLength = range.getLength() * zoomFactor / 2;
 
-            axisDragInfo.getRangeAxis()
-                    .setRange(new Range(initialAnchorValue - halfLengthInitialBounds,
-                            initialAnchorValue + halfLengthInitialBounds));
+            final Range autoRange = Axises.calculateAutoRange(rangeAxis);
+            final double autoCentralValue = autoRange.getCentralValue();
+            final double centralValue = range.getCentralValue();
+            final double centralValueOffset = centralValue - autoCentralValue;
+            final double adjustedCentralValueOffset = centralValueOffset * zoomFactor;
+
+            rangeAxis.setRange(new Range(autoCentralValue - halfLength + adjustedCentralValueOffset,
+                    autoCentralValue + halfLength + adjustedCentralValueOffset));
         }
     }
 
