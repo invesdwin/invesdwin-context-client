@@ -381,7 +381,7 @@ public class InteractiveChartPanel extends JPanel {
     }
 
     protected void initPlots() {
-        ohlcPlot = new XYPlot(masterDataset, domainAxis, XYPlots.newRangeAxis(0, false, false),
+        ohlcPlot = new XYPlot(masterDataset, domainAxis, XYPlots.newRangeAxis(0, false, true),
                 plotConfigurationHelper.getPriceInitialSettings().getPriceRenderer());
         ohlcPlot.setRangeAxisLocation(AxisLocation.BOTTOM_OR_RIGHT);
         plotLegendHelper.addLegendAnnotation(ohlcPlot);

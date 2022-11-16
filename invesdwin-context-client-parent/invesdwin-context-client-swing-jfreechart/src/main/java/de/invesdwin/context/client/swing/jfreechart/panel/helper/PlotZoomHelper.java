@@ -428,7 +428,9 @@ public class PlotZoomHelper {
                 //reset every axis in the plot
                 for (int i = 0; i < xyPlot.getRangeAxisCount(); i++) {
                     final ValueAxis rangeAxisInLoop = xyPlot.getRangeAxis(i);
-                    rangeAxisInLoop.setAutoRange(true);
+                    if (rangeAxisInLoop != null) {
+                        rangeAxisInLoop.setAutoRange(true);
+                    }
                 }
             } else {
                 //reset only the axis we clicked on

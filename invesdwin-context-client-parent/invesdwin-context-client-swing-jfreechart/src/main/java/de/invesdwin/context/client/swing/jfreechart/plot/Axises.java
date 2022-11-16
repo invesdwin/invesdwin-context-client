@@ -95,7 +95,7 @@ public final class Axises {
             for (int i = 0; i < xyPlot.getRangeAxisCount(); i++) {
                 final ValueAxis rangeAxis = xyPlot.getRangeAxis(i);
                 final AxisLocation axisLocation = xyPlot.getRangeAxisLocation(i);
-                if (rangeAxis.isVisible() && axisLocationForPoint2D.equals(axisLocation)) {
+                if (rangeAxis != null && rangeAxis.isVisible() && axisLocationForPoint2D.equals(axisLocation)) {
                     return rangeAxis;
                 }
             }
@@ -121,7 +121,7 @@ public final class Axises {
     public static boolean isEveryAxisAutoRange(final XYPlot xyPlot) {
         for (int i = 0; i < xyPlot.getRangeAxisCount(); i++) {
             final ValueAxis rangeAxis = xyPlot.getRangeAxis(i);
-            if (!rangeAxis.isAutoRange()) {
+            if (rangeAxis != null && !rangeAxis.isAutoRange()) {
                 return false;
             }
         }
@@ -134,7 +134,10 @@ public final class Axises {
     public static void resetAllAutoRanges(final InteractiveChartPanel chartPanel) {
         for (final XYPlot xyPlot : chartPanel.getCombinedPlot().getSubplots()) {
             for (int i = 0; i < xyPlot.getRangeAxisCount(); i++) {
-                xyPlot.getRangeAxis(i).setAutoRange(true);
+                final ValueAxis rangeAxis = xyPlot.getRangeAxis(i);
+                if (rangeAxis != null) {
+                    rangeAxis.setAutoRange(true);
+                }
             }
         }
     }

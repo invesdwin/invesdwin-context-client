@@ -3,20 +3,24 @@ package de.invesdwin.context.client.swing.jfreechart.panel.helper.legend;
 import java.awt.Color;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
 import org.jfree.chart.annotations.XYAnnotation;
 import org.jfree.chart.annotations.XYTitleAnnotation;
+import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.entity.ChartEntity;
 import org.jfree.chart.entity.LegendItemEntity;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYItemRenderer;
 import org.jfree.chart.ui.RectangleAnchor;
 import org.jfree.chart.ui.RectangleEdge;
+import org.jfree.data.Range;
 import org.jfree.data.general.Dataset;
 import org.jfree.data.xy.XYDataset;
 
@@ -62,6 +66,8 @@ public class PlotLegendHelper {
 
     private final Set<Dataset> nonRemovableDatasets = Collections
             .newSetFromMap(new IdentityHashMap<Dataset, Boolean>());
+
+    private final Map<String, Range> axisRangeInfos = new HashMap<>();
 
     public PlotLegendHelper(final InteractiveChartPanel chartPanel) {
         this.chartPanel = chartPanel;
@@ -220,8 +226,24 @@ public class PlotLegendHelper {
         } else {
             plot.setDataset(datasetIndex, new DisabledXYDataset(dataset));
             plot.setRenderer(datasetIndex, new DisabledXYItemRenderer(renderer));
+
+            axisRangeInfos.remove(dataset.getSeriesId());
+            final ValueAxis rangeAxis = plot.getRangeAxisForDataset(datasetIndex);
+            if (!rangeAxis.isAutoRange()) {
+                //save range-property of the plots range-axis
+                axisRangeInfos.put(dataset.getSeriesId(), rangeAxis.getRange());
+            }
         }
         XYPlots.updateRangeAxes(plot);
+        if (visible) {
+            //reapply range-property before the series has been made invisible.
+            final Range range = axisRangeInfos.get(dataset.getSeriesId());
+            if (range != null) {
+                final ValueAxis rangeAxis = plot.getRangeAxisForDataset(datasetIndex);
+                rangeAxis.setAutoRange(false);
+                rangeAxis.setRange(range);
+            }
+        }
     }
 
     public void mousePressed(final MouseEvent e) {
@@ -254,7 +276,15 @@ public class PlotLegendHelper {
                 visibleEmptyPlot.setBackgroundPaint(ADD_BACKGROUND_COLOR);
                 chartPanel.getCombinedPlot().add(visibleEmptyPlot, EMPTY_PLOT_WEIGHT);
 
-                final XYDataset dataset = dragStart.getPlot().getDataset(dragStart.getDatasetIndex());
+                final IPlotSourceDataset dataset = (IPlotSourceDataset) dragStart.getPlot()
+                        .getDataset(dragStart.getDatasetIndex());
+
+                axisRangeInfos.remove(dataset.getSeriesId());
+                final ValueAxis rangeAxis = dragStart.getPlot().getRangeAxisForDataset(dragStart.getDatasetIndex());
+                if (!rangeAxis.isAutoRange()) {
+                    //save range-property of the plots range-axis
+                    axisRangeInfos.put(dataset.getSeriesId(), rangeAxis.getRange());
+                }
                 if (isDatasetRemovable(dataset)) {
                     visibleTrashPlot = chartPanel.getCombinedPlot().getTrashPlot();
                     visibleTrashPlot.addAnnotation(trashAnnotation);
@@ -277,6 +307,14 @@ public class PlotLegendHelper {
                 toPlot.setRenderer(toDatasetIndex, fromPlot.getRenderer(fromDatasetIndex));
                 XYPlots.removeDataset(fromPlot, fromDatasetIndex);
                 updatePlots(fromPlot, toPlot);
+
+                final Range range = axisRangeInfos.get(dataset.getSeriesId());
+                if (range != null) {
+                    final ValueAxis rangeAxis = toPlot.getRangeAxisForDataset(toDatasetIndex);
+                    rangeAxis.setAutoRange(false);
+                    rangeAxis.setRange(range);
+                }
+
                 toPlot.setNotify(true);
                 fromPlot.setNotify(true);
                 highlightedLegendInfo.getTitle().setBackgroundPaint(LEGEND_BACKGROUND_PAINT);

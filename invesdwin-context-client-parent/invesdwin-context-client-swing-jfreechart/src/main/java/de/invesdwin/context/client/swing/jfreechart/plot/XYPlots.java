@@ -12,10 +12,12 @@ import javax.annotation.concurrent.Immutable;
 import org.jfree.chart.annotations.XYAnnotation;
 import org.jfree.chart.axis.AxisLocation;
 import org.jfree.chart.axis.NumberAxis;
+import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.plot.ValueMarker;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.ui.Layer;
 import org.jfree.chart.ui.RectangleEdge;
+import org.jfree.data.Range;
 import org.jfree.data.general.Dataset;
 import org.jfree.data.xy.XYDataset;
 
@@ -84,7 +86,11 @@ public final class XYPlots {
                 RangeAxisData data = rangeAxisId_data.get(rangeAxisId);
                 if (data == null) {
                     rangeAxisIndex++;
-                    data = new RangeAxisData(rangeAxisId, rangeAxisIndex);
+                    final ValueAxis rangeAxis = plot.getRangeAxisForDataset(datasetIndex);
+                    data = rangeAxis != null
+                            ? new RangeAxisData(rangeAxisId, rangeAxisIndex, rangeAxis.isAutoRange(),
+                                    rangeAxis.getRange())
+                            : new RangeAxisData(rangeAxisId, rangeAxisIndex, visible, new Range(0, 1));
                     rangeAxisId_data.put(rangeAxisId, data);
                 }
                 data.getDatasetIndexes().add(datasetIndex);
@@ -119,7 +125,6 @@ public final class XYPlots {
     private static void addRangeAxis(final XYPlot plot, final int countVisibleRangeAxes,
             final RangeAxisData rangeAxisData) {
         final boolean visible = rangeAxisData.isVisible() && countVisibleRangeAxes <= 2;
-        final boolean autorange = rangeAxisData.isVisible();
         final AxisLocation location;
         final int rangeAxisIndex = rangeAxisData.getRangeAxisIndex();
         if (countVisibleRangeAxes == 2) {
@@ -127,7 +132,7 @@ public final class XYPlots {
         } else {
             location = AxisLocation.TOP_OR_RIGHT;
         }
-        final NumberAxis rangeAxis = newRangeAxis(rangeAxisData.getPrecision(), visible, autorange);
+        final NumberAxis rangeAxis = newRangeAxis(rangeAxisData.getPrecision(), visible, rangeAxisData);
         plot.setRangeAxis(rangeAxisIndex, rangeAxis);
         plot.setRangeAxisLocation(rangeAxisIndex, location);
         for (final int datasetIndex : rangeAxisData.getDatasetIndexes()) {
@@ -154,15 +159,29 @@ public final class XYPlots {
     }
 
     public static NumberAxis newRangeAxis(final int precision, final boolean visible, final boolean autorange) {
+        final NumberAxis rangeAxis = newRangeAxis(precision, visible);
+        rangeAxis.setAutoRange(autorange);
+        if (!autorange) {
+            rangeAxis.setRange(0, 1);
+        }
+        return rangeAxis;
+    }
+
+    public static NumberAxis newRangeAxis(final int precision, final boolean visible,
+            final RangeAxisData rangeAxisData) {
+        final NumberAxis rangeAxis = newRangeAxis(precision, visible);
+        if (!rangeAxisData.isAutoRange()) {
+            rangeAxis.setRange(rangeAxisData.getRange());
+        }
+        return rangeAxis;
+    }
+
+    private static NumberAxis newRangeAxis(final int precision, final boolean visible) {
         final NumberAxis rangeAxis = new NumberAxis();
         rangeAxis.setAutoRangeIncludesZero(false);
         rangeAxis.setNumberFormatOverride(Decimal
                 .newDecimalFormatInstance(PercentScale.RATE.getFormat(Percent.ZERO_PERCENT, false, precision, false)));
         rangeAxis.setVisible(visible);
-        rangeAxis.setAutoRange(autorange);
-        if (!autorange) {
-            rangeAxis.setRange(0, 1);
-        }
         rangeAxis.setLabelFont(DEFAULT_FONT);
         rangeAxis.setTickLabelFont(DEFAULT_FONT);
         return rangeAxis;
