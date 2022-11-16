@@ -34,7 +34,7 @@ public class RootTitleBinding implements IComponentBinding {
     }
 
     @Override
-    public String validate(final boolean force) {
+    public String validate() {
         return null;
     }
 

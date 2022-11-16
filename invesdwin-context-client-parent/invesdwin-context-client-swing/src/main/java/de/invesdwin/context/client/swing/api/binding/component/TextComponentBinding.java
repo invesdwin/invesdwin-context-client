@@ -62,7 +62,6 @@ public class TextComponentBinding extends AComponentBinding<JTextComponent, Obje
             });
         }
         this.originalBackground = component.getBackground();
-
     }
 
     @Override
@@ -127,8 +126,7 @@ public class TextComponentBinding extends AComponentBinding<JTextComponent, Obje
     }
 
     @Override
-    public void reset() {
-        super.reset();
+    protected void resetCaches() {
         prevComponentValue = null;
     }
 }

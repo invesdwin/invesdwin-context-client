@@ -50,8 +50,7 @@ public class CheckBoxMenuItemBinding extends AComponentBinding<JCheckBoxMenuItem
     }
 
     @Override
-    public void reset() {
-        super.reset();
+    protected void resetCaches() {
         prevModelValue = null;
     }
 }

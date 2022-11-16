@@ -71,10 +71,13 @@ public class SubmitButtonBinding implements IComponentBinding {
                     }
 
                     @Override
-                    protected String validate(final List<AView<?, ?>> views, final boolean force) {
+                    protected String validate(final List<AView<?, ?>> views) {
                         //ignore all validation errors
                         invoke();
-                        super.validate(views, true);// The Button might have side-effects that need to be revalidated.
+                        //push side effects in the model to the UI
+                        reset(views);
+                        //and revalidate those side effects
+                        super.validate(views);
                         return null;
                     }
                 };
@@ -97,15 +100,15 @@ public class SubmitButtonBinding implements IComponentBinding {
                     }
 
                     @Override
-                    protected String validate(final List<AView<?, ?>> views, final boolean force) {
-                        final String invalidMessage = super.validate(views, force);
+                    protected String validate(final List<AView<?, ?>> views) {
+                        final String invalidMessage = super.validate(views);
                         if (invalidMessage != null) {
                             showingInvalidMessage = invalidMessage;
                             return invalidMessage;
                         } else {
                             invoke();
                             //validate again after invoking
-                            return super.validate(views, force);
+                            return super.validate(views);
                         }
                     }
                 };
@@ -178,7 +181,7 @@ public class SubmitButtonBinding implements IComponentBinding {
     }
 
     @Override
-    public String validate(final boolean force) {
+    public String validate() {
         //noop
         return null;
     }

@@ -134,8 +134,7 @@ public class SpinnerBinding extends AComponentBinding<JSpinner, Object> {
     }
 
     @Override
-    public void reset() {
-        super.reset();
+    protected void resetCaches() {
         prevComponentValue = null;
     }
 }

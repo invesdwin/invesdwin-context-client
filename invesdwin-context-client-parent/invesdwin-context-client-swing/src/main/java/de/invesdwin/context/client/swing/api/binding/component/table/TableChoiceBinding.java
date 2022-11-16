@@ -146,10 +146,7 @@ public class TableChoiceBinding extends AComponentBinding<JTable, List<?>> {
     }
 
     @Override
-    public void reset() {
-        super.reset();
-        if (selectionBinding != null) {
-            selectionBinding.reset();
-        }
+    protected void resetCaches() {
+        //noop
     }
 }

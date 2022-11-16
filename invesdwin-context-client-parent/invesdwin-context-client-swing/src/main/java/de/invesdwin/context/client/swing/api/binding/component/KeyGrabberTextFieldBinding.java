@@ -38,6 +38,11 @@ public class KeyGrabberTextFieldBinding extends AComponentBinding<KeyGrabberText
     }
 
     @Override
+    protected boolean isModifiable() {
+        return super.isModifiable() && component.isHotkeyEditable();
+    }
+
+    @Override
     protected Optional<Hotkey> fromModelToComponent(final Hotkey modelValue) {
         if (prevComponentValue == null || !Objects.equals(modelValue, prevComponentValue.orElse(null))) {
             isSettingText = true;
@@ -65,8 +70,12 @@ public class KeyGrabberTextFieldBinding extends AComponentBinding<KeyGrabberText
     }
 
     @Override
-    public void reset() {
-        super.reset();
+    protected void setEnabled(final boolean enabled) {
+        component.setHotkeyEditable(enabled);
+    }
+
+    @Override
+    protected void resetCaches() {
         prevComponentValue = null;
     }
 }

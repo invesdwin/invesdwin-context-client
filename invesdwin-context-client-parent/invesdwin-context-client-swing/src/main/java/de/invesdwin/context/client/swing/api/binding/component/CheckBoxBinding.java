@@ -50,8 +50,7 @@ public class CheckBoxBinding extends AComponentBinding<JCheckBox, Boolean> {
     }
 
     @Override
-    public void reset() {
-        super.reset();
+    protected void resetCaches() {
         prevModelValue = null;
     }
 }

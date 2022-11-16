@@ -86,8 +86,7 @@ public class ComboBoxBinding extends AComponentBinding<JComboBox, Object> {
     }
 
     @Override
-    public void reset() {
-        super.reset();
+    protected void resetCaches() {
         prevChoices = Collections.emptyList();
         prevRenderedChoices = null;
         prevRenderedModelValue = null;
