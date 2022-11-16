@@ -58,6 +58,7 @@ public class PlotZoomHelper {
     private static final Duration ZOOMABLE_THRESHOLD = new Duration(10, FTimeUnit.MILLISECONDS);
     private static final double EDGE_ANCHOR_TOLERANCE = 0.1D;
     private Instant lastZoomable = new Instant();
+    private boolean lastZoomOnRangeAxis = false;
 
     private final InteractiveChartPanel chartPanel;
     private final XYAnnotation zoomAnnotation;
@@ -79,18 +80,20 @@ public class PlotZoomHelper {
             public void draw(final Graphics2D g2, final XYPlot plot, final Rectangle2D dataArea,
                     final ValueAxis domainAxis, final ValueAxis rangeAxis, final int rendererIndex,
                     final PlotRenderingInfo info) {
-                if (lastZoomable.isGreaterThan(ZOOM_ANNOTATION_TIMEOUT)) {
+                if (lastZoomable.isGreaterThan(ZOOM_ANNOTATION_TIMEOUT) || lastZoomOnRangeAxis) {
                     return;
                 }
-                final double length = plot.getDomainAxis().getRange().getLength();
-                if (length >= MAX_ZOOM_ITEM_COUNT || length >= chartPanel.getMasterDataset().getData().size()) {
+                final double domainAxisLength = plot.getDomainAxis().getRange().getLength();
+                if (domainAxisLength >= MAX_ZOOM_ITEM_COUNT
+                        || domainAxisLength >= chartPanel.getMasterDataset().getData().size()) {
                     zoomTitle.setText("Zoom: MAX");
-                } else if (length <= MIN_ZOOM_ITEM_COUNT) {
+                } else if (domainAxisLength <= MIN_ZOOM_ITEM_COUNT) {
                     zoomTitle.setText("Zoom: MIN");
                 } else {
                     zoomTitle.setText("");
                     return;
                 }
+
                 super.draw(g2, plot, dataArea, domainAxis, rangeAxis, rendererIndex, info);
             }
         };
@@ -146,6 +149,7 @@ public class PlotZoomHelper {
 
     private void handleZoomableDataArea(final Point2D point, final double zoomFactor,
             final CustomCombinedDomainXYPlot plot) {
+        lastZoomOnRangeAxis = false;
         final Range rangeBefore = chartPanel.getDomainAxis().getRange();
         final int lengthBefore = (int) rangeBefore.getLength();
         if (lengthBefore >= MAX_ZOOM_ITEM_COUNT && zoomFactor == ZOOM_OUT_FACTOR
@@ -172,6 +176,7 @@ public class PlotZoomHelper {
 
     private void handleZoomableAxisArea(final Point2D point, final double zoomFactor,
             final CustomCombinedDomainXYPlot plot) {
+        lastZoomOnRangeAxis = true;
         final int subplotIndex = Axises.getSubplotIndexFromPlotArea(chartPanel, point);
         final XYPlot xyPlot = chartPanel.getCombinedPlot().getSubplots().get(subplotIndex);
         final ValueAxis rangeAxis = Axises.getRangeAxis(chartPanel, point, xyPlot);
