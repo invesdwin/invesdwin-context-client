@@ -12,6 +12,7 @@ import org.jfree.chart.plot.XYPlot;
 
 import de.invesdwin.context.client.swing.jfreechart.panel.InteractiveChartPanel;
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.AxisDragInfo;
+import de.invesdwin.context.client.swing.jfreechart.plot.dataset.IPlotSourceDataset;
 
 @Immutable
 public final class Axises {
@@ -62,7 +63,7 @@ public final class Axises {
     }
 
     /**
-     * Checks if the given Point2D is in the axis-area.
+     * Checks if the given Point2D is in the axis-area and returns the AxisLocation.
      */
     public static AxisLocation getAxisLocation(final InteractiveChartPanel chartPanel, final Point2D point2d) {
         if (!isAxisArea(chartPanel, point2d, false)) {
@@ -140,5 +141,16 @@ public final class Axises {
                 }
             }
         }
+    }
+
+    public static String getRangeAxisId(final ValueAxis rangeAxis) {
+        final XYPlot xyPlot = (XYPlot) rangeAxis.getPlot();
+        for (int i = 0; i < xyPlot.getDatasetCount(); i++) {
+            final IPlotSourceDataset xyDataset = (IPlotSourceDataset) xyPlot.getDataset(i);
+            if (rangeAxis.equals(xyPlot.getRangeAxisForDataset(i))) {
+                return xyDataset.getRangeAxisId();
+            }
+        }
+        return null;
     }
 }

@@ -81,6 +81,8 @@ public class PlotConfigurationHelper {
     private JMenuItem copyToClipboardItem;
     private JMenuItem saveAsPNGItem;
     private JMenuItem helpItem;
+
+    private JMenuItem rangeAxisIdItem;
     private JCheckBoxMenuItem autoRangeItem;
 
     private final Map<String, IIndicatorSeriesProvider> indicatorSeriesProviders = new TreeMap<>();
@@ -114,7 +116,7 @@ public class PlotConfigurationHelper {
         titleItem = new JMenuItem("");
         titleItem.setEnabled(false);
 
-        initAutoRangeItem();
+        initRangeAxisItems();
         initSeriesVisibilityItems();
         initAddSeriesItem();
         initBookmarkItems();
@@ -142,6 +144,9 @@ public class PlotConfigurationHelper {
                 } else {
                     if (Axises.isAxisArea(chartPanel, mousePositionOnPopupMenu)) {
                         final ValueAxis rangeAxis = Axises.getRangeAxis(chartPanel, mousePositionOnPopupMenu);
+                        rangeAxisIdItem.setText(Axises.getRangeAxisId(rangeAxis));
+                        popupMenu.add(rangeAxisIdItem);
+
                         autoRangeItem.setSelected(rangeAxis.isAutoRange());
                         popupMenu.add(autoRangeItem);
                         popupMenu.addSeparator();
@@ -266,7 +271,10 @@ public class PlotConfigurationHelper {
 
     }
 
-    private void initAutoRangeItem() {
+    private void initRangeAxisItems() {
+        this.rangeAxisIdItem = new JMenuItem();
+        this.rangeAxisIdItem.setEnabled(false);
+
         this.autoRangeItem = new JCheckBoxMenuItem("Auto-Range");
         this.autoRangeItem.setSelected(true);
 
