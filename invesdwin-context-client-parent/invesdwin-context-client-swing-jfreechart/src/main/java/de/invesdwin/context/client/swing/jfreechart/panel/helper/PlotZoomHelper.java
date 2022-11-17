@@ -415,6 +415,7 @@ public class PlotZoomHelper {
                 axisDragInfo.getValueAxis().setRange(newAxisRange);
                 if (Axis.RANGE_AXIS.equals(axisDragInfo.getAxis())) {
                     axisDragInfo.getValueAxis().setAutoRange(false);
+                    ((XYPlot) axisDragInfo.getValueAxis().getPlot()).setRangePannable(true);
                 }
             }
         }
