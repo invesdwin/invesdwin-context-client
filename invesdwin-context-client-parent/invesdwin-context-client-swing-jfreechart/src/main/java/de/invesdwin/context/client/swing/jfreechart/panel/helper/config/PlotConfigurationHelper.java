@@ -142,7 +142,7 @@ public class PlotConfigurationHelper {
                         addSeriesConfigMenuItems();
                     }
                 } else {
-                    if (Axises.isAxisArea(chartPanel, mousePositionOnPopupMenu)) {
+                    if (Axises.isRangeAxisArea(chartPanel, mousePositionOnPopupMenu)) {
                         final ValueAxis rangeAxis = Axises.getRangeAxis(chartPanel, mousePositionOnPopupMenu);
                         rangeAxisIdItem.setText(Axises.getRangeAxisId(rangeAxis));
                         popupMenu.add(rangeAxisIdItem);

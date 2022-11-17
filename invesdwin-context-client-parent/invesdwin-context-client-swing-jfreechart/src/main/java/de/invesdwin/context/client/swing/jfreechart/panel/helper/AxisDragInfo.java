@@ -7,22 +7,42 @@ import javax.annotation.concurrent.NotThreadSafe;
 import org.jfree.chart.axis.ValueAxis;
 import org.jfree.data.Range;
 
+import de.invesdwin.context.client.swing.jfreechart.plot.Axis;
+
 @NotThreadSafe
 public class AxisDragInfo {
 
     private Point2D initialDragPoint;
     private Range initalAxisRange;
-    private ValueAxis rangeAxis;
+    private ValueAxis valueAxis;
     private Integer subplotIndex;
+    private double plotWidth;
     private double plotHeight;
+    private final Axis axis;
 
-    public AxisDragInfo(final Point2D initialDragPoint, final ValueAxis rangeAxis, final Integer subplotIndex,
-            final double plotHeight) {
+    /**
+     * Constructor for Domain-AxisDragInfo since we don't need a subplotindex here.
+     */
+    public AxisDragInfo(final Point2D initialDragPoint, final ValueAxis valueAxis, final double plotWidth,
+            final Axis axis) {
         this.initialDragPoint = initialDragPoint;
-        this.initalAxisRange = rangeAxis.getRange();
-        this.rangeAxis = rangeAxis;
+        this.initalAxisRange = valueAxis.getRange();
+        this.valueAxis = valueAxis;
+        this.plotWidth = plotWidth;
+        this.axis = axis;
+    }
+
+    /**
+     * Constructor for Range-AxisDragInfo.
+     */
+    public AxisDragInfo(final Point2D initialDragPoint, final ValueAxis valueAxis, final Integer subplotIndex,
+            final double plotHeight, final Axis axis) {
+        this.initialDragPoint = initialDragPoint;
+        this.initalAxisRange = valueAxis.getRange();
+        this.valueAxis = valueAxis;
         this.subplotIndex = subplotIndex;
         this.plotHeight = plotHeight;
+        this.axis = axis;
     }
 
     public Point2D getInitialDragPoint() {
@@ -41,12 +61,12 @@ public class AxisDragInfo {
         this.initalAxisRange = initalAxisRange;
     }
 
-    public ValueAxis getRangeAxis() {
-        return rangeAxis;
+    public ValueAxis getValueAxis() {
+        return valueAxis;
     }
 
-    public void setRangeAxis(final ValueAxis rangeAxis) {
-        this.rangeAxis = rangeAxis;
+    public void setValueAxis(final ValueAxis valueAxis) {
+        this.valueAxis = valueAxis;
     }
 
     public Integer getSubplotIndex() {
@@ -57,6 +77,14 @@ public class AxisDragInfo {
         this.subplotIndex = subplotIndex;
     }
 
+    public double getPlotWidth() {
+        return plotWidth;
+    }
+
+    public void setPlotWidth(final double plotWidth) {
+        this.plotWidth = plotWidth;
+    }
+
     public double getPlotHeight() {
         return plotHeight;
     }
@@ -64,4 +92,9 @@ public class AxisDragInfo {
     public void setPlotHeight(final double plotHeight) {
         this.plotHeight = plotHeight;
     }
+
+    public Axis getAxis() {
+        return axis;
+    }
+
 }

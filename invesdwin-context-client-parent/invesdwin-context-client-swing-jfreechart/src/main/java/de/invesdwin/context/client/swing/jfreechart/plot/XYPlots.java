@@ -265,4 +265,17 @@ public final class XYPlots {
     public static void resetAllRangePannables(final InteractiveChartPanel chartPanel) {
         chartPanel.getCombinedPlot().getSubplots().forEach(xyPlot -> xyPlot.setRangePannable(false));
     }
+
+    /**
+     * Checks if any dataset of the plot is assigned to the rangeAxisId.
+     */
+    public static boolean doesPlotContainRangeAxisId(final XYPlot plot, final String rangeAxisId) {
+        for (int i = 0; i < plot.getDatasetCount(); i++) {
+            final IPlotSourceDataset datasetToPlot = (IPlotSourceDataset) plot.getDataset(i);
+            if (datasetToPlot != null && datasetToPlot.getRangeAxisId().equals(rangeAxisId)) {
+                return true;
+            }
+        }
+        return false;
+    }
 }
