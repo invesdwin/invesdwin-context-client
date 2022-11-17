@@ -30,6 +30,7 @@ import org.jfree.data.Range;
 import de.invesdwin.context.client.swing.jfreechart.panel.InteractiveChartPanel;
 import de.invesdwin.context.client.swing.jfreechart.panel.basis.CustomCombinedDomainXYPlot;
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.listener.IRangeListener;
+import de.invesdwin.context.client.swing.jfreechart.plot.Axis;
 import de.invesdwin.context.client.swing.jfreechart.plot.Axises;
 import de.invesdwin.context.client.swing.jfreechart.plot.annotation.priceline.XYPriceLineAnnotation;
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.list.IChartPanelAwareDatasetList;
@@ -392,9 +393,12 @@ public class PlotZoomHelper {
 
     public void mousePressed(final MouseEvent e) {
         final Point2D point2D = this.chartPanel.getChartPanel().translateScreenToJava2D(e.getPoint());
-        if (Axises.isAxisArea(chartPanel, point2D)) {
-            axisDragInfo = Axises.createAxisDragInfo(chartPanel, point2D);
-            handleAxisDoubleClick(e, axisDragInfo.getRangeAxis(), point2D);
+        final Axis axis = Axises.getAxisForMousePosition(chartPanel, point2D);
+        if (axis != null) {
+            axisDragInfo = Axises.createAxisDragInfo(chartPanel, point2D, axis);
+            if (Axis.RANGE_AXIS.equals(axis)) {
+                maybeHandleRangeAxisDoubleClick(e, axisDragInfo.getValueAxis(), point2D);
+            }
         }
     }
 
@@ -405,38 +409,19 @@ public class PlotZoomHelper {
     public void mouseDragged(final MouseEvent e) {
         if (axisDragInfo != null) {
             final Point2D point2D = this.chartPanel.getChartPanel().translateScreenToJava2D(e.getPoint());
-            final double yChange = axisDragInfo.getInitialDragPoint().getY() - point2D.getY();
-            final Range range = axisDragInfo.getInitalAxisRange();
-            final ValueAxis rangeAxis = axisDragInfo.getRangeAxis();
-            if (yChange == 0.0D) {
-                rangeAxis.setRange(range);
-                return;
+            final Range newAxisRange = calculateNewAxisRange(point2D);
+            if (newAxisRange != null) {
+                axisDragInfo.getValueAxis().setRange(newAxisRange);
+                if (Axis.RANGE_AXIS.equals(axisDragInfo.getAxis())) {
+                    axisDragInfo.getValueAxis().setAutoRange(false);
+                }
             }
-            rangeAxis.setAutoRange(false);
-            //Check new mouse location (y-coordinate only) in reference to the initialDragStartMouse Position and zoom the axis accordingly
-            final double zoomFactor;
-            if (yChange > 0.0D) {
-                zoomFactor = 1D / (1D + Doubles.divide(Math.abs(yChange), axisDragInfo.getPlotHeight() / 2));
-            } else {
-                zoomFactor = 1D + Doubles.divide(Math.abs(yChange), axisDragInfo.getPlotHeight() / 2);
-            }
-
-            final double halfLength = range.getLength() * zoomFactor / 2;
-
-            final Range autoRange = Axises.calculateAutoRange(rangeAxis);
-            final double autoCentralValue = autoRange.getCentralValue();
-            final double centralValue = range.getCentralValue();
-            final double centralValueOffset = centralValue - autoCentralValue;
-            final double adjustedCentralValueOffset = centralValueOffset * zoomFactor;
-
-            rangeAxis.setRange(new Range(autoCentralValue - halfLength + adjustedCentralValueOffset,
-                    autoCentralValue + halfLength + adjustedCentralValueOffset));
         }
     }
 
     public boolean mouseMoved(final MouseEvent e) {
         final Point2D point2D = this.chartPanel.getChartPanel().translateScreenToJava2D(e.getPoint());
-        if (Axises.isAxisArea(chartPanel, point2D)) {
+        if (Axises.isRangeAxisArea(chartPanel, point2D)) {
             prevCursor = chartPanel.getCursor();
             chartPanel.setCursor(VERTICAL_RESIZE_CURSOR);
             return true;
@@ -447,11 +432,45 @@ public class PlotZoomHelper {
         return false;
     }
 
-    private void handleAxisDoubleClick(final MouseEvent e, final ValueAxis rangeAxis, final Point2D point2D) {
+    private Range calculateNewAxisRange(final Point2D point2D) {
+        final double initialDragPoint = Axis.DOMAIN_AXIS.equals(axisDragInfo.getAxis())
+                ? axisDragInfo.getInitialDragPoint().getX()
+                : axisDragInfo.getInitialDragPoint().getY();
+        final double newDragPoint = Axis.DOMAIN_AXIS.equals(axisDragInfo.getAxis()) ? point2D.getX() : point2D.getY();
+
+        final double axisRangeChange = initialDragPoint - newDragPoint;
+        final Range range = axisDragInfo.getInitalAxisRange();
+        final ValueAxis valueAxis = axisDragInfo.getValueAxis();
+        if (axisRangeChange == 0.0D) {
+            return null;
+        }
+
+        //Check new mouse location in reference to the initialDragStartMouse Position and zoom the axis accordingly
+
+        final double zoomFactor;
+        final double axisLength = Axis.DOMAIN_AXIS.equals(axisDragInfo.getAxis()) ? axisDragInfo.getPlotWidth()
+                : axisDragInfo.getPlotHeight();
+        if (axisRangeChange > 0.0D) {
+            zoomFactor = 1D / (1D + Doubles.divide(Math.abs(axisRangeChange), axisLength / 2));
+        } else {
+            zoomFactor = 1D + Doubles.divide(Math.abs(axisRangeChange), axisLength / 2);
+        }
+
+        final double halfLength = range.getLength() * zoomFactor / 2;
+        final Range autoRange = Axises.calculateAutoRange(valueAxis);
+        final double autoCentralValue = autoRange.getCentralValue();
+        final double centralValue = range.getCentralValue();
+        final double centralValueOffset = centralValue - autoCentralValue;
+        final double adjustedCentralValueOffset = centralValueOffset * zoomFactor;
+
+        return new Range(autoCentralValue - halfLength + adjustedCentralValueOffset,
+                autoCentralValue + halfLength + adjustedCentralValueOffset);
+    }
+
+    private void maybeHandleRangeAxisDoubleClick(final MouseEvent e, final ValueAxis rangeAxis, final Point2D point2D) {
         //Double-Click on the axis
         if (e.getClickCount() == 2 && rangeAxis != null) {
             final XYPlot xyPlot = (XYPlot) rangeAxis.getPlot();
-
             if (e.isControlDown()) {
                 //reset every axis in the plot
                 for (int i = 0; i < xyPlot.getRangeAxisCount(); i++) {

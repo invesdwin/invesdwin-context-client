@@ -21,7 +21,6 @@ import de.invesdwin.context.client.swing.jfreechart.plot.dataset.IPlotSourceData
 
 @Immutable
 public final class Axises {
-
     private Axises() {
 
     }
@@ -43,13 +42,20 @@ public final class Axises {
     }
 
     /**
-     * Checks if the given Point2D is in the axis-area.
+     * Checks if the given Point2D is in the domain- or range-axis-area.
      */
     public static boolean isAxisArea(final InteractiveChartPanel chartPanel, final Point2D point2d) {
-        return isAxisArea(chartPanel, point2d, true);
+        return getAxisForMousePosition(chartPanel, point2d) != null;
     }
 
-    private static boolean isAxisArea(final InteractiveChartPanel chartPanel, final Point2D point2d,
+    /**
+     * Checks if the given Point2D is in the range-axis-area.
+     */
+    public static boolean isRangeAxisArea(final InteractiveChartPanel chartPanel, final Point2D point2d) {
+        return isRangeAxisArea(chartPanel, point2d, true);
+    }
+
+    private static boolean isRangeAxisArea(final InteractiveChartPanel chartPanel, final Point2D point2d,
             final boolean checkRangeAxisExists) {
         final PlotRenderingInfo plotInfo = chartPanel.getChartPanel().getChartRenderingInfo().getPlotInfo();
         for (int i = 0; i < plotInfo.getSubplotCount(); i++) {
@@ -68,10 +74,10 @@ public final class Axises {
     }
 
     /**
-     * Checks if the given Point2D is in the axis-area and returns the AxisLocation.
+     * Checks if the given Point2D is in the range-axis-area and returns the AxisLocation.
      */
     public static AxisLocation getAxisLocation(final InteractiveChartPanel chartPanel, final Point2D point2d) {
-        if (!isAxisArea(chartPanel, point2d, false)) {
+        if (!isRangeAxisArea(chartPanel, point2d, false)) {
             return null;
         } else {
             final PlotRenderingInfo plotInfo = chartPanel.getChartPanel().getChartRenderingInfo().getPlotInfo();
@@ -112,13 +118,21 @@ public final class Axises {
     /**
      * creates a container containing Information about the plot/axis when a mouse-drag started.
      */
-    public static AxisDragInfo createAxisDragInfo(final InteractiveChartPanel chartPanel, final Point2D point2D) {
-        final int subplotIndex = Axises.getSubplotIndexFromPlotArea(chartPanel, point2D);
-        final ValueAxis rangeAxis = getRangeAxis(chartPanel, point2D, subplotIndex);
+    public static AxisDragInfo createAxisDragInfo(final InteractiveChartPanel chartPanel, final Point2D point2D,
+            final Axis axis) {
         final PlotRenderingInfo plotRenderingInfo = chartPanel.getChartPanel().getChartRenderingInfo().getPlotInfo();
-        final double roundedPlotHeight = Math
-                .round(plotRenderingInfo.getSubplotInfo(subplotIndex).getPlotArea().getHeight());
-        return new AxisDragInfo(point2D, rangeAxis, subplotIndex, roundedPlotHeight);
+        if (Axis.DOMAIN_AXIS.equals(axis)) {
+            final ValueAxis domainAxis = chartPanel.getCombinedPlot().getDomainAxis();
+            final double roundedPlotWidth = Math.round(plotRenderingInfo.getPlotArea().getWidth());
+            return new AxisDragInfo(point2D, domainAxis, roundedPlotWidth, axis);
+        } else if (Axis.RANGE_AXIS.equals(axis)) {
+            final int subplotIndex = Axises.getSubplotIndexFromPlotArea(chartPanel, point2D);
+            final ValueAxis rangeAxis = getRangeAxis(chartPanel, point2D, subplotIndex);
+            final double roundedPlotHeight = Math
+                    .round(plotRenderingInfo.getSubplotInfo(subplotIndex).getPlotArea().getHeight());
+            return new AxisDragInfo(point2D, rangeAxis, subplotIndex, roundedPlotHeight, axis);
+        }
+        return null;
     }
 
     /**
@@ -154,6 +168,21 @@ public final class Axises {
             final IPlotSourceDataset xyDataset = (IPlotSourceDataset) xyPlot.getDataset(i);
             if (rangeAxis.equals(xyPlot.getRangeAxisForDataset(i))) {
                 return xyDataset.getRangeAxisId();
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Return die Axis (domain or range) for the given information
+     */
+    public static Axis getAxisForMousePosition(final InteractiveChartPanel chartPanel, final Point2D point) {
+        final PlotRenderingInfo plotInfo = chartPanel.getChartPanel().getChartRenderingInfo().getPlotInfo();
+        if (!plotInfo.getDataArea().contains(point) && plotInfo.getPlotArea().contains(point)) {
+            if (Axises.getSubplotIndexFromPlotArea(chartPanel, point) == -1) {
+                return Axis.DOMAIN_AXIS;
+            } else {
+                return Axis.RANGE_AXIS;
             }
         }
         return null;

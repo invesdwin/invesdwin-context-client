@@ -2,12 +2,15 @@ package de.invesdwin.context.client.swing.jfreechart.panel.helper;
 
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
+import java.awt.geom.Point2D;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
 import org.jfree.data.Range;
 
 import de.invesdwin.context.client.swing.jfreechart.panel.InteractiveChartPanel;
+import de.invesdwin.context.client.swing.jfreechart.plot.Axis;
+import de.invesdwin.context.client.swing.jfreechart.plot.Axises;
 import de.invesdwin.util.math.Doubles;
 
 @NotThreadSafe
@@ -79,9 +82,25 @@ public class PlotPanHelper {
         } else {
             scrollFactor = DEFAULT_SCROLL_FACTOR;
         }
+
     }
 
     public void keyReleased(final KeyEvent e) {
         scrollFactor = DEFAULT_SCROLL_FACTOR;
     }
+
+    public void mousePressed(final MouseEvent e) {
+        maybeHandleDomainAxisDoubleClick(e);
+    }
+
+    private void maybeHandleDomainAxisDoubleClick(final MouseEvent e) {
+        if (e.getClickCount() == 2) {
+            final Point2D point2D = chartPanel.getChartPanel().translateScreenToJava2D(e.getPoint());
+            final Axis axis = Axises.getAxisForMousePosition(chartPanel, point2D);
+            if (axis != null && Axis.DOMAIN_AXIS.equals(axis)) {
+                panLive(e);
+            }
+        }
+    }
+
 }
