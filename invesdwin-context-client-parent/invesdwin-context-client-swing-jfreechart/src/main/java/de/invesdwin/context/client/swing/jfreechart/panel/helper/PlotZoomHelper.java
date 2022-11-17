@@ -47,6 +47,7 @@ import de.invesdwin.util.time.duration.Duration;
 public class PlotZoomHelper {
 
     public static final Cursor VERTICAL_RESIZE_CURSOR = new Cursor(Cursor.N_RESIZE_CURSOR);
+    public static final Cursor HORIZONTAL_RESIZE_CURSOR = new Cursor(Cursor.W_RESIZE_CURSOR);
 
     public static final int MAX_ZOOM_ITEM_COUNT = 100_000;
     private static final int MIN_ZOOM_ITEM_COUNT = 10;
@@ -421,9 +422,11 @@ public class PlotZoomHelper {
 
     public boolean mouseMoved(final MouseEvent e) {
         final Point2D point2D = this.chartPanel.getChartPanel().translateScreenToJava2D(e.getPoint());
-        if (Axises.isRangeAxisArea(chartPanel, point2D)) {
+
+        final Axis axis = Axises.getAxisForMousePosition(chartPanel, point2D);
+        if (axis != null) {
             prevCursor = chartPanel.getCursor();
-            chartPanel.setCursor(VERTICAL_RESIZE_CURSOR);
+            chartPanel.setCursor(Axis.DOMAIN_AXIS.equals(axis) ? HORIZONTAL_RESIZE_CURSOR : VERTICAL_RESIZE_CURSOR);
             return true;
         } else if (prevCursor != null) {
             chartPanel.setCursor(prevCursor);
