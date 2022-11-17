@@ -11,6 +11,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 
 import org.jfree.chart.annotations.XYAnnotation;
 import org.jfree.chart.annotations.XYTitleAnnotation;
+import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.entity.ChartEntity;
 import org.jfree.chart.entity.LegendItemEntity;
 import org.jfree.chart.plot.XYPlot;
@@ -25,6 +26,7 @@ import de.invesdwin.context.client.swing.jfreechart.panel.InteractiveChartPanel;
 import de.invesdwin.context.client.swing.jfreechart.panel.basis.CustomChartPanel;
 import de.invesdwin.context.client.swing.jfreechart.panel.basis.CustomCombinedDomainXYPlot;
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.icons.PlotIcons;
+import de.invesdwin.context.client.swing.jfreechart.plot.RangeAxisData;
 import de.invesdwin.context.client.swing.jfreechart.plot.XYPlots;
 import de.invesdwin.context.client.swing.jfreechart.plot.annotation.XYIconAnnotation;
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.DisabledXYDataset;
@@ -62,6 +64,8 @@ public class PlotLegendHelper {
 
     private final Set<Dataset> nonRemovableDatasets = Collections
             .newSetFromMap(new IdentityHashMap<Dataset, Boolean>());
+
+    private RangeAxisData draggedRangeAxisData = null;
 
     public PlotLegendHelper(final InteractiveChartPanel chartPanel) {
         this.chartPanel = chartPanel;
@@ -256,6 +260,14 @@ public class PlotLegendHelper {
                 final IPlotSourceDataset dataset = (IPlotSourceDataset) dragStart.getPlot()
                         .getDataset(dragStart.getDatasetIndex());
 
+                draggedRangeAxisData = null;
+                final ValueAxis rangeAxis = dragStart.getPlot().getRangeAxisForDataset(dragStart.getDatasetIndex());
+                if (!rangeAxis.isAutoRange()) {
+                    //save the rangeAxisId and the range. index and autoRange (2nd and 3rd parameter) actually aren't needed.
+                    draggedRangeAxisData = new RangeAxisData(dataset.getRangeAxisId(), 0, rangeAxis.isAutoRange(),
+                            rangeAxis.getRange());
+                }
+
                 if (isDatasetRemovable(dataset)) {
                     visibleTrashPlot = chartPanel.getCombinedPlot().getTrashPlot();
                     visibleTrashPlot.addAnnotation(trashAnnotation);
@@ -268,6 +280,14 @@ public class PlotLegendHelper {
                 final XYPlot fromPlot = dragStart.getPlot();
                 final List<XYPlot> toPlots = chartPanel.getCombinedPlot().getSubplots();
                 final XYPlot toPlot = toPlots.get(toSubplotIndex);
+
+                //Check if the rangeAxisId is already present in the toPlot. If not we reapply the range later.
+                boolean reapplyFromRanges = false;
+                if (draggedRangeAxisData != null) {
+                    reapplyFromRanges = !XYPlots.doesPlotContainRangeAxisId(toPlot,
+                            draggedRangeAxisData.getRangeAxisId());
+                }
+
                 final int fromDatasetIndex = dragStart.getDatasetIndex();
                 final int toDatasetIndex = XYPlots.getFreeDatasetIndex(toPlot);
                 final IPlotSourceDataset dataset = (IPlotSourceDataset) fromPlot.getDataset(fromDatasetIndex);
@@ -278,6 +298,12 @@ public class PlotLegendHelper {
                 toPlot.setRenderer(toDatasetIndex, fromPlot.getRenderer(fromDatasetIndex));
                 XYPlots.removeDataset(fromPlot, fromDatasetIndex);
                 updatePlotsOnSeriesDrag(fromPlot, toPlot);
+
+                if (reapplyFromRanges) {
+                    final ValueAxis rangeAxis = toPlot.getRangeAxisForDataset(toDatasetIndex);
+                    rangeAxis.setAutoRange(false);
+                    rangeAxis.setRange(draggedRangeAxisData.getRange());
+                }
 
                 toPlot.setNotify(true);
                 fromPlot.setNotify(true);
