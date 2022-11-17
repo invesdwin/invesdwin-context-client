@@ -396,7 +396,7 @@ public class PlotZoomHelper {
         final Axis axis = Axises.getAxisForMousePosition(chartPanel, point2D);
         if (axis != null) {
             axisDragInfo = Axises.createAxisDragInfo(chartPanel, point2D, axis);
-            if (Axis.RANGE_AXIS.equals(axis)) {
+            if (axisDragInfo != null && Axis.RANGE_AXIS.equals(axis)) {
                 maybeHandleRangeAxisDoubleClick(e, axisDragInfo.getValueAxis(), point2D);
             }
         }

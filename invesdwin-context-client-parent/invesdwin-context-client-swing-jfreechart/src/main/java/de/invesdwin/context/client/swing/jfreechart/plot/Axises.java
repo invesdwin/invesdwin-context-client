@@ -128,9 +128,11 @@ public final class Axises {
         } else if (Axis.RANGE_AXIS.equals(axis)) {
             final int subplotIndex = Axises.getSubplotIndexFromPlotArea(chartPanel, point2D);
             final ValueAxis rangeAxis = getRangeAxis(chartPanel, point2D, subplotIndex);
-            final double roundedPlotHeight = Math
-                    .round(plotRenderingInfo.getSubplotInfo(subplotIndex).getPlotArea().getHeight());
-            return new AxisDragInfo(point2D, rangeAxis, subplotIndex, roundedPlotHeight, axis);
+            if (rangeAxis != null) {
+                final double roundedPlotHeight = Math
+                        .round(plotRenderingInfo.getSubplotInfo(subplotIndex).getPlotArea().getHeight());
+                return new AxisDragInfo(point2D, rangeAxis, subplotIndex, roundedPlotHeight, axis);
+            }
         }
         return null;
     }
