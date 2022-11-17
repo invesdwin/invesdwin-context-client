@@ -143,7 +143,14 @@ public class PlotZoomHelper {
         if (plotInfo.getDataArea().contains(point)) {
             handleZoomableDataArea(point, zoomFactor, plot);
         } else if (!plotInfo.getDataArea().contains(point) && plotInfo.getPlotArea().contains(point)) {
-            handleZoomableAxisArea(point, zoomFactor, plot);
+            final int subplotIndex = Axises.getSubplotIndexFromPlotArea(chartPanel, point);
+            if (subplotIndex == -1) {
+                //The zoom was on the domain-axis
+                handleZoomableDataArea(point, zoomFactor, plot);
+            } else {
+                //The zoom was on a range-axis
+                handleZoomableRangeAxisArea(point, zoomFactor, plot, subplotIndex);
+            }
         }
     }
 
@@ -174,10 +181,9 @@ public class PlotZoomHelper {
         }
     }
 
-    private void handleZoomableAxisArea(final Point2D point, final double zoomFactor,
-            final CustomCombinedDomainXYPlot plot) {
+    private void handleZoomableRangeAxisArea(final Point2D point, final double zoomFactor,
+            final CustomCombinedDomainXYPlot plot, final int subplotIndex) {
         lastZoomOnRangeAxis = true;
-        final int subplotIndex = Axises.getSubplotIndexFromPlotArea(chartPanel, point);
         final XYPlot xyPlot = chartPanel.getCombinedPlot().getSubplots().get(subplotIndex);
         final ValueAxis rangeAxis = Axises.getRangeAxis(chartPanel, point, xyPlot);
         if (rangeAxis != null) {
