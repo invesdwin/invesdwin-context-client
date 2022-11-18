@@ -1,11 +1,11 @@
 package de.invesdwin.context.client.swing.frame.app;
 
 import javax.annotation.concurrent.ThreadSafe;
-import javax.inject.Named;
 
 import org.jdesktop.application.TaskService;
 
 import de.invesdwin.util.concurrent.Executors;
+import jakarta.inject.Named;
 
 @ThreadSafe
 @Named

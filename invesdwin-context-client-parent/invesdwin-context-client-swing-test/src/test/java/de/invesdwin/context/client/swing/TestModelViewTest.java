@@ -1,7 +1,6 @@
 package de.invesdwin.context.client.swing;
 
 import javax.annotation.concurrent.ThreadSafe;
-import javax.inject.Inject;
 
 import org.assertj.swing.fixture.JTextComponentFixture;
 import org.junit.jupiter.api.Test;
@@ -13,6 +12,7 @@ import de.invesdwin.context.client.swing.test.FrameFixtureStub;
 import de.invesdwin.context.test.ATest;
 import de.invesdwin.context.test.TestContext;
 import de.invesdwin.util.assertions.Assertions;
+import jakarta.inject.Inject;
 
 @ThreadSafe
 public class TestModelViewTest extends ATest {

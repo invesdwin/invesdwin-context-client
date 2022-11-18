@@ -3,9 +3,10 @@ package de.invesdwin.context.client.swing.api;
 import java.util.EventObject;
 
 import javax.annotation.concurrent.Immutable;
-import javax.inject.Named;
 
 import org.jdesktop.application.Application.ExitListener;
+
+import jakarta.inject.Named;
 
 @Named
 @Immutable

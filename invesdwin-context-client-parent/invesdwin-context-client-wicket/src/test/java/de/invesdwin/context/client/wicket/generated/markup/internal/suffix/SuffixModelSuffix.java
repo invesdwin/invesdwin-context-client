@@ -5,7 +5,6 @@ import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
 import javax.annotation.concurrent.NotThreadSafe;
-import javax.validation.constraints.NotNull;
 
 import de.invesdwin.context.client.wicket.generated.markup.internal.CustomModalModel;
 import de.invesdwin.norva.beanpath.annotation.Hidden;
@@ -13,6 +12,7 @@ import de.invesdwin.nowicket.generated.guiservice.GuiService;
 import de.invesdwin.nowicket.generated.markup.annotation.GeneratedMarkup;
 import de.invesdwin.util.bean.AValueObject;
 import de.invesdwin.util.time.date.FDate;
+import jakarta.validation.constraints.NotNull;
 
 @GeneratedMarkup(modelClassNameSuffix = SuffixModelSuffix.MODEL_NAME_SUFFIX)
 @NotThreadSafe

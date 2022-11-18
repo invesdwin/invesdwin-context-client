@@ -8,8 +8,6 @@ import java.util.Set;
 
 import javax.annotation.concurrent.NotThreadSafe;
 import javax.swing.JButton;
-import javax.validation.ConstraintViolation;
-import javax.validation.ConstraintViolationException;
 
 import de.invesdwin.context.beans.validator.BeanValidator;
 import de.invesdwin.context.client.swing.api.annotation.DefaultCloseOperation;
@@ -29,6 +27,8 @@ import de.invesdwin.util.collections.fast.AFastIterableDelegateList;
 import de.invesdwin.util.collections.loadingcache.ALoadingCache;
 import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.lang.string.Strings;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.ConstraintViolationException;
 
 @NotThreadSafe
 public class BindingGroup implements IComponentBinding {

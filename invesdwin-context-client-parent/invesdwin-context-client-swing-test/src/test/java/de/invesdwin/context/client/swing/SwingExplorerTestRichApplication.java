@@ -3,7 +3,6 @@ package de.invesdwin.context.client.swing;
 import java.util.concurrent.TimeUnit;
 
 import javax.annotation.concurrent.ThreadSafe;
-import javax.inject.Inject;
 
 import org.junit.jupiter.api.Test;
 
@@ -12,6 +11,7 @@ import de.invesdwin.context.client.swing.frame.content.WorkingAreaLocation;
 import de.invesdwin.context.client.swing.test.SwingExplorerTest;
 import de.invesdwin.context.test.ATest;
 import de.invesdwin.context.test.TestContext;
+import jakarta.inject.Inject;
 
 @SwingExplorerTest
 @ThreadSafe

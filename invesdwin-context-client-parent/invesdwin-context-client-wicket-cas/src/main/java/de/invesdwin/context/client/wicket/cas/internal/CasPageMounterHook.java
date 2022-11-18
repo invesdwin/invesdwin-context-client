@@ -1,7 +1,7 @@
 package de.invesdwin.context.client.wicket.cas.internal;
 
 import javax.annotation.concurrent.Immutable;
-import javax.inject.Named;
+import jakarta.inject.Named;
 
 import de.invesdwin.context.client.wicket.cas.page.CasLoginPage;
 import de.invesdwin.context.client.wicket.cas.page.CasLoginSuccessPage;

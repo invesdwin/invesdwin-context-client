@@ -11,7 +11,6 @@ import java.util.Stack;
 
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
-import javax.inject.Inject;
 import javax.swing.JDialog;
 
 import org.jdesktop.application.ApplicationContext;
@@ -38,6 +37,7 @@ import de.invesdwin.util.swing.listener.ComponentListenerSupport;
 import de.invesdwin.util.swing.listener.WindowListenerSupport;
 import de.invesdwin.util.time.Instant;
 import de.invesdwin.util.time.date.FDate;
+import jakarta.inject.Inject;
 
 @ThreadSafe
 public class GuiService implements IGuiService {

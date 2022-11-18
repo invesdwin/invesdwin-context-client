@@ -1,7 +1,7 @@
 package de.invesdwin.context.client.wicket.saml.internal;
 
 import javax.annotation.concurrent.Immutable;
-import javax.inject.Named;
+import jakarta.inject.Named;
 
 import de.invesdwin.context.client.wicket.saml.page.SamlLoginPage;
 import de.invesdwin.context.client.wicket.saml.page.SamlLoginSuccessPage;

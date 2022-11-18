@@ -1,7 +1,6 @@
 package de.invesdwin.context.client.wicket.generated.markup.internal.run;
 
 import javax.annotation.concurrent.NotThreadSafe;
-import javax.inject.Inject;
 
 import org.apache.wicket.util.tester.WicketTester;
 import org.junit.jupiter.api.Test;
@@ -18,6 +17,7 @@ import de.invesdwin.nowicket.generated.guiservice.test.GuiServiceMethod;
 import de.invesdwin.nowicket.generated.guiservice.test.GuiServiceMethodCall;
 import de.invesdwin.nowicket.generated.guiservice.test.GuiServiceTester;
 import de.invesdwin.util.assertions.Assertions;
+import jakarta.inject.Inject;
 
 @NotThreadSafe
 public class AutomatedAnotherSampleModelTest extends ATest {

@@ -1,8 +1,8 @@
 package de.invesdwin.context.client.wicket.examples;
 
 import javax.annotation.concurrent.NotThreadSafe;
-import javax.inject.Inject;
-import javax.inject.Named;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 
 import org.apache.wicket.markup.html.WebPage;
 import org.springframework.security.authentication.AuthenticationManager;

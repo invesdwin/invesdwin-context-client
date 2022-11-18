@@ -3,7 +3,7 @@ package de.invesdwin.context.client.wicket.examples.guestbook.persistence;
 import java.util.List;
 
 import javax.annotation.concurrent.ThreadSafe;
-import javax.inject.Named;
+import jakarta.inject.Named;
 
 import com.querydsl.jpa.impl.JPAQuery;
 

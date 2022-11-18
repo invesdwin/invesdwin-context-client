@@ -3,7 +3,6 @@ package de.invesdwin.context.client.swing.frame.app;
 import java.util.Map;
 
 import javax.annotation.concurrent.NotThreadSafe;
-import javax.inject.Inject;
 
 import org.jdesktop.application.Application.ExitListener;
 import org.jdesktop.application.FrameView;
@@ -21,6 +20,7 @@ import de.invesdwin.context.client.swing.frame.status.StatusBarView;
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.swing.Dialogs;
 import de.invesdwin.util.swing.Frames;
+import jakarta.inject.Inject;
 
 /**
  * This class handles the initilization and displaying of the MainFrame.

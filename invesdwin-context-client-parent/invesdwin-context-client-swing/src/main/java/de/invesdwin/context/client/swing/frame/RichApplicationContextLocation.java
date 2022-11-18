@@ -3,7 +3,6 @@ package de.invesdwin.context.client.swing.frame;
 import java.util.List;
 
 import javax.annotation.concurrent.ThreadSafe;
-import javax.inject.Named;
 
 import org.springframework.core.io.ClassPathResource;
 
@@ -11,6 +10,7 @@ import de.invesdwin.context.beans.init.locations.AConditionalContextLocation;
 import de.invesdwin.context.beans.init.locations.PositionedResource;
 import de.invesdwin.context.beans.init.locations.position.ResourcePosition;
 import de.invesdwin.util.collections.Arrays;
+import jakarta.inject.Named;
 
 @ThreadSafe
 @Named

@@ -3,9 +3,7 @@ package de.invesdwin.context.client.wicket.examples.guestbook;
 import java.util.List;
 
 import javax.annotation.concurrent.NotThreadSafe;
-import javax.inject.Inject;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
+import jakarta.inject.Inject;
 
 import org.springframework.beans.factory.annotation.Configurable;
 
@@ -13,6 +11,8 @@ import de.invesdwin.context.client.wicket.examples.guestbook.persistence.Guestbo
 import de.invesdwin.context.client.wicket.examples.guestbook.persistence.GuestbookEntryEntity;
 import de.invesdwin.nowicket.generated.markup.annotation.GeneratedMarkup;
 import de.invesdwin.util.bean.AValueObject;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 @NotThreadSafe
 @GeneratedMarkup

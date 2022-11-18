@@ -1,7 +1,6 @@
 package de.invesdwin.context.client.wicket.test;
 
 import javax.annotation.concurrent.NotThreadSafe;
-import javax.inject.Named;
 
 import org.apache.wicket.util.tester.WicketTester;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -13,6 +12,7 @@ import de.invesdwin.context.test.stub.StubSupport;
 import de.invesdwin.nowicket.generated.guiservice.GuiService;
 import de.invesdwin.nowicket.generated.guiservice.test.GuiServiceTester;
 import de.invesdwin.util.assertions.Assertions;
+import jakarta.inject.Named;
 
 @NotThreadSafe
 @Named

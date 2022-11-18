@@ -4,7 +4,6 @@ import java.io.Closeable;
 import java.util.List;
 
 import javax.annotation.concurrent.NotThreadSafe;
-import javax.inject.Named;
 
 import de.invesdwin.aspects.EventDispatchThreadUtil;
 import de.invesdwin.context.beans.init.locations.PositionedResource;
@@ -14,6 +13,7 @@ import de.invesdwin.context.test.stub.StubSupport;
 import de.invesdwin.util.lang.reflection.Reflections;
 import de.invesdwin.util.shutdown.IShutdownHook;
 import de.invesdwin.util.shutdown.ShutdownHookManager;
+import jakarta.inject.Named;
 
 @Named
 @NotThreadSafe

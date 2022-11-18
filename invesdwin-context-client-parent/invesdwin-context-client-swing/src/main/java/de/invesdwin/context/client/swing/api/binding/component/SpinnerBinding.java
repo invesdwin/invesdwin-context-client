@@ -6,10 +6,6 @@ import javax.annotation.concurrent.NotThreadSafe;
 import javax.swing.JSpinner;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import javax.validation.constraints.DecimalMax;
-import javax.validation.constraints.DecimalMin;
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
 
 import org.hibernate.validator.constraints.Range;
 
@@ -24,6 +20,10 @@ import de.invesdwin.util.lang.string.Strings;
 import de.invesdwin.util.math.decimal.Decimal;
 import de.invesdwin.util.swing.spinner.SpinnerDecimalEditor;
 import de.invesdwin.util.swing.spinner.SpinnerDecimalModel;
+import jakarta.validation.constraints.DecimalMax;
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 
 @NotThreadSafe
 public class SpinnerBinding extends AComponentBinding<JSpinner, Object> {

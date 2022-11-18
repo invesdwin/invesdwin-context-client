@@ -1,8 +1,6 @@
 package de.invesdwin.context.client.swing.test;
 
 import javax.annotation.concurrent.ThreadSafe;
-import javax.inject.Inject;
-import javax.inject.Named;
 
 import org.jdesktop.application.Application;
 import org.jdesktop.application.SingleFrameApplication;
@@ -16,6 +14,8 @@ import de.invesdwin.context.client.swing.frame.app.DelegateRichApplication;
 import de.invesdwin.context.test.ATest;
 import de.invesdwin.context.test.TestContext;
 import de.invesdwin.context.test.stub.StubSupport;
+import jakarta.inject.Inject;
+import jakarta.inject.Named;
 
 @ThreadSafe
 @Named
@@ -28,8 +28,7 @@ public class RichApplicationStub extends StubSupport {
     private ContentPane contentPane;
 
     @Override
-    public void setUpContext(final ATest test, final TestContext ctx) throws Exception {
-    }
+    public void setUpContext(final ATest test, final TestContext ctx) throws Exception {}
 
     @Override
     public void setUpOnce(final ATest test, final TestContext ctx) throws Exception {

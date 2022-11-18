@@ -1,12 +1,12 @@
 package de.invesdwin.context.client.wicket.internal;
 
 import javax.annotation.concurrent.NotThreadSafe;
-import javax.inject.Inject;
 
 import org.apache.wicket.markup.html.basic.Label;
 import org.springframework.beans.factory.annotation.Configurable;
 
 import de.invesdwin.util.assertions.Assertions;
+import jakarta.inject.Inject;
 
 @Configurable
 @NotThreadSafe

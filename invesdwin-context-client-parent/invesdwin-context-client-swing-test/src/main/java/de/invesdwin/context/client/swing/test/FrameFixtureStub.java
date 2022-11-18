@@ -5,7 +5,6 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.TimeoutException;
 
 import javax.annotation.concurrent.ThreadSafe;
-import javax.inject.Named;
 
 import org.assertj.swing.edt.FailOnThreadViolationRepaintManager;
 import org.assertj.swing.fixture.FrameFixture;
@@ -20,6 +19,7 @@ import de.invesdwin.context.test.ATest;
 import de.invesdwin.context.test.TestContext;
 import de.invesdwin.context.test.stub.StubSupport;
 import de.invesdwin.util.time.duration.Duration;
+import jakarta.inject.Named;
 
 @ThreadSafe
 @Named

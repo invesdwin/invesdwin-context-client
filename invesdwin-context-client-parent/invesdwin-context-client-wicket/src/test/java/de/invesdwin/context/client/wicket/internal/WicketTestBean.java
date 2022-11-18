@@ -1,8 +1,8 @@
 package de.invesdwin.context.client.wicket.internal;
 
 import javax.annotation.concurrent.Immutable;
-import javax.inject.Named;
 
+import jakarta.inject.Named;
 
 @Named
 @Immutable

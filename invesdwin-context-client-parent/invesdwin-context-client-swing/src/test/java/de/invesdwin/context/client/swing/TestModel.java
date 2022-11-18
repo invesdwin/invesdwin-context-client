@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import javax.annotation.concurrent.NotThreadSafe;
-import javax.inject.Inject;
 
 import org.jdesktop.application.Application;
 import org.jdesktop.application.Resource;
@@ -27,6 +26,7 @@ import de.invesdwin.norva.beanpath.annotation.Forced;
 import de.invesdwin.norva.beanpath.annotation.ModalOpener;
 import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.swing.Dialogs;
+import jakarta.inject.Inject;
 
 @NotThreadSafe
 @Configurable

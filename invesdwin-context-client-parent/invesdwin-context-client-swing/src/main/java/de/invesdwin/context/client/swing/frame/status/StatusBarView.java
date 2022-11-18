@@ -4,7 +4,6 @@ import java.awt.Component;
 import java.awt.event.ComponentEvent;
 
 import javax.annotation.concurrent.ThreadSafe;
-import javax.inject.Inject;
 import javax.swing.BorderFactory;
 import javax.swing.border.Border;
 
@@ -18,6 +17,7 @@ import de.invesdwin.context.client.swing.frame.status.heap.HeapIndicatorView;
 import de.invesdwin.context.client.swing.frame.status.message.StatusBarMessageView;
 import de.invesdwin.context.client.swing.frame.status.task.StatusBarTaskView;
 import de.invesdwin.util.swing.listener.ComponentListenerSupport;
+import jakarta.inject.Inject;
 
 @SuppressWarnings("serial")
 @ThreadSafe

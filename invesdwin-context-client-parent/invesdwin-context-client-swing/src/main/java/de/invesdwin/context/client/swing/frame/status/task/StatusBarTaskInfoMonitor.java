@@ -4,7 +4,6 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.annotation.concurrent.ThreadSafe;
-import javax.inject.Inject;
 
 import org.jdesktop.application.Application;
 import org.jdesktop.application.TaskService;
@@ -23,6 +22,7 @@ import de.invesdwin.util.math.decimal.scaled.Percent;
 import de.invesdwin.util.math.decimal.scaled.PercentScale;
 import de.invesdwin.util.time.date.FTimeUnit;
 import de.invesdwin.util.time.duration.Duration;
+import jakarta.inject.Inject;
 
 @ThreadSafe
 public class StatusBarTaskInfoMonitor implements IRichApplicationHook, ITaskInfoListener {
@@ -43,8 +43,7 @@ public class StatusBarTaskInfoMonitor implements IRichApplicationHook, ITaskInfo
     }
 
     @Override
-    public void startupDone() {
-    }
+    public void startupDone() {}
 
     @Override
     public void shutdownDone() {
@@ -63,8 +62,7 @@ public class StatusBarTaskInfoMonitor implements IRichApplicationHook, ITaskInfo
     }
 
     @Override
-    public void onTaskInfoRemoved(final String name) {
-    }
+    public void onTaskInfoRemoved(final String name) {}
 
     private final class TaskInfoTask extends ATask<Object, Object> {
 

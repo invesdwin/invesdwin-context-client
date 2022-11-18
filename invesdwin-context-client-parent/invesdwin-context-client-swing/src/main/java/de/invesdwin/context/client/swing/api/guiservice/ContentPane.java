@@ -7,7 +7,6 @@ import java.util.Map;
 
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
-import javax.inject.Inject;
 
 import org.jdesktop.application.Application;
 
@@ -24,6 +23,7 @@ import de.invesdwin.util.collections.loadingcache.ALoadingCache;
 import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.time.Instant;
 import de.invesdwin.util.time.date.FDate;
+import jakarta.inject.Inject;
 
 @ThreadSafe
 public class ContentPane {

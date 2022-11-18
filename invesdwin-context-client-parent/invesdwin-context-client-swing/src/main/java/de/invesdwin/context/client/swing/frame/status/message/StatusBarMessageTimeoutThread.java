@@ -2,7 +2,6 @@ package de.invesdwin.context.client.swing.frame.status.message;
 
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
-import javax.inject.Inject;
 
 import org.springframework.beans.factory.annotation.Configurable;
 
@@ -10,6 +9,7 @@ import de.invesdwin.context.client.swing.api.guiservice.StatusBar;
 import de.invesdwin.util.time.Instant;
 import de.invesdwin.util.time.date.FTimeUnit;
 import de.invesdwin.util.time.duration.Duration;
+import jakarta.inject.Inject;
 
 @ThreadSafe
 @Configurable

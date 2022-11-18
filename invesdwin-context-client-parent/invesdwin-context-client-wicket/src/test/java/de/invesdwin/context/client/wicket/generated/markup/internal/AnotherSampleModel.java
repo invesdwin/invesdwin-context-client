@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import javax.annotation.concurrent.NotThreadSafe;
-import javax.validation.constraints.NotNull;
 
 import de.invesdwin.context.client.wicket.generated.markup.internal.bugfix.Bugfix;
 import de.invesdwin.context.client.wicket.generated.markup.internal.removefrom.BugfixRemoveFrom;
@@ -23,6 +22,7 @@ import de.invesdwin.nowicket.generated.guiservice.GuiService;
 import de.invesdwin.nowicket.generated.markup.annotation.GeneratedMarkup;
 import de.invesdwin.util.bean.AValueObject;
 import de.invesdwin.util.time.date.FDate;
+import jakarta.validation.constraints.NotNull;
 
 @GeneratedMarkup
 @NotThreadSafe

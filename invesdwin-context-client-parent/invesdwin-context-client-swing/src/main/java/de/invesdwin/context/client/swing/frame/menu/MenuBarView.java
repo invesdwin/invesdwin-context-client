@@ -4,7 +4,6 @@ import java.awt.Component;
 import java.util.List;
 
 import javax.annotation.concurrent.ThreadSafe;
-import javax.inject.Inject;
 import javax.swing.Icon;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -23,6 +22,7 @@ import de.invesdwin.context.client.swing.api.view.AView;
 import de.invesdwin.context.client.swing.frame.app.DelegateRichApplication;
 import de.invesdwin.util.swing.Dialogs;
 import de.invesdwin.util.swing.listener.PopupMenuListenerSupport;
+import jakarta.inject.Inject;
 
 @ThreadSafe
 public class MenuBarView extends AView<MenuBarView, JMenuBar> {

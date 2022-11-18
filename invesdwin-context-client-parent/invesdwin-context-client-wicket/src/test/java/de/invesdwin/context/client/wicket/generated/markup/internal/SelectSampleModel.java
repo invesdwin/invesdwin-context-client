@@ -3,12 +3,12 @@ package de.invesdwin.context.client.wicket.generated.markup.internal;
 import java.util.concurrent.TimeUnit;
 
 import javax.annotation.concurrent.NotThreadSafe;
-import javax.validation.constraints.NotNull;
 
 import de.invesdwin.norva.beanpath.annotation.Disabled;
 import de.invesdwin.norva.beanpath.annotation.ModalCloser;
 import de.invesdwin.nowicket.generated.markup.annotation.GeneratedMarkup;
 import de.invesdwin.util.bean.AValueObject;
+import jakarta.validation.constraints.NotNull;
 
 @GeneratedMarkup
 @NotThreadSafe

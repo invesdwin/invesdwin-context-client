@@ -4,9 +4,9 @@ import java.awt.Color;
 
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
-import javax.inject.Inject;
 
 import de.invesdwin.util.time.duration.Duration;
+import jakarta.inject.Inject;
 
 @ThreadSafe
 public class StatusBar {

@@ -3,7 +3,6 @@ package de.invesdwin.context.client.swing.api.menu;
 import java.awt.event.ActionEvent;
 
 import javax.annotation.concurrent.NotThreadSafe;
-import javax.inject.Inject;
 import javax.swing.AbstractAction;
 import javax.swing.Icon;
 import javax.swing.JMenuItem;
@@ -26,6 +25,7 @@ import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.lang.reflection.Reflections;
 import de.invesdwin.util.lang.string.Strings;
 import de.invesdwin.util.swing.Components;
+import jakarta.inject.Inject;
 
 /**
  * First tries to find the view in the Spring ApplicationContext. If this fails, the View gets instantiated by the
