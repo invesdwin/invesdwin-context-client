@@ -288,6 +288,8 @@ public class PlotConfigurationHelper {
                     //Should never be null. Safety first though.
                     if (rangeAxis != null) {
                         rangeAxis.setAutoRange(autoRangeItem.isSelected());
+                        chartPanel.getCombinedPlot()
+                                .setRangePannable(!Axises.isEveryAxisAutoRange((XYPlot) rangeAxis.getPlot()));
                     }
                 }
             }
