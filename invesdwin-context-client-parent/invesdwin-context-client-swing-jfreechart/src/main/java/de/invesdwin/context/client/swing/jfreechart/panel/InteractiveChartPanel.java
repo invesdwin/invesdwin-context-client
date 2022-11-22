@@ -555,6 +555,7 @@ public class InteractiveChartPanel extends JPanel {
                 plotResizeHelper.mouseReleased(e);
                 plotNavigationHelper.mouseReleased(e);
                 plotZoomHelper.mouseReleased(e);
+                plotPanHelper.mouseReleased(e);
             } catch (final Throwable t) {
                 Err.process(new Exception("Ignoring", t));
             }

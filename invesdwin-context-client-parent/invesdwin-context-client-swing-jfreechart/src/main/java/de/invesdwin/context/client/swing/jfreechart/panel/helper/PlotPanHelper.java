@@ -6,11 +6,13 @@ import java.awt.geom.Point2D;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
+import org.jfree.chart.plot.XYPlot;
 import org.jfree.data.Range;
 
 import de.invesdwin.context.client.swing.jfreechart.panel.InteractiveChartPanel;
 import de.invesdwin.context.client.swing.jfreechart.plot.Axis;
 import de.invesdwin.context.client.swing.jfreechart.plot.Axises;
+import de.invesdwin.context.client.swing.jfreechart.plot.XYPlots;
 import de.invesdwin.util.math.Doubles;
 
 @NotThreadSafe
@@ -21,6 +23,7 @@ public class PlotPanHelper {
     private double scrollFactor = DEFAULT_SCROLL_FACTOR;
 
     private final InteractiveChartPanel chartPanel;
+    private XYPlot panStartPlot;
 
     public PlotPanHelper(final InteractiveChartPanel chartPanel) {
         this.chartPanel = chartPanel;
@@ -90,7 +93,14 @@ public class PlotPanHelper {
     }
 
     public void mousePressed(final MouseEvent e) {
+        panStartPlot = XYPlots.getSubplot(chartPanel, e);
+        XYPlots.disableRangePannables(chartPanel, panStartPlot);
         maybeHandleDomainAxisDoubleClick(e);
+    }
+
+    public void mouseReleased(final MouseEvent e) {
+        panStartPlot = null;
+        XYPlots.setSuitableRangePannablesForSubplots(chartPanel);
     }
 
     private void maybeHandleDomainAxisDoubleClick(final MouseEvent e) {
@@ -102,5 +112,4 @@ public class PlotPanHelper {
             }
         }
     }
-
 }
