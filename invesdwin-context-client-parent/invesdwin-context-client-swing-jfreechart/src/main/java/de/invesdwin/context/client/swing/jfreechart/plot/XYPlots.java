@@ -300,7 +300,7 @@ public final class XYPlots {
             boolean rangePannable = false;
             for (int i = 0; i < subplot.getRangeAxisCount(); i++) {
                 final ValueAxis rangeAxis = subplot.getRangeAxis(i);
-                if (!rangeAxis.isAutoRange()) {
+                if (rangeAxis != null && !rangeAxis.isAutoRange()) {
                     rangePannable = true;
                     break;
                 }

@@ -108,7 +108,7 @@ public class PlotPanHelper {
             final Point2D point2D = chartPanel.getChartPanel().translateScreenToJava2D(e.getPoint());
             final Axis axis = Axises.getAxisForMousePosition(chartPanel, point2D);
             if (axis != null && Axis.DOMAIN_AXIS.equals(axis)) {
-                panLive(e);
+                chartPanel.resetRange(chartPanel.getInitialVisibleItemCount());
             }
         }
     }
