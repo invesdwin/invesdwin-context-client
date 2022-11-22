@@ -397,9 +397,12 @@ public class PlotZoomHelper {
         final Axis axis = Axises.getAxisForMousePosition(chartPanel, point2D);
         if (axis != null && MouseEvent.BUTTON1 == e.getButton()) {
             axisDragInfo = Axises.createAxisDragInfo(chartPanel, point2D, axis);
-            if (axisDragInfo != null && Axis.RANGE_AXIS.equals(axis)) {
-                maybeHandleRangeAxisDoubleClick(e, axisDragInfo.getValueAxis(), point2D);
-            }
+        }
+
+        if (axis != null && Axis.RANGE_AXIS.equals(axis)) {
+            final ValueAxis rangeAxis = axisDragInfo != null ? axisDragInfo.getValueAxis()
+                    : Axises.getRangeAxis(chartPanel, point2D);
+            maybeHandleRangeAxisReset(e, rangeAxis, point2D);
         }
     }
 
@@ -471,9 +474,13 @@ public class PlotZoomHelper {
                 autoCentralValue + halfLength + adjustedCentralValueOffset);
     }
 
-    private void maybeHandleRangeAxisDoubleClick(final MouseEvent e, final ValueAxis rangeAxis, final Point2D point2D) {
+    /**
+     * Range axis resets on Double-Left-Click or Single-Middle-Mouse-Button-Click (Scrollwheel).
+     */
+    private void maybeHandleRangeAxisReset(final MouseEvent e, final ValueAxis rangeAxis, final Point2D point2D) {
         //Double-Click on the axis
-        if (e.getClickCount() == 2 && rangeAxis != null) {
+        if (rangeAxis != null && ((MouseEvent.BUTTON1 == e.getButton() && e.getClickCount() == 2)
+                || MouseEvent.BUTTON2 == e.getButton())) {
             final XYPlot xyPlot = (XYPlot) rangeAxis.getPlot();
             if (e.isControlDown()) {
                 //reset every axis in the plot

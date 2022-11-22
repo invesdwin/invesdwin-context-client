@@ -95,7 +95,7 @@ public class PlotPanHelper {
     public void mousePressed(final MouseEvent e) {
         panStartPlot = XYPlots.getSubplot(chartPanel, e);
         XYPlots.disableRangePannables(chartPanel, panStartPlot);
-        maybeHandleDomainAxisDoubleClick(e);
+        maybeHandleDomainAxisReset(e);
     }
 
     public void mouseReleased(final MouseEvent e) {
@@ -103,8 +103,11 @@ public class PlotPanHelper {
         XYPlots.setSuitableRangePannablesForSubplots(chartPanel);
     }
 
-    private void maybeHandleDomainAxisDoubleClick(final MouseEvent e) {
-        if (e.getClickCount() == 2) {
+    /**
+     * Domain axis resets on Double-Left-Click or Single-Middle-Mouse-Button-Click (Scrollwheel).
+     */
+    private void maybeHandleDomainAxisReset(final MouseEvent e) {
+        if ((MouseEvent.BUTTON1 == e.getButton() && e.getClickCount() == 2) || MouseEvent.BUTTON2 == e.getButton()) {
             final Point2D point2D = chartPanel.getChartPanel().translateScreenToJava2D(e.getPoint());
             final Axis axis = Axises.getAxisForMousePosition(chartPanel, point2D);
             if (axis != null && Axis.DOMAIN_AXIS.equals(axis)) {

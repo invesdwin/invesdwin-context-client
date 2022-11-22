@@ -91,7 +91,7 @@ public final class Axises {
         return getRangeAxis(chartPanel, point2d, subplotIndex);
     }
 
-    private static ValueAxis getRangeAxis(final InteractiveChartPanel chartPanel, final Point2D point2d,
+    public static ValueAxis getRangeAxis(final InteractiveChartPanel chartPanel, final Point2D point2d,
             final int subplotIndex) {
         return Axises.getRangeAxis(chartPanel, point2d, chartPanel.getCombinedPlot().getSubplots().get(subplotIndex));
     }
