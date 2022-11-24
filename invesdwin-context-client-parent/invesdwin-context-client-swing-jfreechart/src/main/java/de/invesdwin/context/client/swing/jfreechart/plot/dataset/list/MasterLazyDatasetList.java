@@ -263,7 +263,7 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
     }
 
     public boolean isTrailingRange(final Range range) {
-        return isTrailingRange(range, (getData().size() - 1));
+        return isTrailingRange(range, getData().size());
     }
 
     public static boolean isTrailingRange(final Range domainAxisRange, final int dataSize) {
