@@ -274,7 +274,17 @@ public class PlotZoomHelper {
 
     public boolean limitRange() {
         final NumberAxis domainAxis = chartPanel.getDomainAxis();
-        Range range = domainAxis.getRange();
+        final Range limitRange = getLimitRange(domainAxis.getRange());
+
+        if (limitRange != null) {
+            domainAxis.setRange(limitRange, true, false);
+            return true;
+        }
+        return false;
+    }
+
+    public Range getLimitRange(final Range domainAxisRange) {
+        Range range = domainAxisRange;
         final MutableBoolean rangeChanged = new MutableBoolean(false);
         if (!rangeListeners.isEmpty()) {
             final IRangeListener[] array = rangeListeners.asArray(IRangeListener.EMPTY_ARRAY);
@@ -311,11 +321,9 @@ public class PlotZoomHelper {
             }
         }
         if (rangeChanged.booleanValue()) {
-            domainAxis.setRange(range, true, false);
-            return true;
-        } else {
-            return false;
+            return range;
         }
+        return null;
     }
 
     private double getMaxUpperBoundWithGap(final List<? extends TimeRangedOHLCDataItem> data, final int gap) {
@@ -453,7 +461,6 @@ public class PlotZoomHelper {
         }
 
         //Check new mouse location in reference to the initialDragStartMouse Position and zoom the axis accordingly
-
         final double zoomFactor;
         final double axisLength = Axis.DOMAIN_AXIS.equals(axisDragInfo.getAxis()) ? axisDragInfo.getPlotWidth()
                 : axisDragInfo.getPlotHeight();
@@ -463,15 +470,31 @@ public class PlotZoomHelper {
             zoomFactor = 1D + Doubles.divide(Math.abs(axisRangeChange), axisLength / 2);
         }
 
-        final double halfLength = range.getLength() * zoomFactor / 2;
-        final Range autoRange = Axises.calculateAutoRange(valueAxis);
-        final double autoCentralValue = autoRange.getCentralValue();
-        final double centralValue = range.getCentralValue();
-        final double centralValueOffset = centralValue - autoCentralValue;
-        final double adjustedCentralValueOffset = centralValueOffset * zoomFactor;
+        Range newRange = null;
 
-        return new Range(autoCentralValue - halfLength + adjustedCentralValueOffset,
-                autoCentralValue + halfLength + adjustedCentralValueOffset);
+        if (Axis.RANGE_AXIS.equals(axisDragInfo.getAxis())) {
+            final double halfLength = range.getLength() * zoomFactor / 2;
+            final Range autoRange = Axises.calculateAutoRange(valueAxis);
+            final double autoCentralValue = autoRange.getCentralValue();
+            final double centralValue = range.getCentralValue();
+            final double centralValueOffset = centralValue - autoCentralValue;
+            final double adjustedCentralValueOffset = centralValueOffset * zoomFactor;
+
+            newRange = new Range(autoCentralValue - halfLength + adjustedCentralValueOffset,
+                    autoCentralValue + halfLength + adjustedCentralValueOffset);
+        } else {
+            final NumberAxis domainAxis = chartPanel.getDomainAxis();
+            final Range previousRange = domainAxis.getRange();
+
+            final double halfLength = range.getLength() * zoomFactor / 2;
+            newRange = new Range(range.getCentralValue() - halfLength, range.getCentralValue() + halfLength);
+            final Range limitRange = getLimitRange(newRange);
+            if (limitRange != null) {
+                return previousRange;
+            }
+        }
+
+        return newRange;
     }
 
     /**
