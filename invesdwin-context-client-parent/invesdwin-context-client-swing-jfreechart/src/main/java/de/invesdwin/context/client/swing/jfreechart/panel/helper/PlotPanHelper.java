@@ -13,6 +13,7 @@ import de.invesdwin.context.client.swing.jfreechart.panel.InteractiveChartPanel;
 import de.invesdwin.context.client.swing.jfreechart.plot.Axis;
 import de.invesdwin.context.client.swing.jfreechart.plot.Axises;
 import de.invesdwin.context.client.swing.jfreechart.plot.XYPlots;
+import de.invesdwin.context.client.swing.jfreechart.plot.dataset.list.MasterLazyDatasetList;
 import de.invesdwin.util.math.Doubles;
 
 @NotThreadSafe
@@ -72,10 +73,11 @@ public class PlotPanHelper {
     }
 
     public void maybeToggleVisibilityPanLiveIcon() {
-        if (chartPanel.getMasterDataset().getItemCount(0) > chartPanel.getDomainAxis().getRange().getUpperBound()) {
-            chartPanel.getPlotNavigationHelper().showPanLiveIcon();
-        } else {
+        if (MasterLazyDatasetList.isTrailingRange(chartPanel.getDomainAxis().getRange(),
+                chartPanel.getMasterDataset().getItemCount(0))) {
             chartPanel.getPlotNavigationHelper().hidePanLiveIcon();
+        } else {
+            chartPanel.getPlotNavigationHelper().showPanLiveIcon();
         }
     }
 

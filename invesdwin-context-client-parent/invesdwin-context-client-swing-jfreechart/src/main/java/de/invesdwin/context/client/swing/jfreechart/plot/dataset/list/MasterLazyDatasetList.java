@@ -263,7 +263,11 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
     }
 
     public boolean isTrailingRange(final Range range) {
-        return range.getUpperBound() >= (getData().size() - 1);
+        return isTrailingRange(range, (getData().size() - 1));
+    }
+
+    public static boolean isTrailingRange(final Range domainAxisRange, final int dataSize) {
+        return domainAxisRange.getUpperBound() >= dataSize - 1;
     }
 
     private void loadInitialDataMaster(final InteractiveChartPanel chartPanel) {
@@ -717,8 +721,8 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
         if (replacedCount > 0 || appendCount > 0) {
             final int finalLastItemIndex = lastItemIndex;
             final int finalAppendCount = appendCount;
-            final Runnable loadSlaveData = () -> appendSlaveData(data, rangeBefore, finalLastItemIndex, firstAppendIndex,
-                    finalAppendCount);
+            final Runnable loadSlaveData = () -> appendSlaveData(data, rangeBefore, finalLastItemIndex,
+                    firstAppendIndex, finalAppendCount);
             if (appendCount >= RELOAD_TRAILING_ITEM_COUNT) {
                 newSyncTask(loadSlaveData).run();
             } else {
