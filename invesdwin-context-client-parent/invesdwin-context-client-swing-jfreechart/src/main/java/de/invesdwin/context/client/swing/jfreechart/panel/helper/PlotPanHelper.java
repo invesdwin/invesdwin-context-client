@@ -117,4 +117,8 @@ public class PlotPanHelper {
             }
         }
     }
+
+    public XYPlot getPanStartPlot() {
+        return panStartPlot;
+    }
 }
