@@ -1,6 +1,7 @@
 package de.invesdwin.context.client.swing.jfreechart.plot;
 
 import java.awt.Font;
+import java.awt.event.MouseEvent;
 import java.awt.geom.Rectangle2D;
 import java.lang.reflect.Field;
 import java.util.LinkedHashMap;
@@ -22,6 +23,7 @@ import org.jfree.data.general.Dataset;
 import org.jfree.data.xy.XYDataset;
 
 import de.invesdwin.context.client.swing.jfreechart.panel.InteractiveChartPanel;
+import de.invesdwin.context.client.swing.jfreechart.panel.basis.CustomCombinedDomainXYPlot;
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.DisabledXYDataset;
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.IPlotSourceDataset;
 import de.invesdwin.util.lang.reflection.field.UnsafeField;
@@ -277,5 +279,44 @@ public final class XYPlots {
             }
         }
         return false;
+    }
+
+    public static XYPlot getSubplot(final InteractiveChartPanel chartPanel, final MouseEvent e) {
+        final CustomCombinedDomainXYPlot combinedXyPlot = chartPanel.getCombinedPlot();
+        final int subplotIndex = combinedXyPlot.getSubplotIndex(e.getX(), e.getY());
+        if (subplotIndex == -1) {
+            return null;
+        }
+        return combinedXyPlot.getSubplots().get(subplotIndex);
+    }
+
+    /**
+     * Checks every subplot for the autoRange-property on every of it's axises and set's the rangePannable-property of
+     * that subplot accordingly. If there is an axis with autoRange = false the rangePannable-property will be set to
+     * true.
+     */
+    public static void setSuitableRangePannablesForSubplots(final InteractiveChartPanel chartPanel) {
+        for (final XYPlot subplot : chartPanel.getCombinedPlot().getSubplots()) {
+            boolean rangePannable = false;
+            for (int i = 0; i < subplot.getRangeAxisCount(); i++) {
+                final ValueAxis rangeAxis = subplot.getRangeAxis(i);
+                if (rangeAxis != null && !rangeAxis.isAutoRange()) {
+                    rangePannable = true;
+                    break;
+                }
+            }
+            subplot.setRangePannable(rangePannable);
+        }
+    }
+
+    /**
+     * Disables all rangePannable-properties on every subplot except the exceptionPlot.
+     */
+    public static void disableRangePannables(final InteractiveChartPanel chartPanel, final XYPlot exceptionPlot) {
+        for (final XYPlot subplot : chartPanel.getCombinedPlot().getSubplots()) {
+            if (subplot != exceptionPlot) {
+                subplot.setRangePannable(false);
+            }
+        }
     }
 }

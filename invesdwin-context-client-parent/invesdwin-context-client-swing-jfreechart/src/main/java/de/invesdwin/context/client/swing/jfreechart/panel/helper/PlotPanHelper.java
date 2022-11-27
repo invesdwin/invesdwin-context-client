@@ -6,11 +6,14 @@ import java.awt.geom.Point2D;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
+import org.jfree.chart.plot.XYPlot;
 import org.jfree.data.Range;
 
 import de.invesdwin.context.client.swing.jfreechart.panel.InteractiveChartPanel;
 import de.invesdwin.context.client.swing.jfreechart.plot.Axis;
 import de.invesdwin.context.client.swing.jfreechart.plot.Axises;
+import de.invesdwin.context.client.swing.jfreechart.plot.XYPlots;
+import de.invesdwin.context.client.swing.jfreechart.plot.dataset.list.MasterLazyDatasetList;
 import de.invesdwin.util.math.Doubles;
 
 @NotThreadSafe
@@ -21,6 +24,7 @@ public class PlotPanHelper {
     private double scrollFactor = DEFAULT_SCROLL_FACTOR;
 
     private final InteractiveChartPanel chartPanel;
+    private XYPlot panStartPlot;
 
     public PlotPanHelper(final InteractiveChartPanel chartPanel) {
         this.chartPanel = chartPanel;
@@ -69,10 +73,11 @@ public class PlotPanHelper {
     }
 
     public void maybeToggleVisibilityPanLiveIcon() {
-        if (chartPanel.getMasterDataset().getItemCount(0) > chartPanel.getDomainAxis().getRange().getUpperBound()) {
-            chartPanel.getPlotNavigationHelper().showPanLiveIcon();
-        } else {
+        if (MasterLazyDatasetList.isTrailingRange(chartPanel.getDomainAxis().getRange(),
+                chartPanel.getMasterDataset().getItemCount(0))) {
             chartPanel.getPlotNavigationHelper().hidePanLiveIcon();
+        } else {
+            chartPanel.getPlotNavigationHelper().showPanLiveIcon();
         }
     }
 
@@ -90,17 +95,30 @@ public class PlotPanHelper {
     }
 
     public void mousePressed(final MouseEvent e) {
-        maybeHandleDomainAxisDoubleClick(e);
+        panStartPlot = XYPlots.getSubplot(chartPanel, e);
+        XYPlots.disableRangePannables(chartPanel, panStartPlot);
+        maybeHandleDomainAxisReset(e);
     }
 
-    private void maybeHandleDomainAxisDoubleClick(final MouseEvent e) {
-        if (e.getClickCount() == 2) {
+    public void mouseReleased(final MouseEvent e) {
+        panStartPlot = null;
+        XYPlots.setSuitableRangePannablesForSubplots(chartPanel);
+    }
+
+    /**
+     * Domain axis resets on Double-Left-Click or Single-Middle-Mouse-Button-Click (Scrollwheel).
+     */
+    private void maybeHandleDomainAxisReset(final MouseEvent e) {
+        if ((MouseEvent.BUTTON1 == e.getButton() && e.getClickCount() == 2) || MouseEvent.BUTTON2 == e.getButton()) {
             final Point2D point2D = chartPanel.getChartPanel().translateScreenToJava2D(e.getPoint());
             final Axis axis = Axises.getAxisForMousePosition(chartPanel, point2D);
             if (axis != null && Axis.DOMAIN_AXIS.equals(axis)) {
-                panLive(e);
+                chartPanel.resetRange(chartPanel.getInitialVisibleItemCount());
             }
         }
     }
 
+    public XYPlot getPanStartPlot() {
+        return panStartPlot;
+    }
 }

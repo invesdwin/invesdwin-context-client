@@ -8,7 +8,9 @@ import java.util.List;
 import javax.annotation.concurrent.NotThreadSafe;
 
 import org.jfree.chart.ChartRenderingInfo;
+import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.plot.CombinedDomainXYPlot;
+import org.jfree.chart.plot.PlotRenderingInfo;
 import org.jfree.chart.plot.XYPlot;
 
 import de.invesdwin.aspects.EventDispatchThreadUtil;
@@ -97,5 +99,29 @@ public class CustomCombinedDomainXYPlot extends CombinedDomainXYPlot {
             EventDispatchThreadUtil.assertEventDispatchThread();
         }
         super.remove(subplot);
+    }
+
+    /**
+     * We override this so that when we start Panning (via Mouse-Drag) on one plot and we drag the mouse off the plot
+     * (maybe even into another plot), we still keep panning. The default behaviour of the CombinedDomainXYPlot is that
+     * you can only pan on the range-axis when you are moving the mouse in the specific plot-area.
+     */
+    @Override
+    public void panRangeAxes(final double panRange, final PlotRenderingInfo info, final Point2D source) {
+        final XYPlot panStartPlot = chartPanel.getPlotPanHelper().getPanStartPlot();
+        if (panStartPlot != null) {
+            if (!panStartPlot.isRangePannable()) {
+                return;
+            }
+            for (int i = 0; i < panStartPlot.getRangeAxisCount(); i++) {
+                final ValueAxis rangeAxis = panStartPlot.getRangeAxis(i);
+                if (rangeAxis != null) {
+                    rangeAxis.pan(panRange);
+                }
+            }
+        } else {
+            //Not sure if this is needed but it wont break things.
+            super.panRangeAxes(panRange, info, source);
+        }
     }
 }

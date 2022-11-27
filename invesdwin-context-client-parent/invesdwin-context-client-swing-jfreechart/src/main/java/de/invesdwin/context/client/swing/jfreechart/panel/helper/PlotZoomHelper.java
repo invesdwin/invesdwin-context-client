@@ -274,7 +274,17 @@ public class PlotZoomHelper {
 
     public boolean limitRange() {
         final NumberAxis domainAxis = chartPanel.getDomainAxis();
-        Range range = domainAxis.getRange();
+        final Range limitRange = getLimitRange(domainAxis.getRange());
+
+        if (limitRange != null) {
+            domainAxis.setRange(limitRange, true, false);
+            return true;
+        }
+        return false;
+    }
+
+    public Range getLimitRange(final Range domainAxisRange) {
+        Range range = domainAxisRange;
         final MutableBoolean rangeChanged = new MutableBoolean(false);
         if (!rangeListeners.isEmpty()) {
             final IRangeListener[] array = rangeListeners.asArray(IRangeListener.EMPTY_ARRAY);
@@ -311,11 +321,9 @@ public class PlotZoomHelper {
             }
         }
         if (rangeChanged.booleanValue()) {
-            domainAxis.setRange(range, true, false);
-            return true;
-        } else {
-            return false;
+            return range;
         }
+        return null;
     }
 
     private double getMaxUpperBoundWithGap(final List<? extends TimeRangedOHLCDataItem> data, final int gap) {
@@ -397,9 +405,12 @@ public class PlotZoomHelper {
         final Axis axis = Axises.getAxisForMousePosition(chartPanel, point2D);
         if (axis != null && MouseEvent.BUTTON1 == e.getButton()) {
             axisDragInfo = Axises.createAxisDragInfo(chartPanel, point2D, axis);
-            if (axisDragInfo != null && Axis.RANGE_AXIS.equals(axis)) {
-                maybeHandleRangeAxisDoubleClick(e, axisDragInfo.getValueAxis(), point2D);
-            }
+        }
+
+        if (axis != null && Axis.RANGE_AXIS.equals(axis)) {
+            final ValueAxis rangeAxis = axisDragInfo != null ? axisDragInfo.getValueAxis()
+                    : Axises.getRangeAxis(chartPanel, point2D);
+            maybeHandleRangeAxisReset(e, rangeAxis, point2D);
         }
     }
 
@@ -450,7 +461,6 @@ public class PlotZoomHelper {
         }
 
         //Check new mouse location in reference to the initialDragStartMouse Position and zoom the axis accordingly
-
         final double zoomFactor;
         final double axisLength = Axis.DOMAIN_AXIS.equals(axisDragInfo.getAxis()) ? axisDragInfo.getPlotWidth()
                 : axisDragInfo.getPlotHeight();
@@ -460,20 +470,40 @@ public class PlotZoomHelper {
             zoomFactor = 1D + Doubles.divide(Math.abs(axisRangeChange), axisLength / 2);
         }
 
-        final double halfLength = range.getLength() * zoomFactor / 2;
-        final Range autoRange = Axises.calculateAutoRange(valueAxis);
-        final double autoCentralValue = autoRange.getCentralValue();
-        final double centralValue = range.getCentralValue();
-        final double centralValueOffset = centralValue - autoCentralValue;
-        final double adjustedCentralValueOffset = centralValueOffset * zoomFactor;
+        Range newRange = null;
 
-        return new Range(autoCentralValue - halfLength + adjustedCentralValueOffset,
-                autoCentralValue + halfLength + adjustedCentralValueOffset);
+        if (Axis.RANGE_AXIS.equals(axisDragInfo.getAxis())) {
+            final double halfLength = range.getLength() * zoomFactor / 2;
+            final Range autoRange = Axises.calculateAutoRange(valueAxis);
+            final double autoCentralValue = autoRange.getCentralValue();
+            final double centralValue = range.getCentralValue();
+            final double centralValueOffset = centralValue - autoCentralValue;
+            final double adjustedCentralValueOffset = centralValueOffset * zoomFactor;
+
+            newRange = new Range(autoCentralValue - halfLength + adjustedCentralValueOffset,
+                    autoCentralValue + halfLength + adjustedCentralValueOffset);
+        } else {
+            final NumberAxis domainAxis = chartPanel.getDomainAxis();
+            final Range previousRange = domainAxis.getRange();
+
+            final double halfLength = range.getLength() * zoomFactor / 2;
+            newRange = new Range(range.getCentralValue() - halfLength, range.getCentralValue() + halfLength);
+            final Range limitRange = getLimitRange(newRange);
+            if (limitRange != null) {
+                return previousRange;
+            }
+        }
+
+        return newRange;
     }
 
-    private void maybeHandleRangeAxisDoubleClick(final MouseEvent e, final ValueAxis rangeAxis, final Point2D point2D) {
+    /**
+     * Range axis resets on Double-Left-Click or Single-Middle-Mouse-Button-Click (Scrollwheel).
+     */
+    private void maybeHandleRangeAxisReset(final MouseEvent e, final ValueAxis rangeAxis, final Point2D point2D) {
         //Double-Click on the axis
-        if (e.getClickCount() == 2 && rangeAxis != null) {
+        if (rangeAxis != null && ((MouseEvent.BUTTON1 == e.getButton() && e.getClickCount() == 2)
+                || MouseEvent.BUTTON2 == e.getButton())) {
             final XYPlot xyPlot = (XYPlot) rangeAxis.getPlot();
             if (e.isControlDown()) {
                 //reset every axis in the plot
