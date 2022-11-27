@@ -21,7 +21,7 @@ import org.jfree.data.xy.XYDataset;
 
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.IPlotSourceDataset;
 import de.invesdwin.util.assertions.Assertions;
-import de.invesdwin.util.lang.Colors;
+import de.invesdwin.util.lang.color.Colors;
 
 @NotThreadSafe
 public class DisabledXYItemRenderer extends AbstractXYItemRenderer implements IDatasetSourceXYItemRenderer {

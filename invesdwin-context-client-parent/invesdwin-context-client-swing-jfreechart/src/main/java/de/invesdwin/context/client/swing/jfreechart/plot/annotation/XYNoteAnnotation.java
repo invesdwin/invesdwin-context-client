@@ -34,7 +34,7 @@ import org.jfree.data.Range;
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.LineStyleType;
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.LineWidthType;
 import de.invesdwin.context.client.swing.jfreechart.plot.XYPlots;
-import de.invesdwin.util.lang.Colors;
+import de.invesdwin.util.lang.color.Colors;
 import de.invesdwin.util.math.decimal.scaled.Percent;
 import de.invesdwin.util.math.decimal.scaled.PercentScale;
 

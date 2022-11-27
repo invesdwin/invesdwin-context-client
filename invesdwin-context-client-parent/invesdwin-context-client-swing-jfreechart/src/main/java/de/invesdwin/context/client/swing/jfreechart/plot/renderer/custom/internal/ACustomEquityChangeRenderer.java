@@ -45,7 +45,7 @@ import de.invesdwin.context.client.swing.jfreechart.plot.renderer.Renderers;
 import de.invesdwin.context.jfreechart.dataset.ListXYSeriesOHLC;
 import de.invesdwin.context.jfreechart.dataset.MutableXYDataItemOHLC;
 import de.invesdwin.context.jfreechart.dataset.TimeRangedOHLCDataItem;
-import de.invesdwin.util.lang.Colors;
+import de.invesdwin.util.lang.color.Colors;
 import de.invesdwin.util.math.Doubles;
 
 /**
