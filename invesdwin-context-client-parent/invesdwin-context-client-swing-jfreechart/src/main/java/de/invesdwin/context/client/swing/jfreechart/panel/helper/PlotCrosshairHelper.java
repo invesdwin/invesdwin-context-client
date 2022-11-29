@@ -27,7 +27,7 @@ import de.invesdwin.aspects.annotation.EventDispatchThread;
 import de.invesdwin.aspects.annotation.EventDispatchThread.InvocationType;
 import de.invesdwin.context.client.swing.jfreechart.panel.InteractiveChartPanel;
 import de.invesdwin.context.client.swing.jfreechart.plot.annotation.priceline.XYPriceLineAnnotation;
-import de.invesdwin.util.lang.Colors;
+import de.invesdwin.util.lang.color.Colors;
 import de.invesdwin.util.math.Doubles;
 
 @NotThreadSafe

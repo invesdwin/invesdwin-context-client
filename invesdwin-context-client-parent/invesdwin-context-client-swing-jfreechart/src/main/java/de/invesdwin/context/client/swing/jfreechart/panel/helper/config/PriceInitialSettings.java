@@ -18,7 +18,7 @@ import de.invesdwin.context.client.swing.jfreechart.plot.renderer.FastXYStepRend
 import de.invesdwin.context.client.swing.jfreechart.plot.renderer.IDatasetSourceXYItemRenderer;
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.error.UnknownArgumentException;
-import de.invesdwin.util.lang.Colors;
+import de.invesdwin.util.lang.color.Colors;
 
 @NotThreadSafe
 public class PriceInitialSettings {

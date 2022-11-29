@@ -17,7 +17,7 @@ import de.invesdwin.context.client.swing.jfreechart.plot.renderer.FastCandlestic
 import de.invesdwin.context.client.swing.jfreechart.plot.renderer.FastXYBarRenderer;
 import de.invesdwin.context.client.swing.jfreechart.plot.renderer.IUpDownColorRenderer;
 import de.invesdwin.util.error.UnknownArgumentException;
-import de.invesdwin.util.lang.Colors;
+import de.invesdwin.util.lang.color.Colors;
 import de.invesdwin.util.math.Doubles;
 import de.invesdwin.util.math.decimal.scaled.Percent;
 import de.invesdwin.util.math.decimal.scaled.PercentScale;
