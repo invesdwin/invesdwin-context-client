@@ -14,9 +14,9 @@ import de.invesdwin.context.client.swing.api.view.AView;
 import de.invesdwin.util.swing.Dialogs;
 
 @NotThreadSafe
-public class OkCancelModalMessageView extends AView<OkModalMessage, JPanel> {
+public class OkCancelModalMessageView extends AView<OkCancelModalMessage, JPanel> {
 
-    public OkCancelModalMessageView(final OkModalMessage model) {
+    public OkCancelModalMessageView(final OkCancelModalMessage model) {
         super(model);
     }
 
