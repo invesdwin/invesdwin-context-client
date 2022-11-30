@@ -1,14 +1,18 @@
 package de.invesdwin.context.client.swing.api.binding.component;
 
+import java.awt.event.FocusEvent;
+import java.text.ParseException;
 import java.util.Optional;
 
 import javax.annotation.concurrent.NotThreadSafe;
 import javax.swing.JSpinner;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.event.DocumentEvent;
 
 import org.hibernate.validator.constraints.Range;
 
+import de.invesdwin.aspects.EventDispatchThreadUtil;
 import de.invesdwin.context.beans.validator.DecimalRange;
 import de.invesdwin.context.client.swing.api.binding.BindingGroup;
 import de.invesdwin.context.client.swing.api.binding.converter.IConverter;
@@ -18,6 +22,9 @@ import de.invesdwin.norva.beanpath.spi.element.simple.modifier.IBeanPathProperty
 import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.lang.string.Strings;
 import de.invesdwin.util.math.decimal.Decimal;
+import de.invesdwin.util.swing.Components;
+import de.invesdwin.util.swing.listener.DocumentListenerSupport;
+import de.invesdwin.util.swing.listener.FocusListenerSupport;
 import de.invesdwin.util.swing.spinner.SpinnerDecimalEditor;
 import de.invesdwin.util.swing.spinner.SpinnerDecimalModel;
 import jakarta.validation.constraints.DecimalMax;
@@ -30,6 +37,8 @@ public class SpinnerBinding extends AComponentBinding<JSpinner, Object> {
 
     private final IConverter<Object, Number> converter;
     private Optional<Number> prevComponentValue;
+    private boolean isFocusOwner = false;
+    private boolean isSettingText = false;
 
     public SpinnerBinding(final JSpinner component, final APropertyBeanPathElement element,
             final BindingGroup bindingGroup) {
@@ -48,6 +57,36 @@ public class SpinnerBinding extends AComponentBinding<JSpinner, Object> {
                 @Override
                 public void stateChanged(final ChangeEvent e) {
                     eagerSubmitRunnable.run();
+                }
+            });
+            editor.getTextField().addFocusListener(new FocusListenerSupport() {
+                @Override
+                public void focusGained(final FocusEvent e) {
+                    isFocusOwner = true;
+                }
+
+                @Override
+                public void focusLost(final FocusEvent e) {
+                    isFocusOwner = false;
+                }
+            });
+            editor.getTextField().getDocument().addDocumentListener(new DocumentListenerSupport() {
+                @Override
+                protected void update(final DocumentEvent e) {
+                    if (isFocusOwner && !isSettingText) {
+                        /*
+                         * InvokeLater to prevent java.lang.IllegalStateException: Attempt to mutate in notification at
+                         * java.desktop/javax.swing.text.AbstractDocument.writeLock(AbstractDocument.java:1372)
+                         */
+                        EventDispatchThreadUtil.invokeLater(() -> {
+                            try {
+                                //this will invoke stateChanged in above listener automatically on success
+                                editor.commitEdit();
+                            } catch (final ParseException ex) {
+                                //ignore
+                            }
+                        });
+                    }
                 }
             });
         }
@@ -113,7 +152,12 @@ public class SpinnerBinding extends AComponentBinding<JSpinner, Object> {
     protected Optional<Object> fromModelToComponent(final Object modelValue) {
         final Number newComponentValue = converter.fromModelToComponent(modelValue);
         if (prevComponentValue == null || !Objects.equals(newComponentValue, prevComponentValue.orElse(null))) {
-            component.setValue(newComponentValue);
+            isSettingText = true;
+            try {
+                Components.setValue(component, newComponentValue);
+            } finally {
+                isSettingText = false;
+            }
             prevComponentValue = Optional.ofNullable(newComponentValue);
             return Optional.ofNullable(modelValue);
         } else {
