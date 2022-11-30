@@ -210,13 +210,12 @@ public class LogViewerView extends AView<LogViewerView, JPanel> {
 
     @Override
     protected void onClose() {
-        ACTIVE_LOGS.decrementAndGet();
         final Future<?> updateFutureCopy = updateFuture;
         if (updateFutureCopy != null) {
             updateFutureCopy.cancel(true);
             updateFuture = null;
         }
-
+        ACTIVE_LOGS.decrementAndGet();
         maybeCloseScheduledExecutor();
     }
 
