@@ -76,7 +76,7 @@ public class SpinnerBinding extends AComponentBinding<JSpinner, Object> {
                 @Override
                 protected void update(final DocumentEvent e) {
                     if (isFocusOwner && !isSettingText) {
-                        //this will invoke stateChanged in above listener automatically on success
+                        //we have to circumvent internal sync of JSpinner or else we get exceptions based on updates during locks
                         try {
                             final JFormattedTextField textField = editor.getTextField();
                             final AbstractFormatter formatter = textField.getFormatter();
