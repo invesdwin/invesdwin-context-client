@@ -5,6 +5,8 @@ import java.text.ParseException;
 import java.util.Optional;
 
 import javax.annotation.concurrent.NotThreadSafe;
+import javax.swing.JFormattedTextField;
+import javax.swing.JFormattedTextField.AbstractFormatter;
 import javax.swing.JSpinner;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -12,7 +14,6 @@ import javax.swing.event.DocumentEvent;
 
 import org.hibernate.validator.constraints.Range;
 
-import de.invesdwin.aspects.EventDispatchThreadUtil;
 import de.invesdwin.context.beans.validator.DecimalRange;
 import de.invesdwin.context.client.swing.api.binding.BindingGroup;
 import de.invesdwin.context.client.swing.api.binding.converter.IConverter;
@@ -39,6 +40,7 @@ public class SpinnerBinding extends AComponentBinding<JSpinner, Object> {
     private Optional<Number> prevComponentValue;
     private boolean isFocusOwner = false;
     private boolean isSettingText = false;
+    private Optional<Number> pendingComponentValue;
 
     public SpinnerBinding(final JSpinner component, final APropertyBeanPathElement element,
             final BindingGroup bindingGroup) {
@@ -74,18 +76,19 @@ public class SpinnerBinding extends AComponentBinding<JSpinner, Object> {
                 @Override
                 protected void update(final DocumentEvent e) {
                     if (isFocusOwner && !isSettingText) {
-                        /*
-                         * InvokeLater to prevent java.lang.IllegalStateException: Attempt to mutate in notification at
-                         * java.desktop/javax.swing.text.AbstractDocument.writeLock(AbstractDocument.java:1372)
-                         */
-                        EventDispatchThreadUtil.invokeLater(() -> {
-                            try {
-                                //this will invoke stateChanged in above listener automatically on success
-                                editor.commitEdit();
-                            } catch (final ParseException ex) {
-                                //ignore
-                            }
-                        });
+                        //this will invoke stateChanged in above listener automatically on success
+                        try {
+                            final JFormattedTextField textField = editor.getTextField();
+                            final AbstractFormatter formatter = textField.getFormatter();
+                            final Number formattedValue = (Number) formatter.stringToValue(textField.getText());
+                            pendingComponentValue = Optional.ofNullable(formattedValue);
+                            prevComponentValue = pendingComponentValue;
+                            eagerSubmitRunnable.run();
+                        } catch (final ParseException ex) {
+                            //ignore
+                        } finally {
+                            pendingComponentValue = null;
+                        }
                     }
                 }
             });
@@ -150,8 +153,18 @@ public class SpinnerBinding extends AComponentBinding<JSpinner, Object> {
 
     @Override
     protected Optional<Object> fromModelToComponent(final Object modelValue) {
+        if (pendingComponentValue != null) {
+            /*
+             * ignore during edit to prevent java.lang.IllegalStateException: Attempt to mutate in notification at
+             * java.desktop/javax.swing.text.AbstractDocument.writeLock(AbstractDocument.java:1372)
+             * 
+             * will be synced after focus lost, validation errors will be properly shown during edit though
+             */
+            return Optional.ofNullable(modelValue);
+        }
         final Number newComponentValue = converter.fromModelToComponent(modelValue);
-        if (prevComponentValue == null || !Objects.equals(newComponentValue, prevComponentValue.orElse(null))) {
+        if (prevComponentValue == null || !Objects.equals(Decimal.valueOf(newComponentValue),
+                Decimal.valueOf(prevComponentValue.orElse(null)))) {
             isSettingText = true;
             try {
                 Components.setValue(component, newComponentValue);
@@ -167,7 +180,12 @@ public class SpinnerBinding extends AComponentBinding<JSpinner, Object> {
 
     @Override
     protected Object fromComponentToModel() {
-        final Number componentValue = (Number) component.getValue();
+        final Number componentValue;
+        if (pendingComponentValue != null) {
+            componentValue = pendingComponentValue.orElse(null);
+        } else {
+            componentValue = (Number) component.getValue();
+        }
         final Object newModelValue = converter.fromComponentToModel(componentValue);
         return newModelValue;
     }
