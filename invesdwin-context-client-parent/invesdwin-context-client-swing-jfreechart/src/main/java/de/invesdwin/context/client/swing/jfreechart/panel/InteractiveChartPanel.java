@@ -744,4 +744,8 @@ public class InteractiveChartPanel extends JPanel {
     public boolean isInitialized() {
         return initialized;
     }
+
+    public double getPanLiveUpperBound() {
+        return getMasterDataset().getItemCount(0) + getAllowedRangeGap(getDomainAxis().getRange().getLength());
+    }
 }

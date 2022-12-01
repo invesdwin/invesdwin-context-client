@@ -9,6 +9,7 @@ import java.awt.Stroke;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
+import java.lang.reflect.Field;
 import java.math.RoundingMode;
 import java.util.List;
 
@@ -28,6 +29,7 @@ import de.invesdwin.aspects.annotation.EventDispatchThread.InvocationType;
 import de.invesdwin.context.client.swing.jfreechart.panel.InteractiveChartPanel;
 import de.invesdwin.context.client.swing.jfreechart.plot.annotation.priceline.XYPriceLineAnnotation;
 import de.invesdwin.util.lang.color.Colors;
+import de.invesdwin.util.lang.reflection.field.UnsafeField;
 import de.invesdwin.util.math.Doubles;
 
 @NotThreadSafe
@@ -38,6 +40,7 @@ public class PlotCrosshairHelper {
     private static final Color CROSSHAIR_COLOR = Color.BLACK;
     private static final Stroke CROSSHAIR_STROKE = new BasicStroke(0.5f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL,
             0, new float[] { 5, 6 }, 0);
+    private static final UnsafeField<Double> VALUEMARKER_VALUE_FIELD;
 
     private final InteractiveChartPanel chartPanel;
     private final ValueMarker domainCrosshairMarker;
@@ -46,6 +49,15 @@ public class PlotCrosshairHelper {
     private final ValueMarker rangeCrosshairMarkerLeft;
     private int crosshairLastMouseX;
     private int crosshairLastMouseY;
+
+    static {
+        try {
+            final Field valueMarkerValueField = ValueMarker.class.getDeclaredField("value");
+            VALUEMARKER_VALUE_FIELD = new UnsafeField<>(valueMarkerValueField);
+        } catch (NoSuchFieldException | SecurityException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     public PlotCrosshairHelper(final InteractiveChartPanel chartPanel) {
         this.chartPanel = chartPanel;
@@ -182,10 +194,12 @@ public class PlotCrosshairHelper {
             disableCrosshair(subplot);
         }
 
-        rangeCrosshairMarkerRight.setValue(-1D);
-        rangeCrosshairMarkerLeft.setValue(-1D);
-        domainCrosshairMarker.setValue(-1D);
-        lastDomainCrosshairMarker.setValue(-1D);
+        //We set this via reflection since the actual setValue method also fire's a lot of listener events which causes the plot to stutter/flicker for quite a while in certain cases.
+        //This way it only flickers shortly !
+        VALUEMARKER_VALUE_FIELD.put(rangeCrosshairMarkerRight, -1D);
+        VALUEMARKER_VALUE_FIELD.put(rangeCrosshairMarkerLeft, -1D);
+        VALUEMARKER_VALUE_FIELD.put(domainCrosshairMarker, -1D);
+        VALUEMARKER_VALUE_FIELD.put(lastDomainCrosshairMarker, -1D);
 
         crosshairLastMouseX = -1;
         crosshairLastMouseY = -1;

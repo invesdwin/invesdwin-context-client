@@ -60,10 +60,8 @@ public class PlotPanHelper {
      * pans the x-axis right till the most recent datapoint is visible.
      */
     public void panLive(final MouseEvent e) {
-        final Range range = chartPanel.getDomainAxis().getRange();
-        final double length = range.getLength();
-        final double newUpperBound = chartPanel.getMasterDataset().getItemCount(0)
-                + chartPanel.getAllowedRangeGap(length);
+        final double length = chartPanel.getDomainAxis().getRange().getLength();
+        final double newUpperBound = chartPanel.getPanLiveUpperBound();
         final Range newRange = new Range(newUpperBound - length, newUpperBound);
         chartPanel.getDomainAxis().setRange(newRange);
         //pan live button is removed, thus switch to crosshair

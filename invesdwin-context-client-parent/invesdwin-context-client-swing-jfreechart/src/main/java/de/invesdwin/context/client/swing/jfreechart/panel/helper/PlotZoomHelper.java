@@ -483,14 +483,12 @@ public class PlotZoomHelper {
             newRange = new Range(autoCentralValue - halfLength + adjustedCentralValueOffset,
                     autoCentralValue + halfLength + adjustedCentralValueOffset);
         } else {
-            final NumberAxis domainAxis = chartPanel.getDomainAxis();
-            final Range previousRange = domainAxis.getRange();
-
             final double halfLength = range.getLength() * zoomFactor / 2;
             newRange = new Range(range.getCentralValue() - halfLength, range.getCentralValue() + halfLength);
             final Range limitRange = getLimitRange(newRange);
             if (limitRange != null) {
-                return previousRange;
+                return new Range(Math.max(newRange.getLowerBound(), limitRange.getLowerBound()),
+                        Math.min(newRange.getUpperBound(), limitRange.getUpperBound()));
             }
         }
 
