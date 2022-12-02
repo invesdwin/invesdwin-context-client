@@ -326,7 +326,7 @@ public class PlotZoomHelper {
         return null;
     }
 
-    private double getMaxUpperBoundWithGap(final List<? extends TimeRangedOHLCDataItem> data, final int gap) {
+    public double getMaxUpperBoundWithGap(final List<? extends TimeRangedOHLCDataItem> data, final int gap) {
         final double maxUpperBound = getMaxUpperBound(data);
         if (maxUpperBound >= data.size() - 1) {
             return maxUpperBound + gap;

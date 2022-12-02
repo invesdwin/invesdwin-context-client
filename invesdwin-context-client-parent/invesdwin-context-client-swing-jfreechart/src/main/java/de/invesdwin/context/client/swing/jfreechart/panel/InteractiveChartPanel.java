@@ -746,6 +746,7 @@ public class InteractiveChartPanel extends JPanel {
     }
 
     public double getPanLiveUpperBound() {
-        return getMasterDataset().getItemCount(0) + getAllowedRangeGap(getDomainAxis().getRange().getLength());
+        return plotZoomHelper.getMaxUpperBoundWithGap(getMasterDataset().getData(),
+                getAllowedRangeGap(getDomainAxis().getRange().getLength()));
     }
 }
