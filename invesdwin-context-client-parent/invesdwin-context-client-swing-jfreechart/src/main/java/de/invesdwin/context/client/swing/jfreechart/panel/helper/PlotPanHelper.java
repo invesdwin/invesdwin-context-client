@@ -43,14 +43,19 @@ public class PlotPanHelper {
         chartPanel.update();
     }
 
+    private double getPanLiveUpperBound() {
+        return chartPanel.getPlotZoomHelper()
+                .getMaxUpperBoundWithGap(chartPanel.getMasterDataset().getData(),
+                        chartPanel.getAllowedRangeGap(chartPanel.getDomainAxis().getRange().getLength()));
+    }
+
     public void panRight() {
         if (chartPanel.isUpdating()) {
             return;
         }
         final Range range = chartPanel.getDomainAxis().getRange();
         final double length = range.getLength();
-        final double newUpperBound = Doubles.min(range.getUpperBound() + length * scrollFactor,
-                chartPanel.getPanLiveUpperBound());
+        final double newUpperBound = Doubles.min(range.getUpperBound() + length * scrollFactor, getPanLiveUpperBound());
         final Range newRange = new Range(newUpperBound - length, newUpperBound);
         chartPanel.getDomainAxis().setRange(newRange);
         chartPanel.update();
@@ -61,7 +66,7 @@ public class PlotPanHelper {
      */
     public void panLive(final MouseEvent e) {
         final double length = chartPanel.getDomainAxis().getRange().getLength();
-        final double newUpperBound = chartPanel.getPanLiveUpperBound();
+        final double newUpperBound = getPanLiveUpperBound();
         final Range newRange = new Range(newUpperBound - length, newUpperBound);
         chartPanel.getDomainAxis().setRange(newRange);
         //pan live button is removed, thus switch to crosshair
