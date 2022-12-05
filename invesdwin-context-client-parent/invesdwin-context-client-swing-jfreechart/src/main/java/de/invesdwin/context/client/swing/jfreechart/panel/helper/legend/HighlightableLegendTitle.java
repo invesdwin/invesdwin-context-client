@@ -37,7 +37,7 @@ public class HighlightableLegendTitle extends CustomLegendTitle {
     protected String newLabel(final LegendItem item) {
         int domainMarkerItem = (int) chartPanel.getPlotCrosshairHelper().getDomainCrosshairMarkerValue();
         if (domainMarkerItem == -1) {
-            domainMarkerItem = chartPanel.getMasterDataset().getData().size() - 1;
+            domainMarkerItem = chartPanel.getPlotZoomHelper().getMaxUpperBound();
         }
         if (domainMarkerItem >= 0) {
             final IPlotSourceDataset dataset = (IPlotSourceDataset) item.getDataset();

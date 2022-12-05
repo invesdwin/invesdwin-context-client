@@ -418,7 +418,7 @@ public class InteractiveChartPanel extends JPanel {
                                 try {
                                     //need to do this in EDT, or we get ArrayIndexOutOfBounds exception
                                     if (disableCrosshair) {
-                                        plotCrosshairHelper.disableCrosshair();
+                                        plotCrosshairHelper.disableCrosshair(false);
                                     }
                                     configureRangeAxis();
                                     plotLegendHelper.update();
@@ -625,7 +625,7 @@ public class InteractiveChartPanel extends JPanel {
                     return;
                 }
                 if (plotLegendHelper.isHighlighting() || plotNavigationHelper.isHighlighting()) {
-                    plotCrosshairHelper.disableCrosshair();
+                    plotCrosshairHelper.disableCrosshair(true);
                 } else {
                     plotCrosshairHelper.mouseMoved(e);
                 }
@@ -681,7 +681,7 @@ public class InteractiveChartPanel extends JPanel {
 
     public void mouseExited() {
         try {
-            plotCrosshairHelper.disableCrosshair();
+            plotCrosshairHelper.disableCrosshair(true);
             plotLegendHelper.disableHighlighting();
             plotNavigationHelper.mouseExited();
         } catch (final Throwable t) {

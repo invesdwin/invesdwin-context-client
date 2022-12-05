@@ -9,7 +9,6 @@ import java.awt.Stroke;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
-import java.lang.reflect.Field;
 import java.math.RoundingMode;
 import java.util.List;
 
@@ -17,6 +16,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 
 import org.jfree.chart.ChartRenderingInfo;
 import org.jfree.chart.axis.NumberAxis;
+import org.jfree.chart.event.PlotChangeEvent;
 import org.jfree.chart.plot.PlotRenderingInfo;
 import org.jfree.chart.plot.ValueMarker;
 import org.jfree.chart.plot.XYPlot;
@@ -27,9 +27,10 @@ import org.jfree.chart.ui.TextAnchor;
 import de.invesdwin.aspects.annotation.EventDispatchThread;
 import de.invesdwin.aspects.annotation.EventDispatchThread.InvocationType;
 import de.invesdwin.context.client.swing.jfreechart.panel.InteractiveChartPanel;
+import de.invesdwin.context.client.swing.jfreechart.plot.Markers;
+import de.invesdwin.context.client.swing.jfreechart.plot.XYPlots;
 import de.invesdwin.context.client.swing.jfreechart.plot.annotation.priceline.XYPriceLineAnnotation;
 import de.invesdwin.util.lang.color.Colors;
-import de.invesdwin.util.lang.reflection.field.UnsafeField;
 import de.invesdwin.util.math.Doubles;
 
 @NotThreadSafe
@@ -40,7 +41,6 @@ public class PlotCrosshairHelper {
     private static final Color CROSSHAIR_COLOR = Color.BLACK;
     private static final Stroke CROSSHAIR_STROKE = new BasicStroke(0.5f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL,
             0, new float[] { 5, 6 }, 0);
-    private static final UnsafeField<Double> VALUEMARKER_VALUE_FIELD;
 
     private final InteractiveChartPanel chartPanel;
     private final ValueMarker domainCrosshairMarker;
@@ -49,15 +49,6 @@ public class PlotCrosshairHelper {
     private final ValueMarker rangeCrosshairMarkerLeft;
     private int crosshairLastMouseX;
     private int crosshairLastMouseY;
-
-    static {
-        try {
-            final Field valueMarkerValueField = ValueMarker.class.getDeclaredField("value");
-            VALUEMARKER_VALUE_FIELD = new UnsafeField<>(valueMarkerValueField);
-        } catch (NoSuchFieldException | SecurityException e) {
-            throw new RuntimeException(e);
-        }
-    }
 
     public PlotCrosshairHelper(final InteractiveChartPanel chartPanel) {
         this.chartPanel = chartPanel;
@@ -180,14 +171,14 @@ public class PlotCrosshairHelper {
                 crosshairLastMouseY = mouseY;
             }
         } else {
-            disableCrosshair();
+            disableCrosshair(true);
             crosshairLastMouseX = -1;
             crosshairLastMouseY = -1;
         }
     }
 
     @EventDispatchThread(InvocationType.INVOKE_LATER_IF_NOT_IN_EDT)
-    public void disableCrosshair() {
+    public void disableCrosshair(final boolean notify) {
         final List<XYPlot> subplotsList = chartPanel.getCombinedPlot().getSubplots();
         for (int i = 0; i < subplotsList.size(); i++) {
             final XYPlot subplot = subplotsList.get(i);
@@ -196,13 +187,19 @@ public class PlotCrosshairHelper {
 
         //We set this via reflection since the actual setValue method also fire's a lot of listener events which causes the plot to stutter/flicker for quite a while in certain cases.
         //This way it only flickers shortly !
-        VALUEMARKER_VALUE_FIELD.put(rangeCrosshairMarkerRight, -1D);
-        VALUEMARKER_VALUE_FIELD.put(rangeCrosshairMarkerLeft, -1D);
-        VALUEMARKER_VALUE_FIELD.put(domainCrosshairMarker, -1D);
-        VALUEMARKER_VALUE_FIELD.put(lastDomainCrosshairMarker, -1D);
+
+        Markers.setValue(rangeCrosshairMarkerRight, -1D);
+        Markers.setValue(rangeCrosshairMarkerLeft, -1D);
+        Markers.setValue(domainCrosshairMarker, -1D);
+        Markers.setValue(lastDomainCrosshairMarker, -1D);
 
         crosshairLastMouseX = -1;
         crosshairLastMouseY = -1;
+
+        if (notify) {
+            chartPanel.getCombinedPlot().notifyListeners(new PlotChangeEvent(chartPanel.getCombinedPlot()));
+        }
+
     }
 
     public Point2D getCrosshairLastMousePoint() {
@@ -215,15 +212,15 @@ public class PlotCrosshairHelper {
 
     private void disableCrosshair(final XYPlot subplot) {
         disableRangeCrosshair(subplot);
-        subplot.setDomainCrosshairLockedOnData(false);
-        subplot.removeDomainMarker(domainCrosshairMarker);
-        subplot.removeDomainMarker(lastDomainCrosshairMarker);
+        XYPlots.setDomainCrosshairLockedOnData(subplot, false);
+        XYPlots.removeDomainMarkerWithoutNotify(subplot, domainCrosshairMarker);
+        XYPlots.removeDomainMarkerWithoutNotify(subplot, lastDomainCrosshairMarker);
     }
 
     private void disableRangeCrosshair(final XYPlot subplot) {
-        subplot.setRangeCrosshairLockedOnData(false);
-        subplot.removeRangeMarker(rangeCrosshairMarkerRight);
-        subplot.removeRangeMarker(rangeCrosshairMarkerLeft);
+        XYPlots.setRangeCrosshairLockedOnData(subplot, false);
+        XYPlots.removeRangeMarkerWithoutNotify(subplot, rangeCrosshairMarkerRight);
+        XYPlots.removeRangeMarkerWithoutNotify(subplot, rangeCrosshairMarkerLeft);
     }
 
     public void datasetChanged() {

@@ -353,6 +353,10 @@ public class PlotZoomHelper {
         }
     }
 
+    public int getMaxUpperBound() {
+        return getMaxUpperBound(chartPanel.getMasterDataset().getData());
+    }
+
     private int getMinLowerBound(final List<?> data) {
         if (data instanceof IChartPanelAwareDatasetList) {
             final IChartPanelAwareDatasetList cData = (IChartPanelAwareDatasetList) data;

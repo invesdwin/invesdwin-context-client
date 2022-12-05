@@ -14,6 +14,7 @@ import org.jfree.chart.annotations.XYAnnotation;
 import org.jfree.chart.axis.AxisLocation;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.axis.ValueAxis;
+import org.jfree.chart.plot.Marker;
 import org.jfree.chart.plot.ValueMarker;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.ui.Layer;
@@ -46,11 +47,19 @@ public final class XYPlots {
     public static final Font DEFAULT_FONT = new Font("Verdana", Font.PLAIN, HiDPI.scale(9));
 
     private static final UnsafeField<List<XYAnnotation>> XYPLOT_ANNOTATIONS_FIELD;
+    private static final UnsafeField<Boolean> XYPLOT_RANGE_CROSSHAIR_LOCKED_ON_DATA_FIELD;
+    private static final UnsafeField<Boolean> XYPLOT_DOMAIN_CROSSHAIR_LOCKED_ON_DATA_FIELD;
 
     static {
         try {
             final Field xyPlotAnnotationsField = XYPlot.class.getDeclaredField("annotations");
             XYPLOT_ANNOTATIONS_FIELD = new UnsafeField<>(xyPlotAnnotationsField);
+
+            final Field rangeCrosshairLockedOnDataField = XYPlot.class.getDeclaredField("rangeCrosshairLockedOnData");
+            XYPLOT_RANGE_CROSSHAIR_LOCKED_ON_DATA_FIELD = new UnsafeField<>(rangeCrosshairLockedOnDataField);
+
+            final Field domainCrosshairLockedOnDataField = XYPlot.class.getDeclaredField("domainCrosshairLockedOnData");
+            XYPLOT_DOMAIN_CROSSHAIR_LOCKED_ON_DATA_FIELD = new UnsafeField<>(domainCrosshairLockedOnDataField);
         } catch (NoSuchFieldException | SecurityException e) {
             throw new RuntimeException(e);
         }
@@ -318,5 +327,21 @@ public final class XYPlots {
                 subplot.setRangePannable(false);
             }
         }
+    }
+
+    public static void removeDomainMarkerWithoutNotify(final XYPlot xyPlot, final Marker marker) {
+        xyPlot.removeDomainMarker(0, marker, Layer.FOREGROUND, false);
+    }
+
+    public static void removeRangeMarkerWithoutNotify(final XYPlot xyPlot, final Marker marker) {
+        xyPlot.removeRangeMarker(0, marker, Layer.FOREGROUND, false);
+    }
+
+    public static void setRangeCrosshairLockedOnData(final XYPlot xyPlot, final boolean lock) {
+        XYPLOT_RANGE_CROSSHAIR_LOCKED_ON_DATA_FIELD.put(xyPlot, lock);
+    }
+
+    public static void setDomainCrosshairLockedOnData(final XYPlot xyPlot, final boolean lock) {
+        XYPLOT_DOMAIN_CROSSHAIR_LOCKED_ON_DATA_FIELD.put(xyPlot, lock);
     }
 }
