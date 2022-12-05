@@ -213,14 +213,14 @@ public class PlotCrosshairHelper {
     private void disableCrosshair(final XYPlot subplot) {
         disableRangeCrosshair(subplot);
         XYPlots.setDomainCrosshairLockedOnData(subplot, false);
-        XYPlots.removeDomainMarkerWithoutNotify(subplot, domainCrosshairMarker);
-        XYPlots.removeDomainMarkerWithoutNotify(subplot, lastDomainCrosshairMarker);
+        XYPlots.removeDomainMarker(subplot, domainCrosshairMarker);
+        XYPlots.removeDomainMarker(subplot, lastDomainCrosshairMarker);
     }
 
     private void disableRangeCrosshair(final XYPlot subplot) {
         XYPlots.setRangeCrosshairLockedOnData(subplot, false);
-        XYPlots.removeRangeMarkerWithoutNotify(subplot, rangeCrosshairMarkerRight);
-        XYPlots.removeRangeMarkerWithoutNotify(subplot, rangeCrosshairMarkerLeft);
+        XYPlots.removeRangeMarker(subplot, rangeCrosshairMarkerRight);
+        XYPlots.removeRangeMarker(subplot, rangeCrosshairMarkerLeft);
     }
 
     public void datasetChanged() {

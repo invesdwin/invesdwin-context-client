@@ -55,11 +55,11 @@ public final class XYPlots {
             final Field xyPlotAnnotationsField = XYPlot.class.getDeclaredField("annotations");
             XYPLOT_ANNOTATIONS_FIELD = new UnsafeField<>(xyPlotAnnotationsField);
 
-            final Field rangeCrosshairLockedOnDataField = XYPlot.class.getDeclaredField("rangeCrosshairLockedOnData");
-            XYPLOT_RANGE_CROSSHAIR_LOCKED_ON_DATA_FIELD = new UnsafeField<>(rangeCrosshairLockedOnDataField);
+            final Field xyPlotRangeCrosshairLockedOnDataField = XYPlot.class.getDeclaredField("rangeCrosshairLockedOnData");
+            XYPLOT_RANGE_CROSSHAIR_LOCKED_ON_DATA_FIELD = new UnsafeField<>(xyPlotRangeCrosshairLockedOnDataField);
 
-            final Field domainCrosshairLockedOnDataField = XYPlot.class.getDeclaredField("domainCrosshairLockedOnData");
-            XYPLOT_DOMAIN_CROSSHAIR_LOCKED_ON_DATA_FIELD = new UnsafeField<>(domainCrosshairLockedOnDataField);
+            final Field xyPlotDomainCrosshairLockedOnDataField = XYPlot.class.getDeclaredField("domainCrosshairLockedOnData");
+            XYPLOT_DOMAIN_CROSSHAIR_LOCKED_ON_DATA_FIELD = new UnsafeField<>(xyPlotDomainCrosshairLockedOnDataField);
         } catch (NoSuchFieldException | SecurityException e) {
             throw new RuntimeException(e);
         }
@@ -329,19 +329,19 @@ public final class XYPlots {
         }
     }
 
-    public static void removeDomainMarkerWithoutNotify(final XYPlot xyPlot, final Marker marker) {
+    public static void removeDomainMarker(final XYPlot xyPlot, final Marker marker) {
         xyPlot.removeDomainMarker(0, marker, Layer.FOREGROUND, false);
     }
 
-    public static void removeRangeMarkerWithoutNotify(final XYPlot xyPlot, final Marker marker) {
+    public static void removeRangeMarker(final XYPlot xyPlot, final Marker marker) {
         xyPlot.removeRangeMarker(0, marker, Layer.FOREGROUND, false);
     }
 
-    public static void setRangeCrosshairLockedOnData(final XYPlot xyPlot, final boolean lock) {
-        XYPLOT_RANGE_CROSSHAIR_LOCKED_ON_DATA_FIELD.put(xyPlot, lock);
+    public static void setRangeCrosshairLockedOnData(final XYPlot xyPlot, final boolean flag) {
+        XYPLOT_RANGE_CROSSHAIR_LOCKED_ON_DATA_FIELD.put(xyPlot, flag);
     }
 
-    public static void setDomainCrosshairLockedOnData(final XYPlot xyPlot, final boolean lock) {
-        XYPLOT_DOMAIN_CROSSHAIR_LOCKED_ON_DATA_FIELD.put(xyPlot, lock);
+    public static void setDomainCrosshairLockedOnData(final XYPlot xyPlot, final boolean flag) {
+        XYPLOT_DOMAIN_CROSSHAIR_LOCKED_ON_DATA_FIELD.put(xyPlot, flag);
     }
 }
