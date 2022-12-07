@@ -513,7 +513,7 @@ public class PlotNavigationHelper {
     public void mouseReleased(final MouseEvent e) {
         dragging = false;
         mouseMoved(e); //update when configuration popup becomes invisible
-        if (e.getButton() != MouseEvent.BUTTON1) {
+        if (e.getButton() != MouseEvent.BUTTON1 && e.getButton() != MouseEvent.BUTTON2) {
             return;
         }
         if (stopButtonTimer()) {
@@ -526,14 +526,14 @@ public class PlotNavigationHelper {
             final XYIconAnnotationEntity l = (XYIconAnnotationEntity) entityForPoint;
             final XYIconAnnotation iconAnnotation = getIconAnnotation(l);
             if (iconAnnotation == reset) {
-                if (e.isControlDown()) {
+                if (e.isControlDown() || e.isShiftDown() || e.getButton() == MouseEvent.BUTTON2) {
                     chartPanel.reloadData();
                 } else {
                     chartPanel.resetRange(chartPanel.getInitialVisibleItemCount());
                 }
                 Axises.resetAllAutoRanges(chartPanel);
                 XYPlots.resetAllRangePannables(chartPanel);
-            } else if (iconAnnotation == configure) {
+            } else if (iconAnnotation == configure && e.getButton() == MouseEvent.BUTTON1) {
                 chartPanel.getPlotConfigurationHelper().displayPopupMenu(mouseX, mouseY);
             }
         }
