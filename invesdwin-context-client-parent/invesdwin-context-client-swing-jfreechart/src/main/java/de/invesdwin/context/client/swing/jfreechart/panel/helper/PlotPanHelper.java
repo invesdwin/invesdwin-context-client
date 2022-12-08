@@ -98,6 +98,10 @@ public class PlotPanHelper {
     }
 
     public void mousePressed(final MouseEvent e) {
+        if (chartPanel.getPlotLegendHelper().isHighlighting()) {
+            // If we are hovering over a LegendItem we don't want to pan on the plot.
+            return;
+        }
         panStartPlot = XYPlots.getSubplot(chartPanel, e);
         XYPlots.disableRangePannables(chartPanel, panStartPlot);
         maybeHandleDomainAxisReset(e);
@@ -123,5 +127,9 @@ public class PlotPanHelper {
 
     public XYPlot getPanStartPlot() {
         return panStartPlot;
+    }
+
+    public boolean isPanning() {
+        return panStartPlot != null;
     }
 }

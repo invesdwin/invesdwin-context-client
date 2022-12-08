@@ -133,7 +133,7 @@ public class PlotLegendHelper {
     public void mouseReleased(final MouseEvent e) {
         mouseMoved(e); //update highlighted element
         if (e.getButton() == MouseEvent.BUTTON1) {
-            if (!dragging) {
+            if (!dragging && !chartPanel.getPlotPanHelper().isPanning()) {
                 toggleDatasetVisibility(e);
             }
             if (dragStart != null) {
