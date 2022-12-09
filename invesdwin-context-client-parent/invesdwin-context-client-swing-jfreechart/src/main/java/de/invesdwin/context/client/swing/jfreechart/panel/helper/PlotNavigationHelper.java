@@ -148,6 +148,11 @@ public class PlotNavigationHelper {
     }
 
     public void mouseDragged(final MouseEvent e) {
+        //Don't show the navbar when we are panning a plot or MouseDragZoom on an axis
+        if (chartPanel.getPlotPanHelper().isPanning() || chartPanel.getPlotZoomHelper().isMouseDragZooming()) {
+            return;
+        }
+
         final int mouseX = e.getX();
         final int mouseY = e.getY();
         unhighlight(mouseX, mouseY);

@@ -523,4 +523,8 @@ public class PlotZoomHelper {
             xyPlot.setRangePannable(!Axises.isEveryAxisAutoRange(xyPlot));
         }
     }
+
+    public boolean isMouseDragZooming() {
+        return axisDragInfo != null;
+    }
 }
