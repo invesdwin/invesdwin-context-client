@@ -180,7 +180,8 @@ public final class Axises {
      */
     public static Axis getAxisForMousePosition(final InteractiveChartPanel chartPanel, final Point2D point) {
         final PlotRenderingInfo plotInfo = chartPanel.getChartPanel().getChartRenderingInfo().getPlotInfo();
-        if (!plotInfo.getDataArea().contains(point) && plotInfo.getPlotArea().contains(point)) {
+        if (plotInfo.getDataArea() != null && !plotInfo.getDataArea().contains(point) && plotInfo.getPlotArea() != null
+                && plotInfo.getPlotArea().contains(point)) {
             if (Axises.getSubplotIndexFromPlotArea(chartPanel, point) == -1) {
                 return Axis.DOMAIN_AXIS;
             } else {
