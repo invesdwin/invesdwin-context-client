@@ -124,7 +124,7 @@ public final class Axises {
         if (Axis.DOMAIN_AXIS.equals(axis)) {
             final ValueAxis domainAxis = chartPanel.getCombinedPlot().getDomainAxis();
             final double roundedPlotWidth = Math.round(plotRenderingInfo.getPlotArea().getWidth());
-            return new AxisDragInfo(point2D, domainAxis, roundedPlotWidth, axis);
+            return new AxisDragInfo(point2D, domainAxis, roundedPlotWidth, axis, plotRenderingInfo);
         } else if (Axis.RANGE_AXIS.equals(axis)) {
             final int subplotIndex = Axises.getSubplotIndexFromPlotArea(chartPanel, point2D);
             final ValueAxis rangeAxis = getRangeAxis(chartPanel, point2D, subplotIndex);

@@ -487,15 +487,24 @@ public class PlotZoomHelper {
             newRange = new Range(autoCentralValue - halfLength + adjustedCentralValueOffset,
                     autoCentralValue + halfLength + adjustedCentralValueOffset);
         } else {
-            final double halfLength = range.getLength() * zoomFactor / 2;
-            newRange = new Range(range.getCentralValue() - halfLength, range.getCentralValue() + halfLength);
+            final double domainAnchor = axisDragInfo.getDomainAnchor();
+            final double left = domainAnchor - range.getLowerBound();
+            final double right = range.getUpperBound() - domainAnchor;
+            newRange = new Range(domainAnchor - left * zoomFactor, domainAnchor + right * zoomFactor);
+
             final Range limitRange = getLimitRange(newRange);
             if (limitRange != null) {
-                return new Range(Math.max(newRange.getLowerBound(), limitRange.getLowerBound()),
-                        Math.min(newRange.getUpperBound(), limitRange.getUpperBound()));
+                try {
+                    return new Range(Math.max(newRange.getLowerBound(), limitRange.getLowerBound()),
+                            Math.min(newRange.getUpperBound(), limitRange.getUpperBound()));
+                } catch (final IllegalArgumentException e) {
+                    //For some reason it can happen that lowerBound > upperBound here and the Exception is thrown.
+                    //Probably happens when getLimitRange appended/prepended more data.
+                    return newRange;
+                }
+
             }
         }
-
         return newRange;
     }
 

@@ -5,6 +5,8 @@ import java.awt.geom.Point2D;
 import javax.annotation.concurrent.NotThreadSafe;
 
 import org.jfree.chart.axis.ValueAxis;
+import org.jfree.chart.plot.PlotRenderingInfo;
+import org.jfree.chart.ui.RectangleEdge;
 import org.jfree.data.Range;
 
 import de.invesdwin.context.client.swing.jfreechart.plot.Axis;
@@ -19,17 +21,20 @@ public class AxisDragInfo {
     private double plotWidth;
     private double plotHeight;
     private final Axis axis;
+    private double domainAnchor;
 
     /**
      * Constructor for Domain-AxisDragInfo since we don't need a subplotindex here.
      */
     public AxisDragInfo(final Point2D initialDragPoint, final ValueAxis valueAxis, final double plotWidth,
-            final Axis axis) {
+            final Axis axis, final PlotRenderingInfo plotInfo) {
         this.initialDragPoint = initialDragPoint;
         this.initalAxisRange = valueAxis.getRange();
         this.valueAxis = valueAxis;
         this.plotWidth = plotWidth;
         this.axis = axis;
+        this.domainAnchor = valueAxis.java2DToValue(initialDragPoint.getX(), plotInfo.getDataArea(),
+                RectangleEdge.BOTTOM);
     }
 
     /**
@@ -95,6 +100,10 @@ public class AxisDragInfo {
 
     public Axis getAxis() {
         return axis;
+    }
+
+    public double getDomainAnchor() {
+        return domainAnchor;
     }
 
 }
