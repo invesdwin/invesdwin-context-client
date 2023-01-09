@@ -60,7 +60,7 @@ public class HeapIndicatorView extends AView<HeapIndicatorView, JPanel> {
 
     private void calculateProgressbarPreferredSize() {
         final Dimension pgbPreferredSize = new Dimension();
-        pgbPreferredSize.height = HiDPI.scale(HeapIndicator.FONT_SIZE + 2);
+        pgbPreferredSize.height = HiDPI.scale(HeapIndicator.FONT_SIZE + 4);
         pgbPreferredSize.width = pgbPreferredSize.height * 7;
         pgbHeapIndicator.setPreferredSize(pgbPreferredSize);
     }

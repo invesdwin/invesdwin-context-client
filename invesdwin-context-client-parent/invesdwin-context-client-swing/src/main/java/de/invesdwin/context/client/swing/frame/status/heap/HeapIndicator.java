@@ -31,7 +31,7 @@ import de.invesdwin.util.time.duration.Duration;
 @NotThreadSafe
 public class HeapIndicator extends JProgressBar {
 
-    public static final int FONT_SIZE = 11;
+    public static final int FONT_SIZE = 10;
 
     private static final int TIMER_INTERVAL_IN_MS = new Duration(1, FTimeUnit.SECONDS).intValue(FTimeUnit.MILLISECONDS);
 
