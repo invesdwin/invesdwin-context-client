@@ -90,7 +90,7 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
     @Override
     public synchronized void setChartPanel(final InteractiveChartPanel chartPanel) {
         this.chartPanel = chartPanel;
-        chartPanel.getPlotZoomHelper().getRangeListeners().add(new LimitRangeListenerImpl());
+        chartPanel.getPlotZoomHelper().getRangeListeners().add(new DataLoadingLimitRangeListener());
     }
 
     @Override
@@ -610,7 +610,7 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
         return getData().get(i);
     }
 
-    private final class LimitRangeListenerImpl implements IRangeListener {
+    private final class DataLoadingLimitRangeListener implements IRangeListener {
 
         @Override
         public Range beforeLimitRange(final Range range, final MutableBoolean rangeChanged) {

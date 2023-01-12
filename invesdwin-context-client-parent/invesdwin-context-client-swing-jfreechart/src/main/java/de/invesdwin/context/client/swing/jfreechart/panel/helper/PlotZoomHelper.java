@@ -33,6 +33,7 @@ import de.invesdwin.context.client.swing.jfreechart.panel.helper.listener.IRange
 import de.invesdwin.context.client.swing.jfreechart.plot.Axis;
 import de.invesdwin.context.client.swing.jfreechart.plot.Axises;
 import de.invesdwin.context.client.swing.jfreechart.plot.annotation.priceline.XYPriceLineAnnotation;
+import de.invesdwin.context.client.swing.jfreechart.plot.dataset.IndexedDateTimeOHLCDataset;
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.list.IChartPanelAwareDatasetList;
 import de.invesdwin.context.jfreechart.dataset.TimeRangedOHLCDataItem;
 import de.invesdwin.util.collections.factory.ILockCollectionFactory;
@@ -40,6 +41,7 @@ import de.invesdwin.util.collections.fast.IFastIterableSet;
 import de.invesdwin.util.lang.string.Strings;
 import de.invesdwin.util.math.Doubles;
 import de.invesdwin.util.time.Instant;
+import de.invesdwin.util.time.date.FDate;
 import de.invesdwin.util.time.date.FTimeUnit;
 import de.invesdwin.util.time.duration.Duration;
 
@@ -414,7 +416,7 @@ public class PlotZoomHelper {
         if (axis != null && Axis.RANGE_AXIS.equals(axis)) {
             final ValueAxis rangeAxis = axisDragInfo != null ? axisDragInfo.getValueAxis()
                     : Axises.getRangeAxis(chartPanel, point2D);
-            maybeHandleRangeAxisReset(e, rangeAxis, point2D);
+            maybeHandleRangeAxisReset(e, rangeAxis);
         }
     }
 
@@ -456,10 +458,23 @@ public class PlotZoomHelper {
                 ? axisDragInfo.getInitialDragPoint().getX()
                 : axisDragInfo.getInitialDragPoint().getY();
         final double newDragPoint = Axis.DOMAIN_AXIS.equals(axisDragInfo.getAxis()) ? point2D.getX() : point2D.getY();
-
         final double axisRangeChange = initialDragPoint - newDragPoint;
-        final Range range = axisDragInfo.getInitalAxisRange();
+
         final ValueAxis valueAxis = axisDragInfo.getValueAxis();
+        final XYPlot xyPlot = (XYPlot) valueAxis.getPlot();
+        final IndexedDateTimeOHLCDataset dataset = (IndexedDateTimeOHLCDataset) xyPlot.getDataset();
+        final Range range;
+        if (Axis.DOMAIN_AXIS.equals(axisDragInfo.getAxis())) {
+            // When we zoom on the domain axis it can happen that we reload/expand the dataset.. in which case the initialRange will point at invalid dates. When we zoom on the range-axis this won't ever be needed.
+            final int lowerBoundIndex = dataset.getDateTimeStartAsItemIndex(0,
+                    axisDragInfo.getInitialAxisLowerBoundFDate());
+            final int upperBoundIndex = dataset.getDateTimeStartAsItemIndex(0,
+                    axisDragInfo.getInitialAxisUpperBoundFDate());
+            range = new Range(dataset.getXValue(0, lowerBoundIndex), dataset.getXValue(0, upperBoundIndex));
+        } else {
+            range = axisDragInfo.getInitialAxisRange();
+        }
+
         if (axisRangeChange == 0.0D) {
             return null;
         }
@@ -487,7 +502,10 @@ public class PlotZoomHelper {
             newRange = new Range(autoCentralValue - halfLength + adjustedCentralValueOffset,
                     autoCentralValue + halfLength + adjustedCentralValueOffset);
         } else {
-            final double domainAnchor = axisDragInfo.getDomainAnchor();
+            //We work with the FDate as anchor because in case more Data gets loaded into the Dataset the double value will point at a different date so that the Zoom would make an unwanted jump in its range.
+            final FDate domainAnchorFDate = axisDragInfo.getDomainAnchorFDate();
+            final int itemIndex = dataset.getDateTimeStartAsItemIndex(0, domainAnchorFDate);
+            final double domainAnchor = dataset.getXValue(0, itemIndex);
             final double left = domainAnchor - range.getLowerBound();
             final double right = range.getUpperBound() - domainAnchor;
             newRange = new Range(domainAnchor - left * zoomFactor, domainAnchor + right * zoomFactor);
@@ -511,7 +529,7 @@ public class PlotZoomHelper {
     /**
      * Range axis resets on Double-Left-Click or Single-Middle-Mouse-Button-Click (Scrollwheel).
      */
-    private void maybeHandleRangeAxisReset(final MouseEvent e, final ValueAxis rangeAxis, final Point2D point2D) {
+    private void maybeHandleRangeAxisReset(final MouseEvent e, final ValueAxis rangeAxis) {
         //Double-Click on the axis
         if (rangeAxis != null && ((MouseEvent.BUTTON1 == e.getButton() && e.getClickCount() == 2)
                 || MouseEvent.BUTTON2 == e.getButton())) {

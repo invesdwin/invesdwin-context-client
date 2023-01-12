@@ -6,35 +6,51 @@ import javax.annotation.concurrent.NotThreadSafe;
 
 import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.plot.PlotRenderingInfo;
+import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.ui.RectangleEdge;
 import org.jfree.data.Range;
 
 import de.invesdwin.context.client.swing.jfreechart.plot.Axis;
+import de.invesdwin.context.client.swing.jfreechart.plot.dataset.IndexedDateTimeOHLCDataset;
+import de.invesdwin.util.time.date.FDate;
 
 @NotThreadSafe
 public class AxisDragInfo {
 
     private Point2D initialDragPoint;
-    private Range initalAxisRange;
+    private final Range initialAxisRange;
+    private FDate initialAxisLowerBoundFDate;
+    private FDate initialAxisUpperBoundFDate;
     private ValueAxis valueAxis;
     private Integer subplotIndex;
     private double plotWidth;
     private double plotHeight;
     private final Axis axis;
-    private double domainAnchor;
+    private FDate domainAnchorFDate;
 
     /**
      * Constructor for Domain-AxisDragInfo since we don't need a subplotindex here.
      */
     public AxisDragInfo(final Point2D initialDragPoint, final ValueAxis valueAxis, final double plotWidth,
             final Axis axis, final PlotRenderingInfo plotInfo) {
+        final Double domainAnchor = valueAxis.java2DToValue(initialDragPoint.getX(), plotInfo.getDataArea(),
+                RectangleEdge.BOTTOM);
+        final XYPlot xyPlot = (XYPlot) valueAxis.getPlot();
+        final IndexedDateTimeOHLCDataset dataset = (IndexedDateTimeOHLCDataset) xyPlot.getDataset();
+
         this.initialDragPoint = initialDragPoint;
-        this.initalAxisRange = valueAxis.getRange();
+        this.initialAxisRange = valueAxis.getRange();
+        this.initialAxisLowerBoundFDate = dataset.getXDate(0,
+                Double.valueOf(Math.round(valueAxis.getRange().getLowerBound())).intValue());
+        this.initialAxisUpperBoundFDate = dataset.getXDate(0,
+                Double.valueOf(Math.round(valueAxis.getRange().getUpperBound())).intValue());
+
         this.valueAxis = valueAxis;
         this.plotWidth = plotWidth;
         this.axis = axis;
-        this.domainAnchor = valueAxis.java2DToValue(initialDragPoint.getX(), plotInfo.getDataArea(),
-                RectangleEdge.BOTTOM);
+
+        //We get the StartTime here.. the EndTime would be more intuitive but the difference is very un-noticable (especially when zoomed out).
+        this.domainAnchorFDate = dataset.getXDate(0, Double.valueOf(Math.round(domainAnchor)).intValue());
     }
 
     /**
@@ -43,7 +59,7 @@ public class AxisDragInfo {
     public AxisDragInfo(final Point2D initialDragPoint, final ValueAxis valueAxis, final Integer subplotIndex,
             final double plotHeight, final Axis axis) {
         this.initialDragPoint = initialDragPoint;
-        this.initalAxisRange = valueAxis.getRange();
+        this.initialAxisRange = valueAxis.getRange();
         this.valueAxis = valueAxis;
         this.subplotIndex = subplotIndex;
         this.plotHeight = plotHeight;
@@ -58,12 +74,8 @@ public class AxisDragInfo {
         this.initialDragPoint = initialDragPoint;
     }
 
-    public Range getInitalAxisRange() {
-        return initalAxisRange;
-    }
-
-    public void setInitalAxisRange(final Range initalAxisRange) {
-        this.initalAxisRange = initalAxisRange;
+    public Range getInitialAxisRange() {
+        return initialAxisRange;
     }
 
     public ValueAxis getValueAxis() {
@@ -102,8 +114,23 @@ public class AxisDragInfo {
         return axis;
     }
 
-    public double getDomainAnchor() {
-        return domainAnchor;
+    public FDate getDomainAnchorFDate() {
+        return domainAnchorFDate;
     }
 
+    public FDate getInitialAxisLowerBoundFDate() {
+        return initialAxisLowerBoundFDate;
+    }
+
+    public void setInitialAxisLowerBoundFDate(final FDate initialAxisLowerBoundFDate) {
+        this.initialAxisLowerBoundFDate = initialAxisLowerBoundFDate;
+    }
+
+    public FDate getInitialAxisUpperBoundFDate() {
+        return initialAxisUpperBoundFDate;
+    }
+
+    public void setInitialAxisUpperBoundFDate(final FDate initialAxisUpperBoundFDate) {
+        this.initialAxisUpperBoundFDate = initialAxisUpperBoundFDate;
+    }
 }
