@@ -24,6 +24,8 @@ import org.jfree.data.Range;
 import org.jfree.data.general.DatasetChangeEvent;
 import org.jfree.data.general.DatasetChangeListener;
 
+import com.google.common.util.concurrent.Runnables;
+
 import de.invesdwin.aspects.EventDispatchThreadUtil;
 import de.invesdwin.context.client.swing.jfreechart.panel.basis.CustomChartPanel;
 import de.invesdwin.context.client.swing.jfreechart.panel.basis.CustomCombinedDomainXYPlot;
@@ -245,10 +247,14 @@ public class InteractiveChartPanel extends JPanel {
     }
 
     public void resetRange(final int visibleItemCount) {
-        resetRangeRetry(visibleItemCount, true);
+        resetRange(visibleItemCount, Runnables.doNothing());
     }
 
-    private void resetRangeRetry(final int visibleItemCount, final boolean retryAllowed) {
+    public void resetRange(final int visibleItemCount, final Runnable followUp) {
+        resetRangeRetry(visibleItemCount, followUp, true);
+    }
+
+    private void resetRangeRetry(final int visibleItemCount, final Runnable followUp, final boolean retryAllowed) {
         if (masterDataset.getItemCount(0) > 0) {
             final FDate firstItemDate = masterDataset.getData().get(0).getStartTime();
             final FDate lastItemDate = masterDataset.getData().get(masterDataset.getItemCount(0) - 1).getStartTime();
@@ -266,7 +272,7 @@ public class InteractiveChartPanel extends JPanel {
                                 @Override
                                 public void run() {
                                     //retry only once
-                                    resetRangeRetry(visibleItemCount, false);
+                                    resetRangeRetry(visibleItemCount, followUp, false);
                                 }
                             });
                         } catch (final InterruptedException e) {
@@ -274,11 +280,14 @@ public class InteractiveChartPanel extends JPanel {
                         }
                     }
                 });
+            } else {
+                followUp.run();
             }
         } else {
             beforeResetRange();
             doResetRange(visibleItemCount);
             update();
+            followUp.run();
         }
     }
 

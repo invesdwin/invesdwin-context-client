@@ -531,9 +531,13 @@ public class PlotNavigationHelper {
             final XYIconAnnotationEntity l = (XYIconAnnotationEntity) entityForPoint;
             final XYIconAnnotation iconAnnotation = getIconAnnotation(l);
             if (iconAnnotation == reset) {
-                chartPanel.getPlotPanHelper().panLive(e);
                 if (e.isControlDown() || e.isShiftDown() || e.getButton() == MouseEvent.BUTTON2) {
-                    chartPanel.reloadData();
+                    if (e.isControlDown() && e.isShiftDown()) {
+                        //only reload data, no reset range to the right
+                        chartPanel.reloadData();
+                    } else {
+                        chartPanel.resetRange(chartPanel.getInitialVisibleItemCount(), () -> chartPanel.reloadData());
+                    }
                 } else {
                     chartPanel.resetRange(chartPanel.getInitialVisibleItemCount());
                 }
