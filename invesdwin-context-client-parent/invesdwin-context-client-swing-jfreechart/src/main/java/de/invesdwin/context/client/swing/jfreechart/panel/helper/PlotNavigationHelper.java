@@ -476,13 +476,6 @@ public class PlotNavigationHelper {
                         chartPanel.getPlotPanHelper().panRight();
                     }
                 };
-            } else if (annotation == panLive) {
-                action = new ActionListener() {
-                    @Override
-                    public void actionPerformed(final ActionEvent ae) {
-                        chartPanel.getPlotPanHelper().panLive(e);
-                    }
-                };
             } else if (annotation == zoomIn) {
                 action = new ActionListener() {
                     @Override
@@ -516,7 +509,7 @@ public class PlotNavigationHelper {
     public void mouseReleased(final MouseEvent e) {
         mouseMoved(e); //update when configuration popup becomes invisible
 
-        if (e.getButton() != MouseEvent.BUTTON1 && e.getButton() != MouseEvent.BUTTON2) {
+        if (e.getButton() != MouseEvent.BUTTON1 && e.getButton() != MouseEvent.BUTTON2 || (chartPanel.isDragging())) {
             return;
         }
         if (stopButtonTimer()) {
@@ -543,6 +536,8 @@ public class PlotNavigationHelper {
                 XYPlots.resetAllRangePannables(chartPanel);
             } else if (iconAnnotation == configure && e.getButton() == MouseEvent.BUTTON1) {
                 chartPanel.getPlotConfigurationHelper().displayPopupMenu(mouseX, mouseY);
+            } else if (iconAnnotation == panLive) {
+                chartPanel.getPlotPanHelper().panLive(e);
             }
         }
     }
