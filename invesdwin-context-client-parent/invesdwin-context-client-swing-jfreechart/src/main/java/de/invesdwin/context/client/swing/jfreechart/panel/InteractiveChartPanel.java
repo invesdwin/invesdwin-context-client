@@ -92,6 +92,7 @@ public class InteractiveChartPanel extends JPanel {
     private final InteractiveChartPanelFinalizer finalizer;
 
     private boolean initialized = false;
+    private boolean dragging = false;
 
     public InteractiveChartPanel(final IndexedDateTimeOHLCDataset masterDataset) {
         this.masterDataset = masterDataset;
@@ -565,6 +566,8 @@ public class InteractiveChartPanel extends JPanel {
                 plotNavigationHelper.mouseReleased(e);
                 plotZoomHelper.mouseReleased(e);
                 plotPanHelper.mouseReleased(e);
+
+                dragging = false;
             } catch (final Throwable t) {
                 Err.process(new Exception("Ignoring", t));
             }
@@ -608,6 +611,7 @@ public class InteractiveChartPanel extends JPanel {
         @Override
         public void mouseDragged(final MouseEvent e) {
             try {
+                dragging = true;
                 if (plotConfigurationHelper.isShowing() || isUpdating()) {
                     return;
                 }
@@ -754,4 +758,7 @@ public class InteractiveChartPanel extends JPanel {
         return initialized;
     }
 
+    public boolean isDragging() {
+        return dragging;
+    }
 }

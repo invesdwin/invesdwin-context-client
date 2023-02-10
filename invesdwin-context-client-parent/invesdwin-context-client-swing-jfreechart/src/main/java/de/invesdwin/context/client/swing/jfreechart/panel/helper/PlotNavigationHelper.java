@@ -80,7 +80,6 @@ public class PlotNavigationHelper {
 
     private XYNoteIconAnnotation noteShowingIconAnnotation;
     private XYPlot noteShowingOnPlot;
-    private boolean dragging = false;
     private boolean panLiveVisible = false;
     private boolean panLiveHighlighted = false;
 
@@ -163,7 +162,7 @@ public class PlotNavigationHelper {
         final int mouseY = e.getY();
         final XYNoteIconAnnotation highlightedNoteIconAnnotation = findHighlightedNoteIconAnnotation(mouseX, mouseY);
 
-        if (highlightedNoteIconAnnotation != null && !dragging) {
+        if (highlightedNoteIconAnnotation != null && !chartPanel.isDragging()) {
             final XYNoteIconAnnotation noteShowingIconAnnotationCopy = noteShowingIconAnnotation;
             if (noteShowingIconAnnotationCopy == null
                     || noteShowingIconAnnotationCopy != highlightedNoteIconAnnotation) {
@@ -456,7 +455,6 @@ public class PlotNavigationHelper {
         if (e.getButton() != MouseEvent.BUTTON1) {
             return;
         }
-        dragging = true;
         final int mouseX = e.getX();
         final int mouseY = e.getY();
         final ChartEntity entityForPoint = chartPanel.getChartPanel().getEntityForPoint(mouseX, mouseY);
@@ -516,8 +514,8 @@ public class PlotNavigationHelper {
     }
 
     public void mouseReleased(final MouseEvent e) {
-        dragging = false;
         mouseMoved(e); //update when configuration popup becomes invisible
+
         if (e.getButton() != MouseEvent.BUTTON1 && e.getButton() != MouseEvent.BUTTON2) {
             return;
         }
