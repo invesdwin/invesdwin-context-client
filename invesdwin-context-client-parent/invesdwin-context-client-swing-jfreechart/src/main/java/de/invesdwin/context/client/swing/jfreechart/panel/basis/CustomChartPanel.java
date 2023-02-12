@@ -19,6 +19,7 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
+import java.util.function.Function;
 
 import javax.annotation.concurrent.NotThreadSafe;
 import javax.swing.JPanel;
@@ -41,6 +42,7 @@ import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.plot.Zoomable;
 import org.jfree.data.Range;
 
+import de.invesdwin.context.client.swing.jfreechart.plot.Axises;
 import de.invesdwin.context.log.error.Err;
 import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.math.decimal.scaled.Percent;
@@ -514,7 +516,7 @@ public class CustomChartPanel extends JPanel implements ChartChangeListener, Cha
     }
 
     public void setAllowedRangeGap(final int allowedRangeGapMinimum, final Percent allowedRangeGapPercent) {
-        this.allowedRangeGapMinimum = 5;
+        this.allowedRangeGapMinimum = allowedRangeGapMinimum;
         this.allowedRangeGapRate = allowedRangeGapPercent.getValue(PercentScale.RATE);
     }
 
@@ -1074,14 +1076,23 @@ public class CustomChartPanel extends JPanel implements ChartChangeListener, Cha
                 if (wPercent < 0 && range.getLowerBound() <= 0 - gap) {
                     return;
                 }
+
                 final boolean old = chart.getPlot().isNotify();
                 chart.getPlot().setNotify(false);
                 final Pannable p = (Pannable) chart.getPlot();
                 if (p.getOrientation() == PlotOrientation.VERTICAL) {
-                    p.panDomainAxes(wPercent, info.getPlotInfo(), panLast);
+                    final Range pannedDomainRange = Axises.calculatePannedRange(wPercent, range);
+                    final Range limitDomainRange = getLimitDomainRange(pannedDomainRange);
+                    chart.getXYPlot()
+                            .getDomainAxis()
+                            .setRange(limitDomainRange != null ? limitDomainRange : pannedDomainRange);
                     p.panRangeAxes(hPercent, info.getPlotInfo(), panLast);
                 } else {
-                    p.panDomainAxes(hPercent, info.getPlotInfo(), panLast);
+                    final Range pannedDomainRange = Axises.calculatePannedRange(hPercent, range);
+                    final Range limitDomainRange = getLimitDomainRange(pannedDomainRange);
+                    chart.getXYPlot()
+                            .getDomainAxis()
+                            .setRange(limitDomainRange != null ? limitDomainRange : pannedDomainRange);
                     p.panRangeAxes(wPercent, info.getPlotInfo(), panLast);
                 }
                 panLast = e.getPoint();
@@ -1113,4 +1124,13 @@ public class CustomChartPanel extends JPanel implements ChartChangeListener, Cha
         }
     }
 
+    protected Function<Range, Range> getLimitDomainRangeFunction() {
+        //By default there is no limitingRangeFunction (except the configured allowedRangeGap).
+        return null;
+    }
+
+    private Range getLimitDomainRange(final Range range) {
+        final Function<Range, Range> limitDomainRangeFunction = getLimitDomainRangeFunction();
+        return limitDomainRangeFunction != null ? limitDomainRangeFunction.apply(range) : null;
+    }
 }

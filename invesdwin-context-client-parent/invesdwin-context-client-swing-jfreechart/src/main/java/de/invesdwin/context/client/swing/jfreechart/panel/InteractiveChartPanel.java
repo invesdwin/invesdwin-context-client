@@ -11,6 +11,7 @@ import java.awt.event.MouseWheelEvent;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Function;
 
 import javax.annotation.concurrent.NotThreadSafe;
 import javax.swing.JPanel;
@@ -159,6 +160,10 @@ public class InteractiveChartPanel extends JPanel {
                 }
             }
 
+            @Override
+            protected Function<Range, Range> getLimitDomainRangeFunction() {
+                return plotZoomHelper::getLimitRange;
+            }
         };
 
         new JFreeChartLocaleChanger().process(chart);

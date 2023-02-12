@@ -282,4 +282,16 @@ public final class Axises {
         return null;
     }
     //CHECKSTYLE:ON
+
+    /**
+     * Pans a given range via a percentage (the same way ValueAxis.pan(double percent) would do it) and returns the
+     * panned range.
+     */
+
+    public static Range calculatePannedRange(final double percent, final Range originalRange) {
+        final double adj = originalRange.getLength() * percent;
+        final double lower = originalRange.getLowerBound() + adj;
+        final double upper = originalRange.getUpperBound() + adj;
+        return new Range(lower, upper);
+    }
 }
