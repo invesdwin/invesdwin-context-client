@@ -19,7 +19,6 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Line2D;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
-import java.util.function.Function;
 
 import javax.annotation.concurrent.NotThreadSafe;
 import javax.swing.JPanel;
@@ -1081,18 +1080,12 @@ public class CustomChartPanel extends JPanel implements ChartChangeListener, Cha
                 chart.getPlot().setNotify(false);
                 final Pannable p = (Pannable) chart.getPlot();
                 if (p.getOrientation() == PlotOrientation.VERTICAL) {
-                    final Range pannedDomainRange = Axises.calculatePannedRange(wPercent, range);
-                    final Range limitDomainRange = getLimitDomainRange(pannedDomainRange);
-                    chart.getXYPlot()
-                            .getDomainAxis()
-                            .setRange(limitDomainRange != null ? limitDomainRange : pannedDomainRange);
+                    final Range domainRange = maybeLimitDomainRange(Axises.calculatePannedRange(wPercent, range));
+                    chart.getXYPlot().getDomainAxis().setRange(domainRange);
                     p.panRangeAxes(hPercent, info.getPlotInfo(), panLast);
                 } else {
-                    final Range pannedDomainRange = Axises.calculatePannedRange(hPercent, range);
-                    final Range limitDomainRange = getLimitDomainRange(pannedDomainRange);
-                    chart.getXYPlot()
-                            .getDomainAxis()
-                            .setRange(limitDomainRange != null ? limitDomainRange : pannedDomainRange);
+                    final Range domainRange = maybeLimitDomainRange(Axises.calculatePannedRange(hPercent, range));
+                    chart.getXYPlot().getDomainAxis().setRange(domainRange);
                     p.panRangeAxes(wPercent, info.getPlotInfo(), panLast);
                 }
                 panLast = e.getPoint();
@@ -1124,13 +1117,8 @@ public class CustomChartPanel extends JPanel implements ChartChangeListener, Cha
         }
     }
 
-    protected Function<Range, Range> getLimitDomainRangeFunction() {
-        //By default there is no limitingRangeFunction (except the configured allowedRangeGap).
-        return null;
-    }
-
-    private Range getLimitDomainRange(final Range range) {
-        final Function<Range, Range> limitDomainRangeFunction = getLimitDomainRangeFunction();
-        return limitDomainRangeFunction != null ? limitDomainRangeFunction.apply(range) : null;
+    //By default there is no limitingRangeFunction (except the configured allowedRangeGap).
+    protected Range maybeLimitDomainRange(final Range range) {
+        return range;
     }
 }
