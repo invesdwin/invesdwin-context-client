@@ -60,7 +60,7 @@
 		<version.miglayout>5.2</version.miglayout>
 		<version.designgridlayout>1.11</version.designgridlayout>
 
-		<version.eclipse-swt>3.111.0</version.eclipse-swt>
+		<version.eclipse-swt>3.122.0</version.eclipse-swt>
 		<version.eclipse-jface>3.16.0</version.eclipse-jface>
 		<version.eclipse-commands>3.9.400</version.eclipse-commands>
 		<version.eclipse-common>3.10.400</version.eclipse-common>

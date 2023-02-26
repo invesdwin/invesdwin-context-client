@@ -28,7 +28,7 @@
 	<!-- different profile by maven's command line argument -P -->
 	<profiles>
 		<profile>
-			<id>linux64</id>
+			<id>linux_amd64</id>
 			<activation>
 				<os>
 					<family>linux</family>
@@ -40,7 +40,19 @@
 			</properties>
 		</profile>
 		<profile>
-			<id>mac64</id>
+			<id>linux_aarch64</id>
+			<activation>
+				<os>
+					<family>linux</family>
+					<arch>aarch64</arch>
+				</os>
+			</activation>
+			<properties>
+				<swt.artifactId>org.eclipse.swt.gtk.linux.aarch64</swt.artifactId>
+			</properties>
+		</profile>
+		<profile>
+			<id>mac_x86_64</id>
 			<activation>
 				<os>
 					<family>mac</family>
@@ -52,7 +64,19 @@
 			</properties>
 		</profile>
 		<profile>
-			<id>win64</id>
+			<id>mac_aarch64</id>
+			<activation>
+				<os>
+					<family>mac</family>
+					<arch>aarch64</arch>
+				</os>
+			</activation>
+			<properties>
+				<swt.artifactId>org.eclipse.swt.cocoa.macosx.aarch64</swt.artifactId>
+			</properties>
+		</profile>
+		<profile>
+			<id>win_amd64</id>
 			<activation>
 				<os>
 					<family>windows</family>
