@@ -62,7 +62,11 @@ public class SwtLibraryLoaderInstrumentationHook implements IInstrumentationHook
 
         final String swtFileNameArchSuffix;
         if (osArch.contains("64")) {
-            swtFileNameArchSuffix = ".x86_64";
+            if (osArch.contains("aarch")) {
+                swtFileNameArchSuffix = ".aarch64";
+            } else {
+                swtFileNameArchSuffix = ".x86_64";
+            }
         } else {
             swtFileNameArchSuffix = osName.contains("mac") ? "" : ".x86";
         }

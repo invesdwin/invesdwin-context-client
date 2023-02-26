@@ -81,7 +81,17 @@
 								</artifactItem>
 								<artifactItem>
 									<groupId>org.eclipse.platform</groupId>
+									<artifactId>org.eclipse.swt.cocoa.macosx.aarch64</artifactId>
+									<version>${version.eclipse-swt}</version>
+								</artifactItem>
+								<artifactItem>
+									<groupId>org.eclipse.platform</groupId>
 									<artifactId>org.eclipse.swt.gtk.linux.x86_64</artifactId>
+									<version>${version.eclipse-swt}</version>
+								</artifactItem>
+								<artifactItem>
+									<groupId>org.eclipse.platform</groupId>
+									<artifactId>org.eclipse.swt.gtk.linux.aarch64</artifactId>
 									<version>${version.eclipse-swt}</version>
 								</artifactItem>
 								<artifactItem>
