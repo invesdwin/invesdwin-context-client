@@ -4,6 +4,8 @@ public interface ISlaveLazyDatasetListener {
 
     void appendItems(int appendCount);
 
+    void maybeUpdateOnIdleAppendItems();
+
     void prependItems(int prependCount);
 
     void loadIinitialItems(boolean eager);

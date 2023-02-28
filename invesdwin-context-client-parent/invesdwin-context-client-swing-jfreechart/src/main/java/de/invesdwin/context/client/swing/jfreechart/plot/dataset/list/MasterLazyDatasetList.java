@@ -573,6 +573,14 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
         }
     }
 
+    private void maybeUpdateOnIdleAppendItemsSlaves() {
+        if (!slaveDatasetListeners.isEmpty()) {
+            for (final ISlaveLazyDatasetListener slave : slaveDatasetListeners) {
+                slave.maybeUpdateOnIdleAppendItems();
+            }
+        }
+    }
+
     private List<MasterOHLCDataItem> prependMaster(final int prependCount) {
         final List<MasterOHLCDataItem> prependItems = new ArrayList<>(prependCount);
         final List<MasterOHLCDataItem> data = getData();
@@ -730,6 +738,7 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
             }
             return true;
         } else {
+            maybeUpdateOnIdleAppendItemsSlaves();
             return false;
         }
     }

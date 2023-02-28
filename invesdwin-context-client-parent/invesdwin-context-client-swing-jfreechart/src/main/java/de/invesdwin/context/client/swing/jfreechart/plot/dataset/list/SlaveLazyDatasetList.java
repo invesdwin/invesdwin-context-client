@@ -32,6 +32,11 @@ public class SlaveLazyDatasetList extends ALazyDatasetList<SlaveXYDataItemOHLC> 
     }
 
     @Override
+    public void maybeUpdateOnIdleAppendItems() {
+        //noop
+    }
+
+    @Override
     public synchronized void appendItems(final int appendCount) {
         //invalidate two elements to reload them
         final List<SlaveXYDataItemOHLC> data = getData();

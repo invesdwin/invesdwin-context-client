@@ -6,31 +6,27 @@ import javax.annotation.concurrent.Immutable;
 public class SlaveLazyDatasetListenerSupport implements ISlaveLazyDatasetListener {
 
     @Override
-    public void removeStartItems(final int tooManyBefore) {
-    }
+    public void removeStartItems(final int tooManyBefore) {}
 
     @Override
-    public void removeMiddleItems(final int index, final int count) {
-    }
+    public void removeMiddleItems(final int index, final int count) {}
 
     @Override
-    public void removeEndItems(final int tooManyAfter) {
-    }
+    public void removeEndItems(final int tooManyAfter) {}
 
     @Override
-    public void appendItems(final int appendCount) {
-    }
+    public void appendItems(final int appendCount) {}
 
     @Override
-    public void prependItems(final int prependCount) {
-    }
+    public void maybeUpdateOnIdleAppendItems() {}
 
     @Override
-    public void loadIinitialItems(final boolean eager) {
-    }
+    public void prependItems(final int prependCount) {}
 
     @Override
-    public void afterLoadItems(final boolean async) {
-    }
+    public void loadIinitialItems(final boolean eager) {}
+
+    @Override
+    public void afterLoadItems(final boolean async) {}
 
 }
