@@ -75,6 +75,7 @@ public class AnnotationPlottingDataset extends AbstractXYDataset implements IAnn
 
     private long prevFirstLoadedKeyMillis;
     private long prevLastLoadedKeyMillis;
+    private final List<AnnotationItem> reusableTailList = new ArrayList<AnnotationItem>();
 
     public AnnotationPlottingDataset(final String seriesKey, final IndexedDateTimeOHLCDataset masterDataset) {
         Assertions.checkNotNull(seriesKey);
@@ -313,18 +314,21 @@ public class AnnotationPlottingDataset extends AbstractXYDataset implements IAnn
         return false;
     }
 
+    /**
+     * Only a single thread at a time should iterate over getVisibleItems.
+     */
     @Override
     public ICloseableIterable<AAnnotationPlottingDataItem> getVisibleItems(final int firstItem, final int lastItem) {
         final long fromMillis = (long) masterDataset.getXValueAsDateTimeStart(0, firstItem);
-        final List<AnnotationItem> tail;
+        reusableTailList.clear();
         itemsLock.lock();
         try {
-            tail = new ArrayList<>(items.tailSet(new AnnotationItem(fromMillis, "", null)));
+            reusableTailList.addAll(items.tailSet(new AnnotationItem(fromMillis, "", null)));
         } finally {
             itemsLock.unlock();
         }
         final ATransformingIterable<AnnotationItem, AAnnotationPlottingDataItem> transforming = new ATransformingIterable<AnnotationItem, AAnnotationPlottingDataItem>(
-                WrapperCloseableIterable.maybeWrap(tail)) {
+                WrapperCloseableIterable.maybeWrap(reusableTailList)) {
             @Override
             protected AAnnotationPlottingDataItem transform(final AnnotationItem value) {
                 return value.getAnnotation();
