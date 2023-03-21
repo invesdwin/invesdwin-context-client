@@ -28,6 +28,7 @@ public class TableSelectionBinding extends AComponentBinding<JTable, List<?>> {
     private final GeneratedTableModel tableModel;
     private final GeneratedTableSelectionModel selectionModel;
     private List<Integer> prevSelectedIndexesInModel = Collections.emptyList();
+    private List<Integer> prevSelectedIndexesInTable = Collections.emptyList();
     private boolean selectionUpdating = false;
     private boolean valueIsAdjusting = false;
     private boolean mouse1Down = false;
@@ -87,11 +88,10 @@ public class TableSelectionBinding extends AComponentBinding<JTable, List<?>> {
                         return;
                     }
                     if (eagerSubmitRunnable != null) {
-                        final List<Integer> selectedIndexesInModel = prevSelectedIndexesInModel;
-                        final List<Integer> selectedIndexesInTable = getSelectedIndexesInTable();
-                        if (!Objects.equals(selectedIndexesInModel, selectedIndexesInTable)) {
+                        final List<Integer> selectedIndexesInTableNew = getSelectedIndexesInTable();
+                        if (!Objects.equals(prevSelectedIndexesInTable, selectedIndexesInTableNew)) {
                             eagerSubmitRunnable.run();
-                            prevSelectedIndexesInModel = selectedIndexesInTable;
+                            prevSelectedIndexesInTable = selectedIndexesInTableNew;
                             valueIsAdjusting = false;
                         }
                     }
