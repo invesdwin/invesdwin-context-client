@@ -191,6 +191,7 @@ public class TableSelectionBinding extends AComponentBinding<JTable, List<?>> {
     @Override
     protected void resetCaches() {
         prevSelectedIndexesInModel = Collections.emptyList();
+        prevSelectedIndexesInTable = Collections.emptyList();
     }
 
 }
