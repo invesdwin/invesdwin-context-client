@@ -60,6 +60,7 @@ import de.invesdwin.util.lang.reflection.Reflections;
 import de.invesdwin.util.lang.string.UniqueNameGenerator;
 import de.invesdwin.util.math.expression.IExpression;
 import de.invesdwin.util.math.expression.eval.BooleanConstantExpression;
+import de.invesdwin.util.math.expression.eval.ConstantExpression;
 import de.invesdwin.util.math.expression.eval.EnumerationExpression;
 import de.invesdwin.util.math.expression.multiple.MultipleExpressionParser;
 import de.invesdwin.util.time.date.FDate;
@@ -515,7 +516,7 @@ public class LazyCandlestickDemo extends JFrame {
 
                 @Override
                 public IExpression getDefaultValue() {
-                    return BooleanConstantExpression.FALSE;
+                    return new ConstantExpression(2D);
                 }
             }, new IIndicatorSeriesParameter() {
 
