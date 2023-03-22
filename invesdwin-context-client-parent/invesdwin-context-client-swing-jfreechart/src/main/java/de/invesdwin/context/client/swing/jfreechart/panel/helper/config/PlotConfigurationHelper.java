@@ -477,9 +477,10 @@ public class PlotConfigurationHelper {
         });
     }
 
-    public void displayPopupMenu(final int x, final int y) {
+    public void displayPopupMenu(final MouseEvent e) {
         chartPanel.getChartPanel().setCursor(PlotResizeHelper.DEFAULT_CURSOR);
-        this.popupMenu.show(chartPanel, x, y);
+        this.mousePositionOnPopupMenu = this.chartPanel.getChartPanel().translateScreenToJava2D(e.getPoint());
+        this.popupMenu.show(chartPanel, e.getX(), e.getY());
     }
 
     public void copyToClipboard() {
@@ -521,9 +522,7 @@ public class PlotConfigurationHelper {
     public void mouseReleased(final MouseEvent e) {
         if (e.isPopupTrigger()) {
             this.mousePositionOnPopupMenu = this.chartPanel.getChartPanel().translateScreenToJava2D(e.getPoint());
-            displayPopupMenu(e.getX(), e.getY());
-        } else {
-            this.mousePositionOnPopupMenu = null;
+            displayPopupMenu(e);
         }
     }
 

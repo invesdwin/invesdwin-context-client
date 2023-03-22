@@ -535,7 +535,7 @@ public class PlotNavigationHelper {
                 Axises.resetAllAutoRanges(chartPanel);
                 XYPlots.resetAllRangePannables(chartPanel);
             } else if (iconAnnotation == configure && e.getButton() == MouseEvent.BUTTON1) {
-                chartPanel.getPlotConfigurationHelper().displayPopupMenu(mouseX, mouseY);
+                chartPanel.getPlotConfigurationHelper().displayPopupMenu(e);
             } else if (iconAnnotation == panLive) {
                 chartPanel.getPlotPanHelper().panLive(e);
             }
