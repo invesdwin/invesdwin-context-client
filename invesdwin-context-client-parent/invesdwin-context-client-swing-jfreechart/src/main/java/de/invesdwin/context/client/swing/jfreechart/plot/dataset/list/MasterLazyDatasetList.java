@@ -672,7 +672,7 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
         rangeListeners.add(rangeListener);
     }
 
-    public synchronized boolean update(final FDate lastTickTime, final boolean pendingUpdates) {
+    public synchronized boolean update(final FDate lastTickTime) {
         if (executor.getPendingCount() > 0) {
             //wait for lazy loading to finish
             return false;
@@ -683,7 +683,7 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
             return !data.isEmpty();
         }
         final Range rangeBefore = chartPanel.getDomainAxis().getRange();
-        final boolean isTrailing = pendingUpdates || isTrailingRange(rangeBefore);
+        final boolean isTrailing = isTrailingRange(rangeBefore);
         if (!isTrailing) {
             return false;
         }
