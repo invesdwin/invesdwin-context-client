@@ -6,6 +6,7 @@ import javax.swing.ActionMap;
 
 import org.jdesktop.application.ResourceMap;
 
+import de.invesdwin.context.client.swing.frame.RichApplicationProperties;
 import de.invesdwin.context.client.swing.frame.app.DelegateRichApplication;
 import de.invesdwin.context.log.Log;
 import de.invesdwin.norva.beanpath.annotation.Hidden;
@@ -25,7 +26,7 @@ public abstract class AModel extends AValueObject {
     private ActionMap actionMap;
 
     public AModel() {
-        resourceMap = DelegateRichApplication.getInstance().getContext().getResourceMap(this.getClass());
+        resourceMap = RichApplicationProperties.getDesignTimeApplication().getContext().getResourceMap(this.getClass());
         resourceMap.injectFields(this);
     }
 
