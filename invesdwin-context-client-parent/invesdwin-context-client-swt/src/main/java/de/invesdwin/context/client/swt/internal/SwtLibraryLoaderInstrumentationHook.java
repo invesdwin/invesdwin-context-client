@@ -30,7 +30,7 @@ public class SwtLibraryLoaderInstrumentationHook implements IInstrumentationHook
     public void instrument(final Instrumentation instrumentation) {
         if (!Reflections.classExists(SWT_CLASS)) {
             final String jarPath = getSwtPlatformDependentJarPath();
-            final File destination = new File(DynamicInstrumentationProperties.TEMP_DIRECTORY, jarPath);
+            final File destination = new File(DynamicInstrumentationProperties.PROCESS_TEMP_DIRECTORY, jarPath);
             try (InputStream source = SwtLibraryLoaderInstrumentationHook.class.getResourceAsStream(jarPath)) {
                 if (source == null) {
                     throw new IllegalStateException("Jar file [" + jarPath + "] not found on classpath!");
