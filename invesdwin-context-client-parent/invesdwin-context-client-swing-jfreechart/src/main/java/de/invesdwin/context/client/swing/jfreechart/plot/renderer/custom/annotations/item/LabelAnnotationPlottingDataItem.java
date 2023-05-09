@@ -1,5 +1,7 @@
 package de.invesdwin.context.client.swing.jfreechart.plot.renderer.custom.annotations.item;
 
+import java.util.function.Supplier;
+
 import javax.annotation.concurrent.NotThreadSafe;
 
 import org.jfree.chart.ui.TextAnchor;
@@ -14,14 +16,14 @@ public class LabelAnnotationPlottingDataItem extends AAnnotationPlottingDataItem
 
     private final FDate time;
     private final double price;
-    private final String label;
+    private final Supplier<String> label;
     private final LabelHorizontalAlignType labelHorizontalAlign;
     private final LabelVerticalAlignType labelVerticalAlign;
     private boolean itemLoaded;
     private int timeLoadedIndex = Integer.MIN_VALUE;
 
     public LabelAnnotationPlottingDataItem(final String annotationId, final FDate time, final double price,
-            final String label, final LabelHorizontalAlignType labelHorizontalAlign,
+            final Supplier<String> label, final LabelHorizontalAlignType labelHorizontalAlign,
             final LabelVerticalAlignType labelVerticalAlign) {
         super(annotationId);
         this.time = time;
@@ -39,7 +41,7 @@ public class LabelAnnotationPlottingDataItem extends AAnnotationPlottingDataItem
         return price;
     }
 
-    public String getLabel() {
+    public Supplier<String> getLabel() {
         return label;
     }
 
