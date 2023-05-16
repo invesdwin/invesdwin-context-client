@@ -58,6 +58,7 @@ import de.invesdwin.util.swing.listener.MouseListenerSupport;
 import de.invesdwin.util.swing.listener.MouseMotionListenerSupport;
 import de.invesdwin.util.swing.listener.MouseWheelListenerSupport;
 import de.invesdwin.util.time.date.FDate;
+import de.invesdwin.util.time.date.FDates;
 import de.invesdwin.util.time.date.FTimeUnit;
 import de.invesdwin.util.time.duration.Duration;
 import de.invesdwin.util.time.range.TimeRange;
@@ -84,8 +85,8 @@ public class InteractiveChartPanel extends JPanel {
     private final PlotZoomHelper plotZoomHelper;
     private final PlotPanHelper plotPanHelper;
     private final MouseMotionListener mouseMotionListener;
-    private FDate lastHorizontalScroll = FDate.MIN_DATE;
-    private FDate lastVerticalScroll = FDate.MIN_DATE;
+    private FDate lastHorizontalScroll = FDates.MIN_DATE;
+    private FDate lastVerticalScroll = FDates.MIN_DATE;
     private final AtomicInteger updatingCount = new AtomicInteger();
     private final ILock paintLock = Locks.newReentrantLock(InteractiveChartPanel.class.getSimpleName() + "_paintLock");
 
