@@ -10,11 +10,12 @@ import de.invesdwin.util.collections.iterable.buffer.BufferingIterator;
 import de.invesdwin.util.collections.iterable.buffer.EmptyBufferingIterator;
 import de.invesdwin.util.collections.iterable.buffer.IBufferingIterator;
 import de.invesdwin.util.time.date.FDate;
+import de.invesdwin.util.time.date.FDates;
 
 @NotThreadSafe
 public class MasterOHLCDataItem extends MutableOHLCDataItem {
 
-    public static final MasterOHLCDataItem DUMMY_VALUE = new MasterOHLCDataItem(FDate.MIN_DATE, FDate.MIN_DATE) {
+    public static final MasterOHLCDataItem DUMMY_VALUE = new MasterOHLCDataItem(FDates.MIN_DATE, FDates.MIN_DATE) {
 
         @Override
         public void setStartTime(final FDate startTime) {

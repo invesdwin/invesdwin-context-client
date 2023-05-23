@@ -290,7 +290,7 @@ public class CustomOrderPlottingRenderer extends AbstractXYItemRenderer
                 final OrderPlottingDataItem next = visibleItems.next();
                 drawLine(g2, dataArea, info, plot, domainAxis, rangeAxis, rendererIndex, rangeAxisFormat, domainEdge,
                         rangeEdge, lineWidth, next);
-                final String note = next.getNote();
+                final String note = next.getNote().get();
                 if (Strings.isNotBlank(note)) {
                     final int noteIndex = next.getOpenTimeLoadedIndex();
                     List<String> notes = index_notes.get(noteIndex);
@@ -347,7 +347,7 @@ public class CustomOrderPlottingRenderer extends AbstractXYItemRenderer
         lineAnnotation.draw(g2, plot, dataArea, ABSOLUTE_AXIS, ABSOLUTE_AXIS, rendererIndex, null);
 
         if (!closed) {
-            final String label = next.getLabel();
+            final String label = next.getLabel().get();
             if (Strings.isNotBlank(label)) {
                 final XYTextAnnotation labelAnnotation = new XYTextAnnotation(label, x2 - 1D, y2 - 1D);
                 labelAnnotation.setPaint(color);

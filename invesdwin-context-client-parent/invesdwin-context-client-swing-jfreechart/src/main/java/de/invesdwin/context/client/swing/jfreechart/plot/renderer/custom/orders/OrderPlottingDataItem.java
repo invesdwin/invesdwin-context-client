@@ -1,5 +1,7 @@
 package de.invesdwin.context.client.swing.jfreechart.plot.renderer.custom.orders;
 
+import java.util.function.Supplier;
+
 import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.time.date.FDate;
@@ -15,8 +17,8 @@ public class OrderPlottingDataItem {
     private final boolean profit;
     private final boolean pending;
     private final String orderId;
-    private final String label;
-    private final String note;
+    private final Supplier<String> label;
+    private final Supplier<String> note;
     private boolean itemLoaded;
     private int openTimeLoadedIndex = Integer.MIN_VALUE;
     private int closeTimeLoadedIndex = Integer.MIN_VALUE;
@@ -24,7 +26,7 @@ public class OrderPlottingDataItem {
     //CHECKSTYLE:OFF
     public OrderPlottingDataItem(final double openPrice, final FDate openTime, final FDate closeTime,
             final double closePrice, final boolean closed, final boolean profit, final boolean pending,
-            final String orderId, final String label, final String note) {
+            final String orderId, final Supplier<String> label, final Supplier<String> note) {
         //CHECKSTYLE:ON
         this.openPrice = openPrice;
         this.openTime = openTime;
@@ -70,11 +72,11 @@ public class OrderPlottingDataItem {
         return orderId;
     }
 
-    public String getLabel() {
+    public Supplier<String> getLabel() {
         return label;
     }
 
-    public String getNote() {
+    public Supplier<String> getNote() {
         return note;
     }
 

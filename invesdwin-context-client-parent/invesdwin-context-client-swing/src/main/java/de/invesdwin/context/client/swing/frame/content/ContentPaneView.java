@@ -33,6 +33,7 @@ import de.invesdwin.util.swing.listener.KeyListenerSupport;
 import de.invesdwin.util.swing.listener.MouseListenerSupport;
 import de.invesdwin.util.time.Instant;
 import de.invesdwin.util.time.date.FDate;
+import de.invesdwin.util.time.date.FDates;
 
 @NotThreadSafe
 public class ContentPaneView extends AView<ContentPaneView, JPanel> {
@@ -45,7 +46,7 @@ public class ContentPaneView extends AView<ContentPaneView, JPanel> {
     private boolean shiftDown;
     private boolean altDown;
     private boolean altGraphDown;
-    private long lastMouseClickTime = FDate.MIN_DATE.millisValue();
+    private long lastMouseClickTime = FDates.MIN_DATE.millisValue();
     @SuppressWarnings("deprecation")
     private long lastMouseClickInstant = Instant.DUMMY.nanosValue();
 

@@ -1,5 +1,7 @@
 package de.invesdwin.context.client.swing.jfreechart.plot.renderer.custom.annotations.item;
 
+import java.util.function.Supplier;
+
 import javax.annotation.concurrent.NotThreadSafe;
 
 import org.jfree.chart.ui.TextAnchor;
@@ -8,6 +10,7 @@ import de.invesdwin.context.client.swing.jfreechart.plot.renderer.custom.annotat
 import de.invesdwin.context.client.swing.jfreechart.plot.renderer.custom.annotations.LabelHorizontalAlignType;
 import de.invesdwin.context.client.swing.jfreechart.plot.renderer.custom.annotations.LabelVerticalAlignType;
 import de.invesdwin.util.time.date.FDate;
+import de.invesdwin.util.time.date.FDates;
 
 @NotThreadSafe
 public class LineAnnotationPlottingDataItem extends AAnnotationPlottingDataItem {
@@ -16,7 +19,7 @@ public class LineAnnotationPlottingDataItem extends AAnnotationPlottingDataItem 
     private final double startPrice;
     private final FDate endTime;
     private final double endPrice;
-    private final String label;
+    private final Supplier<String> label;
     private final LabelHorizontalAlignType labelHorizontalAlign;
     private final LabelVerticalAlignType labelVerticalAlign;
     private boolean itemLoaded;
@@ -27,7 +30,7 @@ public class LineAnnotationPlottingDataItem extends AAnnotationPlottingDataItem 
 
     //CHECKSTYLE:OFF
     public LineAnnotationPlottingDataItem(final String annotationId, final FDate startTime, final double startPrice,
-            final FDate endTime, final double endPrice, final String label,
+            final FDate endTime, final double endPrice, final Supplier<String> label,
             final LabelHorizontalAlignType labelHorizontalAlign, final LabelVerticalAlignType labelVerticalAlign) {
         //CHECKSTYLE:ON
         super(annotationId);
@@ -58,7 +61,7 @@ public class LineAnnotationPlottingDataItem extends AAnnotationPlottingDataItem 
         return endPrice;
     }
 
-    public String getLabel() {
+    public Supplier<String> getLabel() {
         return label;
     }
 
@@ -131,7 +134,7 @@ public class LineAnnotationPlottingDataItem extends AAnnotationPlottingDataItem 
     }
 
     private double newStartPriceLoaded(final AnnotationPlottingDataset dataset) {
-        if (FDate.MIN_DATE.equals(startTime) || FDate.MAX_DATE.equals(endTime)) {
+        if (FDates.MIN_DATE.equals(startTime) || FDates.MAX_DATE.equals(endTime)) {
             //no limited time range
             return startPrice;
         }
@@ -156,7 +159,7 @@ public class LineAnnotationPlottingDataItem extends AAnnotationPlottingDataItem 
     }
 
     private double newEndPriceLoaded(final AnnotationPlottingDataset dataset) {
-        if (FDate.MIN_DATE.equals(startTime) || FDate.MAX_DATE.equals(endTime)) {
+        if (FDates.MIN_DATE.equals(startTime) || FDates.MAX_DATE.equals(endTime)) {
             //no limited time range
             return endPrice;
         }

@@ -165,7 +165,7 @@ public class CustomAnnotationPlottingRenderer extends AbstractXYItemRenderer imp
         final XYLineAnnotation lineAnnotation = new XYLineAnnotation(x1, y1, x2, y2, stroke, color);
         lineAnnotation.draw(g2, plot, dataArea, ABSOLUTE_AXIS, ABSOLUTE_AXIS, rendererIndex, null);
 
-        final String label = next.getLabel();
+        final String label = next.getLabel().get();
         if (Strings.isNotBlank(label)) {
             final TextAnchor textAnchor = next.getLabelTextAnchor();
             final double labelX = getLineLabelX(next, x1, x2);
@@ -234,7 +234,7 @@ public class CustomAnnotationPlottingRenderer extends AbstractXYItemRenderer imp
         final double x = domainAxis.valueToJava2D(next.getStartTimeLoadedIndex(), dataArea, domainEdge);
         final double price = next.getPrice();
         final double y = rangeAxis.valueToJava2D(price, dataArea, rangeEdge);
-        final String label = next.getLabel();
+        final String label = next.getLabel().get();
         final TextAnchor textAnchor = next.getLabelTextAnchor();
 
         final XYTextAnnotation priceAnnotation = new XYTextAnnotation(label, x, y);
