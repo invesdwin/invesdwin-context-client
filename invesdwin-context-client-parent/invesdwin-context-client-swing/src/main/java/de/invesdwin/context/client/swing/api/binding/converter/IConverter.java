@@ -1,5 +1,7 @@
 package de.invesdwin.context.client.swing.api.binding.converter;
 
+import java.text.ParseException;
+
 import de.invesdwin.norva.beanpath.impl.clazz.BeanClassType;
 import de.invesdwin.norva.beanpath.spi.element.APropertyBeanPathElement;
 
@@ -7,7 +9,7 @@ public interface IConverter<M, C> {
 
     C fromModelToComponent(M value);
 
-    M fromComponentToModel(C value);
+    M fromComponentToModel(C value) throws ParseException;
 
     static IConverter<Object, String> newConverter(final APropertyBeanPathElement element) {
         final BeanClassType type = element.getModifier().getBeanClassAccessor().getType();

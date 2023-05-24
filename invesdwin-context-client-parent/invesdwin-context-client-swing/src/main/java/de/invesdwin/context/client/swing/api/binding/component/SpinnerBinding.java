@@ -1,8 +1,8 @@
 package de.invesdwin.context.client.swing.api.binding.component;
 
 import java.awt.event.FocusEvent;
-import java.text.ParseException;
 import java.util.Optional;
+import java.util.concurrent.Future;
 
 import javax.annotation.concurrent.NotThreadSafe;
 import javax.swing.JFormattedTextField;
@@ -20,6 +20,9 @@ import de.invesdwin.context.client.swing.api.binding.converter.IConverter;
 import de.invesdwin.context.client.swing.api.binding.converter.NumberToNumberConverter;
 import de.invesdwin.norva.beanpath.spi.element.APropertyBeanPathElement;
 import de.invesdwin.norva.beanpath.spi.element.simple.modifier.IBeanPathPropertyModifier;
+import de.invesdwin.util.concurrent.future.Futures;
+import de.invesdwin.util.concurrent.future.ImmutableFuture;
+import de.invesdwin.util.concurrent.future.ThrowableFuture;
 import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.lang.string.Strings;
 import de.invesdwin.util.math.decimal.Decimal;
@@ -37,10 +40,11 @@ import jakarta.validation.constraints.Min;
 public class SpinnerBinding extends AComponentBinding<JSpinner, Object> {
 
     private final IConverter<Object, Number> converter;
-    private Optional<Number> prevComponentValue;
+    private final SpinnerDecimalEditor editor;
+    private Future<Number> prevComponentValue;
     private boolean isFocusOwner = false;
     private boolean isSettingText = false;
-    private Optional<Number> pendingComponentValue;
+    private Future<Number> pendingComponentValue;
 
     public SpinnerBinding(final JSpinner component, final APropertyBeanPathElement element,
             final BindingGroup bindingGroup) {
@@ -51,7 +55,8 @@ public class SpinnerBinding extends AComponentBinding<JSpinner, Object> {
         model.setMinimum(determineMinimum());
         model.setMaximum(determineMaximum());
         component.setModel(model);
-        final SpinnerDecimalEditor editor = new SpinnerDecimalEditor(component, format);
+        this.editor = new SpinnerDecimalEditor(component, format);
+        editor.getTextField().setFocusLostBehavior(JFormattedTextField.COMMIT);
         component.setEditor(editor);
         this.converter = newConverter();
         if (eagerSubmitRunnable != null) {
@@ -80,12 +85,20 @@ public class SpinnerBinding extends AComponentBinding<JSpinner, Object> {
                         try {
                             final JFormattedTextField textField = editor.getTextField();
                             final AbstractFormatter formatter = textField.getFormatter();
-                            final Number formattedValue = (Number) formatter.stringToValue(textField.getText());
-                            pendingComponentValue = Optional.ofNullable(formattedValue);
-                            prevComponentValue = pendingComponentValue;
-                            eagerSubmitRunnable.run();
-                        } catch (final ParseException ex) {
-                            //ignore
+                            try {
+                                final Number formattedValue = (Number) formatter.stringToValue(textField.getText());
+                                pendingComponentValue = ImmutableFuture.of(formattedValue);
+                                prevComponentValue = pendingComponentValue;
+                            } catch (final Throwable t) {
+                                setInvalidMessage(exceptionToString(t));
+                                pendingComponentValue = ThrowableFuture.of(t);
+                            }
+                            final boolean prevStateChangeEventFiring = model.setStateChangeEventFiring(true);
+                            try {
+                                eagerSubmitRunnable.run();
+                            } finally {
+                                model.setStateChangeEventFiring(prevStateChangeEventFiring);
+                            }
                         } finally {
                             pendingComponentValue = null;
                         }
@@ -164,14 +177,14 @@ public class SpinnerBinding extends AComponentBinding<JSpinner, Object> {
         }
         final Number newComponentValue = converter.fromModelToComponent(modelValue);
         if (prevComponentValue == null || !Objects.equals(Decimal.valueOf(newComponentValue),
-                Decimal.valueOf(prevComponentValue.orElse(null)))) {
+                Decimal.valueOf(Futures.getNoInterrupt(prevComponentValue)))) {
             isSettingText = true;
             try {
                 Components.setValue(component, newComponentValue);
             } finally {
                 isSettingText = false;
             }
-            prevComponentValue = Optional.ofNullable(newComponentValue);
+            prevComponentValue = ImmutableFuture.of(newComponentValue);
             return Optional.ofNullable(modelValue);
         } else {
             return prevModelValue;
@@ -179,12 +192,18 @@ public class SpinnerBinding extends AComponentBinding<JSpinner, Object> {
     }
 
     @Override
-    protected Object fromComponentToModel() {
+    protected Object fromComponentToModel() throws Exception {
         final Number componentValue;
         if (pendingComponentValue != null) {
-            componentValue = pendingComponentValue.orElse(null);
+            componentValue = Futures.getRethrowingNoInterrupt(pendingComponentValue);
         } else {
-            componentValue = (Number) component.getValue();
+            /*
+             * always go through formatter to get a ParseException here (JSpinner will show the previous valid input
+             * instead)
+             */
+            final JFormattedTextField textField = editor.getTextField();
+            final AbstractFormatter formatter = textField.getFormatter();
+            componentValue = (Number) formatter.stringToValue(textField.getText());
         }
         final Object newModelValue = converter.fromComponentToModel(componentValue);
         return newModelValue;

@@ -86,7 +86,7 @@ public class TextComponentBinding extends AComponentBinding<JTextComponent, Obje
     }
 
     @Override
-    protected Object fromComponentToModel() {
+    protected Object fromComponentToModel() throws Exception {
         final String componentValue = component.getText();
         final Object newModelValue = converter.fromComponentToModel(componentValue);
         return newModelValue;

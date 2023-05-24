@@ -77,6 +77,9 @@ public class ComboBoxBinding extends AComponentBinding<JComboBox, Object> {
     @Override
     protected Object fromComponentToModel() {
         final int selectedIndex = component.getSelectedIndex();
+        if (component.isEditable() && selectedIndex < 0) {
+            return component.getEditor().getItem();
+        }
         return prevChoices.get(selectedIndex);
     }
 

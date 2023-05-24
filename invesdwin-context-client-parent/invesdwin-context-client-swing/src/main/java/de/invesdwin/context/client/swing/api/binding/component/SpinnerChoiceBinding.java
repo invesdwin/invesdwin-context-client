@@ -1,10 +1,10 @@
 package de.invesdwin.context.client.swing.api.binding.component;
 
 import java.awt.event.FocusEvent;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.Future;
 
 import javax.annotation.concurrent.NotThreadSafe;
 import javax.swing.JFormattedTextField;
@@ -20,6 +20,9 @@ import de.invesdwin.context.client.swing.api.binding.converter.IConverter;
 import de.invesdwin.norva.beanpath.spi.element.AChoiceBeanPathElement;
 import de.invesdwin.norva.beanpath.spi.element.simple.modifier.IBeanPathPropertyModifier;
 import de.invesdwin.util.collections.Collections;
+import de.invesdwin.util.concurrent.future.Futures;
+import de.invesdwin.util.concurrent.future.ImmutableFuture;
+import de.invesdwin.util.concurrent.future.ThrowableFuture;
 import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.swing.Components;
 import de.invesdwin.util.swing.listener.DocumentListenerSupport;
@@ -32,11 +35,12 @@ public class SpinnerChoiceBinding extends AComponentBinding<JSpinner, Object> {
 
     private final AChoiceBeanPathElement element;
     private final JSpinnerComparableChoiceModel model;
-    private Optional<Object> prevComponentValue;
+    private final JSpinnerFormattedEditor editor;
+    private Future<Object> prevComponentValue;
     private List<Object> prevChoices = Collections.emptyList();
     private boolean isFocusOwner = false;
     private boolean isSettingText = false;
-    private Optional<Object> pendingComponentValue;
+    private Future<Object> pendingComponentValue;
 
     public SpinnerChoiceBinding(final JSpinner component, final AChoiceBeanPathElement element,
             final BindingGroup bindingGroup) {
@@ -44,8 +48,8 @@ public class SpinnerChoiceBinding extends AComponentBinding<JSpinner, Object> {
         this.element = element;
         this.model = new JSpinnerComparableChoiceModel();
         component.setModel(model);
-        final JSpinnerFormattedEditor editor = new JSpinnerFormattedEditor(component,
-                new ConverterFormatter(newConverter()));
+        this.editor = new JSpinnerFormattedEditor(component, new ConverterFormatter(newConverter()));
+        editor.getTextField().setFocusLostBehavior(JFormattedTextField.COMMIT);
         component.setEditor(editor);
 
         if (eagerSubmitRunnable != null) {
@@ -73,18 +77,21 @@ public class SpinnerChoiceBinding extends AComponentBinding<JSpinner, Object> {
                         //we have to circumvent internal sync of JSpinner or else we get exceptions based on updates during locks
                         try {
                             final JFormattedTextField textField = editor.getTextField();
-                            final AbstractFormatter formatter = editor.getFormatter();
-                            final Object value = formatter.stringToValue(textField.getText());
-                            pendingComponentValue = Optional.ofNullable(value);
-                            prevComponentValue = pendingComponentValue;
+                            final AbstractFormatter formatter = textField.getFormatter();
+                            try {
+                                final Object value = formatter.stringToValue(textField.getText());
+                                pendingComponentValue = ImmutableFuture.of(value);
+                                prevComponentValue = pendingComponentValue;
+                            } catch (final Throwable t) {
+                                setInvalidMessage(exceptionToString(t));
+                                pendingComponentValue = ThrowableFuture.of(t);
+                            }
                             final boolean prevStateChangeEventFiring = model.setStateChangeEventFiring(true);
                             try {
                                 eagerSubmitRunnable.run();
                             } finally {
                                 model.setStateChangeEventFiring(prevStateChangeEventFiring);
                             }
-                        } catch (final ParseException ex) {
-                            //ignore
                         } finally {
                             pendingComponentValue = null;
                         }
@@ -127,14 +134,14 @@ public class SpinnerChoiceBinding extends AComponentBinding<JSpinner, Object> {
              */
             return Optional.ofNullable(modelValue);
         }
-        if (prevComponentValue == null || !Objects.equals(modelValue, prevComponentValue.orElse(null))) {
+        if (prevComponentValue == null || !Objects.equals(modelValue, Futures.getNoInterrupt(prevComponentValue))) {
             isSettingText = true;
             try {
                 Components.setValue(component, modelValue);
             } finally {
                 isSettingText = false;
             }
-            prevComponentValue = Optional.ofNullable(modelValue);
+            prevComponentValue = ImmutableFuture.of(modelValue);
             return Optional.ofNullable(modelValue);
         } else {
             return prevModelValue;
@@ -142,12 +149,18 @@ public class SpinnerChoiceBinding extends AComponentBinding<JSpinner, Object> {
     }
 
     @Override
-    protected Object fromComponentToModel() {
+    protected Object fromComponentToModel() throws Exception {
         final Object componentValue;
         if (pendingComponentValue != null) {
-            componentValue = pendingComponentValue.orElse(null);
+            componentValue = Futures.getRethrowingNoInterrupt(pendingComponentValue);
         } else {
-            componentValue = component.getValue();
+            /*
+             * always go through formatter to get a ParseException here (JSpinner will show the previous valid input
+             * instead)
+             */
+            final JFormattedTextField textField = editor.getTextField();
+            final AbstractFormatter formatter = textField.getFormatter();
+            componentValue = formatter.stringToValue(textField.getText());
         }
 
         return componentValue;

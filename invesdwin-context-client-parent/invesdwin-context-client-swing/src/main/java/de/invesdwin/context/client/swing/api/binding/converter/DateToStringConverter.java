@@ -48,24 +48,19 @@ public class DateToStringConverter implements IConverter<Object, String> {
     }
 
     @Override
-    public Object fromComponentToModel(final String value) {
+    public Object fromComponentToModel(final String value) throws ParseException {
         if (Strings.isBlank(value)) {
             return null;
         }
-        try {
-            final Date date = format.parse(value);
-            if (type == Date.class) {
-                return date;
-            } else if (type == Calendar.class) {
-                return new FDate(date).calendarValue();
-            } else if (type == FDate.class) {
-                return new FDate(date);
-            } else {
-                throw UnknownArgumentException.newInstance(Class.class, type);
-            }
-        } catch (final ParseException e) {
-            throw new RuntimeException(e);
+        final Date date = format.parse(value);
+        if (type == Date.class) {
+            return date;
+        } else if (type == Calendar.class) {
+            return new FDate(date).calendarValue();
+        } else if (type == FDate.class) {
+            return new FDate(date);
+        } else {
+            throw UnknownArgumentException.newInstance(Class.class, type);
         }
     }
-
 }

@@ -157,9 +157,12 @@ public abstract class AComponentBinding<C extends JComponent, V> implements ICom
                 prevModelValue = fromModelToComponent(updatedModelValue);
             }
             submitted = true;
+        } catch (final Exception e) {
+            setInvalidMessage(exceptionToString(e));
+            submitted = false;
         } catch (final Throwable t) {
             Err.process(t);
-            setInvalidMessage(t.getLocalizedMessage());
+            setInvalidMessage(exceptionToString(t));
             submitted = false;
         }
     }
@@ -174,18 +177,41 @@ public abstract class AComponentBinding<C extends JComponent, V> implements ICom
         if (!isModifiable()) {
             return invalidMessage;
         }
-        if (validateElement != null) {
-            invalidMessage = null;
-            showingInvalidMessage = null;
-            final AModel model = bindingGroup.getModel();
-            final V newModelValue = fromComponentToModel();
-            final String invalid = validateElement.validateFromRoot(model, newModelValue);
-            if (Strings.isNotBlank(invalid)) {
-                setInvalidMessage(invalid);
-                return invalidMessage;
-            }
+        invalidMessage = null;
+        showingInvalidMessage = null;
+        final AModel model = bindingGroup.getModel();
+        final String invalid = newInvalidMessage(model);
+        if (Strings.isNotBlank(invalid)) {
+            setInvalidMessage(invalid);
+            return invalidMessage;
         }
         return null;
+    }
+
+    private String newInvalidMessage(final AModel model) {
+        try {
+            final V newModelValue = fromComponentToModel();
+            if (validateElement != null) {
+                final String invalid = validateElement.validateFromRoot(model, newModelValue);
+                return invalid;
+            } else {
+                return null;
+            }
+        } catch (final Exception e) {
+            return exceptionToString(e);
+        } catch (final Throwable t) {
+            Err.process(t);
+            return exceptionToString(t);
+        }
+    }
+
+    protected String exceptionToString(final Throwable t) {
+        final String str = t.getLocalizedMessage();
+        if (Strings.isBlank(str)) {
+            return t.getClass().getSimpleName();
+        } else {
+            return str;
+        }
     }
 
     @Override
@@ -267,7 +293,7 @@ public abstract class AComponentBinding<C extends JComponent, V> implements ICom
             setValueFromRoot(model, prevModelValue.orElse(null));
         } catch (final Throwable t) {
             Err.process(t);
-            setInvalidMessage(t.getLocalizedMessage());
+            setInvalidMessage(exceptionToString(t));
         }
         submitted = false;
         showingInvalidMessage = invalidMessage;
@@ -349,7 +375,7 @@ public abstract class AComponentBinding<C extends JComponent, V> implements ICom
 
     protected abstract Optional<V> fromModelToComponent(V modelValue);
 
-    protected abstract V fromComponentToModel();
+    protected abstract V fromComponentToModel() throws Exception;
 
     protected String normalizeInvalidMessage(final String m) {
         String message = bindingGroup.i18n(m.trim());
