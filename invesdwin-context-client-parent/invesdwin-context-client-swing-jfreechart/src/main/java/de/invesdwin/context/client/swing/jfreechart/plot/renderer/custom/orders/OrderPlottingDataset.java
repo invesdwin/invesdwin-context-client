@@ -42,6 +42,7 @@ import de.invesdwin.util.concurrent.lock.ILock;
 import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.math.expression.IExpression;
 import de.invesdwin.util.time.date.FDate;
+import de.invesdwin.util.time.date.FDates;
 import de.invesdwin.util.time.range.TimeRange;
 
 @NotThreadSafe
@@ -242,7 +243,7 @@ public class OrderPlottingDataset extends AbstractXYDataset
         order.updateItemLoaded(firstLoadedKeyMillis, lastLoadedKeyMillis, trailingLoaded, this);
         FDate closeTime = order.getCloseTime();
         if (closeTime == null) {
-            closeTime = FDate.MAX_DATE;
+            closeTime = FDates.MAX_DATE;
         }
         final OrderItem item = new OrderItem(closeTime.millisValue(), order.getOrderId(), order);
         itemsLock.lock();

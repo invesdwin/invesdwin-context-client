@@ -379,7 +379,7 @@ public class PlotZoomHelper {
                 range = new Range(maxUpperBound - MIN_ZOOM_ITEM_COUNT, maxUpperBound);
             }
             if (range.getLowerBound() < minLowerBound) {
-                range = new Range(minLowerBound, MIN_ZOOM_ITEM_COUNT);
+                range = new Range(minLowerBound, minLowerBound + MIN_ZOOM_ITEM_COUNT);
             }
             rangeChanged.setTrue();
         }
@@ -398,7 +398,7 @@ public class PlotZoomHelper {
                     range = new Range(maxUpperBound - MAX_ZOOM_ITEM_COUNT, maxUpperBound);
                 }
                 if (range.getLowerBound() < minLowerBound) {
-                    range = new Range(minLowerBound, MAX_ZOOM_ITEM_COUNT);
+                    range = new Range(minLowerBound, minLowerBound + MAX_ZOOM_ITEM_COUNT);
                 }
             }
             rangeChanged.setTrue();

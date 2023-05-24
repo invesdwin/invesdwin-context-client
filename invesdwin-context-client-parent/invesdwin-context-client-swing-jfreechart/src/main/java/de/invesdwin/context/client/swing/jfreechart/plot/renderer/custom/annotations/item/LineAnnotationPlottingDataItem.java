@@ -10,6 +10,7 @@ import de.invesdwin.context.client.swing.jfreechart.plot.renderer.custom.annotat
 import de.invesdwin.context.client.swing.jfreechart.plot.renderer.custom.annotations.LabelHorizontalAlignType;
 import de.invesdwin.context.client.swing.jfreechart.plot.renderer.custom.annotations.LabelVerticalAlignType;
 import de.invesdwin.util.time.date.FDate;
+import de.invesdwin.util.time.date.FDates;
 
 @NotThreadSafe
 public class LineAnnotationPlottingDataItem extends AAnnotationPlottingDataItem {
@@ -133,7 +134,7 @@ public class LineAnnotationPlottingDataItem extends AAnnotationPlottingDataItem 
     }
 
     private double newStartPriceLoaded(final AnnotationPlottingDataset dataset) {
-        if (FDate.MIN_DATE.equals(startTime) || FDate.MAX_DATE.equals(endTime)) {
+        if (FDates.MIN_DATE.equals(startTime) || FDates.MAX_DATE.equals(endTime)) {
             //no limited time range
             return startPrice;
         }
@@ -158,7 +159,7 @@ public class LineAnnotationPlottingDataItem extends AAnnotationPlottingDataItem 
     }
 
     private double newEndPriceLoaded(final AnnotationPlottingDataset dataset) {
-        if (FDate.MIN_DATE.equals(startTime) || FDate.MAX_DATE.equals(endTime)) {
+        if (FDates.MIN_DATE.equals(startTime) || FDates.MAX_DATE.equals(endTime)) {
             //no limited time range
             return endPrice;
         }
