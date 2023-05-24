@@ -24,6 +24,7 @@ import de.invesdwin.context.client.swing.api.binding.component.KeyGrabberTextFie
 import de.invesdwin.context.client.swing.api.binding.component.ListBinding;
 import de.invesdwin.context.client.swing.api.binding.component.RootTitleBinding;
 import de.invesdwin.context.client.swing.api.binding.component.SpinnerBinding;
+import de.invesdwin.context.client.swing.api.binding.component.SpinnerChoiceBinding;
 import de.invesdwin.context.client.swing.api.binding.component.TextComponentBinding;
 import de.invesdwin.context.client.swing.api.binding.component.button.ActionButtonBinding;
 import de.invesdwin.context.client.swing.api.binding.component.button.DefaultSubmitButtonExceptionHandler;
@@ -154,7 +155,12 @@ public final class GeneratedBindingGroup {
 
     private IComponentBinding bindJSpinner(final JSpinner component) {
         final APropertyBeanPathElement element = getElement(component);
-        return new SpinnerBinding(component, element, bindingGroup);
+        if (element instanceof AChoiceBeanPathElement) {
+            final AChoiceBeanPathElement cElement = (AChoiceBeanPathElement) element;
+            return new SpinnerChoiceBinding(component, cElement, bindingGroup);
+        } else {
+            return new SpinnerBinding(component, element, bindingGroup);
+        }
     }
 
     protected IComponentBinding bindJCheckBox(final JCheckBox component) {

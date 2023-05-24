@@ -7,12 +7,7 @@ import javax.swing.JLabel;
 
 import de.invesdwin.context.client.swing.api.binding.BindingGroup;
 import de.invesdwin.context.client.swing.api.binding.component.AComponentBinding;
-import de.invesdwin.context.client.swing.api.binding.converter.DateToStringConverter;
 import de.invesdwin.context.client.swing.api.binding.converter.IConverter;
-import de.invesdwin.context.client.swing.api.binding.converter.NoConverter;
-import de.invesdwin.context.client.swing.api.binding.converter.NumberToStringConverter;
-import de.invesdwin.context.client.swing.api.binding.converter.ObjectToStringConverter;
-import de.invesdwin.norva.beanpath.impl.clazz.BeanClassType;
 import de.invesdwin.norva.beanpath.spi.element.APropertyBeanPathElement;
 import de.invesdwin.norva.beanpath.spi.element.simple.modifier.IBeanPathPropertyModifier;
 import de.invesdwin.util.lang.Objects;
@@ -31,16 +26,7 @@ public class LabelBinding extends AComponentBinding<JLabel, Object> {
     }
 
     protected IConverter<Object, String> newConverter() {
-        final BeanClassType type = element.getModifier().getBeanClassAccessor().getType();
-        if (type.isNumber()) {
-            return new NumberToStringConverter(element);
-        } else if (type.isDate()) {
-            return new DateToStringConverter(element);
-        } else if (type.getType() == String.class) {
-            return NoConverter.getInstance();
-        } else {
-            return ObjectToStringConverter.getInstance();
-        }
+        return IConverter.newConverter(element);
     }
 
     @Override
