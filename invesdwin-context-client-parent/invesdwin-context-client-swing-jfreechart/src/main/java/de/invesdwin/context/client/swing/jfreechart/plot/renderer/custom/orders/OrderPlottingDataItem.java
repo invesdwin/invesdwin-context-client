@@ -4,10 +4,18 @@ import java.util.function.Supplier;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
+import de.invesdwin.util.lang.comparator.ACriteriaComparator;
 import de.invesdwin.util.time.date.FDate;
 
 @NotThreadSafe
 public class OrderPlottingDataItem {
+
+    public static final ACriteriaComparator<OrderPlottingDataItem> NOTE_COMPARATOR = new ACriteriaComparator<OrderPlottingDataItem>() {
+        @Override
+        public Comparable<?> getCompareCriteriaNotNullSafe(final OrderPlottingDataItem e) {
+            return e.getNote().get();
+        }
+    };
 
     private final double openPrice;
     private final FDate openTime;
