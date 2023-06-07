@@ -63,10 +63,8 @@ import de.invesdwin.util.time.date.FTimeUnit;
 import de.invesdwin.util.time.duration.Duration;
 import de.invesdwin.util.time.range.TimeRange;
 
-// CHECKSTYLE:OFF
 @NotThreadSafe
 public class InteractiveChartPanel extends JPanel {
-    //CHECKSTYLE:ON
 
     private static final Duration SCROLL_LOCK_DURATION = new Duration(250, FTimeUnit.MILLISECONDS);
 

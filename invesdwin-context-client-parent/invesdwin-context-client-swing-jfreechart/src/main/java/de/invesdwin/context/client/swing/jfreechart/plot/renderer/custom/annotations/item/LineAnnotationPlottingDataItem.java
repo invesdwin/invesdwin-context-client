@@ -28,11 +28,9 @@ public class LineAnnotationPlottingDataItem extends AAnnotationPlottingDataItem 
     private double startPriceLoaded = Double.NaN;
     private double endPriceLoaded = Double.NaN;
 
-    //CHECKSTYLE:OFF
     public LineAnnotationPlottingDataItem(final String annotationId, final FDate startTime, final double startPrice,
             final FDate endTime, final double endPrice, final Supplier<String> label,
             final LabelHorizontalAlignType labelHorizontalAlign, final LabelVerticalAlignType labelVerticalAlign) {
-        //CHECKSTYLE:ON
         super(annotationId);
         this.startTime = startTime;
         this.startPrice = startPrice;

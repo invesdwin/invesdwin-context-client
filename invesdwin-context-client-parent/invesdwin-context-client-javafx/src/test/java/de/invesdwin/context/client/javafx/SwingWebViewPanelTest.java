@@ -24,10 +24,8 @@ public class SwingWebViewPanelTest extends ATest {
                 final JFrame frame = new JFrame();
 
                 final SwingWebViewPanel panel = new SwingWebViewPanel();
-                //CHECKSTYLE:OFF
                 try {
                     FxApplicationThreadUtil.runAndWait(new Runnable() {
-                        //CHECKSTYLE:ON
                         @Override
                         public void run() {
                             panel.getWebEngine().load("https://google.com");

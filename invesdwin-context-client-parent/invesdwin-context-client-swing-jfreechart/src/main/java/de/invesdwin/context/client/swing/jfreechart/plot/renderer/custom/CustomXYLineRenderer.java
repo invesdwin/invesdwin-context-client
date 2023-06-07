@@ -224,14 +224,11 @@ public class CustomXYLineRenderer extends AbstractXYItemRenderer
 
     }
 
-    //CHECKSTYLE:OFF
     @Override
     public void drawItem(final Graphics2D g2, final XYItemRendererState state, final Rectangle2D dataArea,
             final PlotRenderingInfo info, final XYPlot plot, final ValueAxis domainAxis, final ValueAxis rangeAxis,
             final XYDataset dataset, final int series, final int item, final CrosshairState crosshairState,
             final int pass) {
-        //CHECKSTYLE:ON
-
         boolean itemVisible = getItemVisible(series, item);
 
         final PlotOrientation orientation = plot.getOrientation();

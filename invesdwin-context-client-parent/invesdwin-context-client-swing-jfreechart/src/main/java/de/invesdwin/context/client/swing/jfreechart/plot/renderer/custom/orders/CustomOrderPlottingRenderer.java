@@ -196,13 +196,11 @@ public class CustomOrderPlottingRenderer extends AbstractXYItemRenderer
         return "Both";
     }
 
-    //CHECKSTYLE:OFF
     @Override
     public void drawItem(final Graphics2D g2, final XYItemRendererState state, final Rectangle2D dataArea,
             final PlotRenderingInfo info, final XYPlot plot, final ValueAxis domainAxis, final ValueAxis rangeAxis,
             final XYDataset dataset, final int series, final int item, final CrosshairState crosshairState,
             final int pass) {
-        //CHECKSTYLE:ON
         final int lastItem = state.getLastItemIndex();
         if (item == lastItem) {
             final OrderPlottingDataset cDataset = (OrderPlottingDataset) dataset;
@@ -214,18 +212,16 @@ public class CustomOrderPlottingRenderer extends AbstractXYItemRenderer
             final RectangleEdge domainEdge = Plot.resolveDomainAxisLocation(plot.getDomainAxisLocation(), orientation);
             final RectangleEdge rangeEdge = Plot.resolveRangeAxisLocation(plot.getRangeAxisLocation(), orientation);
             final LineWidthType lineWidth = LineWidthType.valueOf(lookupSeriesStroke(series));
-            final Map<Integer, List<OrderPlottingDataItem>> index_notes = drawLines(g2, dataArea, info, plot,
-                    domainAxis, rangeAxis, lastItem, cDataset, firstItem, rendererIndex, rangeAxisFormat, domainEdge,
-                    rangeEdge, lineWidth);
+            final Map<Integer, List<OrderPlottingDataItem>> index_notes = drawLines(g2, dataArea, plot, domainAxis,
+                    rangeAxis, lastItem, cDataset, firstItem, rendererIndex, rangeAxisFormat, domainEdge, rangeEdge,
+                    lineWidth);
             drawNotes(g2, dataArea, info, plot, domainAxis, cDataset, rendererIndex, cRangeAxis, index_notes);
         }
     }
 
-    //CHECKSTYLE:OFF
     private void drawNotes(final Graphics2D g2, final Rectangle2D dataArea, final PlotRenderingInfo info,
             final XYPlot plot, final ValueAxis domainAxis, final OrderPlottingDataset cDataset, final int rendererIndex,
             final NumberAxis cRangeAxis, final Map<Integer, List<OrderPlottingDataItem>> index_notes) {
-        //CHECKSTYLE:ON
         final Map<Integer, XYNoteIconAnnotation> newMap = new TreeMap<>(
                 Integers.COMPARATOR.asDescending().asNotNullSafe());
         for (final Entry<Integer, List<OrderPlottingDataItem>> entry : index_notes.entrySet()) {
@@ -279,20 +275,18 @@ public class CustomOrderPlottingRenderer extends AbstractXYItemRenderer
         noteIndex_noteAnnotation = newMap;
     }
 
-    //CHECKSTYLE:OFF
     private Map<Integer, List<OrderPlottingDataItem>> drawLines(final Graphics2D g2, final Rectangle2D dataArea,
-            final PlotRenderingInfo info, final XYPlot plot, final ValueAxis domainAxis, final ValueAxis rangeAxis,
-            final int lastItem, final OrderPlottingDataset cDataset, final int firstItem, final int rendererIndex,
+            final XYPlot plot, final ValueAxis domainAxis, final ValueAxis rangeAxis, final int lastItem,
+            final OrderPlottingDataset cDataset, final int firstItem, final int rendererIndex,
             final NumberFormat rangeAxisFormat, final RectangleEdge domainEdge, final RectangleEdge rangeEdge,
             final LineWidthType lineWidth) {
-        //CHECKSTYLE:ON
         final Map<Integer, List<OrderPlottingDataItem>> index_notes = new LinkedHashMap<Integer, List<OrderPlottingDataItem>>();
         final ICloseableIterator<OrderPlottingDataItem> visibleItems = cDataset.getVisibleItems(firstItem, lastItem)
                 .iterator();
         try {
             while (true) {
                 final OrderPlottingDataItem next = visibleItems.next();
-                drawLine(g2, dataArea, info, plot, domainAxis, rangeAxis, rendererIndex, rangeAxisFormat, domainEdge,
+                drawLine(g2, dataArea, plot, domainAxis, rangeAxis, rendererIndex, rangeAxisFormat, domainEdge,
                         rangeEdge, lineWidth, next);
                 final String note = next.getNote().get();
                 if (Strings.isNotBlank(note)) {
@@ -311,12 +305,10 @@ public class CustomOrderPlottingRenderer extends AbstractXYItemRenderer
         return index_notes;
     }
 
-    //CHECKSTYLE:OFF
-    private void drawLine(final Graphics2D g2, final Rectangle2D dataArea, final PlotRenderingInfo info,
-            final XYPlot plot, final ValueAxis domainAxis, final ValueAxis rangeAxis, final int rendererIndex,
+    private void drawLine(final Graphics2D g2, final Rectangle2D dataArea, final XYPlot plot,
+            final ValueAxis domainAxis, final ValueAxis rangeAxis, final int rendererIndex,
             final NumberFormat rangeAxisFormat, final RectangleEdge domainEdge, final RectangleEdge rangeEdge,
             final LineWidthType lineWidth, final OrderPlottingDataItem next) {
-        //CHECKSTYLE:ON
         final Color color;
         if (next.isProfit()) {
             color = upColor;

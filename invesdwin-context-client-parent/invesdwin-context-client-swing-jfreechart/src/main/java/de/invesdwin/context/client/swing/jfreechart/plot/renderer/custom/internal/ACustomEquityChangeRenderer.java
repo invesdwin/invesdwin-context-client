@@ -278,14 +278,11 @@ public abstract class ACustomEquityChangeRenderer extends AbstractXYItemRenderer
      * @param pass
      *            the pass index.
      */
-    //CHECKSTYLE:OFF
     @Override
     public void drawItem(final Graphics2D g2, final XYItemRendererState state, final Rectangle2D dataArea,
             final PlotRenderingInfo info, final XYPlot plot, final ValueAxis domainAxis, final ValueAxis rangeAxis,
             final XYDataset dataset, final int series, final int item1, final CrosshairState crosshairState,
             final int pass) {
-        //CHECKSTYLE:ON
-
         final int lastDatasetItem = dataset.getItemCount(series) - 1;
         if (!getItemVisible(series, item1) || item1 > lastDatasetItem) {
             return;
@@ -322,10 +319,10 @@ public abstract class ACustomEquityChangeRenderer extends AbstractXYItemRenderer
         }
 
         drawLine(g2, dataArea, plot, domainAxis, rangeAxis, series, item1, areaState, x0, convert(cItem0.getClose()),
-                x1, convert(cItem1.getClose()), dataset, lineColor);
-        drawArea(g2, dataArea, plot, domainAxis, rangeAxis, series, itemClose, areaState.profit, xClose,
+                x1, convert(cItem1.getClose()), lineColor);
+        drawArea(dataArea, plot, domainAxis, rangeAxis, series, itemClose, areaState.profit, xClose,
                 convert(cItem1.getHigh()), dataset, state, state.getFirstItemIndex());
-        drawArea(g2, dataArea, plot, domainAxis, rangeAxis, series, itemClose, areaState.loss, xClose,
+        drawArea(dataArea, plot, domainAxis, rangeAxis, series, itemClose, areaState.loss, xClose,
                 convert(cItem1.getLow()), dataset, state, state.getFirstItemIndex());
 
         // Check if the item is the last item for the series.
@@ -342,11 +339,9 @@ public abstract class ACustomEquityChangeRenderer extends AbstractXYItemRenderer
         return Doubles.nanToZero(value.doubleValue());
     }
 
-    //CHECKSTYLE:OFF
     private void closeArea(final Graphics2D g2, final Rectangle2D dataArea, final XYPlot plot,
             final ValueAxis domainAxis, final ValueAxis rangeAxis, final Color upColor, final double x1,
             final XYAreaRendererStateData areaStateData) {
-        //CHECKSTYLE:ON
         final double transX1 = domainAxis.valueToJava2D(x1, dataArea, plot.getDomainAxisEdge());
         final double transZero = rangeAxis.valueToJava2D(0.0, dataArea, plot.getRangeAxisEdge());
 
@@ -365,13 +360,9 @@ public abstract class ACustomEquityChangeRenderer extends AbstractXYItemRenderer
         g2.fill(areaStateData.area);
     }
 
-    //CHECKSTYLE:OFF
-    private void drawArea(final Graphics2D g2, final Rectangle2D dataArea, final XYPlot plot,
-            final ValueAxis domainAxis, final ValueAxis rangeAxis, final int series, final int item,
-            final XYAreaRendererStateData areaStateData, final double x1, final double y1, final XYDataset dataset,
-            final RendererState state, final int firstItem) {
-        //CHECKSTYLE:ON
-
+    private void drawArea(final Rectangle2D dataArea, final XYPlot plot, final ValueAxis domainAxis,
+            final ValueAxis rangeAxis, final int series, final int item, final XYAreaRendererStateData areaStateData,
+            final double x1, final double y1, final XYDataset dataset, final RendererState state, final int firstItem) {
         final double transX1 = domainAxis.valueToJava2D(x1, dataArea, plot.getDomainAxisEdge());
         final double transY1 = rangeAxis.valueToJava2D(y1, dataArea, plot.getRangeAxisEdge());
 
@@ -394,13 +385,10 @@ public abstract class ACustomEquityChangeRenderer extends AbstractXYItemRenderer
         }
     }
 
-    //CHECKSTYLE:OFF
     private void drawLine(final Graphics2D g2, final Rectangle2D dataArea, final XYPlot plot,
             final ValueAxis domainAxis, final ValueAxis rangeAxis, final int series, final int item,
             final XYAreaRendererState areaState, final double x0, final double y0, final double x1, final double y1,
-            final XYDataset dataset, final Paint paint) {
-        //CHECKSTYLE:ON
-
+            final Paint paint) {
         final double transX1 = domainAxis.valueToJava2D(x1, dataArea, plot.getDomainAxisEdge());
         final double transY1 = rangeAxis.valueToJava2D(y1, dataArea, plot.getRangeAxisEdge());
 
@@ -449,10 +437,8 @@ public abstract class ACustomEquityChangeRenderer extends AbstractXYItemRenderer
      *
      * @return A boolean.
      */
-    //CHECKSTYLE:OFF
     @Override
     public boolean equals(final Object obj) {
-        //CHECKSTYLE:ON
         if (obj == this) {
             return true;
         }

@@ -20,7 +20,6 @@ import de.invesdwin.context.client.swing.rsyntaxtextarea.expression.internal.AEx
  * @author subes
  *
  */
-// CHECKSTYLE:OFF
 @NotThreadSafe
 public class ExpressionTokenMaker extends AExpressionTokenMaker {
 

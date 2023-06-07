@@ -30,11 +30,9 @@ public class DynamicRSyntaxTextAreaPanel extends JPanel {
     //CHECKSTYLE:OFF
     public final ExpressionRSyntaxTextArea textArea;
     public final RTextScrollPane scrollPane;
-    //CHECKSTYLE:OFF
-    private final Window window;
+    //CHECKSTYLE:ON
 
     public DynamicRSyntaxTextAreaPanel(final Window window) {
-        this.window = window;
         setLayout(new BorderLayout());
         textArea = new ExpressionRSyntaxTextArea();
         textArea.setRows(getMinRows());

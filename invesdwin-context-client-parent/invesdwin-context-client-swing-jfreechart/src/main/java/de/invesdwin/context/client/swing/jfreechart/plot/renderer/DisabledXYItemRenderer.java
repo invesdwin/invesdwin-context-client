@@ -44,14 +44,13 @@ public class DisabledXYItemRenderer extends AbstractXYItemRenderer implements ID
         return enabledRenderer;
     }
 
-    //CHECKSTYLE:OFF
     @Override
     public void drawItem(final Graphics2D g2, final XYItemRendererState state, final Rectangle2D dataArea,
             final PlotRenderingInfo info, final XYPlot plot, final ValueAxis domainAxis, final ValueAxis rangeAxis,
             final XYDataset dataset, final int series, final int item, final CrosshairState crosshairState,
             final int pass) {
+        //not drawing anything
     }
-    //CHECKSTYLE:ON
 
     public static XYItemRenderer maybeUnwrap(final XYItemRenderer renderer) {
         if (renderer instanceof DisabledXYItemRenderer) {

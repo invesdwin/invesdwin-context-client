@@ -44,7 +44,6 @@ import de.invesdwin.util.math.Floats;
  * <P>
  * This renderer does not include code to calculate the crosshair point for the plot.
  */
-//CHECKSTYLE:OFF
 @NotThreadSafe
 public class FastCandlestickRenderer extends AbstractXYItemRenderer
         implements IUpDownColorRenderer, IDelegatePriceLineXYItemRenderer {
@@ -466,8 +465,10 @@ public class FastCandlestickRenderer extends AbstractXYItemRenderer
      *
      * @return <code>true</code> or <code>false</code>.
      */
+    //CHECKSTYLE:OFF
     @Override
     public boolean equals(final Object obj) {
+        //CHECKSTYLE:ON
         if (obj == this) {
             return true;
         }

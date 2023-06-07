@@ -10,9 +10,7 @@ public abstract class AAnnotationPlottingDataItem {
 
     private final String annotationId;
 
-    //CHECKSTYLE:OFF
     public AAnnotationPlottingDataItem(final String annotationId) {
-        //CHECKSTYLE:ON
         this.annotationId = annotationId;
     }
 

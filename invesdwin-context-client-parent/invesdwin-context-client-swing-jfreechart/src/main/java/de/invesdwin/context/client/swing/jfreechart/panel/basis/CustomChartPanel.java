@@ -225,12 +225,9 @@ public class CustomChartPanel extends JPanel implements ChartChangeListener, Cha
      *
      * @since 1.0.13
      */
-    //CHECKSTYLE:OFF
     public CustomChartPanel(final JFreeChart chart, final int width, final int height, final int minimumDrawWidth,
             final int minimumDrawHeight, final int maximumDrawWidth, final int maximumDrawHeight,
             final boolean useBuffer) {
-        //CHECKSTYLE:ON
-
         setChart(chart);
         this.info = new ChartRenderingInfo();
         setPreferredSize(new Dimension(width, height));
@@ -638,10 +635,8 @@ public class CustomChartPanel extends JPanel implements ChartChangeListener, Cha
      * @param g
      *            the graphics device for drawing on.
      */
-    //CHECKSTYLE:OFF
     @Override
     public void paintComponent(final Graphics g) {
-        //CHECKSTYLE:ON
         try {
             super.paintComponent(g);
             if (this.chart == null) {

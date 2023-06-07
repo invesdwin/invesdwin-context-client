@@ -79,14 +79,11 @@ public class FastOHLCRenderer extends HighLowRenderer
         return candlestickRenderer.initialise(g2, dataArea, plot, dataset, info);
     }
 
-    //CHECKSTYLE:OFF
     @Override
     public void drawItem(final Graphics2D g2, final XYItemRendererState state, final Rectangle2D dataArea,
             final PlotRenderingInfo info, final XYPlot plot, final ValueAxis domainAxis, final ValueAxis rangeAxis,
             final XYDataset dataset, final int series, final int item, final CrosshairState crosshairState,
             final int pass) {
-        //CHECKSTYLE:ON
-
         final boolean horiz = candlestickRenderer.isHorizontal(plot);
         final double stickWidth = candlestickRenderer.calculateStickWidth(state, dataArea, horiz);
         candlestickRenderer.calculateItemStroke(state, getDefaultStroke());

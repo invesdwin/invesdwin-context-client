@@ -86,9 +86,7 @@ public class StyleSettingsPanelLayout extends JPanel {
         setLayout(new GridLayout(10, 2, 5, 5));
     }
 
-    //CHECKSTYLE:OFF
     public void updateLayout() {
-        //CHECKSTYLE:ON
         removeAll();
         setLayout(new FlowLayout());
         int rows = 0;

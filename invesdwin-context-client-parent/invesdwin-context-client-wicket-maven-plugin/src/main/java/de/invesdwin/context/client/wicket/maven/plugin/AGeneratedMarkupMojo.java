@@ -60,7 +60,7 @@ public abstract class AGeneratedMarkupMojo extends AbstractMojo {
     }
 
     private void skipInvesdwinIinit() {
-        //CHECKSTYLE:OFF single line
+        //CHECKSTYLE:OFF property
         /*
          * only referencing the constant here, since this will be inlined in bytecode and the class providing the
          * constant will not be needed anymore; it won't be available anyway then here

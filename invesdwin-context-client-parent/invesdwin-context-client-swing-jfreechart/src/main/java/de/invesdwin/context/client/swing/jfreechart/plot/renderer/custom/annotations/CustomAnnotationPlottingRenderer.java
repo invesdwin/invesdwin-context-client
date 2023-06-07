@@ -5,14 +5,12 @@ import java.awt.Graphics2D;
 import java.awt.Paint;
 import java.awt.Stroke;
 import java.awt.geom.Rectangle2D;
-import java.text.NumberFormat;
 import java.util.NoSuchElementException;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
 import org.jfree.chart.annotations.XYLineAnnotation;
 import org.jfree.chart.annotations.XYTextAnnotation;
-import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.plot.CrosshairState;
 import org.jfree.chart.plot.Plot;
@@ -92,34 +90,28 @@ public class CustomAnnotationPlottingRenderer extends AbstractXYItemRenderer imp
         return false;
     }
 
-    //CHECKSTYLE:OFF
     @Override
     public void drawItem(final Graphics2D g2, final XYItemRendererState state, final Rectangle2D dataArea,
             final PlotRenderingInfo info, final XYPlot plot, final ValueAxis domainAxis, final ValueAxis rangeAxis,
             final XYDataset dataset, final int series, final int item, final CrosshairState crosshairState,
             final int pass) {
-        //CHECKSTYLE:ON
         final int lastItem = state.getLastItemIndex();
         if (item == lastItem) {
             final AnnotationPlottingDataset cDataset = (AnnotationPlottingDataset) dataset;
             final int firstItem = state.getFirstItemIndex();
             final int rendererIndex = getPlot().getIndexOf(this);
-            final NumberAxis cRangeAxis = (NumberAxis) rangeAxis;
-            final NumberFormat rangeAxisFormat = cRangeAxis.getNumberFormatOverride();
             final PlotOrientation orientation = plot.getOrientation();
             final RectangleEdge domainEdge = Plot.resolveDomainAxisLocation(plot.getDomainAxisLocation(), orientation);
             final RectangleEdge rangeEdge = Plot.resolveRangeAxisLocation(plot.getRangeAxisLocation(), orientation);
             drawLines(g2, dataArea, info, plot, domainAxis, rangeAxis, lastItem, cDataset, series, firstItem,
-                    rendererIndex, rangeAxisFormat, domainEdge, rangeEdge);
+                    rendererIndex, domainEdge, rangeEdge);
         }
     }
 
-    //CHECKSTYLE:OFF
     private void drawLines(final Graphics2D g2, final Rectangle2D dataArea, final PlotRenderingInfo info,
             final XYPlot plot, final ValueAxis domainAxis, final ValueAxis rangeAxis, final int lastItem,
             final AnnotationPlottingDataset cDataset, final int series, final int firstItem, final int rendererIndex,
-            final NumberFormat rangeAxisFormat, final RectangleEdge domainEdge, final RectangleEdge rangeEdge) {
-        //CHECKSTYLE:ON
+            final RectangleEdge domainEdge, final RectangleEdge rangeEdge) {
         final Stroke stroke = lookupSeriesStroke(series);
         final Paint color = lookupSeriesPaint(series);
 
@@ -131,12 +123,12 @@ public class CustomAnnotationPlottingRenderer extends AbstractXYItemRenderer imp
                 final AAnnotationPlottingDataItem next = visibleItems.next();
                 if (next instanceof LineAnnotationPlottingDataItem) {
                     final LineAnnotationPlottingDataItem cNext = (LineAnnotationPlottingDataItem) next;
-                    drawLine(g2, dataArea, info, plot, domainAxis, rangeAxis, rendererIndex, rangeAxisFormat,
-                            domainEdge, rangeEdge, stroke, color, cNext);
+                    drawLine(g2, dataArea, info, plot, domainAxis, rangeAxis, rendererIndex, domainEdge, rangeEdge,
+                            stroke, color, cNext);
                 } else if (next instanceof LabelAnnotationPlottingDataItem) {
                     final LabelAnnotationPlottingDataItem cNext = (LabelAnnotationPlottingDataItem) next;
-                    drawLabel(g2, dataArea, info, plot, domainAxis, rangeAxis, rendererIndex, rangeAxisFormat,
-                            domainEdge, rangeEdge, stroke, color, cNext);
+                    drawLabel(g2, dataArea, info, plot, domainAxis, rangeAxis, rendererIndex, domainEdge, rangeEdge,
+                            color, cNext);
                 } else {
                     throw UnknownArgumentException.newInstance(Class.class, next.getClass());
                 }
@@ -146,12 +138,10 @@ public class CustomAnnotationPlottingRenderer extends AbstractXYItemRenderer imp
         }
     }
 
-    //CHECKSTYLE:OFF
     private void drawLine(final Graphics2D g2, final Rectangle2D dataArea, final PlotRenderingInfo info,
             final XYPlot plot, final ValueAxis domainAxis, final ValueAxis rangeAxis, final int rendererIndex,
-            final NumberFormat rangeAxisFormat, final RectangleEdge domainEdge, final RectangleEdge rangeEdge,
-            final Stroke stroke, final Paint color, final LineAnnotationPlottingDataItem next) {
-        //CHECKSTYLE:ON
+            final RectangleEdge domainEdge, final RectangleEdge rangeEdge, final Stroke stroke, final Paint color,
+            final LineAnnotationPlottingDataItem next) {
         final int startTimeLoadedIndex = next.getStartTimeLoadedIndex();
         final double x1 = domainAxis.valueToJava2D(startTimeLoadedIndex, dataArea, domainEdge);
         final int endTimeLoadedIndex = next.getEndTimeLoadedIndex();
@@ -224,13 +214,10 @@ public class CustomAnnotationPlottingRenderer extends AbstractXYItemRenderer imp
         }
     }
 
-    //CHECKSTYLE:OFF
     private void drawLabel(final Graphics2D g2, final Rectangle2D dataArea, final PlotRenderingInfo info,
             final XYPlot plot, final ValueAxis domainAxis, final ValueAxis rangeAxis, final int rendererIndex,
-            final NumberFormat rangeAxisFormat, final RectangleEdge domainEdge, final RectangleEdge rangeEdge,
-            final Stroke stroke, final Paint color, final LabelAnnotationPlottingDataItem next) {
-        //CHECKSTYLE:ON
-
+            final RectangleEdge domainEdge, final RectangleEdge rangeEdge, final Paint color,
+            final LabelAnnotationPlottingDataItem next) {
         final double x = domainAxis.valueToJava2D(next.getStartTimeLoadedIndex(), dataArea, domainEdge);
         final double price = next.getPrice();
         final double y = rangeAxis.valueToJava2D(price, dataArea, rangeEdge);

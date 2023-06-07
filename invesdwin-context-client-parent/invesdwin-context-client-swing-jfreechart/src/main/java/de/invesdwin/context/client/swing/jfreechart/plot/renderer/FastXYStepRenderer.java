@@ -76,21 +76,17 @@ public class FastXYStepRenderer extends XYStepRenderer implements IDelegatePrice
         return false;
     }
 
-    //CHECKSTYLE:OFF
     @Override
     protected void drawItemLabel(final Graphics2D g2, final PlotOrientation orientation, final XYDataset dataset,
             final int series, final int item, final double x, final double y, final boolean negative) {
-        //CHECKSTYLE:ON
         //noop
     }
 
-    //CHECKSTYLE:OFF
     @Override
     public void drawItem(final Graphics2D g2, final XYItemRendererState state, final Rectangle2D dataArea,
             final PlotRenderingInfo info, final XYPlot plot, final ValueAxis domainAxis, final ValueAxis rangeAxis,
             final XYDataset dataset, final int series, final int item, final CrosshairState crosshairState,
             final int pass) {
-        //CHECKSTYLE:ON
         //don't draw in-progress values that are missing
         if (Doubles.isNaN(dataset.getYValue(series, item))) {
             return;

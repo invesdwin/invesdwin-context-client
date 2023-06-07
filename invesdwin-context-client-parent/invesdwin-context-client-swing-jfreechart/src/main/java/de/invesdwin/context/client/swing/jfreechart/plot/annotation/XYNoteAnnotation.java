@@ -70,12 +70,9 @@ public class XYNoteAnnotation extends AbstractXYAnnotation {
         return this.title;
     }
 
-    //CHECKSTYLE:OFF
     @Override
     public void draw(final Graphics2D g2, final XYPlot plot, final Rectangle2D dataArea, final ValueAxis domainAxis,
             final ValueAxis rangeAxis, final int rendererIndex, final PlotRenderingInfo info) {
-        //CHECKSTYLE:ON
-
         final PlotOrientation orientation = plot.getOrientation();
         final AxisLocation domainAxisLocation = plot.getDomainAxisLocation();
         final AxisLocation rangeAxisLocation = plot.getRangeAxisLocation();

@@ -27,7 +27,7 @@ public final class FxApplicationThreadUtil {
     private static final FastThreadLocal<Boolean> IS_FX_APPLICATION_THREAD = new FastThreadLocal<Boolean>() {
         @Override
         protected Boolean initialValue() throws Exception {
-            //CHECKSTYLE:OFF
+            //CHECKSTYLE:OFF must only be called by this class anyway
             return Platform.isFxApplicationThread();
             //CHECKSTYLE:ON
         }
@@ -57,9 +57,7 @@ public final class FxApplicationThreadUtil {
 
     public static <V> V runAndWait(final Callable<V> callable) throws InterruptedException {
         final FutureTask<V> future = new FutureTask<V>(callable);
-        //CHECKSTYLE:OFF
         runLater(future);
-        //CHECKSTYLE:ON
         return Futures.get(future);
     }
 
@@ -77,9 +75,7 @@ public final class FxApplicationThreadUtil {
 
     public static void runAndWait(final Runnable runnable) throws InterruptedException {
         final FutureTask<Void> future = new FutureTask<Void>(runnable, null);
-        //CHECKSTYLE:OFF
         runLater(future);
-        //CHECKSTYLE:ON
         Futures.get(future);
     }
 

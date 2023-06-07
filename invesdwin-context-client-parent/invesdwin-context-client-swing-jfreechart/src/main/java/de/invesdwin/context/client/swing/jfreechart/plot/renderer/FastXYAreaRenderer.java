@@ -275,7 +275,6 @@ public class FastXYAreaRenderer extends AbstractXYItemRenderer implements IDeleg
             final XYDataset dataset, final int series, final int item, final CrosshairState crosshairState,
             final int pass) {
         //CHECKSTYLE:ON
-
         if (!getItemVisible(series, item)) {
             return;
         }
@@ -470,7 +469,7 @@ public class FastXYAreaRenderer extends AbstractXYItemRenderer implements IDeleg
     public void setDefaultFillPaint(final Paint paint, final boolean notify) {
         super.setDefaultFillPaint(paint, notify);
     }
-    
+
     @Override
     public void setSeriesPaint(final int series, final Paint paint) {
         super.setSeriesPaint(series, paint);

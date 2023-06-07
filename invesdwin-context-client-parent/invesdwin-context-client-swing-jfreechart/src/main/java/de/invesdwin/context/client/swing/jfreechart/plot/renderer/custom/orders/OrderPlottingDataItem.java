@@ -31,11 +31,9 @@ public class OrderPlottingDataItem {
     private int openTimeLoadedIndex = Integer.MIN_VALUE;
     private int closeTimeLoadedIndex = Integer.MIN_VALUE;
 
-    //CHECKSTYLE:OFF
     public OrderPlottingDataItem(final double openPrice, final FDate openTime, final FDate closeTime,
             final double closePrice, final boolean closed, final boolean profit, final boolean pending,
             final String orderId, final Supplier<String> label, final Supplier<String> note) {
-        //CHECKSTYLE:ON
         this.openPrice = openPrice;
         this.openTime = openTime;
         this.closeTime = closeTime;
