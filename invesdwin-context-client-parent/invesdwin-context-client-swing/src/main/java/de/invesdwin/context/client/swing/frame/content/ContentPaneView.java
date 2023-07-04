@@ -1,8 +1,6 @@
 package de.invesdwin.context.client.swing.frame.content;
 
 import java.awt.GridLayout;
-import java.awt.KeyEventDispatcher;
-import java.awt.KeyboardFocusManager;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 
@@ -41,15 +39,9 @@ public class ContentPaneView extends AView<ContentPaneView, JPanel> {
     private CControl control;
     private CWorkingArea workingArea;
     private CContentArea contentArea;
-    private boolean controlDown;
-    private boolean metaDown;
-    private boolean shiftDown;
-    private boolean altDown;
-    private boolean altGraphDown;
     private long lastMouseClickTime = FDates.MIN_DATE.millisValue();
     @SuppressWarnings("deprecation")
     private long lastMouseClickInstant = Instant.DUMMY.nanosValue();
-    private final KeyEventDispatcher keyEventDispatcher = new ContentPaneKeyEventDispatcher();
 
     @Override
     protected JPanel initComponent() {
@@ -132,12 +124,12 @@ public class ContentPaneView extends AView<ContentPaneView, JPanel> {
 
     @Override
     protected void onOpen() {
-        KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(keyEventDispatcher);
+        ContentPaneKeyEventDispatcher.INSTANCE.register();
     }
 
     @Override
     protected void onClose() {
-        KeyboardFocusManager.getCurrentKeyboardFocusManager().removeKeyEventDispatcher(keyEventDispatcher);
+        ContentPaneKeyEventDispatcher.INSTANCE.unregister();
     }
 
     public CDockable getFocusedDockable() {
@@ -219,30 +211,6 @@ public class ContentPaneView extends AView<ContentPaneView, JPanel> {
         return workingArea;
     }
 
-    public boolean isControlDown() {
-        return controlDown;
-    }
-
-    public boolean isShiftDown() {
-        return shiftDown;
-    }
-
-    public boolean isAltDown() {
-        return altDown;
-    }
-
-    public boolean isAltGraphDown() {
-        return altGraphDown;
-    }
-
-    public boolean isMetaDown() {
-        return metaDown;
-    }
-
-    public boolean isModifierDown() {
-        return controlDown || shiftDown || altDown || altGraphDown || metaDown;
-    }
-
     public FDate getLastMouseClickTime() {
         return new FDate(lastMouseClickTime);
     }
@@ -251,41 +219,28 @@ public class ContentPaneView extends AView<ContentPaneView, JPanel> {
         return new Instant(lastMouseClickInstant);
     }
 
-    private final class ContentPaneKeyEventDispatcher implements KeyEventDispatcher {
-        @Override
-        public boolean dispatchKeyEvent(final KeyEvent e) {
-            switch (e.getID()) {
-            case KeyEvent.KEY_PRESSED:
-                updateKeyDown(e, true);
-                break;
-            case KeyEvent.KEY_RELEASED:
-                updateKeyDown(e, false);
-                break;
-            default:
-                break;
-            }
-            return false;
-        }
-
-        private void updateKeyDown(final KeyEvent e, final boolean state) {
-            switch (e.getKeyCode()) {
-            case KeyEvent.VK_META:
-                metaDown = state;
-                break;
-            case KeyEvent.VK_CONTROL:
-                controlDown = state;
-                break;
-            case KeyEvent.VK_SHIFT:
-                shiftDown = state;
-                break;
-            case KeyEvent.VK_ALT:
-                altDown = state;
-                break;
-            case KeyEvent.VK_ALT_GRAPH:
-                altGraphDown = state;
-            default:
-                break;
-            }
-        }
+    public boolean isControlDown() {
+        return ContentPaneKeyEventDispatcher.INSTANCE.isControlDown();
     }
+
+    public boolean isShiftDown() {
+        return ContentPaneKeyEventDispatcher.INSTANCE.isShiftDown();
+    }
+
+    public boolean isAltDown() {
+        return ContentPaneKeyEventDispatcher.INSTANCE.isAltDown();
+    }
+
+    public boolean isAltGraphDown() {
+        return ContentPaneKeyEventDispatcher.INSTANCE.isAltGraphDown();
+    }
+
+    public boolean isMetaDown() {
+        return ContentPaneKeyEventDispatcher.INSTANCE.isMetaDown();
+    }
+
+    public boolean isModifierDown() {
+        return ContentPaneKeyEventDispatcher.INSTANCE.isModifierDown();
+    }
+
 }
