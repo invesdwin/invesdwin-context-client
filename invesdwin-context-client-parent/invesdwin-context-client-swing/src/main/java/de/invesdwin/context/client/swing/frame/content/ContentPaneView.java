@@ -49,6 +49,7 @@ public class ContentPaneView extends AView<ContentPaneView, JPanel> {
     private long lastMouseClickTime = FDates.MIN_DATE.millisValue();
     @SuppressWarnings("deprecation")
     private long lastMouseClickInstant = Instant.DUMMY.nanosValue();
+    private final KeyEventDispatcher keyEventDispatcher = new ContentPaneKeyEventDispatcher();
 
     @Override
     protected JPanel initComponent() {
@@ -94,45 +95,6 @@ public class ContentPaneView extends AView<ContentPaneView, JPanel> {
         panel.setLayout(new GridLayout());
         panel.add(contentArea);
 
-        final KeyboardFocusManager manager = KeyboardFocusManager.getCurrentKeyboardFocusManager();
-        manager.addKeyEventDispatcher(new KeyEventDispatcher() {
-            @Override
-            public boolean dispatchKeyEvent(final KeyEvent e) {
-                switch (e.getID()) {
-                case KeyEvent.KEY_PRESSED:
-                    updateKeyDown(e, true);
-                    break;
-                case KeyEvent.KEY_RELEASED:
-                    updateKeyDown(e, false);
-                    break;
-                default:
-                    break;
-                }
-                return false;
-            }
-
-            private void updateKeyDown(final KeyEvent e, final boolean state) {
-                switch (e.getKeyCode()) {
-                case KeyEvent.VK_META:
-                    metaDown = state;
-                    break;
-                case KeyEvent.VK_CONTROL:
-                    controlDown = state;
-                    break;
-                case KeyEvent.VK_SHIFT:
-                    shiftDown = state;
-                    break;
-                case KeyEvent.VK_ALT:
-                    altDown = state;
-                    break;
-                case KeyEvent.VK_ALT_GRAPH:
-                    altGraphDown = state;
-                default:
-                    break;
-                }
-            }
-        });
-
         control.getController().getFocusController().addDockableFocusListener(new DockableFocusListener() {
             private int prevDockableHashCode = Integer.MIN_VALUE;
 
@@ -166,6 +128,16 @@ public class ContentPaneView extends AView<ContentPaneView, JPanel> {
         });
 
         return panel;
+    }
+
+    @Override
+    protected void onOpen() {
+        KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(keyEventDispatcher);
+    }
+
+    @Override
+    protected void onClose() {
+        KeyboardFocusManager.getCurrentKeyboardFocusManager().removeKeyEventDispatcher(keyEventDispatcher);
     }
 
     public CDockable getFocusedDockable() {
@@ -277,5 +249,43 @@ public class ContentPaneView extends AView<ContentPaneView, JPanel> {
 
     public Instant getLastMouseClickInstant() {
         return new Instant(lastMouseClickInstant);
+    }
+
+    private final class ContentPaneKeyEventDispatcher implements KeyEventDispatcher {
+        @Override
+        public boolean dispatchKeyEvent(final KeyEvent e) {
+            switch (e.getID()) {
+            case KeyEvent.KEY_PRESSED:
+                updateKeyDown(e, true);
+                break;
+            case KeyEvent.KEY_RELEASED:
+                updateKeyDown(e, false);
+                break;
+            default:
+                break;
+            }
+            return false;
+        }
+
+        private void updateKeyDown(final KeyEvent e, final boolean state) {
+            switch (e.getKeyCode()) {
+            case KeyEvent.VK_META:
+                metaDown = state;
+                break;
+            case KeyEvent.VK_CONTROL:
+                controlDown = state;
+                break;
+            case KeyEvent.VK_SHIFT:
+                shiftDown = state;
+                break;
+            case KeyEvent.VK_ALT:
+                altDown = state;
+                break;
+            case KeyEvent.VK_ALT_GRAPH:
+                altGraphDown = state;
+            default:
+                break;
+            }
+        }
     }
 }
