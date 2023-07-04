@@ -5,18 +5,18 @@ import java.awt.KeyboardFocusManager;
 import java.awt.event.KeyEvent;
 
 import javax.annotation.concurrent.GuardedBy;
-import javax.annotation.concurrent.NotThreadSafe;
+import javax.annotation.concurrent.ThreadSafe;
 
-@NotThreadSafe
+@ThreadSafe
 public final class ContentPaneKeyEventDispatcher implements KeyEventDispatcher {
 
     public static final ContentPaneKeyEventDispatcher INSTANCE = new ContentPaneKeyEventDispatcher();
 
-    private boolean controlDown;
-    private boolean metaDown;
-    private boolean shiftDown;
-    private boolean altDown;
-    private boolean altGraphDown;
+    private volatile boolean controlDown;
+    private volatile boolean metaDown;
+    private volatile boolean shiftDown;
+    private volatile boolean altDown;
+    private volatile boolean altGraphDown;
     @GuardedBy("this")
     private boolean registered;
 
