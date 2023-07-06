@@ -582,4 +582,8 @@ public class PlotNavigationHelper {
         final XYPlot lastSubPlot = subplots.get(lastSubPlotIndex);
         return lastSubPlot;
     }
+
+    public XYNoteIconAnnotation getNoteShowingIconAnnotation() {
+        return noteShowingIconAnnotation;
+    }
 }

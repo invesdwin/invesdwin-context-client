@@ -7,6 +7,7 @@ import java.awt.Font;
 import java.awt.Point;
 import java.awt.Stroke;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseWheelEvent;
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
 import java.math.RoundingMode;
@@ -29,9 +30,13 @@ import de.invesdwin.aspects.annotation.EventDispatchThread.InvocationType;
 import de.invesdwin.context.client.swing.jfreechart.panel.InteractiveChartPanel;
 import de.invesdwin.context.client.swing.jfreechart.plot.Markers;
 import de.invesdwin.context.client.swing.jfreechart.plot.XYPlots;
+import de.invesdwin.context.client.swing.jfreechart.plot.annotation.XYNoteIconAnnotation;
 import de.invesdwin.context.client.swing.jfreechart.plot.annotation.priceline.XYPriceLineAnnotation;
+import de.invesdwin.context.client.swing.jfreechart.plot.dataset.IndexedDateTimeOHLCDataset;
 import de.invesdwin.util.lang.color.Colors;
 import de.invesdwin.util.math.Doubles;
+import de.invesdwin.util.time.date.FDate;
+import de.invesdwin.util.time.date.FDates;
 
 @NotThreadSafe
 public class PlotCrosshairHelper {
@@ -42,13 +47,19 @@ public class PlotCrosshairHelper {
     private static final Stroke CROSSHAIR_STROKE = new BasicStroke(0.5f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL,
             0, new float[] { 5, 6 }, 0);
 
+    private static final Color PIN_COLOR = Color.BLUE;
+    private static final Stroke PIN_STROKE = new BasicStroke(0.5f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 0);
+
     private final InteractiveChartPanel chartPanel;
     private final ValueMarker domainCrosshairMarker;
     private final ValueMarker lastDomainCrosshairMarker;
     private final ValueMarker rangeCrosshairMarkerRight;
     private final ValueMarker rangeCrosshairMarkerLeft;
+    private ValueMarker pinMarker;
     private int crosshairLastMouseX;
     private int crosshairLastMouseY;
+
+    private ICoordinateListener coordinateListener;
 
     public PlotCrosshairHelper(final InteractiveChartPanel chartPanel) {
         this.chartPanel = chartPanel;
@@ -103,6 +114,7 @@ public class PlotCrosshairHelper {
         // see if the point is in one of the subplots; this is the
         // intersection of the range and domain crosshairs
         final int subplotIndex = plotInfo.getSubplotIndex(java2DPoint);
+        boolean domainMakerChanged = false;
 
         if (subplotIndex >= 0) {
             // all subplots have the domain crosshair
@@ -115,6 +127,7 @@ public class PlotCrosshairHelper {
 
             final Rectangle2D panelArea = chartPanel.getChartPanel().getScreenDataArea(mouseX, mouseY);
 
+            domainMakerChanged = lastDomainCrosshairMarker.getValue() != xx;
             domainCrosshairMarker.setValue(xx);
             lastDomainCrosshairMarker.setValue(xx);
             lastDomainCrosshairMarker.setLabel(chartPanel.getDomainAxis().getNumberFormatOverride().format(xx));
@@ -175,6 +188,19 @@ public class PlotCrosshairHelper {
             crosshairLastMouseX = -1;
             crosshairLastMouseY = -1;
         }
+
+        if (coordinateListener != null && domainMakerChanged) {
+            final XYPlot xyPlot = (XYPlot) chartPanel.getCombinedPlot().getDomainAxis().getPlot();
+            final IndexedDateTimeOHLCDataset dataset = (IndexedDateTimeOHLCDataset) xyPlot.getDataset();
+            final FDate previousBarEndTime = dataset.getData()
+                    .get((int) domainCrosshairMarker.getValue() - 1)
+                    .getEndTime();
+            final int xCoordinate = (int) domainCrosshairMarker.getValue();
+            final boolean isCurrentBar = xCoordinate == (dataset.getData().size() - 1);
+            final FDate currentBarEndTime = isCurrentBar ? FDates.MAX_DATE
+                    : dataset.getData().get(xCoordinate).getEndTime();
+            coordinateListener.coordinatesChanged(previousBarEndTime, currentBarEndTime);
+        }
     }
 
     @EventDispatchThread(InvocationType.INVOKE_LATER_IF_NOT_IN_EDT)
@@ -200,6 +226,13 @@ public class PlotCrosshairHelper {
             chartPanel.getCombinedPlot().notifyListeners(new PlotChangeEvent(chartPanel.getCombinedPlot()));
         }
 
+    }
+
+    @EventDispatchThread(InvocationType.INVOKE_LATER_IF_NOT_IN_EDT)
+    public void disableSelectedDetails() {
+        if (coordinateListener != null) {
+            coordinateListener.disableSelectedDetails();
+        }
     }
 
     public Point2D getCrosshairLastMousePoint() {
@@ -235,4 +268,57 @@ public class PlotCrosshairHelper {
         updateCrosshair(mouseX, mouseY);
     }
 
+    public void mouseWheelMoved(final MouseWheelEvent e) {
+        if (coordinateListener != null) {
+            coordinateListener.mouseWheelMoved(e);
+        }
+    }
+
+    public void mousePressed(final MouseEvent e) {
+        if (MouseEvent.BUTTON1 == e.getButton() && e.isControlDown()) {
+            final XYPlot xyPlot = (XYPlot) chartPanel.getCombinedPlot().getDomainAxis().getPlot();
+            final boolean pinnedSomething = coordinateListener.pinCoordinates();
+            xyPlot.removeDomainMarker(pinMarker);
+
+            if (pinnedSomething) {
+                pinMarker = new ValueMarker(domainCrosshairMarker.getValue(), PIN_COLOR, PIN_STROKE);
+                xyPlot.addDomainMarker(pinMarker);
+            }
+        }
+    }
+
+    public void showOrderDetails(final XYNoteIconAnnotation noteShowingIconAnnotation) {
+        if (coordinateListener != null) {
+            final XYPlot xyPlot = (XYPlot) chartPanel.getCombinedPlot().getDomainAxis().getPlot();
+            final IndexedDateTimeOHLCDataset dataset = (IndexedDateTimeOHLCDataset) xyPlot.getDataset();
+            final FDate previousBarEndTime = dataset.getData()
+                    .get((int) noteShowingIconAnnotation.getX() - 1)
+                    .getEndTime();
+            final int xCoordinate = (int) noteShowingIconAnnotation.getX();
+            final boolean isCurrentBar = xCoordinate == (dataset.getData().size() - 1);
+            final FDate currentBarEndTime = isCurrentBar ? FDates.MAX_DATE
+                    : dataset.getData().get(xCoordinate).getEndTime();
+
+            coordinateListener.coordinatesChanged(previousBarEndTime, currentBarEndTime);
+        }
+    }
+
+    public void mouseExited() {
+        if (coordinateListener != null) {
+            coordinateListener.disableSelectedDetails();
+        }
+    }
+
+    public void registerCoordindateListener(final ICoordinateListener coordinateListener) {
+        this.coordinateListener = coordinateListener;
+    }
+
+    public void unregisterCoordindateListener() {
+        this.coordinateListener = null;
+    }
+
+    public void removePinMarker() {
+        final XYPlot xyPlot = (XYPlot) chartPanel.getCombinedPlot().getDomainAxis().getPlot();
+        xyPlot.removeDomainMarker(pinMarker);
+    }
 }

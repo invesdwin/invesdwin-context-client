@@ -77,6 +77,7 @@ public class InteractiveChartPanel extends JPanel {
     private final IndexedDateTimeNumberFormat domainAxisFormat;
     private final PlotResizeHelper plotResizeHelper;
     private final PlotCrosshairHelper plotCrosshairHelper;
+    //    private final PlotDetailsHelper plotDetailsHelper;
     private final PlotLegendHelper plotLegendHelper;
     private final PlotNavigationHelper plotNavigationHelper;
     private final PlotConfigurationHelper plotConfigurationHelper;
@@ -103,6 +104,7 @@ public class InteractiveChartPanel extends JPanel {
 
         this.plotResizeHelper = new PlotResizeHelper(this);
         this.plotCrosshairHelper = new PlotCrosshairHelper(this);
+        //        this.plotDetailsHelper = new PlotDetailsHelper(this);
         this.plotLegendHelper = new PlotLegendHelper(this);
         this.plotNavigationHelper = new PlotNavigationHelper(this);
         this.plotConfigurationHelper = new PlotConfigurationHelper(this);
@@ -528,6 +530,7 @@ public class InteractiveChartPanel extends JPanel {
                 if (plotConfigurationHelper.isShowing()) {
                     return;
                 }
+                plotCrosshairHelper.mouseExited();
                 InteractiveChartPanel.this.mouseExited();
             } catch (final Throwable t) {
                 Err.process(new Exception("Ignoring", t));
@@ -549,6 +552,7 @@ public class InteractiveChartPanel extends JPanel {
                 plotNavigationHelper.mousePressed(e);
                 plotZoomHelper.mousePressed(e);
                 plotPanHelper.mousePressed(e);
+                plotCrosshairHelper.mousePressed(e);
                 if (new Duration(lastVerticalScroll).isGreaterThan(SCROLL_LOCK_DURATION)) {
                     if (e.getButton() == 4) {
                         plotPanHelper.panLeft();
@@ -648,6 +652,11 @@ public class InteractiveChartPanel extends JPanel {
                 }
                 if (plotLegendHelper.isHighlighting() || plotNavigationHelper.isHighlighting()) {
                     plotCrosshairHelper.disableCrosshair(true);
+                    if (plotNavigationHelper.getNoteShowingIconAnnotation() != null) {
+                        plotCrosshairHelper.showOrderDetails(plotNavigationHelper.getNoteShowingIconAnnotation());
+                    } else {
+                        plotCrosshairHelper.disableSelectedDetails();
+                    }
                 } else {
                     plotCrosshairHelper.mouseMoved(e);
                 }
@@ -671,6 +680,10 @@ public class InteractiveChartPanel extends JPanel {
                             plotPanHelper.panLeft();
                         } else {
                             plotPanHelper.panRight();
+                        }
+                    } else if (e.isControlDown()) {
+                        if (new Duration(lastVerticalScroll).isGreaterThan(new Duration(10, FTimeUnit.MILLISECONDS))) { //TODO: konstante und guten Wert finden. Ohne den delayCheck wird das ScrollEvent immer doppelt geschmissen und wir würden jeweils eine Order skippen
+                            plotCrosshairHelper.mouseWheelMoved(e);
                         }
                     } else {
                         plotZoomHelper.mouseWheelMoved(e);
