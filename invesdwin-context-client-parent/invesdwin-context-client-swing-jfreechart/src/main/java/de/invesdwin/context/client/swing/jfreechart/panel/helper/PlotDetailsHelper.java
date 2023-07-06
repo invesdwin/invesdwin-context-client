@@ -53,7 +53,7 @@ public class PlotDetailsHelper {
     }
 
     public void mousePressed(final MouseEvent e, final int domainCrosshairMarkerValue) {
-        if (MouseEvent.BUTTON1 == e.getButton() && e.isControlDown()) {
+        if (coordinateListener != null && MouseEvent.BUTTON1 == e.getButton() && e.isControlDown()) {
             final XYPlot xyPlot = (XYPlot) chartPanel.getCombinedPlot().getDomainAxis().getPlot();
             final boolean pinnedSomething = coordinateListener.pinCoordinates();
             xyPlot.removeDomainMarker(pinMarker);
