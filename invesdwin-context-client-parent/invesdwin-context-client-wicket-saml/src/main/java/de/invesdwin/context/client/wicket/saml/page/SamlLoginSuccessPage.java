@@ -5,6 +5,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 import de.invesdwin.context.security.web.saml.SamlProperties;
 import de.invesdwin.nowicket.application.AWebPage;
 import de.invesdwin.nowicket.application.auth.AWebSession;
+import de.invesdwin.nowicket.application.auth.IAuthenticationService;
 import de.invesdwin.nowicket.application.auth.Roles;
 import de.invesdwin.nowicket.page.auth.SignIn;
 
@@ -15,7 +16,8 @@ public class SamlLoginSuccessPage extends AWebPage {
 
     public SamlLoginSuccessPage() {
         super(null);
-        if (Roles.getAuthenticationService().shouldReplaceSessionAfterSignIn()) {
+        final IAuthenticationService authenticationService = Roles.getAuthenticationService();
+        if (authenticationService != null && authenticationService.shouldReplaceSessionAfterSignIn()) {
             AWebSession.get().replaceSession();
         }
         final SignIn signIn = new SignIn();
