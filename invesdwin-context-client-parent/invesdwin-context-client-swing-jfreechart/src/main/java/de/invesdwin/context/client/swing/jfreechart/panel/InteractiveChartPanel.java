@@ -30,6 +30,7 @@ import de.invesdwin.aspects.EventDispatchThreadUtil;
 import de.invesdwin.context.client.swing.jfreechart.panel.basis.CustomChartPanel;
 import de.invesdwin.context.client.swing.jfreechart.panel.basis.CustomCombinedDomainXYPlot;
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.PlotCrosshairHelper;
+import de.invesdwin.context.client.swing.jfreechart.panel.helper.PlotDetailsHelper;
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.PlotNavigationHelper;
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.PlotPanHelper;
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.PlotResizeHelper;
@@ -77,7 +78,7 @@ public class InteractiveChartPanel extends JPanel {
     private final IndexedDateTimeNumberFormat domainAxisFormat;
     private final PlotResizeHelper plotResizeHelper;
     private final PlotCrosshairHelper plotCrosshairHelper;
-    //    private final PlotDetailsHelper plotDetailsHelper;
+    private final PlotDetailsHelper plotDetailsHelper;
     private final PlotLegendHelper plotLegendHelper;
     private final PlotNavigationHelper plotNavigationHelper;
     private final PlotConfigurationHelper plotConfigurationHelper;
@@ -103,8 +104,8 @@ public class InteractiveChartPanel extends JPanel {
         this.finalizer.register(this);
 
         this.plotResizeHelper = new PlotResizeHelper(this);
-        this.plotCrosshairHelper = new PlotCrosshairHelper(this);
-        //        this.plotDetailsHelper = new PlotDetailsHelper(this);
+        this.plotDetailsHelper = new PlotDetailsHelper(this);
+        this.plotCrosshairHelper = new PlotCrosshairHelper(this, this.plotDetailsHelper);
         this.plotLegendHelper = new PlotLegendHelper(this);
         this.plotNavigationHelper = new PlotNavigationHelper(this);
         this.plotConfigurationHelper = new PlotConfigurationHelper(this);
@@ -200,6 +201,10 @@ public class InteractiveChartPanel extends JPanel {
         chartPanel.addMouseListener(new MouseListenerImpl());
         chartPanel.addMouseWheelListener(new MouseWheelListenerImpl());
         initialized = true;
+    }
+
+    public PlotDetailsHelper getPlotDetailsHelper() {
+        return plotDetailsHelper;
     }
 
     public PlotCrosshairHelper getPlotCrosshairHelper() {
@@ -530,7 +535,7 @@ public class InteractiveChartPanel extends JPanel {
                 if (plotConfigurationHelper.isShowing()) {
                     return;
                 }
-                plotCrosshairHelper.mouseExited();
+                plotDetailsHelper.mouseExited();
                 InteractiveChartPanel.this.mouseExited();
             } catch (final Throwable t) {
                 Err.process(new Exception("Ignoring", t));
@@ -552,7 +557,8 @@ public class InteractiveChartPanel extends JPanel {
                 plotNavigationHelper.mousePressed(e);
                 plotZoomHelper.mousePressed(e);
                 plotPanHelper.mousePressed(e);
-                plotCrosshairHelper.mousePressed(e);
+                plotDetailsHelper.mousePressed(e, (int) plotCrosshairHelper.getDomainCrosshairMarkerValue());
+                //TODO: der marker wird in einer mit @EventDispatchThread(InvocationType.INVOKE_LATER_IF_NOT_IN_EDT) annotierten methode gesetzt. ist das problematishc hier dann so rein zu geben ?
                 if (new Duration(lastVerticalScroll).isGreaterThan(SCROLL_LOCK_DURATION)) {
                     if (e.getButton() == 4) {
                         plotPanHelper.panLeft();
@@ -653,9 +659,9 @@ public class InteractiveChartPanel extends JPanel {
                 if (plotLegendHelper.isHighlighting() || plotNavigationHelper.isHighlighting()) {
                     plotCrosshairHelper.disableCrosshair(true);
                     if (plotNavigationHelper.getNoteShowingIconAnnotation() != null) {
-                        plotCrosshairHelper.showOrderDetails(plotNavigationHelper.getNoteShowingIconAnnotation());
+                        plotDetailsHelper.showOrderDetails(plotNavigationHelper.getNoteShowingIconAnnotation());
                     } else {
-                        plotCrosshairHelper.disableSelectedDetails();
+                        plotDetailsHelper.disableSelectedDetails();
                     }
                 } else {
                     plotCrosshairHelper.mouseMoved(e);
@@ -683,7 +689,7 @@ public class InteractiveChartPanel extends JPanel {
                         }
                     } else if (e.isControlDown()) {
                         if (new Duration(lastVerticalScroll).isGreaterThan(new Duration(10, FTimeUnit.MILLISECONDS))) { //TODO: konstante und guten Wert finden. Ohne den delayCheck wird das ScrollEvent immer doppelt geschmissen und wir würden jeweils eine Order skippen
-                            plotCrosshairHelper.mouseWheelMoved(e);
+                            plotDetailsHelper.mouseWheelMoved(e);
                         }
                     } else {
                         plotZoomHelper.mouseWheelMoved(e);
