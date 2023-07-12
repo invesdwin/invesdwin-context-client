@@ -80,13 +80,20 @@ public class SpinnerBinding extends AComponentBinding<JSpinner, Object> {
             editor.getTextField().getDocument().addDocumentListener(new DocumentListenerSupport() {
                 @Override
                 protected void update(final DocumentEvent e) {
-                    if (isFocusOwner && !isSettingText) {
+                    if (isFocusOwner && !isSettingText && !editor.getFormatter().isInstalling()) {
                         //we have to circumvent internal sync of JSpinner or else we get exceptions based on updates during locks
                         try {
                             final JFormattedTextField textField = editor.getTextField();
                             final AbstractFormatter formatter = textField.getFormatter();
                             try {
-                                final Number formattedValue = (Number) formatter.stringToValue(textField.getText());
+                                final String text = textField.getText();
+                                final Number formattedValue;
+                                if (Strings.isBlank(text)) {
+                                    //might happen during document replace which is a remove and insert separately
+                                    formattedValue = null;
+                                } else {
+                                    formattedValue = (Number) formatter.stringToValue(text);
+                                }
                                 pendingComponentValue = ImmutableFuture.of(formattedValue);
                                 prevComponentValue = pendingComponentValue;
                             } catch (final Throwable t) {
