@@ -8,14 +8,16 @@ import de.invesdwin.util.time.date.FDate;
 
 public interface IMasterLazyDatasetProvider {
 
-    FDate getFirstAvailableKeyTo();
+    FDate getFirstAvailableBarEndTime();
 
-    FDate getLastAvailableKeyTo();
+    FDate getLastAvailableTickTime();
+
+    FDate getLastAvailableBarEndTime();
 
     ICloseableIterable<? extends TimeRangedOHLCDataItem> getPreviousValues(FDate key, int count);
 
     default ICloseableIterable<? extends TimeRangedOHLCDataItem> getNextValues(final FDate key, final int count) {
-        final FDate lastAvailableKeyTo = getLastAvailableKeyTo();
+        final FDate lastAvailableKeyTo = getLastAvailableTickTime();
         if (lastAvailableKeyTo == null) {
             return EmptyCloseableIterable.getInstance();
         }
