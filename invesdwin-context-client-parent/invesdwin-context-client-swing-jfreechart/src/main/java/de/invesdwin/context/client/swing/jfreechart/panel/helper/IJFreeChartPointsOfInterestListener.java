@@ -4,8 +4,11 @@ import java.awt.event.MouseWheelEvent;
 
 import de.invesdwin.util.time.date.FDate;
 
-public interface ICoordinateListener {
-    void coordinatesChanged(FDate previousBarEndTime, FDate currentBarEndTime);
+public interface IJFreeChartPointsOfInterestListener {
+
+    IJFreeChartPointsOfInterestListener[] EMPTY_LIST = new IJFreeChartPointsOfInterestListener[0];
+
+    void pointOfInterestChanged(FDate from, FDate to);
 
     void disableSelectedDetails();
 

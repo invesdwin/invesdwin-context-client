@@ -27,33 +27,29 @@ public class PlotDetailsHelper {
 
     private final InteractiveChartPanel chartPanel;
     private ValueMarker pinMarker;
-    private ICoordinateListener coordinateListener;
+    private IJFreeChartPointsOfInterestListener coordinateListener;
 
     public PlotDetailsHelper(final InteractiveChartPanel chartPanel) {
         this.chartPanel = chartPanel;
     }
 
-    public void updateDetails(final int domainCrosshairMarkerValue) {
-        if (coordinateListener != null) {
-            final XYPlot xyPlot = (XYPlot) chartPanel.getCombinedPlot().getDomainAxis().getPlot();
-            final IndexedDateTimeOHLCDataset dataset = (IndexedDateTimeOHLCDataset) xyPlot.getDataset();
-            final FDate previousBarEndTime = dataset.getData().get(domainCrosshairMarkerValue - 1).getEndTime();
-            final int xCoordinate = domainCrosshairMarkerValue;
-            final boolean isCurrentBar = xCoordinate == (dataset.getData().size() - 1);
-            final FDate currentBarEndTime = isCurrentBar ? FDates.MAX_DATE
-                    : dataset.getData().get(xCoordinate).getEndTime();
-            coordinateListener.coordinatesChanged(previousBarEndTime, currentBarEndTime);
-        }
+    public void pointOfInterestChanged(final int domainCrosshairMarkerValue) {
+        final XYPlot xyPlot = (XYPlot) chartPanel.getCombinedPlot().getDomainAxis().getPlot();
+        final IndexedDateTimeOHLCDataset dataset = (IndexedDateTimeOHLCDataset) xyPlot.getDataset();
+        final FDate previousBarEndTime = dataset.getData().get(domainCrosshairMarkerValue - 1).getEndTime();
+        final int xCoordinate = domainCrosshairMarkerValue;
+        final boolean isCurrentBar = xCoordinate == (dataset.getData().size() - 1);
+        final FDate currentBarEndTime = isCurrentBar ? FDates.MAX_DATE
+                : dataset.getData().get(xCoordinate).getEndTime();
+        coordinateListener.pointOfInterestChanged(previousBarEndTime, currentBarEndTime);
     }
 
     public void mouseWheelMoved(final MouseWheelEvent e) {
-        if (coordinateListener != null) {
-            coordinateListener.mouseWheelMoved(e);
-        }
+        coordinateListener.mouseWheelMoved(e);
     }
 
     public void mousePressed(final MouseEvent e, final int domainCrosshairMarkerValue) {
-        if (coordinateListener != null && MouseEvent.BUTTON1 == e.getButton() && e.isControlDown()) {
+        if (MouseEvent.BUTTON1 == e.getButton() && e.isControlDown()) {
             final XYPlot xyPlot = (XYPlot) chartPanel.getCombinedPlot().getDomainAxis().getPlot();
             final boolean pinnedSomething = coordinateListener.pinCoordinates();
             xyPlot.removeDomainMarker(pinMarker);
@@ -66,25 +62,18 @@ public class PlotDetailsHelper {
     }
 
     public void showOrderDetails(final XYNoteIconAnnotation noteShowingIconAnnotation) {
-        if (coordinateListener != null) {
-            final XYPlot xyPlot = (XYPlot) chartPanel.getCombinedPlot().getDomainAxis().getPlot();
-            final IndexedDateTimeOHLCDataset dataset = (IndexedDateTimeOHLCDataset) xyPlot.getDataset();
-            final FDate previousBarEndTime = dataset.getData()
-                    .get((int) noteShowingIconAnnotation.getX() - 1)
-                    .getEndTime();
-            final int xCoordinate = (int) noteShowingIconAnnotation.getX();
-            final boolean isCurrentBar = xCoordinate == (dataset.getData().size() - 1);
-            final FDate currentBarEndTime = isCurrentBar ? FDates.MAX_DATE
-                    : dataset.getData().get(xCoordinate).getEndTime();
-
-            coordinateListener.coordinatesChanged(previousBarEndTime, currentBarEndTime);
-        }
+        final XYPlot xyPlot = (XYPlot) chartPanel.getCombinedPlot().getDomainAxis().getPlot();
+        final IndexedDateTimeOHLCDataset dataset = (IndexedDateTimeOHLCDataset) xyPlot.getDataset();
+        final FDate previousBarEndTime = dataset.getData().get((int) noteShowingIconAnnotation.getX() - 1).getEndTime();
+        final int xCoordinate = (int) noteShowingIconAnnotation.getX();
+        final boolean isCurrentBar = xCoordinate == (dataset.getData().size() - 1);
+        final FDate currentBarEndTime = isCurrentBar ? FDates.MAX_DATE
+                : dataset.getData().get(xCoordinate).getEndTime();
+        coordinateListener.pointOfInterestChanged(previousBarEndTime, currentBarEndTime);
     }
 
     public void mouseExited() {
-        if (coordinateListener != null) {
-            coordinateListener.disableSelectedDetails();
-        }
+        coordinateListener.disableSelectedDetails();
     }
 
     public void removePinMarker() {
@@ -94,12 +83,10 @@ public class PlotDetailsHelper {
 
     @EventDispatchThread(InvocationType.INVOKE_LATER_IF_NOT_IN_EDT)
     public void disableSelectedDetails() {
-        if (coordinateListener != null) {
-            coordinateListener.disableSelectedDetails();
-        }
+        coordinateListener.disableSelectedDetails();
     }
 
-    public void registerCoordindateListener(final ICoordinateListener coordinateListener) {
+    public void registerCoordindateListener(final IJFreeChartPointsOfInterestListener coordinateListener) {
         this.coordinateListener = coordinateListener;
     }
 

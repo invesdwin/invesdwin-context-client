@@ -182,7 +182,7 @@ public class PlotCrosshairHelper {
         }
 
         if (domainMakerChanged) {
-            plotDetailsHelper.updateDetails((int) domainCrosshairMarker.getValue());
+            plotDetailsHelper.pointOfInterestChanged((int) domainCrosshairMarker.getValue());
         }
     }
 
