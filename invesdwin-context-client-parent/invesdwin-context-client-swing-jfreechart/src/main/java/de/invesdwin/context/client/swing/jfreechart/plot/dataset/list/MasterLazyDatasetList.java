@@ -52,7 +52,7 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
     private final IMasterLazyDatasetProvider provider;
     private final Set<ISlaveLazyDatasetListener> slaveDatasetListeners;
     private final Set<IRangeListener> rangeListeners;
-    private FDate firstAvailableKeyTo;
+    private FDate firstAvailableBarEndTime;
     private InteractiveChartPanel chartPanel;
     @GuardedBy("this")
     private FDate lastUpdateTime;
@@ -258,7 +258,7 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
         if (lastUpdateTime != null && isTrailingRange(chartPanel.getDomainAxis().getRange())) {
             return lastUpdateTime;
         } else {
-            return provider.getLastAvailableKeyTo();
+            return provider.getLastAvailableTickTime();
         }
     }
 
@@ -272,7 +272,7 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
 
     private void loadInitialDataMaster(final InteractiveChartPanel chartPanel) {
         final int initialVisibleItemCount = chartPanel.getInitialVisibleItemCount() * PRELOAD_RANGE_MULTIPLIER;
-        final FDate lastAvailableKeyTo = provider.getLastAvailableKeyTo();
+        final FDate lastAvailableKeyTo = provider.getLastAvailableTickTime();
         if (lastAvailableKeyTo == null) {
             return;
         }
@@ -373,7 +373,7 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
         final int preloadLowerBound = (int) (range.getLowerBound() - range.getLength());
         if (preloadLowerBound < 0) {
             final TimeRangedOHLCDataItem firstLoadedItem = getFirstLoadedItem();
-            if (getFirstAvailableKeyTo().isBefore(firstLoadedItem.getEndTime())) {
+            if (getFirstAvailableBarEndTime().isBefore(firstLoadedItem.getEndTime())) {
                 //prepend a whole screen additional to the requested items
                 final int prependCount = Integers.min(MAX_STEP_ITEM_COUNT,
                         Integers.abs(preloadLowerBound) * STEP_ITEM_COUNT_MULTIPLIER);
@@ -400,7 +400,7 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
             final int preloadUpperBound = (int) (range.getUpperBound() + range.getLength());
             if (preloadUpperBound > data.size()) {
                 final TimeRangedOHLCDataItem lastLoadedItem = getLastLoadedItem();
-                final FDate lastAvailableKeyTo = provider.getLastAvailableKeyTo();
+                final FDate lastAvailableKeyTo = provider.getLastAvailableTickTime();
                 if (lastAvailableKeyTo != null && lastAvailableKeyTo.isAfter(lastLoadedItem.getEndTime())
                         && !Objects.equals(prevLastAvailableKeyTo, lastAvailableKeyTo)) {
                     /*
@@ -431,11 +431,11 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
         return updatedRange;
     }
 
-    private FDate getFirstAvailableKeyTo() {
-        if (firstAvailableKeyTo == null) {
-            firstAvailableKeyTo = provider.getFirstAvailableKeyTo();
+    private FDate getFirstAvailableBarEndTime() {
+        if (firstAvailableBarEndTime == null) {
+            firstAvailableBarEndTime = provider.getFirstAvailableBarEndTime();
         }
-        return firstAvailableKeyTo;
+        return firstAvailableBarEndTime;
     }
 
     @Override
@@ -447,11 +447,15 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
         if (lastLoadedKeyTo == null) {
             return false;
         }
-        final FDate lastAvailableKeyTo = provider.getLastAvailableKeyTo();
-        if (lastAvailableKeyTo == null) {
+        /*
+         * need to check against last available complete bar end time, so that delayed feeds plot orders
+         * "from the future" correctly (which are from current time actually)
+         */
+        final FDate lastAvailableKeyToForTrailing = provider.getLastAvailableBarEndTime();
+        if (lastAvailableKeyToForTrailing == null) {
             return false;
         }
-        return lastAvailableKeyTo.isBeforeOrEqualToNotNullSafe(lastLoadedKeyTo);
+        return lastAvailableKeyToForTrailing.isBeforeOrEqualToNotNullSafe(lastLoadedKeyTo);
     }
 
     private void loadItems(final List<MasterOHLCDataItem> data, final List<MasterOHLCDataItem> items,

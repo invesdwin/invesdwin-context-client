@@ -160,13 +160,18 @@ public class LazyCandlestickDemo extends JFrame {
             private final IHistoricalCacheQuery<TimeRangedOHLCDataItem> query = dataItemsCache.query();
 
             @Override
-            public FDate getFirstAvailableKeyTo() {
+            public FDate getFirstAvailableBarEndTime() {
                 final TimeRangedOHLCDataItem item = dataItems.get(0);
                 return item.getEndTime();
             }
 
             @Override
-            public FDate getLastAvailableKeyTo() {
+            public FDate getLastAvailableTickTime() {
+                return getLastAvailableBarEndTime();
+            }
+
+            @Override
+            public FDate getLastAvailableBarEndTime() {
                 final TimeRangedOHLCDataItem item = dataItems.get(dataItems.size() - 1);
                 return item.getEndTime();
             }

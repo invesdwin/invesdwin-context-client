@@ -50,6 +50,7 @@ import de.invesdwin.context.client.swing.jfreechart.plot.renderer.custom.CustomP
 import de.invesdwin.context.client.swing.jfreechart.plot.renderer.custom.ICustomRendererType;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
 import de.invesdwin.util.lang.string.Strings;
+import de.invesdwin.util.math.Doubles;
 import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.swing.HiDPI;
 import de.invesdwin.util.swing.icon.AlphaImageIcon;
@@ -309,6 +310,11 @@ public class CustomOrderPlottingRenderer extends AbstractXYItemRenderer
             final ValueAxis domainAxis, final ValueAxis rangeAxis, final int rendererIndex,
             final NumberFormat rangeAxisFormat, final RectangleEdge domainEdge, final RectangleEdge rangeEdge,
             final LineWidthType lineWidth, final OrderPlottingDataItem next) {
+        final double openPrice = next.getOpenPrice();
+        if (Doubles.isNaN(openPrice)) {
+            return;
+        }
+
         final Color color;
         if (next.isProfit()) {
             color = upColor;
@@ -334,9 +340,7 @@ public class CustomOrderPlottingRenderer extends AbstractXYItemRenderer
             x2 = dataArea.getMaxX();
         }
 
-        final double openPrice = next.getOpenPrice();
         final double closePrice = next.getClosePrice();
-
         final double y1 = rangeAxis.valueToJava2D(openPrice, dataArea, rangeEdge);
         final double y2 = rangeAxis.valueToJava2D(closePrice, dataArea, rangeEdge);
         final XYLineAnnotation lineAnnotation = new XYLineAnnotation(x1, y1, x2, y2, stroke, color);

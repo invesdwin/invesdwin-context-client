@@ -24,6 +24,7 @@ import de.invesdwin.util.concurrent.future.Futures;
 import de.invesdwin.util.concurrent.future.ImmutableFuture;
 import de.invesdwin.util.concurrent.future.ThrowableFuture;
 import de.invesdwin.util.lang.Objects;
+import de.invesdwin.util.lang.string.Strings;
 import de.invesdwin.util.swing.Components;
 import de.invesdwin.util.swing.listener.DocumentListenerSupport;
 import de.invesdwin.util.swing.listener.FocusListenerSupport;
@@ -48,7 +49,8 @@ public class SpinnerChoiceBinding extends AComponentBinding<JSpinner, Object> {
         this.element = element;
         this.model = new JSpinnerComparableChoiceModel();
         component.setModel(model);
-        this.editor = new JSpinnerFormattedEditor(component, new ConverterFormatter(newConverter()));
+        final ConverterFormatter editorFormatter = new ConverterFormatter(newConverter());
+        this.editor = new JSpinnerFormattedEditor(component, editorFormatter);
         editor.getTextField().setFocusLostBehavior(JFormattedTextField.COMMIT);
         component.setEditor(editor);
 
@@ -77,10 +79,20 @@ public class SpinnerChoiceBinding extends AComponentBinding<JSpinner, Object> {
                         //we have to circumvent internal sync of JSpinner or else we get exceptions based on updates during locks
                         try {
                             final JFormattedTextField textField = editor.getTextField();
-                            final AbstractFormatter formatter = textField.getFormatter();
                             try {
-                                final Object value = formatter.stringToValue(textField.getText());
-                                pendingComponentValue = ImmutableFuture.of(value);
+                                final String text = textField.getText();
+                                final Object formattedValue;
+                                if (Strings.isBlank(text)) {
+                                    //might happen during document replace (which happens during install) which is a remove and insert separately
+                                    if (editorFormatter.isInstalling()) {
+                                        return;
+                                    }
+                                    formattedValue = null;
+                                } else {
+                                    final AbstractFormatter formatter = textField.getFormatter();
+                                    formattedValue = formatter.stringToValue(text);
+                                }
+                                pendingComponentValue = ImmutableFuture.of(formattedValue);
                                 prevComponentValue = pendingComponentValue;
                             } catch (final Throwable t) {
                                 setInvalidMessage(exceptionToString(t));
