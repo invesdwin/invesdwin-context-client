@@ -18,7 +18,6 @@ import org.jfree.chart.plot.CrosshairState;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.PlotRenderingInfo;
 import org.jfree.chart.plot.XYPlot;
-import org.jfree.chart.renderer.xy.AbstractXYItemRenderer;
 import org.jfree.chart.renderer.xy.XYItemRendererState;
 import org.jfree.chart.ui.Layer;
 import org.jfree.chart.ui.RectangleEdge;
@@ -32,6 +31,7 @@ import de.invesdwin.context.client.swing.jfreechart.plot.annotation.priceline.ID
 import de.invesdwin.context.client.swing.jfreechart.plot.annotation.priceline.IPriceLineRenderer;
 import de.invesdwin.context.client.swing.jfreechart.plot.annotation.priceline.XYPriceLineAnnotation;
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.IndexedDateTimeOHLCDataset;
+import de.invesdwin.context.client.swing.jfreechart.plot.renderer.custom.ACustomXYItemRenderer;
 import de.invesdwin.util.error.UnknownArgumentException;
 import de.invesdwin.util.math.Doubles;
 import de.invesdwin.util.math.Floats;
@@ -45,7 +45,7 @@ import de.invesdwin.util.math.Floats;
  * This renderer does not include code to calculate the crosshair point for the plot.
  */
 @NotThreadSafe
-public class FastCandlestickRenderer extends AbstractXYItemRenderer
+public class FastCandlestickRenderer extends ACustomXYItemRenderer
         implements IUpDownColorRenderer, IDelegatePriceLineXYItemRenderer {
 
     private static final double MAX_CANDLE_WIDTH_LIMIT = 30D;
@@ -521,5 +521,4 @@ public class FastCandlestickRenderer extends AbstractXYItemRenderer
             final ValueAxis rangeAxis, final Layer layer, final PlotRenderingInfo info) {
         super.drawAnnotations(g2, dataArea, domainAxis, rangeAxis, layer, info);
     }
-
 }

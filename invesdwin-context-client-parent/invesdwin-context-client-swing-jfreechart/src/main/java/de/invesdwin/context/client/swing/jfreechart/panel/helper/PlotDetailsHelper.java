@@ -8,7 +8,6 @@ import java.awt.event.MouseWheelEvent;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
-import org.jfree.chart.plot.ValueMarker;
 import org.jfree.chart.plot.XYPlot;
 
 import de.invesdwin.aspects.annotation.EventDispatchThread;
@@ -16,17 +15,21 @@ import de.invesdwin.aspects.annotation.EventDispatchThread.InvocationType;
 import de.invesdwin.context.client.swing.jfreechart.panel.InteractiveChartPanel;
 import de.invesdwin.context.client.swing.jfreechart.plot.annotation.XYNoteIconAnnotation;
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.IndexedDateTimeOHLCDataset;
+import de.invesdwin.context.client.swing.jfreechart.plot.renderer.custom.marker.TriangleLineValueMarker;
+import de.invesdwin.util.lang.color.Colors;
+import de.invesdwin.util.math.decimal.scaled.Percent;
 import de.invesdwin.util.time.date.FDate;
 import de.invesdwin.util.time.date.FDates;
 
 @NotThreadSafe
 public class PlotDetailsHelper {
 
-    private static final Color PIN_COLOR = Color.BLUE;
-    private static final Stroke PIN_STROKE = new BasicStroke(0.5f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 0);
+    private static final Color PIN_LINE_COLOR = Colors.setTransparency(Color.BLUE, Percent.SEVENTY_PERCENT);
+    private static final Color PIN_TRIANGLE_COLOR = Color.BLUE;
+    private static final Stroke PIN_STROKE = new BasicStroke(2.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 0);
 
     private final InteractiveChartPanel chartPanel;
-    private ValueMarker pinMarker;
+    private TriangleLineValueMarker pinMarker;
     private IJFreeChartPointsOfInterestListener coordinateListener;
 
     public PlotDetailsHelper(final InteractiveChartPanel chartPanel) {
@@ -55,7 +58,8 @@ public class PlotDetailsHelper {
             xyPlot.removeDomainMarker(pinMarker);
 
             if (pinnedSomething) {
-                pinMarker = new ValueMarker(domainCrosshairMarkerValue, PIN_COLOR, PIN_STROKE);
+                pinMarker = new TriangleLineValueMarker(domainCrosshairMarkerValue, PIN_LINE_COLOR, PIN_STROKE, 15, 15,
+                        PIN_TRIANGLE_COLOR, true, true);
                 xyPlot.addDomainMarker(pinMarker);
             }
         }
