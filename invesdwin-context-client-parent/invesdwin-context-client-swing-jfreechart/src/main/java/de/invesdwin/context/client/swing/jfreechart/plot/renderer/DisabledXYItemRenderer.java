@@ -14,17 +14,17 @@ import org.jfree.chart.plot.CrosshairState;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.PlotRenderingInfo;
 import org.jfree.chart.plot.XYPlot;
-import org.jfree.chart.renderer.xy.AbstractXYItemRenderer;
 import org.jfree.chart.renderer.xy.XYItemRenderer;
 import org.jfree.chart.renderer.xy.XYItemRendererState;
 import org.jfree.data.xy.XYDataset;
 
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.IPlotSourceDataset;
+import de.invesdwin.context.client.swing.jfreechart.plot.renderer.custom.ACustomXYItemRenderer;
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.lang.color.Colors;
 
 @NotThreadSafe
-public class DisabledXYItemRenderer extends AbstractXYItemRenderer implements IDatasetSourceXYItemRenderer {
+public class DisabledXYItemRenderer extends ACustomXYItemRenderer implements IDatasetSourceXYItemRenderer {
 
     private final IDatasetSourceXYItemRenderer enabledRenderer;
 

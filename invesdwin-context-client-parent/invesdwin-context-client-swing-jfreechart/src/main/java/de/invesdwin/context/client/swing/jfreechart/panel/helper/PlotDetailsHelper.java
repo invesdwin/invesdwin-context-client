@@ -5,9 +5,13 @@ import java.awt.Color;
 import java.awt.Stroke;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
+import org.jfree.chart.plot.ValueMarker;
 import org.jfree.chart.plot.XYPlot;
 
 import de.invesdwin.aspects.annotation.EventDispatchThread;
@@ -29,8 +33,9 @@ public class PlotDetailsHelper {
     private static final Stroke PIN_STROKE = new BasicStroke(2.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 0);
 
     private final InteractiveChartPanel chartPanel;
-    private TriangleLineValueMarker pinMarker;
+    private final List<ValueMarker> markers = new ArrayList<>();
     private IJFreeChartPointsOfInterestListener coordinateListener;
+    private int domainMarkerValue;
 
     public PlotDetailsHelper(final InteractiveChartPanel chartPanel) {
         this.chartPanel = chartPanel;
@@ -53,15 +58,44 @@ public class PlotDetailsHelper {
 
     public void mousePressed(final MouseEvent e, final int domainCrosshairMarkerValue) {
         if (MouseEvent.BUTTON1 == e.getButton() && e.isControlDown()) {
-            final XYPlot xyPlot = (XYPlot) chartPanel.getCombinedPlot().getDomainAxis().getPlot();
             final boolean pinnedSomething = coordinateListener.pinCoordinates();
-            xyPlot.removeDomainMarker(pinMarker);
+            removePinMarker();
 
             if (pinnedSomething) {
-                pinMarker = new TriangleLineValueMarker(domainCrosshairMarkerValue, PIN_LINE_COLOR, PIN_STROKE, 15, 15,
-                        PIN_TRIANGLE_COLOR, true, true);
-                xyPlot.addDomainMarker(pinMarker);
+                domainMarkerValue = domainCrosshairMarkerValue;
+                updatePinMarker();
             }
+        }
+    }
+
+    public void updatePinMarker() {
+        removePinMarker();
+        final List<XYPlot> plots = chartPanel.getCombinedPlot().getSubplots();
+        //The first SubPlot is always the trashplot. We don't paint on this one.
+        if (plots.size() == 2) {
+            final ValueMarker pinMarker = new TriangleLineValueMarker(domainMarkerValue, PIN_LINE_COLOR, PIN_STROKE, 15,
+                    15, PIN_TRIANGLE_COLOR, true, true);
+            final XYPlot plot = plots.get(1);
+            plot.addDomainMarker(pinMarker);
+            markers.add(pinMarker);
+        } else if (plots.size() > 2) {
+            for (int i = 1; i < plots.size(); i++) {
+                final XYPlot plot = plots.get(i);
+                final ValueMarker pinMarker;
+                if (i == 1) {
+                    pinMarker = new TriangleLineValueMarker(domainMarkerValue, PIN_LINE_COLOR, PIN_STROKE, 15, 15,
+                            PIN_TRIANGLE_COLOR, true, false);
+                } else if (i == plots.size() - 1) {
+                    pinMarker = new TriangleLineValueMarker(domainMarkerValue, PIN_LINE_COLOR, PIN_STROKE, 15, 15,
+                            PIN_TRIANGLE_COLOR, false, true);
+                } else {
+                    pinMarker = new ValueMarker(domainMarkerValue, PIN_LINE_COLOR, PIN_STROKE);
+                }
+                plot.addDomainMarker(pinMarker);
+                markers.add(pinMarker);
+            }
+        } else {
+            throw new IllegalStateException("Plots-Size of: " + plots.size() + " is not allowed.");
         }
     }
 
@@ -81,8 +115,36 @@ public class PlotDetailsHelper {
     }
 
     public void removePinMarker() {
-        final XYPlot xyPlot = (XYPlot) chartPanel.getCombinedPlot().getDomainAxis().getPlot();
-        xyPlot.removeDomainMarker(pinMarker);
+        final List<XYPlot> plots = chartPanel.getCombinedPlot().getSubplots();
+        for (int i = 1; i < plots.size(); i++) {
+            final XYPlot plot = plots.get(i);
+            final Iterator<ValueMarker> it = markers.iterator();
+            while (it.hasNext()) {
+                final ValueMarker marker = it.next();
+                final boolean removedSomething = plot.removeDomainMarker(marker);
+                if (removedSomething) {
+                    it.remove();
+                }
+            }
+        }
+
+        /*
+         * If there were SubPlots removed after a Marker was set, there might still be markers left here --> we clear
+         * the whole list just in case.
+         */
+
+        markers.clear();
+    }
+
+    public void removePinMarker(final XYPlot subplot) {
+        final Iterator<ValueMarker> it = markers.iterator();
+        while (it.hasNext()) {
+            final ValueMarker marker = it.next();
+            final boolean removedSomething = subplot.removeDomainMarker(marker);
+            if (removedSomething) {
+                it.remove();
+            }
+        }
     }
 
     @EventDispatchThread(InvocationType.INVOKE_LATER_IF_NOT_IN_EDT)

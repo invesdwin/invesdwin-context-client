@@ -23,7 +23,6 @@ import org.jfree.chart.plot.Plot;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.PlotRenderingInfo;
 import org.jfree.chart.plot.XYPlot;
-import org.jfree.chart.renderer.xy.AbstractXYItemRenderer;
 import org.jfree.chart.renderer.xy.XYItemRenderer;
 import org.jfree.chart.renderer.xy.XYItemRendererState;
 import org.jfree.chart.ui.RectangleEdge;
@@ -34,12 +33,13 @@ import org.jfree.data.xy.XYDataset;
 
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.LineWidthType;
 import de.invesdwin.context.client.swing.jfreechart.plot.renderer.Renderers;
+import de.invesdwin.context.client.swing.jfreechart.plot.renderer.custom.ACustomXYItemRenderer;
 
 /**
  * Adapted from CustomXYShapeRenderer
  */
 @NotThreadSafe
-public class CustomXYShapeRenderer extends AbstractXYItemRenderer implements XYItemRenderer, Cloneable, Serializable {
+public class CustomXYShapeRenderer extends ACustomXYItemRenderer implements XYItemRenderer, Cloneable, Serializable {
 
     /** For serialization. */
     private static final long serialVersionUID = -3271351259436865995L;

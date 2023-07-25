@@ -24,7 +24,6 @@ import org.jfree.chart.plot.CrosshairState;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.PlotRenderingInfo;
 import org.jfree.chart.plot.XYPlot;
-import org.jfree.chart.renderer.xy.AbstractXYItemRenderer;
 import org.jfree.chart.renderer.xy.XYItemRendererState;
 import org.jfree.chart.ui.GradientPaintTransformer;
 import org.jfree.chart.ui.StandardGradientPaintTransformer;
@@ -38,6 +37,7 @@ import de.invesdwin.context.client.swing.jfreechart.plot.annotation.priceline.ID
 import de.invesdwin.context.client.swing.jfreechart.plot.annotation.priceline.IPriceLineRenderer;
 import de.invesdwin.context.client.swing.jfreechart.plot.annotation.priceline.XYPriceLineAnnotation;
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.IPlotSourceDataset;
+import de.invesdwin.context.client.swing.jfreechart.plot.renderer.custom.ACustomXYItemRenderer;
 
 /**
  * Instead of drawing an outline, this one draws a line so that at start and end of series the line does not go to zero.
@@ -46,7 +46,7 @@ import de.invesdwin.context.client.swing.jfreechart.plot.dataset.IPlotSourceData
  *
  */
 @NotThreadSafe
-public class FastXYAreaRenderer extends AbstractXYItemRenderer implements IDelegatePriceLineXYItemRenderer {
+public class FastXYAreaRenderer extends ACustomXYItemRenderer implements IDelegatePriceLineXYItemRenderer {
 
     private static final class XYAreaRendererState extends XYItemRendererState {
         private GeneralPath area;

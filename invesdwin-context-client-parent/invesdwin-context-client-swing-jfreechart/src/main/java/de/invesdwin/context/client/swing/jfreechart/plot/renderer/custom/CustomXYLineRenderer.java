@@ -24,7 +24,6 @@ import org.jfree.chart.plot.Plot;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.chart.plot.PlotRenderingInfo;
 import org.jfree.chart.plot.XYPlot;
-import org.jfree.chart.renderer.xy.AbstractXYItemRenderer;
 import org.jfree.chart.renderer.xy.XYItemRenderer;
 import org.jfree.chart.renderer.xy.XYItemRendererState;
 import org.jfree.chart.ui.RectangleEdge;
@@ -40,7 +39,7 @@ import de.invesdwin.context.client.swing.jfreechart.plot.renderer.Renderers;
  * Adapted from StandardXYItemRenderer
  */
 @NotThreadSafe
-public class CustomXYLineRenderer extends AbstractXYItemRenderer
+public class CustomXYLineRenderer extends ACustomXYItemRenderer
         implements XYItemRenderer, Cloneable, PublicCloneable, Serializable {
 
     private static final long serialVersionUID = -3271351259436865995L;
@@ -410,5 +409,4 @@ public class CustomXYLineRenderer extends AbstractXYItemRenderer
         stream.defaultWriteObject();
         SerialUtils.writeShape(this.legendLine, stream);
     }
-
 }

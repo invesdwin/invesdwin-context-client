@@ -448,6 +448,7 @@ public class InteractiveChartPanel extends JPanel {
                                     }
                                     configureRangeAxis();
                                     plotLegendHelper.update();
+                                    plotDetailsHelper.updatePinMarker();
                                 } catch (final Throwable t) {
                                     Err.process(new RuntimeException("Ignoring", t));
                                     return;
@@ -524,6 +525,7 @@ public class InteractiveChartPanel extends JPanel {
         @Override
         public void datasetChanged(final DatasetChangeEvent event) {
             plotCrosshairHelper.datasetChanged();
+            plotDetailsHelper.updatePinMarker(); //TODO: needed ?
         }
     }
 

@@ -2,9 +2,6 @@ package de.invesdwin.context.client.swing.jfreechart.plot.renderer.custom.marker
 
 import java.awt.Paint;
 import java.awt.Stroke;
-import java.awt.geom.GeneralPath;
-import java.awt.geom.Path2D;
-import java.awt.geom.Rectangle2D;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -33,17 +30,6 @@ public class TriangleLineValueMarker extends ValueMarker {
         this.trianglePaint = trianglePaint;
         this.drawStartTriangle = drawStartTriangle;
         this.drawEndTriangle = drawEndTriangle;
-    }
-
-    public GeneralPath getTriangle(final Rectangle2D dataArea) {
-        final GeneralPath triangle = new GeneralPath();
-        triangle.setWindingRule(Path2D.WIND_EVEN_ODD);
-        triangle.moveTo(getValue(), dataArea.getMaxY() - (triangleHeight / 2.0));
-        triangle.lineTo(getValue() - (triangleWidth / 2), dataArea.getMaxY());
-        triangle.lineTo(getValue() + (triangleWidth / 2), dataArea.getMaxY());
-        triangle.lineTo(getValue(), dataArea.getMaxY() - (triangleHeight / 2.0));
-        triangle.closePath();
-        return triangle;
     }
 
     public double getTriangleWidth() {
