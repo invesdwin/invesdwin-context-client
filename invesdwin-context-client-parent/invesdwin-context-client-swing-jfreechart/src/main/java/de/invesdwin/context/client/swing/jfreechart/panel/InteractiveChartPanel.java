@@ -525,7 +525,6 @@ public class InteractiveChartPanel extends JPanel {
         @Override
         public void datasetChanged(final DatasetChangeEvent event) {
             plotCrosshairHelper.datasetChanged();
-            plotDetailsHelper.updatePinMarker(); //TODO: needed ?
         }
     }
 
@@ -560,7 +559,6 @@ public class InteractiveChartPanel extends JPanel {
                 plotZoomHelper.mousePressed(e);
                 plotPanHelper.mousePressed(e);
                 plotDetailsHelper.mousePressed(e, (int) plotCrosshairHelper.getDomainCrosshairMarkerValue());
-                //TODO: der marker wird in einer mit @EventDispatchThread(InvocationType.INVOKE_LATER_IF_NOT_IN_EDT) annotierten methode gesetzt. ist das problematishc hier dann so rein zu geben ?
                 if (new Duration(lastVerticalScroll).isGreaterThan(SCROLL_LOCK_DURATION)) {
                     if (e.getButton() == 4) {
                         plotPanHelper.panLeft();
@@ -679,6 +677,8 @@ public class InteractiveChartPanel extends JPanel {
     }
 
     private final class MouseWheelListenerImpl extends MouseWheelListenerSupport {
+        private final Duration mouseWheelThrottle = new Duration(10, FTimeUnit.MILLISECONDS);
+
         @Override
         public void mouseWheelMoved(final MouseWheelEvent e) {
             try {
@@ -690,7 +690,7 @@ public class InteractiveChartPanel extends JPanel {
                             plotPanHelper.panRight();
                         }
                     } else if (e.isControlDown()) {
-                        if (new Duration(lastVerticalScroll).isGreaterThan(new Duration(10, FTimeUnit.MILLISECONDS))) { //TODO: konstante und guten Wert finden. Ohne den delayCheck wird das ScrollEvent immer doppelt geschmissen und wir würden jeweils eine Order skippen
+                        if (new Duration(lastVerticalScroll).isGreaterThan(mouseWheelThrottle)) {
                             plotDetailsHelper.mouseWheelMoved(e);
                         }
                     } else {
