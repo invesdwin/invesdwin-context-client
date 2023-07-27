@@ -677,8 +677,6 @@ public class InteractiveChartPanel extends JPanel {
     }
 
     private final class MouseWheelListenerImpl extends MouseWheelListenerSupport {
-        private final Duration mouseWheelThrottle = new Duration(10, FTimeUnit.MILLISECONDS);
-
         @Override
         public void mouseWheelMoved(final MouseWheelEvent e) {
             try {
@@ -690,9 +688,7 @@ public class InteractiveChartPanel extends JPanel {
                             plotPanHelper.panRight();
                         }
                     } else if (e.isControlDown()) {
-                        if (new Duration(lastVerticalScroll).isGreaterThan(mouseWheelThrottle)) {
-                            plotDetailsHelper.mouseWheelMoved(e);
-                        }
+                        plotDetailsHelper.mouseWheelMoved(e);
                     } else {
                         plotZoomHelper.mouseWheelMoved(e);
                     }
