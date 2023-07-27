@@ -39,6 +39,12 @@ public enum WorkingAreaLocation implements IWorkingAreaLocation {
         protected CLocation newLocation(final CWorkingAreaLocation base) {
             return base.east(0.333, ordinal());
         }
+    },
+    East_Fifteen_Percent {
+        @Override
+        protected CLocation newLocation(final CWorkingAreaLocation base) {
+            return base.east(0.15, ordinal());
+        }
     };
 
     protected abstract CLocation newLocation(CWorkingAreaLocation base);
