@@ -8,18 +8,19 @@ import java.awt.event.MouseWheelEvent;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
 import org.jfree.chart.plot.ValueMarker;
 import org.jfree.chart.plot.XYPlot;
 
-import de.invesdwin.aspects.annotation.EventDispatchThread;
-import de.invesdwin.aspects.annotation.EventDispatchThread.InvocationType;
 import de.invesdwin.context.client.swing.jfreechart.panel.InteractiveChartPanel;
+import de.invesdwin.context.client.swing.jfreechart.plot.Markers;
 import de.invesdwin.context.client.swing.jfreechart.plot.annotation.XYNoteIconAnnotation;
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.IndexedDateTimeOHLCDataset;
 import de.invesdwin.context.client.swing.jfreechart.plot.renderer.custom.marker.TriangleLineValueMarker;
+import de.invesdwin.util.collections.factory.ILockCollectionFactory;
 import de.invesdwin.util.lang.color.Colors;
 import de.invesdwin.util.math.decimal.scaled.Percent;
 import de.invesdwin.util.time.date.FDate;
@@ -34,8 +35,17 @@ public class PlotDetailsHelper {
 
     private final InteractiveChartPanel chartPanel;
     private final List<ValueMarker> markers = new ArrayList<>();
+    private final ValueMarker pinMarkerTopAndBottomTriangle = new TriangleLineValueMarker(-1, PIN_LINE_COLOR,
+            PIN_STROKE, 15, 15, PIN_TRIANGLE_COLOR, true, true);
+    private final ValueMarker pinMarkerTopTriangle = new TriangleLineValueMarker(-1, PIN_LINE_COLOR, PIN_STROKE, 15, 15,
+            PIN_TRIANGLE_COLOR, true, false);
+    private final ValueMarker pinMarkerBottomTriangle = new TriangleLineValueMarker(-1, PIN_LINE_COLOR, PIN_STROKE, 15,
+            15, PIN_TRIANGLE_COLOR, false, true);
+    private final ValueMarker pinMarkerNoTriangle = new ValueMarker(-1, PIN_LINE_COLOR, PIN_STROKE);
+
     private IJFreeChartPointsOfInterestListener coordinateListener;
-    private int domainMarkerValue;
+    private volatile Integer domainMarkerValue;
+    private final Set<XYPlot> prevMarkerPlots = ILockCollectionFactory.getInstance(true).newIdentitySet();
 
     public PlotDetailsHelper(final InteractiveChartPanel chartPanel) {
         this.chartPanel = chartPanel;
@@ -59,8 +69,6 @@ public class PlotDetailsHelper {
     public void mousePressed(final MouseEvent e, final int domainCrosshairMarkerValue) {
         if (MouseEvent.BUTTON1 == e.getButton() && e.isControlDown()) {
             final boolean pinnedSomething = coordinateListener.pinCoordinates();
-            removePinMarker();
-
             if (pinnedSomething) {
                 domainMarkerValue = domainCrosshairMarkerValue;
                 updatePinMarker();
@@ -69,34 +77,89 @@ public class PlotDetailsHelper {
     }
 
     public void updatePinMarker() {
-        removePinMarker();
+        final Integer domainMarkerValueCopy = domainMarkerValue;
+        if (domainMarkerValueCopy == null) {
+            //This is null till a Marker was set once
+            return;
+        }
+
         final List<XYPlot> plots = chartPanel.getCombinedPlot().getSubplots();
+        if (domainMarkerValueCopy == -1 && pinMarkerTopAndBottomTriangle.getValue() >= 0) {
+            //remove domain marker
+            removePinMarker();
+            updateDomainMarkerValuesViaReflection(domainMarkerValueCopy);
+        } else if (domainMarkerValueCopy >= 0 && pinMarkerTopAndBottomTriangle.getValue() == -1) {
+            //add domain marker
+            updateDomainMarkerValues(domainMarkerValueCopy);
+            addDomainMarkers(plots);
+        } else if (isPlotsChanged(plots)) {
+            //remove and add domain marker
+            removePinMarker();
+            addDomainMarkers(plots);
+        } else if (domainMarkerValueCopy != pinMarkerTopAndBottomTriangle.getValue()) {
+            //update domain marker value
+            updateDomainMarkerValues(domainMarkerValueCopy);
+        }
+
+        //update prevState so we can lazy-check in next updatePinMarkerCall
+        prevMarkerPlots.clear();
+        for (int i = 0; i < plots.size(); i++) {
+            prevMarkerPlots.add(plots.get(i));
+        }
+    }
+
+    private void updateDomainMarkerValues(final int domainMarkerValueCopy) {
+        pinMarkerTopAndBottomTriangle.setValue(domainMarkerValueCopy);
+        pinMarkerTopTriangle.setValue(domainMarkerValueCopy);
+        pinMarkerBottomTriangle.setValue(domainMarkerValueCopy);
+        pinMarkerNoTriangle.setValue(domainMarkerValueCopy);
+    }
+
+    private void updateDomainMarkerValuesViaReflection(final int domainMarkerValueCopy) {
+        Markers.setValue(pinMarkerTopAndBottomTriangle, domainMarkerValueCopy);
+        Markers.setValue(pinMarkerTopTriangle, domainMarkerValueCopy);
+        Markers.setValue(pinMarkerBottomTriangle, domainMarkerValueCopy);
+        Markers.setValue(pinMarkerNoTriangle, domainMarkerValueCopy);
+    }
+
+    private void addDomainMarkers(final List<XYPlot> plots) {
         //The first SubPlot is always the trashplot. We don't paint on this one.
         if (plots.size() == 2) {
-            final ValueMarker pinMarker = new TriangleLineValueMarker(domainMarkerValue, PIN_LINE_COLOR, PIN_STROKE, 15,
-                    15, PIN_TRIANGLE_COLOR, true, true);
             final XYPlot plot = plots.get(1);
-            plot.addDomainMarker(pinMarker);
-            markers.add(pinMarker);
+            plot.addDomainMarker(pinMarkerTopAndBottomTriangle);
+            markers.add(pinMarkerTopAndBottomTriangle);
         } else if (plots.size() > 2) {
             for (int i = 1; i < plots.size(); i++) {
                 final XYPlot plot = plots.get(i);
-                final ValueMarker pinMarker;
                 if (i == 1) {
-                    pinMarker = new TriangleLineValueMarker(domainMarkerValue, PIN_LINE_COLOR, PIN_STROKE, 15, 15,
-                            PIN_TRIANGLE_COLOR, true, false);
+                    plot.addDomainMarker(pinMarkerTopTriangle);
+                    markers.add(pinMarkerTopTriangle);
                 } else if (i == plots.size() - 1) {
-                    pinMarker = new TriangleLineValueMarker(domainMarkerValue, PIN_LINE_COLOR, PIN_STROKE, 15, 15,
-                            PIN_TRIANGLE_COLOR, false, true);
+                    plot.addDomainMarker(pinMarkerBottomTriangle);
+                    markers.add(pinMarkerBottomTriangle);
                 } else {
-                    pinMarker = new ValueMarker(domainMarkerValue, PIN_LINE_COLOR, PIN_STROKE);
+                    plot.addDomainMarker(pinMarkerNoTriangle);
+                    markers.add(pinMarkerNoTriangle);
                 }
-                plot.addDomainMarker(pinMarker);
-                markers.add(pinMarker);
             }
         } else {
             throw new IllegalStateException("Plots-Size of: " + plots.size() + " is not allowed.");
         }
+    }
+
+    private boolean isPlotsChanged(final List<XYPlot> plots) {
+        if (plots.size() == 1) {
+            return false;
+        }
+        if (plots.size() != prevMarkerPlots.size()) {
+            return true;
+        }
+        for (int i = 1; i < plots.size(); i++) {
+            if (!prevMarkerPlots.contains(plots.get(i))) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public void showOrderDetails(final XYNoteIconAnnotation noteShowingIconAnnotation) {
@@ -114,7 +177,13 @@ public class PlotDetailsHelper {
         coordinateListener.disableSelectedDetails();
     }
 
-    public void removePinMarker() {
+    public void triggerRemovePinMarker() {
+        domainMarkerValue = -1;
+        //ChartPanel.update() so the update is in the UI-Thread
+        chartPanel.update();
+    }
+
+    private void removePinMarker() {
         final List<XYPlot> plots = chartPanel.getCombinedPlot().getSubplots();
         for (int i = 1; i < plots.size(); i++) {
             final XYPlot plot = plots.get(i);
@@ -147,7 +216,6 @@ public class PlotDetailsHelper {
         }
     }
 
-    @EventDispatchThread(InvocationType.INVOKE_LATER_IF_NOT_IN_EDT)
     public void disableSelectedDetails() {
         coordinateListener.disableSelectedDetails();
     }
