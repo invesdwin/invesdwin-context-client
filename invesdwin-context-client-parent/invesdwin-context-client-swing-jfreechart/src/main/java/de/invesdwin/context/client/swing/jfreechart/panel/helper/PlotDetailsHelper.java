@@ -44,8 +44,9 @@ public class PlotDetailsHelper {
     private final ValueMarker pinMarkerNoTriangle = new ValueMarker(-1, PIN_LINE_COLOR, PIN_STROKE);
 
     private IJFreeChartPointsOfInterestListener coordinateListener;
-    private volatile Integer domainMarkerValue;
+    private volatile FDate domainMarkerFDate;
     private final Set<XYPlot> prevMarkerPlots = ILockCollectionFactory.getInstance(true).newIdentitySet();
+    private boolean domainMarkerSetOnce = false;
 
     public PlotDetailsHelper(final InteractiveChartPanel chartPanel) {
         this.chartPanel = chartPanel;
@@ -70,25 +71,31 @@ public class PlotDetailsHelper {
         if (MouseEvent.BUTTON1 == e.getButton() && e.isControlDown()) {
             final boolean pinnedSomething = coordinateListener.pinCoordinates();
             if (pinnedSomething) {
-                domainMarkerValue = domainCrosshairMarkerValue;
+                final XYPlot xyPlot = (XYPlot) chartPanel.getCombinedPlot().getDomainAxis().getPlot();
+                final IndexedDateTimeOHLCDataset dataset = (IndexedDateTimeOHLCDataset) xyPlot.getDataset();
+                domainMarkerFDate = dataset.getData().get(domainCrosshairMarkerValue).getEndTime();
+                domainMarkerSetOnce = true;
                 updatePinMarker();
             }
         }
     }
 
     public void updatePinMarker() {
-        final Integer domainMarkerValueCopy = domainMarkerValue;
-        if (domainMarkerValueCopy == null) {
-            //This is null till a Marker was set once
+        final FDate domainMarkerFDateCopy = domainMarkerFDate;
+        if (!domainMarkerSetOnce) {
+            //avoid checking the other conditions on init. only after a marker was set the first time.
             return;
         }
 
+        final XYPlot xyPlot = (XYPlot) chartPanel.getCombinedPlot().getDomainAxis().getPlot();
+        final IndexedDateTimeOHLCDataset dataset = (IndexedDateTimeOHLCDataset) xyPlot.getDataset();
+        final Integer domainMarkerValueCopy = dataset.getDateTimeEndAsItemIndex(0, domainMarkerFDateCopy);
         final List<XYPlot> plots = chartPanel.getCombinedPlot().getSubplots();
-        if (domainMarkerValueCopy == -1 && pinMarkerTopAndBottomTriangle.getValue() >= 0) {
+        if (domainMarkerFDateCopy == null && pinMarkerTopAndBottomTriangle.getValue() >= 0) {
             //remove domain marker
             removePinMarker();
-            updateDomainMarkerValuesViaReflection(domainMarkerValueCopy);
-        } else if (domainMarkerValueCopy >= 0 && pinMarkerTopAndBottomTriangle.getValue() == -1) {
+            updateDomainMarkerValuesViaReflection(-1);
+        } else if (domainMarkerFDateCopy != null && pinMarkerTopAndBottomTriangle.getValue() == -1) {
             //add domain marker
             updateDomainMarkerValues(domainMarkerValueCopy);
             addDomainMarkers(plots);
@@ -178,7 +185,7 @@ public class PlotDetailsHelper {
     }
 
     public void triggerRemovePinMarker() {
-        domainMarkerValue = -1;
+        domainMarkerFDate = null;
         //ChartPanel.update() so the update is in the UI-Thread
         chartPanel.update();
     }
