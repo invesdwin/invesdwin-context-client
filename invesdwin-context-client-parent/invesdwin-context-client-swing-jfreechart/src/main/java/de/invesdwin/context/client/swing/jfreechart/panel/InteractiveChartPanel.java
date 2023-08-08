@@ -525,6 +525,7 @@ public class InteractiveChartPanel extends JPanel {
         @Override
         public void datasetChanged(final DatasetChangeEvent event) {
             plotCrosshairHelper.datasetChanged();
+            plotDetailsHelper.datasetChanged();
         }
     }
 

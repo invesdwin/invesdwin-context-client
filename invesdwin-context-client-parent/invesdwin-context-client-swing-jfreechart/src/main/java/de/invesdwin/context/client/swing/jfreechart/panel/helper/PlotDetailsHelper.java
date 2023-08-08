@@ -47,6 +47,7 @@ public class PlotDetailsHelper {
     private volatile FDate domainMarkerFDate;
     private final Set<XYPlot> prevMarkerPlots = ILockCollectionFactory.getInstance(true).newIdentitySet();
     private boolean domainMarkerSetOnce = false;
+    private FDate previousStartTime = FDates.MIN_DATE;
 
     public PlotDetailsHelper(final InteractiveChartPanel chartPanel) {
         this.chartPanel = chartPanel;
@@ -73,7 +74,7 @@ public class PlotDetailsHelper {
             if (pinnedSomething) {
                 final XYPlot xyPlot = (XYPlot) chartPanel.getCombinedPlot().getDomainAxis().getPlot();
                 final IndexedDateTimeOHLCDataset dataset = (IndexedDateTimeOHLCDataset) xyPlot.getDataset();
-                domainMarkerFDate = dataset.getData().get(domainCrosshairMarkerValue).getEndTime();
+                domainMarkerFDate = dataset.getData().get(domainCrosshairMarkerValue).getStartTime();
                 domainMarkerSetOnce = true;
                 updatePinMarker();
             }
@@ -89,7 +90,8 @@ public class PlotDetailsHelper {
 
         final XYPlot xyPlot = (XYPlot) chartPanel.getCombinedPlot().getDomainAxis().getPlot();
         final IndexedDateTimeOHLCDataset dataset = (IndexedDateTimeOHLCDataset) xyPlot.getDataset();
-        final Integer domainMarkerValueCopy = dataset.getDateTimeEndAsItemIndex(0, domainMarkerFDateCopy);
+        final Integer domainMarkerValueCopy = dataset.getDateTimeStartAsItemIndex(0, domainMarkerFDateCopy);
+
         final List<XYPlot> plots = chartPanel.getCombinedPlot().getSubplots();
         if (domainMarkerFDateCopy == null && pinMarkerTopAndBottomTriangle.getValue() >= 0) {
             //remove domain marker
@@ -182,6 +184,17 @@ public class PlotDetailsHelper {
 
     public void mouseExited() {
         coordinateListener.disableSelectedDetails();
+    }
+
+    public void datasetChanged() {
+        final XYPlot xyPlot = (XYPlot) chartPanel.getCombinedPlot().getDomainAxis().getPlot();
+        final IndexedDateTimeOHLCDataset dataset = (IndexedDateTimeOHLCDataset) xyPlot.getDataset();
+        final FDate currentBarStartTime = dataset.getData().get(dataset.getData().size() - 1).getStartTime();
+        if (previousStartTime.isBefore(currentBarStartTime)) {
+            final FDate previousBarEndTime = dataset.getData().get(dataset.getData().size() - 2).getEndTime();
+            coordinateListener.maybeUpdateIncompleteBar(previousStartTime, previousBarEndTime);
+            previousStartTime = currentBarStartTime;
+        }
     }
 
     public void triggerRemovePinMarker() {

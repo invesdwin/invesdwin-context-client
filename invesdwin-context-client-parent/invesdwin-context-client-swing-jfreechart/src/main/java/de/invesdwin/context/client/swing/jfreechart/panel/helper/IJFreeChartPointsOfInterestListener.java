@@ -15,4 +15,6 @@ public interface IJFreeChartPointsOfInterestListener {
     void mouseWheelMoved(MouseWheelEvent e);
 
     boolean pinCoordinates();
+
+    void maybeUpdateIncompleteBar(FDate currentBarStartTime, FDate currentBarEndTime);
 }
