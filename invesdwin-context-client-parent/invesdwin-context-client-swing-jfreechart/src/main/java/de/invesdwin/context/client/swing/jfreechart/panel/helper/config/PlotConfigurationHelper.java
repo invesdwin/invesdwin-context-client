@@ -449,7 +449,7 @@ public class PlotConfigurationHelper {
                                 + "<br>You can zoom on the Y-Axis of each series by Mouse-Scrolling or Mouse-Dragging on each seperate indicator as well."
                                 + "<br>When you manually zoomed in or out on any of the series you are able to also pan on the Y-Axis of all series."
                                 + "<br>The zoom for each Y-Axis can be resetted by Double-Clicking the corresponding axis."
-                                + "<br>Strg + Double-Click on any series-Y-axis will reset the Y-axis-zoom for all series of the plot."
+                                + "<br>Ctrl + DoubleClick on any series-Y-axis will reset the Y-axis-zoom for all series of the plot."
                                 + "<br>When every series Y-Axis is in Auto-Range-Mode (it automatically fits the displayed data): panning on the Y-Axis is disabled.</li>");
                 sb.append("</ul></li>");
                 sb.append("</ul></li>");
@@ -468,6 +468,13 @@ public class PlotConfigurationHelper {
                             + "They are shown in descending order by last usage."
                             + "<br>The current range is shown in <b>bold</b>. Left click a range to preview the *restoral, middle click to mark it for <strike>removal</strike>."
                             + "<br>Click on cancel to undo. Click anywhere else or one of the explicit restore/remove buttons to confirm your changes.</li>");
+                }
+
+                if (chartPanel.getPlotDetailsHelper().getCoordinateListener() != null) {
+                    sb.append(
+                            "<li><b>Pin Marker</b>: Ctrl-LeftClick anywhere on the chart to put a visual-marker on a timestamp. "
+                                    + "<br>Extensive information's (Order's , Bar-Information's, Strategy-Decision's) for this timestamp are displayed in the PointsOfInterestView."
+                                    + "<br>The marker can be removed with Ctrl-LeftClick on the already pinned marker or via button on the PointsOfInterestView.");
                 }
 
                 sb.append("</ul>");

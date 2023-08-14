@@ -5,6 +5,7 @@ import java.awt.Color;
 import java.awt.Stroke;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseWheelEvent;
+import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -12,6 +13,7 @@ import java.util.Set;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
+import org.jfree.chart.plot.PlotRenderingInfo;
 import org.jfree.chart.plot.ValueMarker;
 import org.jfree.chart.plot.XYPlot;
 
@@ -43,7 +45,7 @@ public class PlotDetailsHelper {
             15, PIN_TRIANGLE_COLOR, false, true);
     private final ValueMarker pinMarkerNoTriangle = new ValueMarker(-1, PIN_LINE_COLOR, PIN_STROKE);
 
-    private IJFreeChartPointsOfInterestListener coordinateListener;
+    private ICoordinateListener coordinateListener;
     private volatile FDate domainMarkerFDate;
     private final Set<XYPlot> prevMarkerPlots = ILockCollectionFactory.getInstance(true).newIdentitySet();
     private boolean domainMarkerSetOnce = false;
@@ -54,6 +56,9 @@ public class PlotDetailsHelper {
     }
 
     public void pointOfInterestChanged(final int domainCrosshairMarkerValue) {
+        if (coordinateListener == null) {
+            return;
+        }
         final XYPlot xyPlot = (XYPlot) chartPanel.getCombinedPlot().getDomainAxis().getPlot();
         final IndexedDateTimeOHLCDataset dataset = (IndexedDateTimeOHLCDataset) xyPlot.getDataset();
         final FDate previousBarEndTime = dataset.getData().get(domainCrosshairMarkerValue - 1).getEndTime();
@@ -65,11 +70,19 @@ public class PlotDetailsHelper {
     }
 
     public void mouseWheelMoved(final MouseWheelEvent e) {
+        if (coordinateListener == null) {
+            return;
+        }
         coordinateListener.mouseWheelMoved(e);
     }
 
     public void mousePressed(final MouseEvent e, final int domainCrosshairMarkerValue) {
-        if (MouseEvent.BUTTON1 == e.getButton() && e.isControlDown()) {
+        if (coordinateListener == null) {
+            return;
+        }
+        final Point2D point = this.chartPanel.getChartPanel().translateScreenToJava2D(e.getPoint());
+        final PlotRenderingInfo plotInfo = this.chartPanel.getChartPanel().getChartRenderingInfo().getPlotInfo();
+        if (MouseEvent.BUTTON1 == e.getButton() && e.isControlDown() && plotInfo.getDataArea().contains(point)) {
             final boolean pinnedSomething = coordinateListener.pinCoordinates();
             if (pinnedSomething) {
                 final XYPlot xyPlot = (XYPlot) chartPanel.getCombinedPlot().getDomainAxis().getPlot();
@@ -172,6 +185,9 @@ public class PlotDetailsHelper {
     }
 
     public void showOrderDetails(final XYNoteIconAnnotation noteShowingIconAnnotation) {
+        if (coordinateListener == null) {
+            return;
+        }
         final XYPlot xyPlot = (XYPlot) chartPanel.getCombinedPlot().getDomainAxis().getPlot();
         final IndexedDateTimeOHLCDataset dataset = (IndexedDateTimeOHLCDataset) xyPlot.getDataset();
         final FDate previousBarEndTime = dataset.getData().get((int) noteShowingIconAnnotation.getX() - 1).getEndTime();
@@ -183,10 +199,16 @@ public class PlotDetailsHelper {
     }
 
     public void mouseExited() {
+        if (coordinateListener == null) {
+            return;
+        }
         coordinateListener.disableSelectedDetails();
     }
 
     public void datasetChanged() {
+        if (coordinateListener == null) {
+            return;
+        }
         final XYPlot xyPlot = (XYPlot) chartPanel.getCombinedPlot().getDomainAxis().getPlot();
         final IndexedDateTimeOHLCDataset dataset = (IndexedDateTimeOHLCDataset) xyPlot.getDataset();
         final FDate currentBarStartTime = dataset.getData().get(dataset.getData().size() - 1).getStartTime();
@@ -237,10 +259,13 @@ public class PlotDetailsHelper {
     }
 
     public void disableSelectedDetails() {
+        if (coordinateListener == null) {
+            return;
+        }
         coordinateListener.disableSelectedDetails();
     }
 
-    public void registerCoordindateListener(final IJFreeChartPointsOfInterestListener coordinateListener) {
+    public void registerCoordindateListener(final ICoordinateListener coordinateListener) {
         this.coordinateListener = coordinateListener;
     }
 
@@ -248,4 +273,7 @@ public class PlotDetailsHelper {
         this.coordinateListener = null;
     }
 
+    public ICoordinateListener getCoordinateListener() {
+        return coordinateListener;
+    }
 }

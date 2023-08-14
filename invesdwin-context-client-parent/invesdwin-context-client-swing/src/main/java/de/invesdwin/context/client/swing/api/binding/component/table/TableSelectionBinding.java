@@ -84,16 +84,20 @@ public class TableSelectionBinding extends AComponentBinding<JTable, List<?>> {
                         valueIsAdjusting = true;
                         return;
                     }
-                    if (selectionUpdating) {
-                        return;
-                    }
-                    if (eagerSubmitRunnable != null) {
-                        final List<Integer> selectedIndexesInTableNew = getSelectedIndexesInTable();
-                        if (!Objects.equals(prevSelectedIndexesInTable, selectedIndexesInTableNew)) {
-                            eagerSubmitRunnable.run();
-                            prevSelectedIndexesInTable = selectedIndexesInTableNew;
-                            valueIsAdjusting = false;
+                    try {
+                        if (selectionUpdating) {
+                            return;
                         }
+                        if (eagerSubmitRunnable != null) {
+                            final List<Integer> selectedIndexesInTableNew = getSelectedIndexesInTable();
+                            if (!Objects.equals(prevSelectedIndexesInTable, selectedIndexesInTableNew)) {
+                                eagerSubmitRunnable.run();
+                                prevSelectedIndexesInTable = selectedIndexesInTableNew;
+                                valueIsAdjusting = false;
+                            }
+                        }
+                    } finally {
+                        valueIsAdjusting = false;
                     }
                 }
 
