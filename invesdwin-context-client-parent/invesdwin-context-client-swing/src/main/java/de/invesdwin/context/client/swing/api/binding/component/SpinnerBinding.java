@@ -58,6 +58,7 @@ public class SpinnerBinding extends AComponentBinding<JSpinner, Object> {
         this.editor = new SpinnerDecimalEditor(component, format);
         editor.getTextField().setFocusLostBehavior(JFormattedTextField.COMMIT);
         component.setEditor(editor);
+        component.addMouseWheelListener(new JSpinnerMouseWheelListener(component));
         this.converter = newConverter();
         if (eagerSubmitRunnable != null) {
             component.getModel().addChangeListener(new ChangeListener() {

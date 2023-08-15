@@ -53,6 +53,7 @@ public class SpinnerChoiceBinding extends AComponentBinding<JSpinner, Object> {
         this.editor = new JSpinnerFormattedEditor(component, editorFormatter);
         editor.getTextField().setFocusLostBehavior(JFormattedTextField.COMMIT);
         component.setEditor(editor);
+        component.addMouseWheelListener(new JSpinnerMouseWheelListener(component));
 
         if (eagerSubmitRunnable != null) {
             component.getModel().addChangeListener(new ChangeListener() {
