@@ -1,4 +1,4 @@
-package de.invesdwin.context.client.swing.jfreechart.panel.helper;
+package de.invesdwin.context.client.swing.jfreechart.panel.helper.crosshair;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -50,11 +50,8 @@ public class PlotCrosshairHelper {
     private int crosshairLastMouseX;
     private int crosshairLastMouseY;
 
-    private final PlotDetailsHelper plotDetailsHelper;
-
-    public PlotCrosshairHelper(final InteractiveChartPanel chartPanel, final PlotDetailsHelper plotDetailsHelper) {
+    public PlotCrosshairHelper(final InteractiveChartPanel chartPanel) {
         this.chartPanel = chartPanel;
-        this.plotDetailsHelper = plotDetailsHelper;
 
         domainCrosshairMarker = new ValueMarker(0D);
         domainCrosshairMarker.setStroke(CROSSHAIR_STROKE);
@@ -182,7 +179,7 @@ public class PlotCrosshairHelper {
         }
 
         if (domainMakerChanged) {
-            plotDetailsHelper.pointOfInterestChanged((int) domainCrosshairMarker.getValue());
+            chartPanel.getPlotCoordinateHelper().pointOfInterestChanged((int) domainCrosshairMarker.getValue());
         }
     }
 

@@ -29,13 +29,13 @@ import com.google.common.util.concurrent.Runnables;
 import de.invesdwin.aspects.EventDispatchThreadUtil;
 import de.invesdwin.context.client.swing.jfreechart.panel.basis.CustomChartPanel;
 import de.invesdwin.context.client.swing.jfreechart.panel.basis.CustomCombinedDomainXYPlot;
-import de.invesdwin.context.client.swing.jfreechart.panel.helper.PlotCrosshairHelper;
-import de.invesdwin.context.client.swing.jfreechart.panel.helper.PlotDetailsHelper;
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.PlotNavigationHelper;
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.PlotPanHelper;
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.PlotResizeHelper;
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.PlotZoomHelper;
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.PlotConfigurationHelper;
+import de.invesdwin.context.client.swing.jfreechart.panel.helper.crosshair.PlotCoordinateHelper;
+import de.invesdwin.context.client.swing.jfreechart.panel.helper.crosshair.PlotCrosshairHelper;
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.legend.PlotLegendHelper;
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.listener.IRangeListener;
 import de.invesdwin.context.client.swing.jfreechart.plot.IndexedDateTimeNumberFormat;
@@ -78,7 +78,7 @@ public class InteractiveChartPanel extends JPanel {
     private final IndexedDateTimeNumberFormat domainAxisFormat;
     private final PlotResizeHelper plotResizeHelper;
     private final PlotCrosshairHelper plotCrosshairHelper;
-    private final PlotDetailsHelper plotDetailsHelper;
+    private final PlotCoordinateHelper plotCoordinateHelper;
     private final PlotLegendHelper plotLegendHelper;
     private final PlotNavigationHelper plotNavigationHelper;
     private final PlotConfigurationHelper plotConfigurationHelper;
@@ -104,8 +104,8 @@ public class InteractiveChartPanel extends JPanel {
         this.finalizer.register(this);
 
         this.plotResizeHelper = new PlotResizeHelper(this);
-        this.plotDetailsHelper = new PlotDetailsHelper(this);
-        this.plotCrosshairHelper = new PlotCrosshairHelper(this, this.plotDetailsHelper);
+        this.plotCoordinateHelper = new PlotCoordinateHelper(this);
+        this.plotCrosshairHelper = new PlotCrosshairHelper(this);
         this.plotLegendHelper = new PlotLegendHelper(this);
         this.plotNavigationHelper = new PlotNavigationHelper(this);
         this.plotConfigurationHelper = new PlotConfigurationHelper(this);
@@ -203,8 +203,8 @@ public class InteractiveChartPanel extends JPanel {
         initialized = true;
     }
 
-    public PlotDetailsHelper getPlotDetailsHelper() {
-        return plotDetailsHelper;
+    public PlotCoordinateHelper getPlotCoordinateHelper() {
+        return plotCoordinateHelper;
     }
 
     public PlotCrosshairHelper getPlotCrosshairHelper() {
@@ -448,7 +448,7 @@ public class InteractiveChartPanel extends JPanel {
                                     }
                                     configureRangeAxis();
                                     plotLegendHelper.update();
-                                    plotDetailsHelper.updatePinMarker();
+                                    plotCoordinateHelper.updatePinMarker();
                                 } catch (final Throwable t) {
                                     Err.process(new RuntimeException("Ignoring", t));
                                     return;
@@ -525,7 +525,7 @@ public class InteractiveChartPanel extends JPanel {
         @Override
         public void datasetChanged(final DatasetChangeEvent event) {
             plotCrosshairHelper.datasetChanged();
-            plotDetailsHelper.datasetChanged();
+            plotCoordinateHelper.datasetChanged();
         }
     }
 
@@ -537,7 +537,7 @@ public class InteractiveChartPanel extends JPanel {
                 if (plotConfigurationHelper.isShowing()) {
                     return;
                 }
-                plotDetailsHelper.mouseExited();
+                plotCoordinateHelper.mouseExited();
                 InteractiveChartPanel.this.mouseExited();
             } catch (final Throwable t) {
                 Err.process(new Exception("Ignoring", t));
@@ -559,7 +559,7 @@ public class InteractiveChartPanel extends JPanel {
                 plotNavigationHelper.mousePressed(e);
                 plotZoomHelper.mousePressed(e);
                 plotPanHelper.mousePressed(e);
-                plotDetailsHelper.mousePressed(e, (int) plotCrosshairHelper.getDomainCrosshairMarkerValue());
+                plotCoordinateHelper.mousePressed(e, (int) plotCrosshairHelper.getDomainCrosshairMarkerValue());
                 if (new Duration(lastVerticalScroll).isGreaterThan(SCROLL_LOCK_DURATION)) {
                     if (e.getButton() == 4) {
                         plotPanHelper.panLeft();
@@ -660,9 +660,9 @@ public class InteractiveChartPanel extends JPanel {
                 if (plotLegendHelper.isHighlighting() || plotNavigationHelper.isHighlighting()) {
                     plotCrosshairHelper.disableCrosshair(true);
                     if (plotNavigationHelper.getNoteShowingIconAnnotation() != null) {
-                        plotDetailsHelper.showOrderDetails(plotNavigationHelper.getNoteShowingIconAnnotation());
+                        plotCoordinateHelper.showOrderDetails(plotNavigationHelper.getNoteShowingIconAnnotation());
                     } else {
-                        plotDetailsHelper.disableSelectedDetails();
+                        plotCoordinateHelper.disableSelectedDetails();
                     }
                 } else {
                     plotCrosshairHelper.mouseMoved(e);
@@ -689,7 +689,7 @@ public class InteractiveChartPanel extends JPanel {
                             plotPanHelper.panRight();
                         }
                     } else if (e.isControlDown()) {
-                        plotDetailsHelper.mouseWheelMoved(e);
+                        plotCoordinateHelper.mouseWheelMoved(e);
                     } else {
                         plotZoomHelper.mouseWheelMoved(e);
                     }

@@ -1,4 +1,4 @@
-package de.invesdwin.context.client.swing.jfreechart.panel.helper;
+package de.invesdwin.context.client.swing.jfreechart.panel.helper.crosshair;
 
 import java.awt.event.MouseWheelEvent;
 

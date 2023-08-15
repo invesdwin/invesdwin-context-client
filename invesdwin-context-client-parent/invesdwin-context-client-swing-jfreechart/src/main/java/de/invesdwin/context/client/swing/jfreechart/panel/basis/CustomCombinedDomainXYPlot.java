@@ -99,7 +99,7 @@ public class CustomCombinedDomainXYPlot extends CombinedDomainXYPlot {
             EventDispatchThreadUtil.assertEventDispatchThread();
         }
         super.remove(subplot);
-        chartPanel.getPlotDetailsHelper().removePinMarker(subplot);
+        chartPanel.getPlotCoordinateHelper().removePinMarker(subplot);
         chartPanel.update();
     }
 

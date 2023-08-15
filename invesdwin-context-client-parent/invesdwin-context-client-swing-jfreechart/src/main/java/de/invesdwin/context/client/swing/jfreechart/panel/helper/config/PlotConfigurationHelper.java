@@ -470,7 +470,7 @@ public class PlotConfigurationHelper {
                             + "<br>Click on cancel to undo. Click anywhere else or one of the explicit restore/remove buttons to confirm your changes.</li>");
                 }
 
-                if (chartPanel.getPlotDetailsHelper().getCoordinateListener() != null) {
+                if (chartPanel.getPlotCoordinateHelper().getCoordinateListener() != null) {
                     sb.append(
                             "<li><b>Pin Marker</b>: Ctrl-LeftClick anywhere on the chart to put a visual-marker on a timestamp. "
                                     + "<br>Extensive information's (Order's , Bar-Information's, Strategy-Decision's) for this timestamp are displayed in the PointsOfInterestView."

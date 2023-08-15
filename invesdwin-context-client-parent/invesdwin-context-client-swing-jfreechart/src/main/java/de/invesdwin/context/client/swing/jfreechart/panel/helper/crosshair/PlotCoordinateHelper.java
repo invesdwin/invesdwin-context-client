@@ -1,4 +1,4 @@
-package de.invesdwin.context.client.swing.jfreechart.panel.helper;
+package de.invesdwin.context.client.swing.jfreechart.panel.helper.crosshair;
 
 import java.awt.BasicStroke;
 import java.awt.Color;
@@ -29,7 +29,7 @@ import de.invesdwin.util.time.date.FDate;
 import de.invesdwin.util.time.date.FDates;
 
 @NotThreadSafe
-public class PlotDetailsHelper {
+public class PlotCoordinateHelper {
 
     private static final Color PIN_LINE_COLOR = Colors.setTransparency(Color.BLUE, Percent.SEVENTY_PERCENT);
     private static final Color PIN_TRIANGLE_COLOR = Color.BLUE;
@@ -51,7 +51,7 @@ public class PlotDetailsHelper {
     private boolean domainMarkerSetOnce = false;
     private FDate previousStartTime = FDates.MIN_DATE;
 
-    public PlotDetailsHelper(final InteractiveChartPanel chartPanel) {
+    public PlotCoordinateHelper(final InteractiveChartPanel chartPanel) {
         this.chartPanel = chartPanel;
     }
 
