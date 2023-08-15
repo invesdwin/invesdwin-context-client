@@ -4,11 +4,11 @@ import java.awt.event.MouseWheelEvent;
 
 import de.invesdwin.util.time.date.FDate;
 
-public interface ICoordinateListener {
+public interface IPlotCoordinateListener {
 
-    ICoordinateListener[] EMPTY_LIST = new ICoordinateListener[0];
+    IPlotCoordinateListener[] EMPTY_LIST = new IPlotCoordinateListener[0];
 
-    void pointOfInterestChanged(FDate from, FDate to);
+    void coordinatesChanged(FDate from, FDate to);
 
     void disableSelectedDetails();
 

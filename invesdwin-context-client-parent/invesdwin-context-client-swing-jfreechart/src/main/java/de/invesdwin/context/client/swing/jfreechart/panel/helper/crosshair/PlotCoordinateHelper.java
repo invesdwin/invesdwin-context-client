@@ -45,7 +45,7 @@ public class PlotCoordinateHelper {
             15, PIN_TRIANGLE_COLOR, false, true);
     private final ValueMarker pinMarkerNoTriangle = new ValueMarker(-1, PIN_LINE_COLOR, PIN_STROKE);
 
-    private ICoordinateListener coordinateListener;
+    private IPlotCoordinateListener coordinateListener;
     private volatile FDate domainMarkerFDate;
     private final Set<XYPlot> prevMarkerPlots = ILockCollectionFactory.getInstance(true).newIdentitySet();
     private boolean domainMarkerSetOnce = false;
@@ -66,7 +66,7 @@ public class PlotCoordinateHelper {
         final boolean isCurrentBar = xCoordinate == (dataset.getData().size() - 1);
         final FDate currentBarEndTime = isCurrentBar ? FDates.MAX_DATE
                 : dataset.getData().get(xCoordinate).getEndTime();
-        coordinateListener.pointOfInterestChanged(previousBarEndTime, currentBarEndTime);
+        coordinateListener.coordinatesChanged(previousBarEndTime, currentBarEndTime);
     }
 
     public void mouseWheelMoved(final MouseWheelEvent e) {
@@ -195,7 +195,7 @@ public class PlotCoordinateHelper {
         final boolean isCurrentBar = xCoordinate == (dataset.getData().size() - 1);
         final FDate currentBarEndTime = isCurrentBar ? FDates.MAX_DATE
                 : dataset.getData().get(xCoordinate).getEndTime();
-        coordinateListener.pointOfInterestChanged(previousBarEndTime, currentBarEndTime);
+        coordinateListener.coordinatesChanged(previousBarEndTime, currentBarEndTime);
     }
 
     public void mouseExited() {
@@ -265,7 +265,7 @@ public class PlotCoordinateHelper {
         coordinateListener.disableSelectedDetails();
     }
 
-    public void registerCoordindateListener(final ICoordinateListener coordinateListener) {
+    public void registerCoordindateListener(final IPlotCoordinateListener coordinateListener) {
         this.coordinateListener = coordinateListener;
     }
 
@@ -273,7 +273,7 @@ public class PlotCoordinateHelper {
         this.coordinateListener = null;
     }
 
-    public ICoordinateListener getCoordinateListener() {
+    public IPlotCoordinateListener getCoordinateListener() {
         return coordinateListener;
     }
 }
