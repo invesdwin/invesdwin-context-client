@@ -7,9 +7,9 @@ import javax.annotation.concurrent.NotThreadSafe;
 import org.apache.wicket.request.cycle.RequestCycle;
 import org.apache.wicket.request.http.WebResponse;
 
-import de.invesdwin.context.integration.IntegrationProperties;
 import de.invesdwin.nowicket.application.IWebApplicationConfig;
 import de.invesdwin.nowicket.application.filter.AWicketFilter;
+import de.invesdwin.util.concurrent.Threads;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -27,11 +27,11 @@ public class DelegateWicketFilter extends AWicketFilter {
     protected boolean processRequestCycle(final RequestCycle requestCycle, final WebResponse webResponse,
             final HttpServletRequest httpServletRequest, final HttpServletResponse httpServletResponse,
             final FilterChain chain) throws IOException, ServletException {
-        final boolean registerThreadRetryDisabled = IntegrationProperties.registerThreadRetryDisabled();
+        final boolean registerThreadRetryDisabled = Threads.registerThreadRetryDisabled();
         try {
             return super.processRequestCycle(requestCycle, webResponse, httpServletRequest, httpServletResponse, chain);
         } finally {
-            IntegrationProperties.unregisterThreadRetryDisabled(registerThreadRetryDisabled);
+            Threads.unregisterThreadRetryDisabled(registerThreadRetryDisabled);
         }
     }
 

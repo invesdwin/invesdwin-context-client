@@ -25,7 +25,6 @@ import org.fife.ui.autocomplete.CompletionProvider;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYItemRenderer;
 
-import de.invesdwin.aspects.EventDispatchThreadUtil;
 import de.invesdwin.context.client.swing.jfreechart.panel.basis.CustomCombinedDomainXYPlot;
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.LineStyleType;
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.LineWidthType;
@@ -54,6 +53,7 @@ import de.invesdwin.util.math.expression.IExpression;
 import de.invesdwin.util.math.expression.eval.BooleanConstantExpression;
 import de.invesdwin.util.math.expression.eval.EnumerationExpression;
 import de.invesdwin.util.math.expression.multiple.MultipleExpressionParser;
+import de.invesdwin.util.swing.EventDispatchThreadUtil;
 import de.invesdwin.util.time.date.FDate;
 
 @NotThreadSafe

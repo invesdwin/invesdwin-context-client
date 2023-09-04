@@ -13,8 +13,8 @@ import org.jfree.chart.plot.CombinedDomainXYPlot;
 import org.jfree.chart.plot.PlotRenderingInfo;
 import org.jfree.chart.plot.XYPlot;
 
-import de.invesdwin.aspects.EventDispatchThreadUtil;
 import de.invesdwin.context.client.swing.jfreechart.panel.InteractiveChartPanel;
+import de.invesdwin.util.swing.EventDispatchThreadUtil;
 
 @NotThreadSafe
 public class CustomCombinedDomainXYPlot extends CombinedDomainXYPlot {

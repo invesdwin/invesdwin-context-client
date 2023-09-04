@@ -24,7 +24,6 @@ import javax.swing.text.EditorKit;
 
 import org.apache.commons.io.input.CharSequenceReader;
 
-import de.invesdwin.aspects.EventDispatchThreadUtil;
 import de.invesdwin.context.client.swing.api.guiservice.GuiService;
 import de.invesdwin.context.client.swing.api.view.AView;
 import de.invesdwin.util.assertions.Assertions;
@@ -35,6 +34,7 @@ import de.invesdwin.util.concurrent.WrappedScheduledExecutorService;
 import de.invesdwin.util.concurrent.reference.MutableReference;
 import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.swing.Dialogs;
+import de.invesdwin.util.swing.EventDispatchThreadUtil;
 import de.invesdwin.util.swing.listener.ComponentListenerSupport;
 import de.invesdwin.util.swing.listener.KeyListenerSupport;
 import de.invesdwin.util.time.date.FDate;

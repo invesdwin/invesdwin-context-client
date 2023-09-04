@@ -9,10 +9,10 @@ import javax.annotation.concurrent.NotThreadSafe;
 
 import org.jfree.chart.plot.XYPlot;
 
-import de.invesdwin.aspects.EventDispatchThreadUtil;
 import de.invesdwin.context.client.swing.jfreechart.panel.InteractiveChartPanel;
 import de.invesdwin.context.client.swing.jfreechart.panel.basis.CustomCombinedDomainXYPlot;
 import de.invesdwin.util.math.Doubles;
+import de.invesdwin.util.swing.EventDispatchThreadUtil;
 
 @NotThreadSafe
 public class PlotResizeHelper {

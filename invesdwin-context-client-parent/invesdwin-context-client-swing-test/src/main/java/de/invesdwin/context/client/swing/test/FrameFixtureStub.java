@@ -11,13 +11,13 @@ import org.assertj.swing.fixture.FrameFixture;
 import org.jdesktop.application.Application;
 import org.jdesktop.application.SingleFrameApplication;
 
-import de.invesdwin.aspects.EventDispatchThreadUtil;
 import de.invesdwin.context.client.swing.test.edt.ITimeoutEventQueueListener;
 import de.invesdwin.context.client.swing.test.edt.TimeoutEventQueue;
 import de.invesdwin.context.log.error.Err;
 import de.invesdwin.context.test.ATest;
 import de.invesdwin.context.test.TestContext;
 import de.invesdwin.context.test.stub.StubSupport;
+import de.invesdwin.util.swing.EventDispatchThreadUtil;
 import de.invesdwin.util.time.duration.Duration;
 import jakarta.inject.Named;
 

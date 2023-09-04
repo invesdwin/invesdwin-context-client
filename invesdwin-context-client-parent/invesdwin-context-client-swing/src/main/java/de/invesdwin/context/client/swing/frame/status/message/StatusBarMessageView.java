@@ -9,10 +9,10 @@ import javax.annotation.concurrent.ThreadSafe;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import de.invesdwin.aspects.EventDispatchThreadUtil;
 import de.invesdwin.context.client.swing.api.view.AView;
 import de.invesdwin.util.lang.string.Strings;
 import de.invesdwin.util.swing.Components;
+import de.invesdwin.util.swing.EventDispatchThreadUtil;
 import de.invesdwin.util.swing.MouseEnteredListener;
 import de.invesdwin.util.time.duration.Duration;
 

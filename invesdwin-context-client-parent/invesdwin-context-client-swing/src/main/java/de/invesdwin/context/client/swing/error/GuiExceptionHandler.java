@@ -17,7 +17,6 @@ import org.jdesktop.application.ResourceMap;
 import org.jdesktop.swingx.JXErrorPane;
 import org.jdesktop.swingx.error.ErrorInfo;
 
-import de.invesdwin.aspects.EventDispatchThreadUtil;
 import de.invesdwin.context.client.swing.api.guiservice.GuiService;
 import de.invesdwin.context.client.swing.frame.app.DelegateRichApplication;
 import de.invesdwin.context.log.error.Err;
@@ -32,6 +31,7 @@ import de.invesdwin.util.lang.string.description.HtmlToPlainText;
 import de.invesdwin.util.shutdown.ShutdownHookManager;
 import de.invesdwin.util.swing.Components;
 import de.invesdwin.util.swing.Dialogs;
+import de.invesdwin.util.swing.EventDispatchThreadUtil;
 import de.invesdwin.util.swing.listener.WindowListenerSupport;
 
 @ThreadSafe

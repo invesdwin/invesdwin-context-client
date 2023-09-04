@@ -21,7 +21,6 @@ import org.jfree.chart.ui.RectangleEdge;
 import org.jfree.data.general.Dataset;
 import org.jfree.data.xy.XYDataset;
 
-import de.invesdwin.aspects.EventDispatchThreadUtil;
 import de.invesdwin.context.client.swing.jfreechart.panel.InteractiveChartPanel;
 import de.invesdwin.context.client.swing.jfreechart.panel.basis.CustomChartPanel;
 import de.invesdwin.context.client.swing.jfreechart.panel.basis.CustomCombinedDomainXYPlot;
@@ -35,6 +34,7 @@ import de.invesdwin.context.client.swing.jfreechart.plot.renderer.DisabledXYItem
 import de.invesdwin.context.client.swing.jfreechart.plot.renderer.IDatasetSourceXYItemRenderer;
 import de.invesdwin.util.collections.Collections;
 import de.invesdwin.util.lang.color.Colors;
+import de.invesdwin.util.swing.EventDispatchThreadUtil;
 import de.invesdwin.util.swing.HiDPI;
 
 @NotThreadSafe

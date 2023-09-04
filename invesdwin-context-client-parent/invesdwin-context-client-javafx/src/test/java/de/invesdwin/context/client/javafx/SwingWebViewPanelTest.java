@@ -7,10 +7,10 @@ import javax.swing.JFrame;
 
 import org.junit.jupiter.api.Test;
 
-import de.invesdwin.aspects.EventDispatchThreadUtil;
 import de.invesdwin.context.client.javafx.component.swing.SwingWebViewPanel;
 import de.invesdwin.context.client.javafx.util.FxApplicationThreadUtil;
 import de.invesdwin.context.test.ATest;
+import de.invesdwin.util.swing.EventDispatchThreadUtil;
 import de.invesdwin.util.time.date.FTimeUnit;
 
 @NotThreadSafe

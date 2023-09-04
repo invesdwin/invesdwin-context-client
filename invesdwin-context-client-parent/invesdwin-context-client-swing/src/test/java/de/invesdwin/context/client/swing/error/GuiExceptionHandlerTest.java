@@ -4,12 +4,12 @@ import javax.annotation.concurrent.NotThreadSafe;
 
 import org.junit.jupiter.api.Test;
 
-import de.invesdwin.aspects.EventDispatchThreadUtil;
 import de.invesdwin.context.client.swing.TestModelView;
 import de.invesdwin.context.client.swing.TestRichApplication;
 import de.invesdwin.context.log.error.Err;
 import de.invesdwin.context.test.ATest;
 import de.invesdwin.context.test.TestContext;
+import de.invesdwin.util.swing.EventDispatchThreadUtil;
 import de.invesdwin.util.time.date.FTimeUnit;
 
 @NotThreadSafe

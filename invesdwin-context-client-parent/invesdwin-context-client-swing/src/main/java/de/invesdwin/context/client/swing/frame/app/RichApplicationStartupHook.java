@@ -7,7 +7,6 @@ import javax.annotation.concurrent.NotThreadSafe;
 import org.jdesktop.application.Application.ExitListener;
 import org.jdesktop.application.FrameView;
 
-import de.invesdwin.aspects.EventDispatchThreadUtil;
 import de.invesdwin.context.beans.hook.IStartupHook;
 import de.invesdwin.context.beans.init.MergedContext;
 import de.invesdwin.context.client.swing.api.IRichApplication;
@@ -19,6 +18,7 @@ import de.invesdwin.context.client.swing.frame.splash.ConfiguredSplashScreen;
 import de.invesdwin.context.client.swing.frame.status.StatusBarView;
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.swing.Dialogs;
+import de.invesdwin.util.swing.EventDispatchThreadUtil;
 import de.invesdwin.util.swing.Frames;
 import jakarta.inject.Inject;
 

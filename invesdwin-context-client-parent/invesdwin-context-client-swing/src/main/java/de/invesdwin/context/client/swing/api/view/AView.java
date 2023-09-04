@@ -7,7 +7,6 @@ import javax.annotation.concurrent.ThreadSafe;
 import javax.swing.Icon;
 import javax.swing.JComponent;
 
-import de.invesdwin.aspects.EventDispatchThreadUtil;
 import de.invesdwin.context.client.swing.api.binding.BindingGroup;
 import de.invesdwin.context.client.swing.api.binding.GeneratedBindingGroup;
 import de.invesdwin.context.client.swing.api.guiservice.GuiService;
@@ -23,6 +22,7 @@ import de.invesdwin.norva.beanpath.spi.element.RootBeanPathElement;
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.collections.fast.IFastIterable;
 import de.invesdwin.util.lang.Objects;
+import de.invesdwin.util.swing.EventDispatchThreadUtil;
 
 @ThreadSafe
 public abstract class AView<M extends AModel, C extends JComponent> extends AModel {

@@ -8,7 +8,6 @@ import javax.annotation.concurrent.Immutable;
 import javax.swing.Icon;
 import javax.swing.JLabel;
 
-import de.invesdwin.aspects.EventDispatchThreadUtil;
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.series.AddSeriesPanel;
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.series.AddSeriesPanelLayout;
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.series.expression.IExpressionSeriesProvider;
@@ -17,6 +16,7 @@ import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.lang.string.Strings;
 import de.invesdwin.util.math.expression.IExpression;
 import de.invesdwin.util.swing.Components;
+import de.invesdwin.util.swing.EventDispatchThreadUtil;
 import de.invesdwin.util.swing.icon.ChangeColorImageFilter;
 import de.invesdwin.util.swing.text.ToolTipFormatter;
 

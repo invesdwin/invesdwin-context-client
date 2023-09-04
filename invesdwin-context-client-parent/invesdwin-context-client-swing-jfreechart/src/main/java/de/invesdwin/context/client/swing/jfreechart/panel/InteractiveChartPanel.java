@@ -26,7 +26,6 @@ import org.jfree.data.general.DatasetChangeListener;
 
 import com.google.common.util.concurrent.Runnables;
 
-import de.invesdwin.aspects.EventDispatchThreadUtil;
 import de.invesdwin.context.client.swing.jfreechart.panel.basis.CustomChartPanel;
 import de.invesdwin.context.client.swing.jfreechart.panel.basis.CustomCombinedDomainXYPlot;
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.PlotNavigationHelper;
@@ -54,6 +53,7 @@ import de.invesdwin.util.lang.finalizer.AFinalizer;
 import de.invesdwin.util.math.Doubles;
 import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.swing.Components;
+import de.invesdwin.util.swing.EventDispatchThreadUtil;
 import de.invesdwin.util.swing.listener.KeyListenerSupport;
 import de.invesdwin.util.swing.listener.MouseListenerSupport;
 import de.invesdwin.util.swing.listener.MouseMotionListenerSupport;

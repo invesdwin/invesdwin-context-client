@@ -22,7 +22,6 @@ import org.jdesktop.application.ProxyActions;
 import org.jdesktop.application.SingleFrameApplication;
 import org.springframework.context.i18n.LocaleContextHolder;
 
-import de.invesdwin.aspects.EventDispatchThreadUtil;
 import de.invesdwin.aspects.annotation.EventDispatchThread;
 import de.invesdwin.aspects.annotation.EventDispatchThread.InvocationType;
 import de.invesdwin.context.beans.hook.StartupHookManager;
@@ -39,6 +38,7 @@ import de.invesdwin.context.log.error.Err;
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.lang.reflection.Reflections;
 import de.invesdwin.util.swing.Dialogs;
+import de.invesdwin.util.swing.EventDispatchThreadUtil;
 import de.invesdwin.util.swing.Frames;
 import de.invesdwin.util.time.date.FTimeUnit;
 import de.invesdwin.util.time.duration.Duration;

@@ -2,11 +2,11 @@ package de.invesdwin.context.client.swing.api.binding.component;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
-import de.invesdwin.aspects.EventDispatchThreadUtil;
 import de.invesdwin.context.client.swing.api.binding.BindingGroup;
 import de.invesdwin.context.client.swing.api.view.IDockable;
 import de.invesdwin.norva.beanpath.spi.element.RootBeanPathElement;
 import de.invesdwin.util.lang.Objects;
+import de.invesdwin.util.swing.EventDispatchThreadUtil;
 
 @NotThreadSafe
 public class RootTitleBinding implements IComponentBinding {

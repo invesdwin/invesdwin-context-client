@@ -12,7 +12,6 @@ import org.jdesktop.application.Application;
 
 import bibliothek.gui.dock.common.SingleCDockable;
 import bibliothek.gui.dock.common.intern.CDockable;
-import de.invesdwin.aspects.EventDispatchThreadUtil;
 import de.invesdwin.aspects.annotation.EventDispatchThread;
 import de.invesdwin.aspects.annotation.EventDispatchThread.InvocationType;
 import de.invesdwin.context.client.swing.api.view.AView;
@@ -21,6 +20,7 @@ import de.invesdwin.context.client.swing.frame.content.IWorkingAreaLocation;
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.collections.loadingcache.ALoadingCache;
 import de.invesdwin.util.lang.Objects;
+import de.invesdwin.util.swing.EventDispatchThreadUtil;
 import de.invesdwin.util.time.Instant;
 import de.invesdwin.util.time.date.FDate;
 import jakarta.inject.Inject;
