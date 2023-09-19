@@ -1,5 +1,6 @@
 package de.invesdwin.context.client.swing.api.binding.component.table;
 
+import java.awt.Point;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
@@ -58,6 +59,15 @@ public class TableSelectionBinding extends AComponentBinding<JTable, List<?>> {
                 }
             }
 
+            @Override
+            public void mouseClicked(final MouseEvent e) {
+                final Point p = e.getPoint();
+                final int rowIndex = component.rowAtPoint(p);
+                if (rowIndex == -1) {
+                    //delesect the current row-selection (if there were rows selected)
+                    component.clearSelection();
+                }
+            }
         });
         component.addKeyListener(new KeyListenerSupport() {
             @Override
