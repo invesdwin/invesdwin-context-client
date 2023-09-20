@@ -61,6 +61,36 @@ public class DialogDockable extends JDialog implements IDockable {
     }
 
     @Override
+    public boolean isResizeLocked() {
+        return false;
+    }
+
+    @Override
+    public void setResizeLocked(final boolean resizeLocked) {
+        //noop
+    }
+
+    @Override
+    public boolean isResizeLockedHorizontally() {
+        return false;
+    }
+
+    @Override
+    public void setResizeLockedHorizontally(final boolean resizeLockedHorizontally) {
+        //noop
+    }
+
+    @Override
+    public boolean isResizeLockedVertically() {
+        return false;
+    }
+
+    @Override
+    public void setResizeLockedVertically(final boolean resizeLockedVertically) {
+        //noop
+    }
+
+    @Override
     public void setResizeRequest(final RequestDimension dimension, final Duration timeout) {
         this.requestResizeStart = new Instant();
         this.requestResizeDimension = dimension;

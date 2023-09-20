@@ -29,4 +29,16 @@ public interface IDockable {
 
     Dimension getSize();
 
+    boolean isResizeLocked();
+
+    void setResizeLocked(boolean resizeLocked);
+
+    boolean isResizeLockedHorizontally();
+
+    void setResizeLockedHorizontally(boolean resizeLockedHorizontally);
+
+    boolean isResizeLockedVertically();
+
+    void setResizeLockedVertically(boolean resizeLockedVertically);
+
 }
