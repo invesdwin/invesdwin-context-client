@@ -24,6 +24,7 @@ import de.invesdwin.util.time.duration.Duration;
 @NotThreadSafe
 public class ContentPaneDockable extends DefaultSingleCDockable implements IDockable {
 
+    public static final int PROCESS_RESIZE_REQUEST_VERIFICATION_COUNT = 3;
     private AView<?, ?> view;
     private final IWorkingAreaLocation location;
 
@@ -122,13 +123,13 @@ public class ContentPaneDockable extends DefaultSingleCDockable implements IDock
         this.requestResizeDimension = dimension;
         this.requestResizeTimeout = timeout;
         if (RequestDimensions.isResizeRequestPending(requestResizeDimension, getSize())) {
-            EventDispatchThreadUtil.invokeLater(this::processResizeRequest);
+            EventDispatchThreadUtil.invokeLaterIfNotInEDT(() -> processResizeRequest(0));
         } else {
             resetResizeRequest();
         }
     }
 
-    private void processResizeRequest() {
+    private void processResizeRequest(final int successCount) {
         final Instant requestResizeStartCopy;
         final RequestDimension requestResizeDimensionCopy;
         final Duration requestResizeTimeoutCopy;
@@ -138,14 +139,22 @@ public class ContentPaneDockable extends DefaultSingleCDockable implements IDock
             requestResizeTimeoutCopy = requestResizeTimeout;
         }
         if (requestResizeStartCopy == null || requestResizeStartCopy.isGreaterThanOrEqualTo(requestResizeTimeoutCopy)) {
-            resetResizeRequest();
+            if (successCount >= PROCESS_RESIZE_REQUEST_VERIFICATION_COUNT) {
+                resetResizeRequest();
+            } else {
+                EventDispatchThreadUtil.invokeLater(() -> processResizeRequest(successCount + 1));
+            }
             return;
         }
         if (RequestDimensions.isResizeRequestPending(requestResizeDimensionCopy, getSize())) {
             setResizeRequest(requestResizeDimensionCopy, true);
-            EventDispatchThreadUtil.invokeLater(this::processResizeRequest);
+            EventDispatchThreadUtil.invokeLater(() -> processResizeRequest(0));
         } else {
-            resetResizeRequest();
+            if (successCount >= PROCESS_RESIZE_REQUEST_VERIFICATION_COUNT) {
+                resetResizeRequest();
+            } else {
+                EventDispatchThreadUtil.invokeLater(() -> processResizeRequest(successCount + 1));
+            }
         }
     }
 

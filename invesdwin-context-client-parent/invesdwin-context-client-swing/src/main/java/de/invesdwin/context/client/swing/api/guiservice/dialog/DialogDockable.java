@@ -11,6 +11,7 @@ import javax.swing.JDialog;
 import bibliothek.gui.dock.common.layout.RequestDimension;
 import de.invesdwin.context.client.swing.api.view.AView;
 import de.invesdwin.context.client.swing.api.view.IDockable;
+import de.invesdwin.context.client.swing.frame.content.ContentPaneDockable;
 import de.invesdwin.context.client.swing.util.RequestDimensions;
 import de.invesdwin.util.swing.EventDispatchThreadUtil;
 import de.invesdwin.util.time.Instant;
@@ -96,13 +97,13 @@ public class DialogDockable extends JDialog implements IDockable {
         this.requestResizeDimension = dimension;
         this.requestResizeTimeout = timeout;
         if (RequestDimensions.isResizeRequestPending(requestResizeDimension, getSize())) {
-            EventDispatchThreadUtil.invokeLater(this::processResizeRequest);
+            EventDispatchThreadUtil.invokeLaterIfNotInEDT(() -> processResizeRequest(0));
         } else {
             resetResizeRequest();
         }
     }
 
-    private void processResizeRequest() {
+    private void processResizeRequest(final int successCount) {
         final Instant requestResizeStartCopy;
         final RequestDimension requestResizeDimensionCopy;
         final Duration requestResizeTimeoutCopy;
@@ -112,15 +113,23 @@ public class DialogDockable extends JDialog implements IDockable {
             requestResizeTimeoutCopy = requestResizeTimeout;
         }
         if (requestResizeStartCopy == null || requestResizeStartCopy.isGreaterThanOrEqualTo(requestResizeTimeoutCopy)) {
-            resetResizeRequest();
+            if (successCount >= ContentPaneDockable.PROCESS_RESIZE_REQUEST_VERIFICATION_COUNT) {
+                resetResizeRequest();
+            } else {
+                EventDispatchThreadUtil.invokeLater(() -> processResizeRequest(successCount + 1));
+            }
             return;
         }
         final Dimension actual = getSize();
         if (RequestDimensions.isResizeRequestPending(requestResizeDimensionCopy, actual)) {
             setSize(RequestDimensions.toDimension(requestResizeDimensionCopy, actual));
-            EventDispatchThreadUtil.invokeLater(this::processResizeRequest);
+            EventDispatchThreadUtil.invokeLater(() -> processResizeRequest(0));
         } else {
-            resetResizeRequest();
+            if (successCount >= ContentPaneDockable.PROCESS_RESIZE_REQUEST_VERIFICATION_COUNT) {
+                resetResizeRequest();
+            } else {
+                EventDispatchThreadUtil.invokeLater(() -> processResizeRequest(successCount + 1));
+            }
         }
     }
 
