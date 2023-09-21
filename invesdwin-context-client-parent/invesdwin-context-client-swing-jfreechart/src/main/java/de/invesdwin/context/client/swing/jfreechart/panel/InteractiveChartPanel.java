@@ -39,6 +39,7 @@ import de.invesdwin.context.client.swing.jfreechart.panel.helper.legend.PlotLege
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.listener.IRangeListener;
 import de.invesdwin.context.client.swing.jfreechart.plot.IndexedDateTimeNumberFormat;
 import de.invesdwin.context.client.swing.jfreechart.plot.XYPlots;
+import de.invesdwin.context.client.swing.jfreechart.plot.annotation.XYNoteIconAnnotation;
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.IndexedDateTimeOHLCDataset;
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.list.IChartPanelAwareDatasetList;
 import de.invesdwin.context.jfreechart.dataset.TimeRangedOHLCDataItem;
@@ -559,7 +560,12 @@ public class InteractiveChartPanel extends JPanel {
                 plotNavigationHelper.mousePressed(e);
                 plotZoomHelper.mousePressed(e);
                 plotPanHelper.mousePressed(e);
-                plotCoordinateHelper.mousePressed(e, (int) plotCrosshairHelper.getDomainCrosshairMarkerValue());
+                final XYNoteIconAnnotation note = plotNavigationHelper.getNoteShowingIconAnnotation();
+                if (note != null) {
+                    plotCoordinateHelper.mousePressed(e, (int) note.getX());
+                } else {
+                    plotCoordinateHelper.mousePressed(e, (int) plotCrosshairHelper.getDomainCrosshairMarkerValue());
+                }
                 if (new Duration(lastVerticalScroll).isGreaterThan(SCROLL_LOCK_DURATION)) {
                     if (e.getButton() == 4) {
                         plotPanHelper.panLeft();
@@ -659,8 +665,9 @@ public class InteractiveChartPanel extends JPanel {
                 }
                 if (plotLegendHelper.isHighlighting() || plotNavigationHelper.isHighlighting()) {
                     plotCrosshairHelper.disableCrosshair(true);
-                    if (plotNavigationHelper.getNoteShowingIconAnnotation() != null) {
-                        plotCoordinateHelper.showOrderDetails(plotNavigationHelper.getNoteShowingIconAnnotation());
+                    final XYNoteIconAnnotation note = plotNavigationHelper.getNoteShowingIconAnnotation();
+                    if (note != null) {
+                        plotCoordinateHelper.showNoteDetails(note);
                     } else {
                         plotCoordinateHelper.disableSelectedDetails();
                     }

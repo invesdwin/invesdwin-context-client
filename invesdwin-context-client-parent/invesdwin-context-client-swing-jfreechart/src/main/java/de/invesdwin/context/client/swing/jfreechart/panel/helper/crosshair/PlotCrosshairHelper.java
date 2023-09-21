@@ -53,7 +53,7 @@ public class PlotCrosshairHelper {
     public PlotCrosshairHelper(final InteractiveChartPanel chartPanel) {
         this.chartPanel = chartPanel;
 
-        domainCrosshairMarker = new ValueMarker(0D);
+        domainCrosshairMarker = new ValueMarker(-1D);
         domainCrosshairMarker.setStroke(CROSSHAIR_STROKE);
         domainCrosshairMarker.setPaint(CROSSHAIR_COLOR);
         domainCrosshairMarker.setLabelFont(CROSSHAIR_FONT);
@@ -67,7 +67,7 @@ public class PlotCrosshairHelper {
         } catch (final CloneNotSupportedException e) {
             throw new RuntimeException(e);
         }
-        rangeCrosshairMarkerRight = new ValueMarker(0D);
+        rangeCrosshairMarkerRight = new ValueMarker(-1D);
         rangeCrosshairMarkerRight.setStroke(CROSSHAIR_STROKE);
         rangeCrosshairMarkerRight.setPaint(CROSSHAIR_COLOR);
         rangeCrosshairMarkerRight.setLabelFont(CROSSHAIR_FONT);

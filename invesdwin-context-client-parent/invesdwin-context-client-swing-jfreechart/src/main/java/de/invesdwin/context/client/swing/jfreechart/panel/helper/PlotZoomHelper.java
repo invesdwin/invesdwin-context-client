@@ -33,6 +33,7 @@ import de.invesdwin.context.client.swing.jfreechart.panel.helper.listener.IRange
 import de.invesdwin.context.client.swing.jfreechart.plot.Axis;
 import de.invesdwin.context.client.swing.jfreechart.plot.Axises;
 import de.invesdwin.context.client.swing.jfreechart.plot.annotation.priceline.XYPriceLineAnnotation;
+import de.invesdwin.context.client.swing.jfreechart.plot.dataset.IPlotSourceDataset;
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.IndexedDateTimeOHLCDataset;
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.list.IChartPanelAwareDatasetList;
 import de.invesdwin.context.jfreechart.dataset.TimeRangedOHLCDataItem;
@@ -462,15 +463,16 @@ public class PlotZoomHelper {
 
         final ValueAxis valueAxis = axisDragInfo.getValueAxis();
         final XYPlot xyPlot = (XYPlot) valueAxis.getPlot();
-        final IndexedDateTimeOHLCDataset dataset = (IndexedDateTimeOHLCDataset) xyPlot.getDataset();
+        final IPlotSourceDataset dataset = (IPlotSourceDataset) xyPlot.getDataset();
+        final IndexedDateTimeOHLCDataset masterDataset = dataset.getMasterDataset();
         final Range range;
         if (Axis.DOMAIN_AXIS.equals(axisDragInfo.getAxis())) {
             // When we zoom on the domain axis it can happen that we reload/expand the dataset.. in which case the initialRange will point at invalid dates. When we zoom on the range-axis this won't ever be needed.
-            final int lowerBoundIndex = dataset.getDateTimeStartAsItemIndex(0,
+            final int lowerBoundIndex = masterDataset.getDateTimeStartAsItemIndex(0,
                     axisDragInfo.getInitialAxisLowerBoundFDate());
-            final int upperBoundIndex = dataset.getDateTimeStartAsItemIndex(0,
+            final int upperBoundIndex = masterDataset.getDateTimeStartAsItemIndex(0,
                     axisDragInfo.getInitialAxisUpperBoundFDate());
-            range = new Range(dataset.getXValue(0, lowerBoundIndex), dataset.getXValue(0, upperBoundIndex));
+            range = new Range(masterDataset.getXValue(0, lowerBoundIndex), masterDataset.getXValue(0, upperBoundIndex));
         } else {
             range = axisDragInfo.getInitialAxisRange();
         }
@@ -504,8 +506,8 @@ public class PlotZoomHelper {
         } else {
             //We work with the FDate as anchor because in case more Data gets loaded into the Dataset the double value will point at a different date so that the Zoom would make an unwanted jump in its range.
             final FDate domainAnchorFDate = axisDragInfo.getDomainAnchorFDate();
-            final int itemIndex = dataset.getDateTimeStartAsItemIndex(0, domainAnchorFDate);
-            final double domainAnchor = dataset.getXValue(0, itemIndex);
+            final int itemIndex = masterDataset.getDateTimeStartAsItemIndex(0, domainAnchorFDate);
+            final double domainAnchor = masterDataset.getXValue(0, itemIndex);
             final double left = domainAnchor - range.getLowerBound();
             final double right = range.getUpperBound() - domainAnchor;
             newRange = new Range(domainAnchor - left * zoomFactor, domainAnchor + right * zoomFactor);

@@ -20,6 +20,7 @@ import org.jfree.chart.plot.XYPlot;
 import de.invesdwin.context.client.swing.jfreechart.panel.InteractiveChartPanel;
 import de.invesdwin.context.client.swing.jfreechart.plot.Markers;
 import de.invesdwin.context.client.swing.jfreechart.plot.annotation.XYNoteIconAnnotation;
+import de.invesdwin.context.client.swing.jfreechart.plot.dataset.IPlotSourceDataset;
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.IndexedDateTimeOHLCDataset;
 import de.invesdwin.context.client.swing.jfreechart.plot.renderer.custom.marker.TriangleLineValueMarker;
 import de.invesdwin.util.collections.factory.ILockCollectionFactory;
@@ -33,17 +34,17 @@ public class PlotCoordinateHelper {
 
     private static final Color PIN_LINE_COLOR = Colors.setTransparency(Color.BLUE, Percent.SEVENTY_PERCENT);
     private static final Color PIN_TRIANGLE_COLOR = Color.BLUE;
-    private static final Stroke PIN_STROKE = new BasicStroke(2.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 0);
+    private static final Stroke PIN_STROKE = new BasicStroke(2.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 0f);
 
     private final InteractiveChartPanel chartPanel;
     private final List<ValueMarker> markers = new ArrayList<>();
-    private final ValueMarker pinMarkerTopAndBottomTriangle = new TriangleLineValueMarker(-1, PIN_LINE_COLOR,
-            PIN_STROKE, 15, 15, PIN_TRIANGLE_COLOR, true, true);
-    private final ValueMarker pinMarkerTopTriangle = new TriangleLineValueMarker(-1, PIN_LINE_COLOR, PIN_STROKE, 15, 15,
-            PIN_TRIANGLE_COLOR, true, false);
-    private final ValueMarker pinMarkerBottomTriangle = new TriangleLineValueMarker(-1, PIN_LINE_COLOR, PIN_STROKE, 15,
-            15, PIN_TRIANGLE_COLOR, false, true);
-    private final ValueMarker pinMarkerNoTriangle = new ValueMarker(-1, PIN_LINE_COLOR, PIN_STROKE);
+    private final ValueMarker pinMarkerTopAndBottomTriangle = new TriangleLineValueMarker(-1D, PIN_LINE_COLOR,
+            PIN_STROKE, 15D, 15D, PIN_TRIANGLE_COLOR, true, true);
+    private final ValueMarker pinMarkerTopTriangle = new TriangleLineValueMarker(-1D, PIN_LINE_COLOR, PIN_STROKE, 15D,
+            15D, PIN_TRIANGLE_COLOR, true, false);
+    private final ValueMarker pinMarkerBottomTriangle = new TriangleLineValueMarker(-1D, PIN_LINE_COLOR, PIN_STROKE,
+            15D, 15D, PIN_TRIANGLE_COLOR, false, true);
+    private final ValueMarker pinMarkerNoTriangle = new ValueMarker(-1D, PIN_LINE_COLOR, PIN_STROKE);
 
     private IPlotCoordinateListener coordinateListener;
     private volatile FDate domainMarkerFDate;
@@ -60,12 +61,13 @@ public class PlotCoordinateHelper {
             return;
         }
         final XYPlot xyPlot = (XYPlot) chartPanel.getCombinedPlot().getDomainAxis().getPlot();
-        final IndexedDateTimeOHLCDataset dataset = (IndexedDateTimeOHLCDataset) xyPlot.getDataset();
-        final FDate previousBarEndTime = dataset.getData().get(domainCrosshairMarkerValue - 1).getEndTime();
+        final IPlotSourceDataset dataset = (IPlotSourceDataset) xyPlot.getDataset();
+        final IndexedDateTimeOHLCDataset masterDataset = dataset.getMasterDataset();
+        final FDate previousBarEndTime = masterDataset.getData().get(domainCrosshairMarkerValue - 1).getEndTime();
         final int xCoordinate = domainCrosshairMarkerValue;
-        final boolean isCurrentBar = xCoordinate == (dataset.getData().size() - 1);
+        final boolean isCurrentBar = xCoordinate == (masterDataset.getData().size() - 1);
         final FDate currentBarEndTime = isCurrentBar ? FDates.MAX_DATE
-                : dataset.getData().get(xCoordinate).getEndTime();
+                : masterDataset.getData().get(xCoordinate).getEndTime();
         coordinateListener.coordinatesChanged(previousBarEndTime, currentBarEndTime);
     }
 
@@ -86,8 +88,9 @@ public class PlotCoordinateHelper {
             final boolean pinnedSomething = coordinateListener.pinCoordinates();
             if (pinnedSomething) {
                 final XYPlot xyPlot = (XYPlot) chartPanel.getCombinedPlot().getDomainAxis().getPlot();
-                final IndexedDateTimeOHLCDataset dataset = (IndexedDateTimeOHLCDataset) xyPlot.getDataset();
-                domainMarkerFDate = dataset.getData().get(domainCrosshairMarkerValue).getStartTime();
+                final IPlotSourceDataset dataset = (IPlotSourceDataset) xyPlot.getDataset();
+                final IndexedDateTimeOHLCDataset masterDataset = dataset.getMasterDataset();
+                domainMarkerFDate = masterDataset.getData().get(domainCrosshairMarkerValue).getStartTime();
                 domainMarkerSetOnce = true;
                 updatePinMarker();
             }
@@ -102,8 +105,9 @@ public class PlotCoordinateHelper {
         }
 
         final XYPlot xyPlot = (XYPlot) chartPanel.getCombinedPlot().getDomainAxis().getPlot();
-        final IndexedDateTimeOHLCDataset dataset = (IndexedDateTimeOHLCDataset) xyPlot.getDataset();
-        final Integer domainMarkerValueCopy = dataset.getDateTimeStartAsItemIndex(0, domainMarkerFDateCopy);
+        final IPlotSourceDataset dataset = (IPlotSourceDataset) xyPlot.getDataset();
+        final IndexedDateTimeOHLCDataset masterDataset = dataset.getMasterDataset();
+        final Integer domainMarkerValueCopy = masterDataset.getDateTimeStartAsItemIndex(0, domainMarkerFDateCopy);
 
         final List<XYPlot> plots = chartPanel.getCombinedPlot().getSubplots();
         if (domainMarkerFDateCopy == null && pinMarkerTopAndBottomTriangle.getValue() >= 0) {
@@ -184,17 +188,20 @@ public class PlotCoordinateHelper {
         return false;
     }
 
-    public void showOrderDetails(final XYNoteIconAnnotation noteShowingIconAnnotation) {
+    public void showNoteDetails(final XYNoteIconAnnotation noteShowingIconAnnotation) {
         if (coordinateListener == null) {
             return;
         }
         final XYPlot xyPlot = (XYPlot) chartPanel.getCombinedPlot().getDomainAxis().getPlot();
-        final IndexedDateTimeOHLCDataset dataset = (IndexedDateTimeOHLCDataset) xyPlot.getDataset();
-        final FDate previousBarEndTime = dataset.getData().get((int) noteShowingIconAnnotation.getX() - 1).getEndTime();
+        final IPlotSourceDataset dataset = (IPlotSourceDataset) xyPlot.getDataset();
+        final IndexedDateTimeOHLCDataset masterDataset = dataset.getMasterDataset();
+        final FDate previousBarEndTime = masterDataset.getData()
+                .get((int) noteShowingIconAnnotation.getX() - 1)
+                .getEndTime();
         final int xCoordinate = (int) noteShowingIconAnnotation.getX();
-        final boolean isCurrentBar = xCoordinate == (dataset.getData().size() - 1);
+        final boolean isCurrentBar = xCoordinate == (masterDataset.getData().size() - 1);
         final FDate currentBarEndTime = isCurrentBar ? FDates.MAX_DATE
-                : dataset.getData().get(xCoordinate).getEndTime();
+                : masterDataset.getData().get(xCoordinate).getEndTime();
         coordinateListener.coordinatesChanged(previousBarEndTime, currentBarEndTime);
     }
 
@@ -210,10 +217,15 @@ public class PlotCoordinateHelper {
             return;
         }
         final XYPlot xyPlot = (XYPlot) chartPanel.getCombinedPlot().getDomainAxis().getPlot();
-        final IndexedDateTimeOHLCDataset dataset = (IndexedDateTimeOHLCDataset) xyPlot.getDataset();
-        final FDate currentBarStartTime = dataset.getData().get(dataset.getData().size() - 1).getStartTime();
+        final IPlotSourceDataset dataset = (IPlotSourceDataset) xyPlot.getDataset();
+        final IndexedDateTimeOHLCDataset masterDataset = dataset.getMasterDataset();
+        final FDate currentBarStartTime = masterDataset.getData()
+                .get(masterDataset.getData().size() - 1)
+                .getStartTime();
         if (previousStartTime.isBefore(currentBarStartTime)) {
-            final FDate previousBarEndTime = dataset.getData().get(dataset.getData().size() - 2).getEndTime();
+            final FDate previousBarEndTime = masterDataset.getData()
+                    .get(masterDataset.getData().size() - 2)
+                    .getEndTime();
             coordinateListener.maybeUpdateIncompleteBar(previousStartTime, previousBarEndTime);
             previousStartTime = currentBarStartTime;
         }

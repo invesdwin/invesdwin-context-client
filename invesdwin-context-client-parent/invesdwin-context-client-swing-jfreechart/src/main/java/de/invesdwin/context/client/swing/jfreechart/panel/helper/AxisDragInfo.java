@@ -11,6 +11,7 @@ import org.jfree.chart.ui.RectangleEdge;
 import org.jfree.data.Range;
 
 import de.invesdwin.context.client.swing.jfreechart.plot.Axis;
+import de.invesdwin.context.client.swing.jfreechart.plot.dataset.IPlotSourceDataset;
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.IndexedDateTimeOHLCDataset;
 import de.invesdwin.util.time.date.FDate;
 
@@ -36,13 +37,14 @@ public class AxisDragInfo {
         final Double domainAnchor = valueAxis.java2DToValue(initialDragPoint.getX(), plotInfo.getDataArea(),
                 RectangleEdge.BOTTOM);
         final XYPlot xyPlot = (XYPlot) valueAxis.getPlot();
-        final IndexedDateTimeOHLCDataset dataset = (IndexedDateTimeOHLCDataset) xyPlot.getDataset();
+        final IPlotSourceDataset dataset = (IPlotSourceDataset) xyPlot.getDataset();
+        final IndexedDateTimeOHLCDataset masterDataset = dataset.getMasterDataset();
 
         this.initialDragPoint = initialDragPoint;
         this.initialAxisRange = valueAxis.getRange();
-        this.initialAxisLowerBoundFDate = dataset.getXDate(0,
+        this.initialAxisLowerBoundFDate = masterDataset.getXDate(0,
                 Double.valueOf(Math.round(valueAxis.getRange().getLowerBound())).intValue());
-        this.initialAxisUpperBoundFDate = dataset.getXDate(0,
+        this.initialAxisUpperBoundFDate = masterDataset.getXDate(0,
                 Double.valueOf(Math.round(valueAxis.getRange().getUpperBound())).intValue());
 
         this.valueAxis = valueAxis;
@@ -50,7 +52,7 @@ public class AxisDragInfo {
         this.axis = axis;
 
         //We get the StartTime here.. the EndTime would be more intuitive but the difference is very un-noticable (especially when zoomed out).
-        this.domainAnchorFDate = dataset.getXDate(0, Double.valueOf(Math.round(domainAnchor)).intValue());
+        this.domainAnchorFDate = masterDataset.getXDate(0, Double.valueOf(Math.round(domainAnchor)).intValue());
     }
 
     /**
