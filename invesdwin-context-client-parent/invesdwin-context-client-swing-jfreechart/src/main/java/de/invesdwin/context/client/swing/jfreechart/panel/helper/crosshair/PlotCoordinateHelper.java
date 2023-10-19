@@ -23,6 +23,7 @@ import de.invesdwin.context.client.swing.jfreechart.plot.annotation.XYNoteIconAn
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.IPlotSourceDataset;
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.IndexedDateTimeOHLCDataset;
 import de.invesdwin.context.client.swing.jfreechart.plot.renderer.custom.marker.TriangleLineValueMarker;
+import de.invesdwin.context.jfreechart.dataset.TimeRangedOHLCDataItem;
 import de.invesdwin.util.collections.factory.ILockCollectionFactory;
 import de.invesdwin.util.lang.color.Colors;
 import de.invesdwin.util.math.decimal.scaled.Percent;
@@ -82,19 +83,42 @@ public class PlotCoordinateHelper {
         if (coordinateListener == null) {
             return;
         }
+        if (domainCrosshairMarkerValue < 0) {
+            return;
+        }
         final Point2D point = this.chartPanel.getChartPanel().translateScreenToJava2D(e.getPoint());
         final PlotRenderingInfo plotInfo = this.chartPanel.getChartPanel().getChartRenderingInfo().getPlotInfo();
         if (MouseEvent.BUTTON1 == e.getButton() && e.isControlDown() && plotInfo.getDataArea().contains(point)) {
-            final boolean pinnedSomething = coordinateListener.pinCoordinates();
-            if (pinnedSomething) {
-                final XYPlot xyPlot = (XYPlot) chartPanel.getCombinedPlot().getDomainAxis().getPlot();
-                final IPlotSourceDataset dataset = (IPlotSourceDataset) xyPlot.getDataset();
-                final IndexedDateTimeOHLCDataset masterDataset = dataset.getMasterDataset();
-                domainMarkerFDate = masterDataset.getData().get(domainCrosshairMarkerValue).getStartTime();
-                domainMarkerSetOnce = true;
-                updatePinMarker();
-            }
+            togglePinCoordinates(domainCrosshairMarkerValue, null);
         }
+    }
+
+    public void togglePinCoordinates(final int domainCrosshairMarkerValue, final Boolean intentedPinState) {
+        final Boolean pinStateChange = coordinateListener.togglePinCoordinates(intentedPinState);
+        if (pinStateChange == null) {
+            //pin did not change
+            return;
+        }
+        if (pinStateChange) {
+            domainMarkerFDate = newDomainMarkerFDate(domainCrosshairMarkerValue);
+            domainMarkerSetOnce = true;
+        } else {
+            domainMarkerFDate = null;
+            domainMarkerSetOnce = true;
+        }
+        updatePinMarker();
+    }
+
+    public FDate newDomainMarkerFDate(final int domainCrosshairMarkerValue) {
+        final XYPlot xyPlot = (XYPlot) chartPanel.getCombinedPlot().getDomainAxis().getPlot();
+        final IPlotSourceDataset dataset = (IPlotSourceDataset) xyPlot.getDataset();
+        final IndexedDateTimeOHLCDataset masterDataset = dataset.getMasterDataset();
+        final TimeRangedOHLCDataItem item = masterDataset.getData().get(domainCrosshairMarkerValue);
+        return item.getStartTime();
+    }
+
+    public FDate getDomainMarkerFDate() {
+        return domainMarkerFDate;
     }
 
     public void updatePinMarker() {
@@ -107,24 +131,32 @@ public class PlotCoordinateHelper {
         final XYPlot xyPlot = (XYPlot) chartPanel.getCombinedPlot().getDomainAxis().getPlot();
         final IPlotSourceDataset dataset = (IPlotSourceDataset) xyPlot.getDataset();
         final IndexedDateTimeOHLCDataset masterDataset = dataset.getMasterDataset();
-        final Integer domainMarkerValueCopy = masterDataset.getDateTimeStartAsItemIndex(0, domainMarkerFDateCopy);
 
         final List<XYPlot> plots = chartPanel.getCombinedPlot().getSubplots();
         if (domainMarkerFDateCopy == null && pinMarkerTopAndBottomTriangle.getValue() >= 0) {
             //remove domain marker
             removePinMarker();
             updateDomainMarkerValuesViaReflection(-1);
-        } else if (domainMarkerFDateCopy != null && pinMarkerTopAndBottomTriangle.getValue() == -1) {
+        } else if (domainMarkerFDateCopy != null && pinMarkerTopAndBottomTriangle.getValue() < 0) {
             //add domain marker
+            final Integer domainMarkerValueCopy = masterDataset.getDateTimeStartAsItemIndex(0, domainMarkerFDateCopy);
             updateDomainMarkerValues(domainMarkerValueCopy);
             addDomainMarkers(plots);
         } else if (isPlotsChanged(plots)) {
             //remove and add domain marker
             removePinMarker();
             addDomainMarkers(plots);
-        } else if (domainMarkerValueCopy != pinMarkerTopAndBottomTriangle.getValue()) {
-            //update domain marker value
-            updateDomainMarkerValues(domainMarkerValueCopy);
+        } else {
+            final int domainMarkerValue;
+            if (domainMarkerFDateCopy == null) {
+                domainMarkerValue = -1;
+            } else {
+                domainMarkerValue = masterDataset.getDateTimeStartAsItemIndex(0, domainMarkerFDateCopy);
+            }
+            if (domainMarkerValue != pinMarkerTopAndBottomTriangle.getValue()) {
+                //update domain marker value
+                updateDomainMarkerValues(domainMarkerValue);
+            }
         }
 
         //update prevState so we can lazy-check in next updatePinMarkerCall

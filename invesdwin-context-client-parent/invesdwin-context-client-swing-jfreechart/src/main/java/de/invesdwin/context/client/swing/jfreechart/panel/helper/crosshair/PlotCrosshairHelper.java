@@ -29,6 +29,7 @@ import de.invesdwin.aspects.annotation.EventDispatchThread.InvocationType;
 import de.invesdwin.context.client.swing.jfreechart.panel.InteractiveChartPanel;
 import de.invesdwin.context.client.swing.jfreechart.plot.Markers;
 import de.invesdwin.context.client.swing.jfreechart.plot.XYPlots;
+import de.invesdwin.context.client.swing.jfreechart.plot.annotation.XYNoteIconAnnotation;
 import de.invesdwin.context.client.swing.jfreechart.plot.annotation.priceline.XYPriceLineAnnotation;
 import de.invesdwin.util.lang.color.Colors;
 import de.invesdwin.util.math.Doubles;
@@ -91,6 +92,49 @@ public class PlotCrosshairHelper {
         return domainCrosshairMarker.getValue();
     }
 
+    public int getDomainCrosshairMarkerValueForPinning() {
+        final XYNoteIconAnnotation note = chartPanel.getPlotNavigationHelper().getNoteShowingIconAnnotation();
+        if (note != null) {
+            return (int) note.getX();
+        }
+
+        final double value = domainCrosshairMarker.getValue();
+        if (value >= 0D) {
+            return (int) value;
+        }
+        if (crosshairLastMouseX < 0 || crosshairLastMouseY < 0) {
+            return -1;
+        }
+        //fallback
+        final Point mousePoint = new Point(crosshairLastMouseX, crosshairLastMouseY);
+
+        // convert the Java2D coordinate to axis coordinates...
+        final ChartRenderingInfo chartInfo = chartPanel.getChartPanel().getChartRenderingInfo();
+        final Point2D java2DPoint = chartPanel.getChartPanel().translateScreenToJava2D(mousePoint);
+        final PlotRenderingInfo plotInfo = chartInfo.getPlotInfo();
+
+        // see if the point is in one of the subplots; this is the
+        // intersection of the range and domain crosshairs
+        final int subplotIndex = plotInfo.getSubplotIndex(java2DPoint);
+        if (subplotIndex < 0) {
+            return -1;
+        }
+
+        final int xx = calculateDomainCrosshairMarkerValue(java2DPoint, plotInfo);
+        return xx;
+    }
+
+    private int calculateDomainCrosshairMarkerValue(final Point2D java2DPoint, final PlotRenderingInfo plotInfo) {
+        // all subplots have the domain crosshair
+        // the x coordinate is the same for all subplots
+        final Rectangle2D dataArea = plotInfo.getDataArea();
+        final double xxDouble = chartPanel.getCombinedPlot()
+                .getDomainAxis()
+                .java2DToValue(java2DPoint.getX(), dataArea, chartPanel.getCombinedPlot().getDomainAxisEdge());
+        final int xx = (int) Doubles.round(xxDouble, 0, RoundingMode.HALF_UP);
+        return xx;
+    }
+
     @EventDispatchThread(InvocationType.INVOKE_LATER_IF_NOT_IN_EDT)
     public void updateCrosshair(final int mouseX, final int mouseY) {
         final Point mousePoint = new Point(mouseX, mouseY);
@@ -106,13 +150,7 @@ public class PlotCrosshairHelper {
         boolean domainMakerChanged = false;
 
         if (subplotIndex >= 0) {
-            // all subplots have the domain crosshair
-            // the x coordinate is the same for all subplots
-            final Rectangle2D dataArea = plotInfo.getDataArea();
-            final double xxDouble = chartPanel.getCombinedPlot()
-                    .getDomainAxis()
-                    .java2DToValue(java2DPoint.getX(), dataArea, chartPanel.getCombinedPlot().getDomainAxisEdge());
-            final int xx = (int) Doubles.round(xxDouble, 0, RoundingMode.HALF_UP);
+            final int xx = calculateDomainCrosshairMarkerValue(java2DPoint, plotInfo);
 
             final Rectangle2D panelArea = chartPanel.getChartPanel().getScreenDataArea(mouseX, mouseY);
 
@@ -174,8 +212,6 @@ public class PlotCrosshairHelper {
             }
         } else {
             disableCrosshair(true);
-            crosshairLastMouseX = -1;
-            crosshairLastMouseY = -1;
         }
 
         if (domainMakerChanged) {
@@ -199,9 +235,6 @@ public class PlotCrosshairHelper {
         Markers.setValue(domainCrosshairMarker, -1D);
         Markers.setValue(lastDomainCrosshairMarker, -1D);
 
-        crosshairLastMouseX = -1;
-        crosshairLastMouseY = -1;
-
         if (notify) {
             chartPanel.getCombinedPlot().notifyListeners(new PlotChangeEvent(chartPanel.getCombinedPlot()));
         }
@@ -209,7 +242,7 @@ public class PlotCrosshairHelper {
     }
 
     public Point2D getCrosshairLastMousePoint() {
-        if (crosshairLastMouseX <= -1) {
+        if (domainCrosshairMarker.getValue() < 0D || crosshairLastMouseX < 0 || crosshairLastMouseY < 0) {
             return null;
         } else {
             return new Point2D.Double(crosshairLastMouseX, crosshairLastMouseY);
@@ -230,7 +263,7 @@ public class PlotCrosshairHelper {
     }
 
     public void datasetChanged() {
-        if (crosshairLastMouseX >= 0 && crosshairLastMouseY >= 0) {
+        if (domainCrosshairMarker.getValue() >= 0D && crosshairLastMouseX >= 0 && crosshairLastMouseY >= 0) {
             updateCrosshair(crosshairLastMouseX, crosshairLastMouseY);
         }
     }

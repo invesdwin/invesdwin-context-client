@@ -14,7 +14,15 @@ public interface IPlotCoordinateListener {
 
     void mouseWheelMoved(MouseWheelEvent e);
 
-    boolean pinCoordinates();
+    /**
+     * When intentedPinState is true, only allow pin, when false only allow unpin, when null allow to toggle from
+     * previous state.
+     * 
+     * Returns true when something got pinned, false when something got unpinned, null when no change occurred.
+     */
+    Boolean togglePinCoordinates(Boolean intentedPinState);
+
+    boolean isPinned();
 
     void maybeUpdateIncompleteBar(FDate currentBarStartTime, FDate currentBarEndTime);
 }

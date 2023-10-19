@@ -43,9 +43,11 @@ import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.dialog.S
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.series.AddSeriesDialog;
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.series.expression.IExpressionSeriesProvider;
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.series.indicator.IIndicatorSeriesProvider;
+import de.invesdwin.context.client.swing.jfreechart.panel.helper.crosshair.IPlotCoordinateListener;
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.legend.HighlightedLegendInfo;
 import de.invesdwin.context.client.swing.jfreechart.plot.Axises;
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.IPlotSourceDataset;
+import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.lang.string.Strings;
 import de.invesdwin.util.swing.Dialogs;
 import de.invesdwin.util.swing.listener.PopupMenuListenerSupport;
@@ -78,6 +80,8 @@ public class PlotConfigurationHelper {
     private JMenu bookmarksItem;
 
     private JMenuItem addSeriesItem;
+    private JMenuItem pinItem;
+    private JMenuItem unpinItem;
     private JMenuItem copyToClipboardItem;
     private JMenuItem saveAsPNGItem;
     private JMenuItem helpItem;
@@ -119,6 +123,7 @@ public class PlotConfigurationHelper {
         initRangeAxisItems();
         initSeriesVisibilityItems();
         initAddSeriesItem();
+        initPinItems();
         initBookmarkItems();
         initExportItems();
         initHelpItem();
@@ -142,7 +147,8 @@ public class PlotConfigurationHelper {
                         addSeriesConfigMenuItems();
                     }
                 } else {
-                    if (Axises.isRangeAxisArea(chartPanel, mousePositionOnPopupMenu)) {
+                    final boolean isRangeAxisArea = Axises.isRangeAxisArea(chartPanel, mousePositionOnPopupMenu);
+                    if (isRangeAxisArea) {
                         final ValueAxis rangeAxis = Axises.getRangeAxis(chartPanel, mousePositionOnPopupMenu);
                         rangeAxisIdItem.setText(Axises.getRangeAxisId(rangeAxis));
                         popupMenu.add(rangeAxisIdItem);
@@ -163,6 +169,14 @@ public class PlotConfigurationHelper {
                             popupMenu.add(addMenuItems.get(i));
                         }
                     }
+
+                    if (!isRangeAxisArea) {
+                        final JMenuItem usedPinItem = determineUsedPinItem();
+                        if (usedPinItem != null) {
+                            popupMenu.add(usedPinItem);
+                        }
+                    }
+
                     if (bookmarkStorage != null) {
                         updateBookmarksItems();
                         popupMenu.add(bookmarksItem);
@@ -178,6 +192,24 @@ public class PlotConfigurationHelper {
                 }
 
                 chartPanel.getPlotNavigationHelper().mouseExited();
+            }
+
+            private JMenuItem determineUsedPinItem() {
+                if (chartPanel.getPlotCoordinateHelper().getCoordinateListener() == null) {
+                    return null;
+                }
+                final int domainCrossMarkerValue = chartPanel.getPlotCrosshairHelper()
+                        .getDomainCrosshairMarkerValueForPinning();
+                if (domainCrossMarkerValue < 0) {
+                    return null;
+                }
+                final FDate newDate = chartPanel.getPlotCoordinateHelper().newDomainMarkerFDate(domainCrossMarkerValue);
+                final FDate oldDate = chartPanel.getPlotCoordinateHelper().getDomainMarkerFDate();
+                if (Objects.equals(oldDate, newDate)) {
+                    return unpinItem;
+                } else {
+                    return pinItem;
+                }
             }
 
             private void updateBookmarksItems() {
@@ -383,6 +415,37 @@ public class PlotConfigurationHelper {
             public void actionPerformed(final ActionEvent e) {
                 final AddSeriesDialog dialog = new AddSeriesDialog(PlotConfigurationHelper.this);
                 dialog.setVisible(true);
+            }
+        });
+    }
+
+    private void initPinItems() {
+        pinItem = new JMenuItem("Pin");
+        pinItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(final ActionEvent e) {
+                final IPlotCoordinateListener coordinateListener = chartPanel.getPlotCoordinateHelper()
+                        .getCoordinateListener();
+                if (coordinateListener == null) {
+                    return;
+                }
+                final int domainCrossMarkerValue = chartPanel.getPlotCrosshairHelper()
+                        .getDomainCrosshairMarkerValueForPinning();
+                chartPanel.getPlotCoordinateHelper().togglePinCoordinates(domainCrossMarkerValue, Boolean.TRUE);
+            }
+        });
+        unpinItem = new JMenuItem("Unpin");
+        unpinItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(final ActionEvent e) {
+                final IPlotCoordinateListener coordinateListener = chartPanel.getPlotCoordinateHelper()
+                        .getCoordinateListener();
+                if (coordinateListener == null) {
+                    return;
+                }
+                final int domainCrossMarkerValue = chartPanel.getPlotCrosshairHelper()
+                        .getDomainCrosshairMarkerValueForPinning();
+                chartPanel.getPlotCoordinateHelper().togglePinCoordinates(domainCrossMarkerValue, Boolean.FALSE);
             }
         });
     }
