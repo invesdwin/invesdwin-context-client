@@ -560,8 +560,9 @@ public class InteractiveChartPanel extends JPanel {
                 plotNavigationHelper.mousePressed(e);
                 plotZoomHelper.mousePressed(e);
                 plotPanHelper.mousePressed(e);
-                plotCoordinateHelper.mousePressed(e,
-                        (int) plotCrosshairHelper.getDomainCrosshairMarkerValueForPinning());
+                if (!isHighlighting()) {
+                    plotCoordinateHelper.mousePressed(e, plotCrosshairHelper.getDomainCrosshairMarkerValueForPinning());
+                }
                 if (new Duration(lastVerticalScroll).isGreaterThan(SCROLL_LOCK_DURATION)) {
                     if (e.getButton() == 4) {
                         plotPanHelper.panLeft();
