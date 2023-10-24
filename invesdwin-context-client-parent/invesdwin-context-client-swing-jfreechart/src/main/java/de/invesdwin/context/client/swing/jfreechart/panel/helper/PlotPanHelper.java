@@ -31,7 +31,7 @@ public class PlotPanHelper {
     }
 
     public void panLeft() {
-        if (chartPanel.isUpdating()) {
+        if (chartPanel.isLoading()) {
             return;
         }
         final Range range = chartPanel.getDomainAxis().getRange();
@@ -50,7 +50,7 @@ public class PlotPanHelper {
     }
 
     public void panRight() {
-        if (chartPanel.isUpdating()) {
+        if (chartPanel.isLoading()) {
             return;
         }
         final Range range = chartPanel.getDomainAxis().getRange();

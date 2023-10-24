@@ -135,7 +135,7 @@ public class PlotZoomHelper {
             if (lastZoomable.isLessThan(ZOOMABLE_THRESHOLD)) {
                 return;
             }
-            if (chartPanel.isUpdating()) {
+            if (chartPanel.isLoading()) {
                 return;
             }
             lastZoomable = new Instant();

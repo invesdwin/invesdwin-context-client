@@ -817,4 +817,9 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
         return Integers.min(maxUpperBound, getData().size());
     }
 
+    @Override
+    public boolean isLoading() {
+        return executor.getPendingCount() > 0 || loadSlaveItemsExecutor.getPendingCount() > 0;
+    }
+
 }

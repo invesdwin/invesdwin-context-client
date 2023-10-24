@@ -21,4 +21,6 @@ public interface IChartPanelAwareDatasetList {
 
     void reloadData();
 
+    boolean isLoading();
+
 }

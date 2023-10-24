@@ -139,7 +139,7 @@ public class InteractiveChartPanel extends JPanel {
 
             @Override
             protected boolean isMousePanningAllowed() {
-                return !isUpdating();
+                return !isLoading();
             }
 
             @Override
@@ -478,6 +478,17 @@ public class InteractiveChartPanel extends JPanel {
         return finalizer.executorUpdateLimit.getPendingCount() > 0 || updatingCount.get() > 0;
     }
 
+    public boolean isLoading() {
+        if (getMasterDataset().getData() instanceof IChartPanelAwareDatasetList) {
+            final IChartPanelAwareDatasetList cData = (IChartPanelAwareDatasetList) getMasterDataset().getData();
+            if (cData.isLoading()) {
+                return true;
+            }
+        }
+
+        return isUpdating();
+    }
+
     public void incrementUpdatingCount() {
         paintLock.lock();
         try {
@@ -635,7 +646,7 @@ public class InteractiveChartPanel extends JPanel {
         public void mouseDragged(final MouseEvent e) {
             try {
                 dragging = true;
-                if (plotConfigurationHelper.isShowing() || isUpdating()) {
+                if (plotConfigurationHelper.isShowing() || isLoading()) {
                     return;
                 }
 
@@ -656,7 +667,7 @@ public class InteractiveChartPanel extends JPanel {
         @Override
         public void mouseMoved(final MouseEvent e) {
             try {
-                if (plotConfigurationHelper.isShowing() || isUpdating()) {
+                if (plotConfigurationHelper.isShowing() || isLoading()) {
                     //keep the crosshair as it is when making a right click screenshot
                     return;
                 }
