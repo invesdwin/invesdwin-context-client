@@ -60,6 +60,8 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
     private volatile int maxUpperBound;
     private volatile FDate prevLastAvailableKeyTo;
 
+    private volatile boolean trailingInitially = true;
+
     public MasterLazyDatasetList(final IMasterLazyDatasetProvider provider, final WrappedExecutorService executor,
             final WrappedExecutorService loadSlaveItemsExecutor) {
         this.provider = provider;
@@ -263,6 +265,13 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
     }
 
     public boolean isTrailingRange(final Range range) {
+        if (trailingInitially) {
+            if (isLoading()) {
+                return true;
+            } else {
+                trailingInitially = false;
+            }
+        }
         return isTrailingRange(range, getData().size());
     }
 
