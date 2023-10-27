@@ -410,6 +410,7 @@ public class InteractiveChartPanel extends JPanel {
     protected void initPlots() {
         ohlcPlot = new XYPlot(masterDataset, domainAxis, XYPlots.newRangeAxis(0, false, true),
                 plotConfigurationHelper.getPriceInitialSettings().getPriceRenderer());
+        XYPlots.makeThreadSafe(ohlcPlot);
         ohlcPlot.setRangeAxisLocation(AxisLocation.BOTTOM_OR_RIGHT);
         plotLegendHelper.addLegendAnnotation(ohlcPlot);
         masterDataset.setPlot(ohlcPlot);
@@ -751,6 +752,7 @@ public class InteractiveChartPanel extends JPanel {
     public XYPlot newPlot() {
         final NumberAxis rangeAxis = XYPlots.newRangeAxis(0, false, true);
         final XYPlot newPlot = new XYPlot(null, null, rangeAxis, null);
+        XYPlots.makeThreadSafe(newPlot);
         newPlot.setRangeAxisLocation(AxisLocation.BOTTOM_OR_RIGHT);
         plotLegendHelper.addLegendAnnotation(newPlot);
         return newPlot;

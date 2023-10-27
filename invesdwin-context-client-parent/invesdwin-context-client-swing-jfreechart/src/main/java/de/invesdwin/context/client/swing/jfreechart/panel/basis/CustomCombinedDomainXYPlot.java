@@ -14,6 +14,7 @@ import org.jfree.chart.plot.PlotRenderingInfo;
 import org.jfree.chart.plot.XYPlot;
 
 import de.invesdwin.context.client.swing.jfreechart.panel.InteractiveChartPanel;
+import de.invesdwin.context.client.swing.jfreechart.plot.XYPlots;
 import de.invesdwin.util.swing.EventDispatchThreadUtil;
 
 @NotThreadSafe
@@ -29,6 +30,7 @@ public class CustomCombinedDomainXYPlot extends CombinedDomainXYPlot {
 
     public CustomCombinedDomainXYPlot(final InteractiveChartPanel chartPanel) {
         super(chartPanel.getDomainAxis());
+        XYPlots.makeThreadSafe(this);
         this.chartPanel = chartPanel;
         trashPlot = chartPanel.newPlot();
         trashPlot.getRangeAxis().setVisible(false);

@@ -4,9 +4,12 @@ import java.awt.Font;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Rectangle2D;
 import java.lang.reflect.Field;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentSkipListMap;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -17,6 +20,7 @@ import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.plot.Marker;
 import org.jfree.chart.plot.ValueMarker;
 import org.jfree.chart.plot.XYPlot;
+import org.jfree.chart.renderer.xy.XYItemRenderer;
 import org.jfree.chart.ui.Layer;
 import org.jfree.chart.ui.RectangleEdge;
 import org.jfree.data.Range;
@@ -27,6 +31,8 @@ import de.invesdwin.context.client.swing.jfreechart.panel.InteractiveChartPanel;
 import de.invesdwin.context.client.swing.jfreechart.panel.basis.CustomCombinedDomainXYPlot;
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.DisabledXYDataset;
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.IPlotSourceDataset;
+import de.invesdwin.util.collections.delegate.NullSafeDelegateMap;
+import de.invesdwin.util.collections.fast.concurrent.SynchronizedFastIterableDelegateList;
 import de.invesdwin.util.lang.reflection.field.UnsafeField;
 import de.invesdwin.util.math.Doubles;
 import de.invesdwin.util.math.Integers;
@@ -46,19 +52,74 @@ public final class XYPlots {
     };
     public static final Font DEFAULT_FONT = new Font("Verdana", Font.PLAIN, HiDPI.scale(9));
 
-    private static final UnsafeField<List<XYAnnotation>> XYPLOT_ANNOTATIONS_FIELD;
     private static final UnsafeField<Boolean> XYPLOT_RANGE_CROSSHAIR_LOCKED_ON_DATA_FIELD;
     private static final UnsafeField<Boolean> XYPLOT_DOMAIN_CROSSHAIR_LOCKED_ON_DATA_FIELD;
+    private static final UnsafeField<Map<Integer, ValueAxis>> XYPLOT_DOMAINAXES_FIELD;
+    private static final UnsafeField<Map<Integer, AxisLocation>> XYPLOT_DOMAINAXISLOCATIONS_FIELD;
+    private static final UnsafeField<Map<Integer, ValueAxis>> XYPLOT_RANGEAXES_FIELD;
+    private static final UnsafeField<Map<Integer, AxisLocation>> XYPLOT_RANGEAXISLOCATIONS_FIELD;
+    private static final UnsafeField<Map<Integer, XYDataset>> XYPLOT_DATASETS_FIELD;
+    private static final UnsafeField<Map<Integer, XYItemRenderer>> XYPLOT_RENDERERS_FIELD;
+    private static final UnsafeField<Map<Integer, List<Integer>>> XYPLOT_DATASETTODOMAINAXESMAP_FIELD;
+    private static final UnsafeField<Map<Integer, List<Integer>>> XYPLOT_DATASETTORANGEAXESMAP_FIELD;
+    @SuppressWarnings("rawtypes")
+    private static final UnsafeField<Map> XYPLOT_FOREGROUNDDOMAINMARKERS_FIELD;
+    @SuppressWarnings("rawtypes")
+    private static final UnsafeField<Map> XYPLOT_BACKGROUNDDOMAINMARKERS_FIELD;
+    @SuppressWarnings("rawtypes")
+    private static final UnsafeField<Map> XYPLOT_FOREGROUNDRANGEMARKERS_FIELD;
+    @SuppressWarnings("rawtypes")
+    private static final UnsafeField<Map> XYPLOT_BACKGROUNDRANGEMARKERS_FIELD;
+    private static final UnsafeField<List<XYAnnotation>> XYPLOT_ANNOTATIONS_FIELD;
 
     static {
         try {
+            //          private final Map<Integer, ValueAxis> domainAxes;
+            final Field xyPlotDomainAxesField = XYPlot.class.getDeclaredField("domainAxes");
+            XYPLOT_DOMAINAXES_FIELD = new UnsafeField<>(xyPlotDomainAxesField);
+            //          private final Map<Integer, AxisLocation> domainAxisLocations;
+            final Field xyPlotDomainAxisLocationsField = XYPlot.class.getDeclaredField("domainAxisLocations");
+            XYPLOT_DOMAINAXISLOCATIONS_FIELD = new UnsafeField<>(xyPlotDomainAxisLocationsField);
+            //          private final Map<Integer, ValueAxis> rangeAxes;
+            final Field xyPlotRangeAxesField = XYPlot.class.getDeclaredField("rangeAxes");
+            XYPLOT_RANGEAXES_FIELD = new UnsafeField<>(xyPlotRangeAxesField);
+            //          private final Map<Integer, AxisLocation> rangeAxisLocations;
+            final Field xyPlotRangeAxisLocationsField = XYPlot.class.getDeclaredField("rangeAxisLocations");
+            XYPLOT_RANGEAXISLOCATIONS_FIELD = new UnsafeField<>(xyPlotRangeAxisLocationsField);
+            //          private final Map<Integer, XYDataset> datasets;
+            final Field xyPlotDatasetsField = XYPlot.class.getDeclaredField("datasets");
+            XYPLOT_DATASETS_FIELD = new UnsafeField<>(xyPlotDatasetsField);
+            //          private final Map<Integer, XYItemRenderer> renderers;
+            final Field xyPlotRenderersField = XYPlot.class.getDeclaredField("renderers");
+            XYPLOT_RENDERERS_FIELD = new UnsafeField<>(xyPlotRenderersField);
+            //          private final Map<Integer, List<Integer>> datasetToDomainAxesMap;
+            final Field xyPlotDatasetToDomainAxesMapField = XYPlot.class.getDeclaredField("datasetToDomainAxesMap");
+            XYPLOT_DATASETTODOMAINAXESMAP_FIELD = new UnsafeField<>(xyPlotDatasetToDomainAxesMapField);
+            //          private final Map<Integer, List<Integer>> datasetToRangeAxesMap;
+            final Field xyPlotDatasetToRangeAxesMapField = XYPlot.class.getDeclaredField("datasetToRangeAxesMap");
+            XYPLOT_DATASETTORANGEAXESMAP_FIELD = new UnsafeField<>(xyPlotDatasetToRangeAxesMapField);
+            //          private final Map foregroundDomainMarkers;
+            final Field xyPlotForegroundDomainMarkersField = XYPlot.class.getDeclaredField("foregroundDomainMarkers");
+            XYPLOT_FOREGROUNDDOMAINMARKERS_FIELD = new UnsafeField<>(xyPlotForegroundDomainMarkersField);
+            //          private final Map backgroundDomainMarkers;
+            final Field xyPlotBackgroundDomainMarkersField = XYPlot.class.getDeclaredField("backgroundDomainMarkers");
+            XYPLOT_BACKGROUNDDOMAINMARKERS_FIELD = new UnsafeField<>(xyPlotBackgroundDomainMarkersField);
+            //          private final Map foregroundRangeMarkers;
+            final Field xyPlotForegroundRangeMarkersField = XYPlot.class.getDeclaredField("foregroundRangeMarkers");
+            XYPLOT_FOREGROUNDRANGEMARKERS_FIELD = new UnsafeField<>(xyPlotForegroundRangeMarkersField);
+            //          private final Map backgroundRangeMarkers;
+            final Field xyPlotBackgroundRangeMarkersField = XYPlot.class.getDeclaredField("backgroundRangeMarkers");
+            XYPLOT_BACKGROUNDRANGEMARKERS_FIELD = new UnsafeField<>(xyPlotBackgroundRangeMarkersField);
+            //          private final List<XYAnnotation> annotations;
             final Field xyPlotAnnotationsField = XYPlot.class.getDeclaredField("annotations");
             XYPLOT_ANNOTATIONS_FIELD = new UnsafeField<>(xyPlotAnnotationsField);
 
-            final Field xyPlotRangeCrosshairLockedOnDataField = XYPlot.class.getDeclaredField("rangeCrosshairLockedOnData");
+            final Field xyPlotRangeCrosshairLockedOnDataField = XYPlot.class
+                    .getDeclaredField("rangeCrosshairLockedOnData");
             XYPLOT_RANGE_CROSSHAIR_LOCKED_ON_DATA_FIELD = new UnsafeField<>(xyPlotRangeCrosshairLockedOnDataField);
 
-            final Field xyPlotDomainCrosshairLockedOnDataField = XYPlot.class.getDeclaredField("domainCrosshairLockedOnData");
+            final Field xyPlotDomainCrosshairLockedOnDataField = XYPlot.class
+                    .getDeclaredField("domainCrosshairLockedOnData");
             XYPLOT_DOMAIN_CROSSHAIR_LOCKED_ON_DATA_FIELD = new UnsafeField<>(xyPlotDomainCrosshairLockedOnDataField);
         } catch (NoSuchFieldException | SecurityException e) {
             throw new RuntimeException(e);
@@ -343,5 +404,76 @@ public final class XYPlots {
 
     public static void setDomainCrosshairLockedOnData(final XYPlot xyPlot, final boolean flag) {
         XYPLOT_DOMAIN_CROSSHAIR_LOCKED_ON_DATA_FIELD.put(xyPlot, flag);
+    }
+
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    public static void makeThreadSafe(final XYPlot xyPlot) {
+        if (!(XYPLOT_DOMAINAXES_FIELD.get(xyPlot) instanceof HashMap)) {
+            return;
+        }
+        //          private final Map<Integer, ValueAxis> domainAxes;
+        //        this.domainAxes = new HashMap<Integer, ValueAxis>();
+        final Map<Integer, ValueAxis> domainAxes = newConcurrentMap(XYPLOT_DOMAINAXES_FIELD.get(xyPlot));
+        XYPLOT_DOMAINAXES_FIELD.put(xyPlot, domainAxes);
+        //          private final Map<Integer, AxisLocation> domainAxisLocations;
+        //        this.domainAxisLocations = new HashMap<Integer, AxisLocation>();
+        final Map<Integer, AxisLocation> domainAxisLocations = newConcurrentMap(
+                XYPLOT_DOMAINAXISLOCATIONS_FIELD.get(xyPlot));
+        XYPLOT_DOMAINAXISLOCATIONS_FIELD.put(xyPlot, domainAxisLocations);
+        //          private final Map<Integer, ValueAxis> rangeAxes;
+        //        this.rangeAxes = new HashMap<Integer, ValueAxis>();
+        final Map<Integer, ValueAxis> rangeAxes = newConcurrentMap(XYPLOT_RANGEAXES_FIELD.get(xyPlot));
+        XYPLOT_RANGEAXES_FIELD.put(xyPlot, rangeAxes);
+        //          private final Map<Integer, AxisLocation> rangeAxisLocations;
+        //        this.rangeAxisLocations = new HashMap<Integer, AxisLocation>();
+        final Map<Integer, AxisLocation> rangeAxisLocations = newConcurrentMap(
+                XYPLOT_RANGEAXISLOCATIONS_FIELD.get(xyPlot));
+        XYPLOT_RANGEAXISLOCATIONS_FIELD.put(xyPlot, rangeAxisLocations);
+        //          private final Map<Integer, XYDataset> datasets;
+        //        this.datasets = new HashMap<Integer, XYDataset>();
+        final Map<Integer, XYDataset> datasets = newConcurrentMap(XYPLOT_DATASETS_FIELD.get(xyPlot));
+        XYPLOT_DATASETS_FIELD.put(xyPlot, datasets);
+        //          private final Map<Integer, XYItemRenderer> renderers;
+        //        this.renderers = new HashMap<Integer, XYItemRenderer>();
+        final Map<Integer, XYItemRenderer> renderers = newConcurrentMap(XYPLOT_RENDERERS_FIELD.get(xyPlot));
+        XYPLOT_RENDERERS_FIELD.put(xyPlot, renderers);
+        //          private final Map<Integer, List<Integer>> datasetToDomainAxesMap;
+        //        this.datasetToDomainAxesMap = new TreeMap();
+        final Map datasetToDomainAxesMap = newConcurrentNavigableMap(XYPLOT_DATASETTODOMAINAXESMAP_FIELD.get(xyPlot));
+        XYPLOT_DATASETTODOMAINAXESMAP_FIELD.put(xyPlot, datasetToDomainAxesMap);
+        //          private final Map<Integer, List<Integer>> datasetToRangeAxesMap;
+        //        this.datasetToRangeAxesMap = new TreeMap();
+        final Map datasetToRangeAxesMap = newConcurrentNavigableMap(XYPLOT_DATASETTORANGEAXESMAP_FIELD.get(xyPlot));
+        XYPLOT_DATASETTORANGEAXESMAP_FIELD.put(xyPlot, datasetToRangeAxesMap);
+        //          private final Map foregroundDomainMarkers;
+        //        this.foregroundDomainMarkers = new HashMap();
+        final Map foregroundDomainMarkers = newConcurrentMap(XYPLOT_FOREGROUNDDOMAINMARKERS_FIELD.get(xyPlot));
+        XYPLOT_FOREGROUNDDOMAINMARKERS_FIELD.put(xyPlot, foregroundDomainMarkers);
+        //          private final Map backgroundDomainMarkers;
+        //        this.backgroundDomainMarkers = new HashMap();
+        final Map backgroundDomainMarkers = newConcurrentMap(XYPLOT_BACKGROUNDDOMAINMARKERS_FIELD.get(xyPlot));
+        XYPLOT_BACKGROUNDDOMAINMARKERS_FIELD.put(xyPlot, backgroundDomainMarkers);
+        //          private final Map foregroundRangeMarkers;
+        //        this.foregroundRangeMarkers = new HashMap();
+        final Map foregroundRangeMarkers = newConcurrentMap(XYPLOT_FOREGROUNDRANGEMARKERS_FIELD.get(xyPlot));
+        XYPLOT_FOREGROUNDRANGEMARKERS_FIELD.put(xyPlot, foregroundRangeMarkers);
+        //          private final Map backgroundRangeMarkers;
+        //        this.backgroundRangeMarkers = new HashMap();
+        final Map backgroundRangeMarkers = newConcurrentMap(XYPLOT_BACKGROUNDRANGEMARKERS_FIELD.get(xyPlot));
+        XYPLOT_BACKGROUNDRANGEMARKERS_FIELD.put(xyPlot, backgroundRangeMarkers);
+        //        private static final UnsafeField<List<XYAnnotation>> XYPLOT_ANNOTATIONS_FIELD;
+        //        this.annotations = new java.util.ArrayList();
+        final List annotations = new SynchronizedFastIterableDelegateList(XYPLOT_ANNOTATIONS_FIELD.get(xyPlot));
+        XYPLOT_ANNOTATIONS_FIELD.put(xyPlot, annotations);
+    }
+
+    private static <K, V> Map<K, V> newConcurrentMap(final Map<K, V> map) {
+        final Map<K, V> newMap = new NullSafeDelegateMap<K, V>(new ConcurrentHashMap<K, V>(map.size()));
+        newMap.putAll(map);
+        return newMap;
+    }
+
+    private static <K, V> Map<K, V> newConcurrentNavigableMap(final Map<K, V> map) {
+        return new ConcurrentSkipListMap<K, V>(map);
     }
 }
