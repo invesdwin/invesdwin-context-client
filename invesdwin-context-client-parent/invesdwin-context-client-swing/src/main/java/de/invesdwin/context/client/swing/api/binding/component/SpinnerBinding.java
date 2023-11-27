@@ -15,6 +15,9 @@ import javax.swing.event.DocumentEvent;
 import org.hibernate.validator.constraints.Range;
 
 import de.invesdwin.context.beans.validator.DecimalRange;
+import de.invesdwin.context.beans.validator.doubl.DoubleMax;
+import de.invesdwin.context.beans.validator.doubl.DoubleMin;
+import de.invesdwin.context.beans.validator.doubl.DoubleRange;
 import de.invesdwin.context.client.swing.api.binding.BindingGroup;
 import de.invesdwin.context.client.swing.api.binding.converter.IConverter;
 import de.invesdwin.context.client.swing.api.binding.converter.NumberToNumberConverter;
@@ -128,6 +131,10 @@ public class SpinnerBinding extends AComponentBinding<JSpinner, Object> {
         if (decimalMin != null) {
             return Decimal.valueOf(decimalMin.value());
         }
+        final DoubleMin doubleMin = element.getAccessor().getAnnotation(DoubleMin.class);
+        if (doubleMin != null) {
+            return Decimal.valueOf(doubleMin.value());
+        }
         final Range range = element.getAccessor().getAnnotation(Range.class);
         if (range != null) {
             return Decimal.valueOf(range.min());
@@ -135,6 +142,10 @@ public class SpinnerBinding extends AComponentBinding<JSpinner, Object> {
         final DecimalRange decimalRange = element.getAccessor().getAnnotation(DecimalRange.class);
         if (decimalRange != null) {
             return Decimal.valueOf(decimalRange.min());
+        }
+        final DoubleRange doubleRange = element.getAccessor().getAnnotation(DoubleRange.class);
+        if (doubleRange != null) {
+            return Decimal.valueOf(doubleRange.min());
         }
         return null;
     }
@@ -148,6 +159,10 @@ public class SpinnerBinding extends AComponentBinding<JSpinner, Object> {
         if (decimalMax != null) {
             return Decimal.valueOf(decimalMax.value());
         }
+        final DoubleMax doubleMax = element.getAccessor().getAnnotation(DoubleMax.class);
+        if (doubleMax != null) {
+            return Decimal.valueOf(doubleMax.value());
+        }
         final Range range = element.getAccessor().getAnnotation(Range.class);
         if (range != null) {
             return Decimal.valueOf(range.max());
@@ -155,6 +170,10 @@ public class SpinnerBinding extends AComponentBinding<JSpinner, Object> {
         final DecimalRange decimalRange = element.getAccessor().getAnnotation(DecimalRange.class);
         if (decimalRange != null) {
             return Decimal.valueOf(decimalRange.max());
+        }
+        final DoubleRange doubleRange = element.getAccessor().getAnnotation(DoubleRange.class);
+        if (doubleRange != null) {
+            return Decimal.valueOf(doubleRange.max());
         }
         return null;
     }
