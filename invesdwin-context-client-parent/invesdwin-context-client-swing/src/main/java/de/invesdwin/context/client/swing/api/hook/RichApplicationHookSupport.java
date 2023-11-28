@@ -15,6 +15,12 @@ public class RichApplicationHookSupport implements IRichApplicationHook {
     public void startupDone() {}
 
     @Override
+    public void showMainFrameDone() {}
+
+    @Override
+    public void hideMainFrameDone() {}
+
+    @Override
     public void shutdownDone() {}
 
 }

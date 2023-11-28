@@ -41,8 +41,7 @@ public class RichApplicationSupport implements IRichApplication {
     }
 
     @Override
-    public void showInitialViews(final ContentPane contentPane) {
-    }
+    public void showInitialViews(final ContentPane contentPane) {}
 
     @Override
     public Dimension getInitialFrameSize() {
@@ -55,15 +54,18 @@ public class RichApplicationSupport implements IRichApplication {
     }
 
     @Override
-    public void initializeDone() {
-    }
+    public void initializeDone() {}
 
     @Override
-    public void startupDone() {
-    }
+    public void startupDone() {}
 
     @Override
-    public void shutdownDone() {
-    }
+    public void showMainFrameDone() {}
+
+    @Override
+    public void hideMainFrameDone() {}
+
+    @Override
+    public void shutdownDone() {}
 
 }

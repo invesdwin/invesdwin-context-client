@@ -176,6 +176,13 @@ public class DelegateRichApplication extends SingleFrameApplication {
                 Frames.setInitialFrameSize(frame, application.getInitialFrameSize());
             }
         });
+        final IRichApplication delegate = RichApplicationProperties.getDelegate();
+        delegate.showMainFrameDone();
+        final Map<String, IRichApplicationHook> hooks = MergedContext.getInstance()
+                .getBeansOfType(IRichApplicationHook.class);
+        for (final IRichApplicationHook hook : hooks.values()) {
+            hook.showMainFrameDone();
+        }
     }
 
     @EventDispatchThread(InvocationType.INVOKE_LATER_IF_NOT_IN_EDT)
@@ -186,13 +193,21 @@ public class DelegateRichApplication extends SingleFrameApplication {
             return;
         }
         frame.setVisible(false);
+        final IRichApplication delegate = RichApplicationProperties.getDelegate();
+        delegate.hideMainFrameDone();
+        final Map<String, IRichApplicationHook> hooks = MergedContext.getInstance()
+                .getBeansOfType(IRichApplicationHook.class);
+        for (final IRichApplicationHook hook : hooks.values()) {
+            hook.hideMainFrameDone();
+        }
     }
 
     @Override
     public void shutdown() {
         super.shutdown();
+        hideMainFrame();
         final IRichApplication delegate = RichApplicationProperties.getDelegate();
-        delegate.startupDone();
+        delegate.shutdownDone();
         final Map<String, IRichApplicationHook> hooks = MergedContext.getInstance()
                 .getBeansOfType(IRichApplicationHook.class);
         for (final IRichApplicationHook hook : hooks.values()) {

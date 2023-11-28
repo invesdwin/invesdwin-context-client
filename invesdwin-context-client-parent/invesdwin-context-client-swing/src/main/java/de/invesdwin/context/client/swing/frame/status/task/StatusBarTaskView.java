@@ -226,12 +226,16 @@ public class StatusBarTaskView extends AView<StatusBarTaskView, JPanel> implemen
     }
 
     @Override
-    public void startupDone() {
-    }
+    public void startupDone() {}
 
     @Override
-    public void shutdownDone() {
-    }
+    public void showMainFrameDone() {}
+
+    @Override
+    public void hideMainFrameDone() {}
+
+    @Override
+    public void shutdownDone() {}
 
     private void updateTaskMonitor(final ApplicationContext context) {
         this.taskMonitor = new TaskMonitor(context);

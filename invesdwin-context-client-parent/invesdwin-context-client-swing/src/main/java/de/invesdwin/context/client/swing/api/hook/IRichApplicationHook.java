@@ -6,6 +6,10 @@ public interface IRichApplicationHook {
 
     void startupDone();
 
+    void showMainFrameDone();
+
+    void hideMainFrameDone();
+
     void shutdownDone();
 
 }

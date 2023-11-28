@@ -46,6 +46,12 @@ public class StatusBarTaskInfoMonitor implements IRichApplicationHook, ITaskInfo
     public void startupDone() {}
 
     @Override
+    public void showMainFrameDone() {}
+
+    @Override
+    public void hideMainFrameDone() {}
+
+    @Override
     public void shutdownDone() {
         TaskInfoManager.unregisterListener(this);
     }
