@@ -678,7 +678,7 @@ public class InteractiveChartPanel extends JPanel {
                     if (note != null) {
                         plotCoordinateHelper.showNoteDetails(note);
                     } else {
-                        plotCoordinateHelper.disableSelectedDetails();
+                        plotCoordinateHelper.mouseExited();
                     }
                 } else {
                     plotCrosshairHelper.mouseMoved(e);

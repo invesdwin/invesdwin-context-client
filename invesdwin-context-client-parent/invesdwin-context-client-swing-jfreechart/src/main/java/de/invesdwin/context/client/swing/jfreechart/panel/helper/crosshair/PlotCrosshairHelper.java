@@ -215,7 +215,7 @@ public class PlotCrosshairHelper {
         }
 
         if (domainMakerChanged) {
-            chartPanel.getPlotCoordinateHelper().pointOfInterestChanged((int) domainCrosshairMarker.getValue());
+            chartPanel.getPlotCoordinateHelper().coordinatesChanged((int) domainCrosshairMarker.getValue());
         }
     }
 

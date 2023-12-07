@@ -57,7 +57,7 @@ public class PlotCoordinateHelper {
         this.chartPanel = chartPanel;
     }
 
-    public void pointOfInterestChanged(final int domainCrosshairMarkerValue) {
+    public void coordinatesChanged(final int domainCrosshairMarkerValue) {
         if (coordinateListener == null) {
             return;
         }
@@ -237,13 +237,6 @@ public class PlotCoordinateHelper {
         coordinateListener.coordinatesChanged(previousBarEndTime, currentBarEndTime);
     }
 
-    public void mouseExited() {
-        if (coordinateListener == null) {
-            return;
-        }
-        coordinateListener.disableSelectedDetails();
-    }
-
     public void datasetChanged() {
         if (coordinateListener == null) {
             return;
@@ -302,11 +295,11 @@ public class PlotCoordinateHelper {
         }
     }
 
-    public void disableSelectedDetails() {
+    public void mouseExited() {
         if (coordinateListener == null) {
             return;
         }
-        coordinateListener.disableSelectedDetails();
+        coordinateListener.mouseExited();
     }
 
     public void registerCoordindateListener(final IPlotCoordinateListener coordinateListener) {

@@ -10,7 +10,7 @@ public interface IPlotCoordinateListener {
 
     void coordinatesChanged(FDate from, FDate to);
 
-    void disableSelectedDetails();
+    void mouseExited();
 
     void mouseWheelMoved(MouseWheelEvent e);
 
