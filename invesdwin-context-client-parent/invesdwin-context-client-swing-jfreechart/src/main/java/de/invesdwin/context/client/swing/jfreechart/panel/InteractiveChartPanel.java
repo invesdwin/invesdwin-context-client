@@ -114,10 +114,11 @@ public class InteractiveChartPanel extends JPanel {
         this.plotPanHelper = new PlotPanHelper(this);
         this.mouseMotionListener = new MouseMotionListenerImpl();
 
-        domainAxis = new DomainAxisImpl();
+        domainAxis = new RangeListenerNumberAxis();
         domainAxis.setAutoRange(false);
         domainAxis.setLabelFont(XYPlots.DEFAULT_FONT);
         domainAxis.setTickLabelFont(XYPlots.DEFAULT_FONT);
+        domainAxis.setTickLabelPaint(XYPlots.AXIS_LABEL_PAINT);
         domainAxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
         domainAxisFormat = new IndexedDateTimeNumberFormat(masterDataset, domainAxis);
         domainAxis.setNumberFormatOverride(domainAxisFormat);
@@ -516,7 +517,7 @@ public class InteractiveChartPanel extends JPanel {
         }
     }
 
-    private final class DomainAxisImpl extends NumberAxis {
+    private final class RangeListenerNumberAxis extends NumberAxis {
         @Override
         public void setRange(final Range range, final boolean turnOffAutoRange, final boolean notify) {
             final boolean changed = !range.equals(getRange());

@@ -1,6 +1,7 @@
 package de.invesdwin.context.client.swing.jfreechart.plot;
 
 import java.awt.Font;
+import java.awt.Paint;
 import java.awt.event.MouseEvent;
 import java.awt.geom.Rectangle2D;
 import java.lang.reflect.Field;
@@ -12,6 +13,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentSkipListMap;
 
 import javax.annotation.concurrent.Immutable;
+import javax.swing.JLabel;
 
 import org.jfree.chart.annotations.XYAnnotation;
 import org.jfree.chart.axis.AxisLocation;
@@ -51,6 +53,7 @@ public final class XYPlots {
         }
     };
     public static final Font DEFAULT_FONT = new Font("Verdana", Font.PLAIN, HiDPI.scale(9));
+    public static final Paint AXIS_LABEL_PAINT = new JLabel().getForeground();
 
     private static final UnsafeField<Boolean> XYPLOT_RANGE_CROSSHAIR_LOCKED_ON_DATA_FIELD;
     private static final UnsafeField<Boolean> XYPLOT_DOMAIN_CROSSHAIR_LOCKED_ON_DATA_FIELD;
@@ -256,6 +259,7 @@ public final class XYPlots {
         rangeAxis.setVisible(visible);
         rangeAxis.setLabelFont(DEFAULT_FONT);
         rangeAxis.setTickLabelFont(DEFAULT_FONT);
+        rangeAxis.setTickLabelPaint(AXIS_LABEL_PAINT);
         return rangeAxis;
     }
 
