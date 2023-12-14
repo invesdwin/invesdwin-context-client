@@ -11,9 +11,11 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
 
 import de.agilecoders.wicket.core.markup.html.bootstrap.button.dropdown.MenuBookmarkablePageLink;
+import de.agilecoders.wicket.core.markup.html.bootstrap.navbar.Navbar;
 import de.agilecoders.wicket.core.markup.html.bootstrap.navbar.Navbar.ComponentPosition;
 import de.agilecoders.wicket.core.markup.html.bootstrap.navbar.NavbarButton;
 import de.agilecoders.wicket.core.markup.html.bootstrap.navbar.NavbarComponents;
+import de.agilecoders.wicket.core.markup.html.bootstrap.navbar.NavbarDropDownButton;
 import de.agilecoders.wicket.extensions.markup.html.bootstrap.icon.FontAwesome6IconType;
 import de.invesdwin.context.client.wicket.cas.page.CasLoginPage;
 import de.invesdwin.context.client.wicket.cas.page.CasLogoutPage;
@@ -28,8 +30,6 @@ import de.invesdwin.context.client.wicket.saml.page.SamlLogoutPage;
 import de.invesdwin.nowicket.application.AWebPage;
 import de.invesdwin.nowicket.application.auth.ABaseWebApplication;
 import de.invesdwin.nowicket.application.auth.Roles;
-import de.invesdwin.nowicket.component.navbar.Navbar;
-import de.invesdwin.nowicket.component.navbar.NavbarDropDownButton;
 import de.invesdwin.nowicket.page.auth.defaultpage.DefaultSignInPage;
 import de.invesdwin.nowicket.page.auth.defaultpage.DefaultSignOutPage;
 
