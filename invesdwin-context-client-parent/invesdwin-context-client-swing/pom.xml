@@ -93,6 +93,11 @@
 			<groupId>net.sourceforge.jaadec</groupId>
 			<artifactId>jaad</artifactId>
 		</dependency>
+		<dependency>
+    		<groupId>org.japura</groupId>
+    		<artifactId>japura-gui</artifactId>
+    		<version>7.5.2</version>
+		</dependency>
 	</dependencies>
 
 </project>

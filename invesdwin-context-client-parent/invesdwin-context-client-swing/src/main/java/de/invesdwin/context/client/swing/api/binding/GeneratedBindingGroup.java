@@ -16,8 +16,11 @@ import javax.swing.JSpinner;
 import javax.swing.JTable;
 import javax.swing.text.JTextComponent;
 
+import org.japura.gui.CheckComboBox;
+
 import de.invesdwin.context.client.swing.api.binding.component.CheckBoxBinding;
 import de.invesdwin.context.client.swing.api.binding.component.CheckBoxMenuItemBinding;
+import de.invesdwin.context.client.swing.api.binding.component.CheckComboBoxBinding;
 import de.invesdwin.context.client.swing.api.binding.component.ComboBoxBinding;
 import de.invesdwin.context.client.swing.api.binding.component.IComponentBinding;
 import de.invesdwin.context.client.swing.api.binding.component.KeyGrabberTextFieldBinding;
@@ -137,6 +140,8 @@ public final class GeneratedBindingGroup {
                     binding = bindJCheckBox((JCheckBox) c);
                 } else if (c instanceof JSpinner) {
                     binding = bindJSpinner((JSpinner) c);
+                } else if (c instanceof CheckComboBox) {
+                    binding = bindCheckComboBox((CheckComboBox) c);
                 } else {
                     throw UnknownArgumentException.newInstance(Class.class, c.getClass());
                 }
@@ -166,6 +171,11 @@ public final class GeneratedBindingGroup {
     protected IComponentBinding bindJCheckBox(final JCheckBox component) {
         final APropertyBeanPathElement element = getElement(component);
         return new CheckBoxBinding(component, element, bindingGroup);
+    }
+
+    protected IComponentBinding bindCheckComboBox(final CheckComboBox component) {
+        final AChoiceBeanPathElement element = getElement(component);
+        return new CheckComboBoxBinding(component, element, bindingGroup);
     }
 
     protected IComponentBinding bindJTable(final JTable component) {
