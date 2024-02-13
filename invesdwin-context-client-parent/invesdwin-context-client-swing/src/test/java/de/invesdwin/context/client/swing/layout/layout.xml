@@ -1,0 +1,455 @@
+<?xml version='1.0'?>
+<root>
+	<resource name="dock.ui.ThemeMap">
+		<key>smooth</key>
+	</resource>
+	<resource name="ccontrol.frontend">
+		<frontend>
+			<current>
+				<base>
+					<roots>
+						<root name="external">
+							<layout factory="predefined">
+								<replacement id="rootexternal"/>
+								<delegate id="delegate_CommonDockStationFactory">
+									<root>true</root>
+									<content delegate="screen dock">
+										<placeholders>
+											<version>0</version>
+											<format>dock.PlaceholderList</format>
+										</placeholders>
+									</content>
+								</delegate>
+							</layout>
+							<adjacent>
+								<layout factory="dock.RootStationAdjacentFactory">
+									<type>dock.CExternalizeArea</type>
+								</layout>
+							</adjacent>
+							<children ignore="false"/>
+						</root>
+						<root name="ccontrol north">
+							<layout factory="predefined">
+								<replacement id="rootccontrol north"/>
+								<delegate id="delegate_CommonDockStationFactory">
+									<root>true</root>
+									<content delegate="flap dock">
+										<window auto="false" direction="SOUTH"/>
+										<placeholders>
+											<version>0</version>
+											<format>dock.PlaceholderList</format>
+										</placeholders>
+									</content>
+								</delegate>
+							</layout>
+							<adjacent>
+								<layout factory="dock.RootStationAdjacentFactory">
+									<type>dock.CContentArea.minimize</type>
+								</layout>
+							</adjacent>
+							<children ignore="false"/>
+						</root>
+						<root name="ccontrol south">
+							<layout factory="predefined">
+								<replacement id="rootccontrol south"/>
+								<delegate id="delegate_CommonDockStationFactory">
+									<root>true</root>
+									<content delegate="flap dock">
+										<window auto="false" direction="NORTH"/>
+										<placeholders>
+											<version>0</version>
+											<format>dock.PlaceholderList</format>
+										</placeholders>
+									</content>
+								</delegate>
+							</layout>
+							<adjacent>
+								<layout factory="dock.RootStationAdjacentFactory">
+									<type>dock.CContentArea.minimize</type>
+								</layout>
+							</adjacent>
+							<children ignore="false"/>
+						</root>
+						<root name="ccontrol east">
+							<layout factory="predefined">
+								<replacement id="rootccontrol east"/>
+								<delegate id="delegate_CommonDockStationFactory">
+									<root>true</root>
+									<content delegate="flap dock">
+										<window auto="false" direction="WEST"/>
+										<placeholders>
+											<version>0</version>
+											<format>dock.PlaceholderList</format>
+										</placeholders>
+									</content>
+								</delegate>
+							</layout>
+							<adjacent>
+								<layout factory="dock.RootStationAdjacentFactory">
+									<type>dock.CContentArea.minimize</type>
+								</layout>
+							</adjacent>
+							<children ignore="false"/>
+						</root>
+						<root name="ccontrol center">
+							<layout factory="predefined" placeholder="dock.single.ccontrol\ center">
+								<replacement id="rootccontrol center"/>
+								<delegate id="delegate_CommonDockStationFactory">
+									<id>ccontrol center</id>
+									<root>true</root>
+									<content delegate="SplitDockStationFactory">
+										<fullscreen-action>false</fullscreen-action>
+										<leaf id="0" nodeId="1707682213056">
+											<placeholders>
+												<placeholder>dock.single.ContentPaneView</placeholder>
+											</placeholders>
+											<placeholder-map>
+												<version>0</version>
+												<format>dock.SplitDockStation</format>
+											</placeholder-map>
+										</leaf>
+									</content>
+								</delegate>
+							</layout>
+							<adjacent>
+								<layout factory="dock.RootStationAdjacentFactory">
+									<type>dock.CContentArea.center</type>
+								</layout>
+							</adjacent>
+							<children ignore="false">
+								<child>
+									<layout factory="predefined" placeholder="dock.single.ContentPaneView">
+										<replacement id="dockablesingle ContentPaneView"/>
+										<delegate id="delegate_CommonDockStationFactory">
+											<id>ContentPaneView</id>
+											<root>true</root>
+											<content delegate="SplitDockStationFactory">
+												<fullscreen-action>false</fullscreen-action>
+												<node nodeId="1707682215959" orientation="VERTICAL" divider="0.667">
+													<node nodeId="4" orientation="HORIZONTAL" divider="0.667">
+														<leaf id="0" nodeId="1707682215406">
+															<placeholders>
+																<placeholder>dock.single.ChartView</placeholder>
+															</placeholders>
+														</leaf>
+														<node nodeId="1707682227167" orientation="VERTICAL" divider="0.700412350604449">
+															<leaf id="2" nodeId="1707682227165">
+																<placeholders>
+																	<placeholder>dock.single.POI\-Orders</placeholder>
+																</placeholders>
+															</leaf>
+															<leaf id="3" nodeId="1707682215610">
+																<placeholders>
+																	<placeholder>dock.single.POI</placeholder>
+																</placeholders>
+																<placeholder-map>
+																	<version>0</version>
+																	<format>dock.PlaceholderList</format>
+																	<entry>
+																		<key shared="false">
+																			<placeholder>dock.single.POI</placeholder>
+																		</key>
+																	</entry>
+																</placeholder-map>
+															</leaf>
+														</node>
+													</node>
+													<leaf id="1" nodeId="2">
+														<placeholders>
+															<placeholder>dock.single.PositionManager</placeholder>
+														</placeholders>
+														<placeholder-map>
+															<version>0</version>
+															<format>dock.PlaceholderList</format>
+															<entry>
+																<key shared="false">
+																	<placeholder>dock.single.PositionManager</placeholder>
+																</key>
+																<item key="convert" type="b">true</item>
+																<item key="convert-keys" type="a"/>
+															</entry>
+															<entry>
+																<key shared="false">
+																	<placeholder>dock.single.TradeAlerts</placeholder>
+																</key>
+																<item key="convert" type="b">true</item>
+																<item key="convert-keys" type="a"/>
+															</entry>
+														</placeholder-map>
+													</leaf>
+												</node>
+											</content>
+										</delegate>
+									</layout>
+									<adjacent>
+										<layout factory="dock.RootStationAdjacentFactory">
+											<type>dock.CWorkingArea</type>
+										</layout>
+									</adjacent>
+									<children ignore="false">
+										<child>
+											<layout factory="predefined" placeholder="dock.single.ChartView">
+												<replacement id="dockablesingle ChartView"/>
+												<delegate id="delegate_ccontrol backup factory id">
+													<id>ChartView</id>
+													<area>ContentPaneView</area>
+												</delegate>
+											</layout>
+											<children ignore="false"/>
+										</child>
+										<child>
+											<layout factory="delegate_StackDockStationFactory">
+												<selected>1</selected>
+												<placeholders>
+													<version>0</version>
+													<format>dock.PlaceholderList</format>
+													<entry>
+														<key shared="false">
+															<placeholder>dock.single.PositionManager</placeholder>
+														</key>
+														<item key="convert" type="b">true</item>
+														<item key="convert-keys" type="a">
+															<item type="s">index</item>
+															<item type="s">id</item>
+															<item type="s">placeholder</item>
+														</item>
+														<item key="dock.index" type="i">0</item>
+														<item key="dock.id" type="i">0</item>
+														<item key="dock.placeholder" type="s">dock.single.PositionManager</item>
+													</entry>
+													<entry>
+														<key shared="false">
+															<placeholder>dock.single.TradeAlerts</placeholder>
+														</key>
+														<item key="convert" type="b">true</item>
+														<item key="convert-keys" type="a">
+															<item type="s">index</item>
+															<item type="s">id</item>
+															<item type="s">placeholder</item>
+														</item>
+														<item key="dock.index" type="i">1</item>
+														<item key="dock.id" type="i">1</item>
+														<item key="dock.placeholder" type="s">dock.single.TradeAlerts</item>
+													</entry>
+												</placeholders>
+											</layout>
+											<children ignore="false">
+												<child>
+													<layout factory="predefined" placeholder="dock.single.PositionManager">
+														<replacement id="dockablesingle PositionManager"/>
+														<delegate id="delegate_ccontrol backup factory id">
+															<id>PositionManager</id>
+															<area>ContentPaneView</area>
+														</delegate>
+													</layout>
+													<children ignore="false"/>
+												</child>
+												<child>
+													<layout factory="predefined" placeholder="dock.single.TradeAlerts">
+														<replacement id="dockablesingle TradeAlerts"/>
+														<delegate id="delegate_ccontrol backup factory id">
+															<id>TradeAlerts</id>
+															<area>ContentPaneView</area>
+														</delegate>
+													</layout>
+													<children ignore="false"/>
+												</child>
+											</children>
+										</child>
+										<child>
+											<layout factory="predefined" placeholder="dock.single.POI\-Orders">
+												<replacement id="dockablesingle POI-Orders"/>
+												<delegate id="delegate_ccontrol backup factory id">
+													<id>POI-Orders</id>
+													<area>ContentPaneView</area>
+												</delegate>
+											</layout>
+											<children ignore="false"/>
+										</child>
+										<child>
+											<layout factory="predefined" placeholder="dock.single.POI">
+												<replacement id="dockablesingle POI"/>
+												<delegate id="delegate_ccontrol backup factory id">
+													<id>POI</id>
+													<area>ContentPaneView</area>
+												</delegate>
+											</layout>
+											<children ignore="false"/>
+										</child>
+									</children>
+								</child>
+							</children>
+						</root>
+						<root name="ccontrol west">
+							<layout factory="predefined">
+								<replacement id="rootccontrol west"/>
+								<delegate id="delegate_CommonDockStationFactory">
+									<root>true</root>
+									<content delegate="flap dock">
+										<window auto="false" direction="EAST"/>
+										<placeholders>
+											<version>0</version>
+											<format>dock.PlaceholderList</format>
+										</placeholders>
+									</content>
+								</delegate>
+							</layout>
+							<adjacent>
+								<layout factory="dock.RootStationAdjacentFactory">
+									<type>dock.CContentArea.minimize</type>
+								</layout>
+							</adjacent>
+							<children ignore="false"/>
+						</root>
+					</roots>
+					<children/>
+				</base>
+				<modes>
+					<dockables>
+						<entry id="single ContentPaneView" current="dock.mode.normal">
+							<history>
+								<mode>dock.mode.normal</mode>
+							</history>
+							<properties>
+								<property id="dock.mode.normal">
+									<mode>dock.mode.normal</mode>
+									<root>ccontrol center</root>
+									<applicationDefined>false</applicationDefined>
+									<location>
+										<property factory="SplitDockPlaceholderProperty">
+											<placeholder>dock.single.ContentPaneView</placeholder>
+											<backup-path>
+												<leaf id="1707682213056"/>
+											</backup-path>
+										</property>
+									</location>
+								</property>
+							</properties>
+						</entry>
+						<entry id="single TradeAlerts" current="dock.mode.normal">
+							<history>
+								<mode>dock.mode.normal</mode>
+							</history>
+							<properties>
+								<property id="dock.mode.normal">
+									<mode>dock.mode.normal</mode>
+									<root>ContentPaneView</root>
+									<applicationDefined>false</applicationDefined>
+									<location>
+										<property factory="SplitDockPlaceholderProperty">
+											<placeholder>dock.single.TradeAlerts</placeholder>
+											<backup-path>
+												<node location="BOTTOM" size="0.33299999999999996" id="1707682215959"/>
+												<leaf id="2"/>
+											</backup-path>
+										</property>
+										<property factory="StackDockPropertyFactory">
+											<index>1</index>
+											<placeholder>dock.single.TradeAlerts</placeholder>
+										</property>
+									</location>
+								</property>
+							</properties>
+						</entry>
+						<entry id="single PositionManager" current="dock.mode.normal">
+							<history>
+								<mode>dock.mode.normal</mode>
+							</history>
+							<properties>
+								<property id="dock.mode.normal">
+									<mode>dock.mode.normal</mode>
+									<root>ContentPaneView</root>
+									<applicationDefined>false</applicationDefined>
+									<location>
+										<property factory="SplitDockPlaceholderProperty">
+											<placeholder>dock.single.PositionManager</placeholder>
+											<backup-path>
+												<node location="BOTTOM" size="0.33299999999999996" id="2"/>
+												<leaf id="2"/>
+											</backup-path>
+										</property>
+									</location>
+								</property>
+							</properties>
+						</entry>
+						<entry id="single ChartView" current="dock.mode.normal">
+							<history>
+								<mode>dock.mode.normal</mode>
+							</history>
+							<properties>
+								<property id="dock.mode.normal">
+									<mode>dock.mode.normal</mode>
+									<root>ContentPaneView</root>
+									<applicationDefined>false</applicationDefined>
+									<location>
+										<property factory="SplitDockPlaceholderProperty">
+											<placeholder>dock.single.ChartView</placeholder>
+											<backup-path>
+												<leaf id="1707682215406"/>
+											</backup-path>
+										</property>
+									</location>
+								</property>
+							</properties>
+						</entry>
+						<entry id="single POI-Orders" current="dock.mode.normal">
+							<history>
+								<mode>dock.mode.normal</mode>
+							</history>
+							<properties>
+								<property id="dock.mode.normal">
+									<mode>dock.mode.normal</mode>
+									<root>ContentPaneView</root>
+									<applicationDefined>false</applicationDefined>
+									<location>
+										<property factory="SplitDockPlaceholderProperty">
+											<placeholder>dock.single.POI\-Orders</placeholder>
+											<backup-path>
+												<node location="TOP" size="0.667" id="1707682215959"/>
+												<node location="RIGHT" size="0.33299999999999996" id="4"/>
+												<leaf id="1707682215610"/>
+											</backup-path>
+										</property>
+										<property factory="StackDockPropertyFactory">
+											<index>0</index>
+											<placeholder>dock.single.POI\-Orders</placeholder>
+										</property>
+									</location>
+								</property>
+							</properties>
+						</entry>
+						<entry id="single POI" current="dock.mode.normal">
+							<history>
+								<mode>dock.mode.normal</mode>
+							</history>
+							<properties>
+								<property id="dock.mode.normal">
+									<mode>dock.mode.normal</mode>
+									<root>ContentPaneView</root>
+									<applicationDefined>false</applicationDefined>
+									<location>
+										<property factory="SplitDockPlaceholderProperty">
+											<placeholder>dock.single.POI</placeholder>
+											<backup-path>
+												<node location="RIGHT" size="0.33299999999999996" id="4"/>
+												<leaf id="1707682215610"/>
+											</backup-path>
+										</property>
+										<property factory="StackDockPropertyFactory">
+											<index>1</index>
+											<placeholder>dock.single.POI</placeholder>
+										</property>
+									</location>
+								</property>
+							</properties>
+						</entry>
+					</dockables>
+					<modes>
+						<entry id="dock.mode.maximized"/>
+					</modes>
+				</modes>
+			</current>
+		</frontend>
+	</resource>
+	<resource name="ccontrol.preferences"/>
+</root>
