@@ -21,6 +21,8 @@ public interface IRichApplication {
 
     void showInitialViews(ContentPane contentPane);
 
+    boolean isSaveRestorePersistentLayout();
+
     Dimension getInitialFrameSize();
 
     IMenuBarConfig newMenuBarConfig();

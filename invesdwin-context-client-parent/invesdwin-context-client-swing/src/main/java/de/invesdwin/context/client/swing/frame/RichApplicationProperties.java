@@ -41,8 +41,7 @@ public final class RichApplicationProperties {
     private static volatile String[] initializationArgs;
     private static Boolean windowBuilder;
 
-    private RichApplicationProperties() {
-    }
+    private RichApplicationProperties() {}
 
     public static synchronized Application getDesignTimeApplication() {
         if (designTimeApplication == null) {
@@ -188,13 +187,24 @@ public final class RichApplicationProperties {
         }
     }
 
+    public static String getApplicationName() {
+        final ApplicationContext context = getDesignTimeApplication().getContext();
+        return context.getResourceManager().getResourceMap().getString(DelegateRichApplication.KEY_APPLICATION_NAME);
+    }
+
+    public static String getApplicationId() {
+        final ApplicationContext context = getDesignTimeApplication().getContext();
+        return context.getResourceManager().getResourceMap().getString(DelegateRichApplication.KEY_APPLICATION_ID);
+    }
+
     public static File getStorageDirectory() {
         //use design time application so that the resource bundle is properly initialized
         final ApplicationContext context = getDesignTimeApplication().getContext();
-        final String applicationId = GuiService.i18n(context.getResourceMap(), "Application.id",
-                context.getApplicationClass().getSimpleName());
+        final String applicationId = GuiService.i18n(context.getResourceMap(),
+                DelegateRichApplication.KEY_APPLICATION_ID, context.getApplicationClass().getSimpleName());
         if (UNDEFINED_APPLICATION_ID.equals(applicationId)) {
-            throw new IllegalStateException("Please override Application.id: " + applicationId);
+            throw new IllegalStateException(
+                    "Please override " + DelegateRichApplication.KEY_APPLICATION_ID + ": " + applicationId);
         }
         return new File(ContextProperties.getHomeDataDirectory(), applicationId);
     }

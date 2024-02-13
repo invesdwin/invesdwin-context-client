@@ -14,6 +14,7 @@
 	<bean class="de.invesdwin.context.client.swing.frame.status.heap.HeapIndicatorView" />
 	<bean class="de.invesdwin.context.client.swing.frame.status.StatusBarView" />
 	<bean class="de.invesdwin.context.client.swing.api.guiservice.ContentPane" />
+	<bean class="de.invesdwin.context.client.swing.api.guiservice.PersistentLayoutManager" />
 	<bean class="de.invesdwin.context.client.swing.api.guiservice.StatusBar" />
 	<bean class="de.invesdwin.context.client.swing.api.guiservice.GuiService" />
 

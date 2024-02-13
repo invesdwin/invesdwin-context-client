@@ -20,6 +20,8 @@ public interface IGuiService {
 
     ContentPane getContentPane();
 
+    PersistentLayoutManager getPersistentLayoutManager();
+
     TaskService getTaskService();
 
     boolean hideModalView();

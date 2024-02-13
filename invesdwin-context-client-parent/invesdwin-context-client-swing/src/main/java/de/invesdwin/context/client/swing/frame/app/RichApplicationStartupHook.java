@@ -1,6 +1,6 @@
 package de.invesdwin.context.client.swing.frame.app;
 
-import java.util.Map;
+import java.io.File;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
@@ -11,7 +11,10 @@ import de.invesdwin.context.beans.hook.IStartupHook;
 import de.invesdwin.context.beans.init.MergedContext;
 import de.invesdwin.context.client.swing.api.IRichApplication;
 import de.invesdwin.context.client.swing.api.guiservice.ContentPane;
-import de.invesdwin.context.client.swing.api.hook.IRichApplicationHook;
+import de.invesdwin.context.client.swing.api.guiservice.PersistentLayoutManager;
+import de.invesdwin.context.client.swing.api.hook.RichApplicationHookManager;
+import de.invesdwin.context.client.swing.api.hook.RichApplicationHookSupport;
+import de.invesdwin.context.client.swing.frame.RichApplicationProperties;
 import de.invesdwin.context.client.swing.frame.content.ContentPaneView;
 import de.invesdwin.context.client.swing.frame.menu.MenuBarView;
 import de.invesdwin.context.client.swing.frame.splash.ConfiguredSplashScreen;
@@ -42,6 +45,8 @@ public class RichApplicationStartupHook implements IStartupHook {
     @Inject
     private ContentPane contentPane;
     @Inject
+    private PersistentLayoutManager persistentLayoutManager;
+    @Inject
     private StatusBarView statusBarView;
 
     @Override
@@ -65,6 +70,10 @@ public class RichApplicationStartupHook implements IStartupHook {
         EventDispatchThreadUtil.invokeAndWait(new Runnable() {
             @Override
             public void run() {
+                if (delegate.isSaveRestorePersistentLayout()) {
+                    configurePersistentLayout(application);
+                }
+
                 setupFrame(application);
             }
         });
@@ -78,11 +87,7 @@ public class RichApplicationStartupHook implements IStartupHook {
                     public void run() {
                         try {
                             delegate.startupDone();
-                            final Map<String, IRichApplicationHook> hooks = MergedContext.getInstance()
-                                    .getBeansOfType(IRichApplicationHook.class);
-                            for (final IRichApplicationHook hook : hooks.values()) {
-                                hook.startupDone();
-                            }
+                            RichApplicationHookManager.INSTANCE.triggerStartupDone();
                         } finally {
                             if (!delegate.isKeepSplashVisible()) {
                                 ConfiguredSplashScreen.INSTANCE.dispose();
@@ -97,7 +102,23 @@ public class RichApplicationStartupHook implements IStartupHook {
         });
     }
 
-    public void setupFrame(final DelegateRichApplication application) {
+    private void configurePersistentLayout(final DelegateRichApplication application) {
+        final File layoutFile = new File(RichApplicationProperties.getStorageDirectory(),
+                PersistentLayoutManager.LAYOUT_FILE_NAME);
+        if (!layoutFile.exists()) {
+            return;
+        }
+        persistentLayoutManager.restoreLayout(layoutFile);
+        RichApplicationHookManager.register(new RichApplicationHookSupport() {
+            @Override
+            public void hideMainFrameDone() {
+                //save layout on close
+                persistentLayoutManager.saveLayout(layoutFile);
+            }
+        });
+    }
+
+    private void setupFrame(final DelegateRichApplication application) {
         final FrameView frameView = application.getMainView();
         Dialogs.setRootFrame(frameView.getFrame());
         frameView.setComponent(contentPaneView.getComponent());

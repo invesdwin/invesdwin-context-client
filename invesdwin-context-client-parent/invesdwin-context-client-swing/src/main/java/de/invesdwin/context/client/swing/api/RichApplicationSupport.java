@@ -41,6 +41,11 @@ public class RichApplicationSupport implements IRichApplication {
     }
 
     @Override
+    public boolean isSaveRestorePersistentLayout() {
+        return false;
+    }
+
+    @Override
     public void showInitialViews(final ContentPane contentPane) {}
 
     @Override

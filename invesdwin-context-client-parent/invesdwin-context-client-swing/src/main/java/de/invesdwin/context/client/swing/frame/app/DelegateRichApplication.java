@@ -4,7 +4,6 @@ import java.awt.Dimension;
 import java.awt.event.WindowListener;
 import java.io.File;
 import java.util.Locale;
-import java.util.Map;
 
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.NotThreadSafe;
@@ -28,7 +27,7 @@ import de.invesdwin.context.beans.hook.StartupHookManager;
 import de.invesdwin.context.beans.init.MergedContext;
 import de.invesdwin.context.client.swing.api.IRichApplication;
 import de.invesdwin.context.client.swing.api.exit.AMainFrameCloseOperation;
-import de.invesdwin.context.client.swing.api.hook.IRichApplicationHook;
+import de.invesdwin.context.client.swing.api.hook.RichApplicationHookManager;
 import de.invesdwin.context.client.swing.error.GuiExceptionHandler;
 import de.invesdwin.context.client.swing.frame.RichApplicationProperties;
 import de.invesdwin.context.client.swing.frame.app.resource.ModifiedResourceManager;
@@ -53,6 +52,7 @@ import de.invesdwin.util.time.duration.Duration;
 @ProxyActions({ "select-all", "undo", "redo" })
 public class DelegateRichApplication extends SingleFrameApplication {
 
+    public static final String KEY_APPLICATION_ID = "Application.id";
     public static final String KEY_APPLICATION_NAME = "Application.name";
     public static final String KEY_APPLICATION_SPLASH = "Application.splash";
     public static final boolean INITIALIZED;
@@ -105,13 +105,8 @@ public class DelegateRichApplication extends SingleFrameApplication {
         final IRichApplication delegate = RichApplicationProperties.getDelegate();
         configureLookAndFeel(delegate);
         configureLocale(delegate);
-
         delegate.initializeDone();
-        final Map<String, IRichApplicationHook> hooks = MergedContext.getInstance()
-                .getBeansOfType(IRichApplicationHook.class);
-        for (final IRichApplicationHook hook : hooks.values()) {
-            hook.initializeDone();
-        }
+        RichApplicationHookManager.INSTANCE.triggerInitializeDone();
     }
 
     private void initLocalStorageDirectory(final ApplicationContext ctx) {
@@ -178,11 +173,7 @@ public class DelegateRichApplication extends SingleFrameApplication {
         });
         final IRichApplication delegate = RichApplicationProperties.getDelegate();
         delegate.showMainFrameDone();
-        final Map<String, IRichApplicationHook> hooks = MergedContext.getInstance()
-                .getBeansOfType(IRichApplicationHook.class);
-        for (final IRichApplicationHook hook : hooks.values()) {
-            hook.showMainFrameDone();
-        }
+        RichApplicationHookManager.INSTANCE.triggerShowMainFrameDone();
     }
 
     @EventDispatchThread(InvocationType.INVOKE_LATER_IF_NOT_IN_EDT)
@@ -195,11 +186,7 @@ public class DelegateRichApplication extends SingleFrameApplication {
         frame.setVisible(false);
         final IRichApplication delegate = RichApplicationProperties.getDelegate();
         delegate.hideMainFrameDone();
-        final Map<String, IRichApplicationHook> hooks = MergedContext.getInstance()
-                .getBeansOfType(IRichApplicationHook.class);
-        for (final IRichApplicationHook hook : hooks.values()) {
-            hook.hideMainFrameDone();
-        }
+        RichApplicationHookManager.INSTANCE.triggerHideMainFrameDone();
     }
 
     @Override
@@ -208,11 +195,7 @@ public class DelegateRichApplication extends SingleFrameApplication {
         hideMainFrame();
         final IRichApplication delegate = RichApplicationProperties.getDelegate();
         delegate.shutdownDone();
-        final Map<String, IRichApplicationHook> hooks = MergedContext.getInstance()
-                .getBeansOfType(IRichApplicationHook.class);
-        for (final IRichApplicationHook hook : hooks.values()) {
-            hook.shutdownDone();
-        }
+        RichApplicationHookManager.INSTANCE.triggerShutdownDone();
     }
 
     @Override

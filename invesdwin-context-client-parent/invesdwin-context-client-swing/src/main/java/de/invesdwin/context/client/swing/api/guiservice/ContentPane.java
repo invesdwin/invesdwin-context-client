@@ -125,16 +125,26 @@ public class ContentPane {
             final IDockable dockable = view.getDockable();
             dockable.requestFocus();
         } else {
-            final AView<?, ?> existingView = findViewWithEqualModel(view);
+            AView<?, ?> existingView = findViewWithEqualModel(view);
+            if (existingView == null) {
+                //Find Placeholder-View
+                existingView = id_visibleView.get(view.getId());
+            }
+
             if (existingView != null) {
                 view.replaceView(existingView);
+                if (existingView.getClass() != view.getClass()) {
+                    //Classes will differ when we for example replace a PlaceholderView with the 'real' one.
+                    class_id_visibleView.get(existingView.getClass()).remove(existingView.getDockableUniqueId());
+                    class_id_visibleView.get(view.getClass()).put(view.getDockableUniqueId(), view);
+                }
                 final IDockable dockable = view.getDockable();
                 dockable.requestFocus();
             } else {
                 addView(view, location);
             }
         }
-        if (restoreFocusedView != null) {
+        if (restoreFocusedView != null && restoreFocusedView.getDockable() != null) {
             EventDispatchThreadUtil.invokeLater(new Runnable() {
                 @Override
                 public void run() {
@@ -146,6 +156,11 @@ public class ContentPane {
 
     public AView<?, ?> getFocusedView() {
         final SingleCDockable focusedDockable = (SingleCDockable) contentPaneView.getFocusedDockable();
+        if (focusedDockable == null) {
+            //Can be null on startup when we initialize PlaceholderView's
+            return null;
+        }
+
         final AView<?, ?> focusedView = id_visibleView.get(focusedDockable.getUniqueId());
         return focusedView;
     }
@@ -163,12 +178,10 @@ public class ContentPane {
      * Throws an exception if the View has already been added.
      */
     private void addView(final AView<?, ?> view, final IWorkingAreaLocation location) {
-        Assertions.assertThat(containsView(view))
-                .as("View [%s] is already being displayed.", view.getDockableUniqueId())
-                .isFalse();
+        Assertions.checkFalse(containsView(view), "View [%s] is already being displayed.", view.getDockableUniqueId());
         final IDockable content = contentPaneView.addView(view, location);
-        Assertions.assertThat(id_visibleView.put(content.getUniqueId(), view)).isNull();
-        Assertions.assertThat(class_id_visibleView.get(view.getClass()).put(content.getUniqueId(), view)).isNull();
+        Assertions.checkNull(id_visibleView.put(content.getUniqueId(), view));
+        Assertions.checkNull(class_id_visibleView.get(view.getClass()).put(content.getUniqueId(), view));
         view.setDockable(content);
         content.requestFocus();
     }

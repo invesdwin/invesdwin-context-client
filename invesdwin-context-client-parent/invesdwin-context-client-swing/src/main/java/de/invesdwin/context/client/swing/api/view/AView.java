@@ -55,6 +55,14 @@ public abstract class AView<M extends AModel, C extends JComponent> extends AMod
         this.model = model;
     }
 
+    /**
+     * When this id is defined, the dockable will use it as DockableUniqueId to allow saving and restoring the layout
+     * for this view. Otherwise a unique id is generated which does not allow this feature to be used.
+     */
+    public String getId() {
+        return null;
+    }
+
     public String getDockableUniqueId() {
         synchronized (dockableLock) {
             if (dockable != null) {
@@ -284,15 +292,12 @@ public abstract class AView<M extends AModel, C extends JComponent> extends AMod
     }
 
     @Hidden(skip = true)
-    protected void onOpen() {
-    }
+    protected void onOpen() {}
 
     @Hidden(skip = true)
-    protected void onClose() {
-    }
+    protected void onClose() {}
 
     @Hidden(skip = true)
-    protected void onShowing() {
-    }
+    protected void onShowing() {}
 
 }

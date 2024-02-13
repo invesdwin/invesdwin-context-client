@@ -3,6 +3,8 @@ package de.invesdwin.context.client.swing.frame.content;
 import java.awt.GridLayout;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
+import java.io.File;
+import java.io.IOException;
 
 import javax.annotation.concurrent.NotThreadSafe;
 import javax.swing.JFrame;
@@ -19,10 +21,13 @@ import bibliothek.gui.dock.common.mode.ExtendedMode;
 import bibliothek.gui.dock.control.focus.DefaultFocusRequest;
 import bibliothek.gui.dock.event.DockableFocusEvent;
 import bibliothek.gui.dock.event.DockableFocusListener;
+import de.invesdwin.context.client.swing.api.IRichApplication;
 import de.invesdwin.context.client.swing.api.guiservice.ContentPane;
 import de.invesdwin.context.client.swing.api.guiservice.GuiService;
+import de.invesdwin.context.client.swing.api.guiservice.PersistentLayoutManager;
 import de.invesdwin.context.client.swing.api.view.AView;
 import de.invesdwin.context.client.swing.api.view.IDockable;
+import de.invesdwin.context.client.swing.frame.RichApplicationProperties;
 import de.invesdwin.context.client.swing.frame.app.DelegateRichApplication;
 import de.invesdwin.context.client.swing.util.Views;
 import de.invesdwin.util.assertions.Assertions;
@@ -32,9 +37,13 @@ import de.invesdwin.util.swing.listener.MouseListenerSupport;
 import de.invesdwin.util.time.Instant;
 import de.invesdwin.util.time.date.FDate;
 import de.invesdwin.util.time.date.FDates;
+import jakarta.inject.Inject;
 
 @NotThreadSafe
 public class ContentPaneView extends AView<ContentPaneView, JPanel> {
+
+    @Inject
+    private IRichApplication richApplication;
 
     private CControl control;
     private CWorkingArea workingArea;
@@ -73,6 +82,15 @@ public class ContentPaneView extends AView<ContentPaneView, JPanel> {
             public void keyPressed(final KeyEvent e) {
                 if (e.isControlDown() && e.getKeyCode() == KeyEvent.VK_W) {
                     pressed = true;
+                }
+
+                if (e.isControlDown() && e.getKeyCode() == KeyEvent.VK_S) {
+                    try {
+                        final File storageDirectory = RichApplicationProperties.getStorageDirectory();
+                        control.writeXML(new File(storageDirectory, PersistentLayoutManager.LAYOUT_FILE_NAME));
+                    } catch (final IOException e1) {
+                        //TODO: Log only in console or LogViewer ?
+                    }
                 }
             }
         });
@@ -140,7 +158,7 @@ public class ContentPaneView extends AView<ContentPaneView, JPanel> {
         if (control == null) {
             Assertions.checkNotNull(getComponent());
         }
-        final String uniqueId = DockableIdGenerator.newId(view);
+        final String uniqueId = newUniqueId(view);
         String title = view.getTitle();
         if (title == null) {
             title = uniqueId;
@@ -152,6 +170,18 @@ public class ContentPaneView extends AView<ContentPaneView, JPanel> {
         setLocation(dockable, location);
         dockable.setVisible(true);
         return dockable;
+    }
+
+    private String newUniqueId(final AView<?, ?> view) {
+        if (richApplication.isSaveRestorePersistentLayout()) {
+            final String id = view.getId();
+            Assertions.checkNotBlank(id,
+                    "View [%s] should define an explicit id when %s.isSaveRestorePersistentLayout() is true",
+                    view.getClass().getSimpleName(), richApplication.getClass().getSimpleName());
+            return id;
+        } else {
+            return DockableIdGenerator.newId(view);
+        }
     }
 
     private void setLocation(final ContentPaneDockable dockable, final IWorkingAreaLocation location) {

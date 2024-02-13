@@ -48,6 +48,8 @@ public class GuiService implements IGuiService {
     private StatusBar statusBar;
     @Inject
     private ContentPane contentPane;
+    @Inject
+    private PersistentLayoutManager persistentLayoutManager;
     @GuardedBy("none for performance")
     private TaskService taskService;
     @GuardedBy("none for performance")
@@ -65,6 +67,11 @@ public class GuiService implements IGuiService {
     @Override
     public ContentPane getContentPane() {
         return contentPane;
+    }
+
+    @Override
+    public PersistentLayoutManager getPersistentLayoutManager() {
+        return persistentLayoutManager;
     }
 
     @Override
