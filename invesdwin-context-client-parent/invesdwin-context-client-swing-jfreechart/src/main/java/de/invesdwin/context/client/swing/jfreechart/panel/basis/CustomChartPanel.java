@@ -953,7 +953,7 @@ public class CustomChartPanel extends JPanel implements ChartChangeListener, Cha
         g2.setPaintMode();
     }
 
-    private class MouseListenerImpl extends MouseListenerSupport {
+    private final class MouseListenerImpl extends MouseListenerSupport {
 
         /**
          * Handles a 'mouse released' event. On Windows, we need to check if this is a popup trigger, but only if we
@@ -1027,7 +1027,7 @@ public class CustomChartPanel extends JPanel implements ChartChangeListener, Cha
         }
     }
 
-    private class MouseMotionListenerImpl extends MouseMotionListenerSupport {
+    private final class MouseMotionListenerImpl extends MouseMotionListenerSupport {
         @Override
         public void mouseMoved(final MouseEvent e) {
             final Graphics2D g2 = (Graphics2D) getGraphics();
