@@ -159,7 +159,7 @@ public class CustomChartPanel extends JPanel implements ChartChangeListener, Cha
     /** The last mouse position during panning. */
     private Point panLast;
 
-    private double allowedRangeGapRate = 0.01;
+    private double allowedRangeGapRate = 0.085;
     private int allowedRangeGapMinimum = 2;
 
     /**
