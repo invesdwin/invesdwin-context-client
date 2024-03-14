@@ -20,7 +20,6 @@ import org.jfree.chart.plot.XYPlot;
 import de.invesdwin.context.client.swing.jfreechart.panel.InteractiveChartPanel;
 import de.invesdwin.context.client.swing.jfreechart.plot.Markers;
 import de.invesdwin.context.client.swing.jfreechart.plot.annotation.XYNoteIconAnnotation;
-import de.invesdwin.context.client.swing.jfreechart.plot.dataset.IPlotSourceDataset;
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.IndexedDateTimeOHLCDataset;
 import de.invesdwin.context.client.swing.jfreechart.plot.renderer.custom.marker.TriangleLineValueMarker;
 import de.invesdwin.context.jfreechart.dataset.TimeRangedOHLCDataItem;
@@ -61,9 +60,7 @@ public class PlotCoordinateHelper {
         if (coordinateListener == null) {
             return;
         }
-        final XYPlot xyPlot = (XYPlot) chartPanel.getCombinedPlot().getDomainAxis().getPlot();
-        final IPlotSourceDataset dataset = (IPlotSourceDataset) xyPlot.getDataset();
-        final IndexedDateTimeOHLCDataset masterDataset = dataset.getMasterDataset();
+        final IndexedDateTimeOHLCDataset masterDataset = chartPanel.getMasterDataset();
         final FDate previousBarEndTime = masterDataset.getData().get(domainCrosshairMarkerValue - 1).getEndTime();
         final int xCoordinate = domainCrosshairMarkerValue;
         final boolean isCurrentBar = xCoordinate == (masterDataset.getData().size() - 1);
@@ -110,9 +107,7 @@ public class PlotCoordinateHelper {
     }
 
     public FDate newDomainMarkerFDate(final int domainCrosshairMarkerValue) {
-        final XYPlot xyPlot = (XYPlot) chartPanel.getCombinedPlot().getDomainAxis().getPlot();
-        final IPlotSourceDataset dataset = (IPlotSourceDataset) xyPlot.getDataset();
-        final IndexedDateTimeOHLCDataset masterDataset = dataset.getMasterDataset();
+        final IndexedDateTimeOHLCDataset masterDataset = chartPanel.getMasterDataset();
         final TimeRangedOHLCDataItem item = masterDataset.getData().get(domainCrosshairMarkerValue);
         return item.getStartTime();
     }
@@ -128,9 +123,7 @@ public class PlotCoordinateHelper {
             return;
         }
 
-        final XYPlot xyPlot = (XYPlot) chartPanel.getCombinedPlot().getDomainAxis().getPlot();
-        final IPlotSourceDataset dataset = (IPlotSourceDataset) xyPlot.getDataset();
-        final IndexedDateTimeOHLCDataset masterDataset = dataset.getMasterDataset();
+        final IndexedDateTimeOHLCDataset masterDataset = chartPanel.getMasterDataset();
 
         final List<XYPlot> plots = chartPanel.getCombinedPlot().getSubplots();
         if (domainMarkerFDateCopy == null && pinMarkerTopAndBottomTriangle.getValue() >= 0) {
@@ -224,9 +217,7 @@ public class PlotCoordinateHelper {
         if (coordinateListener == null) {
             return;
         }
-        final XYPlot xyPlot = (XYPlot) chartPanel.getCombinedPlot().getDomainAxis().getPlot();
-        final IPlotSourceDataset dataset = (IPlotSourceDataset) xyPlot.getDataset();
-        final IndexedDateTimeOHLCDataset masterDataset = dataset.getMasterDataset();
+        final IndexedDateTimeOHLCDataset masterDataset = chartPanel.getMasterDataset();
         final FDate previousBarEndTime = masterDataset.getData()
                 .get((int) noteShowingIconAnnotation.getX() - 1)
                 .getEndTime();
@@ -241,9 +232,7 @@ public class PlotCoordinateHelper {
         if (coordinateListener == null) {
             return;
         }
-        final XYPlot xyPlot = (XYPlot) chartPanel.getCombinedPlot().getDomainAxis().getPlot();
-        final IPlotSourceDataset dataset = (IPlotSourceDataset) xyPlot.getDataset();
-        final IndexedDateTimeOHLCDataset masterDataset = dataset.getMasterDataset();
+        final IndexedDateTimeOHLCDataset masterDataset = chartPanel.getMasterDataset();
         final FDate currentBarStartTime = masterDataset.getData()
                 .get(masterDataset.getData().size() - 1)
                 .getStartTime();

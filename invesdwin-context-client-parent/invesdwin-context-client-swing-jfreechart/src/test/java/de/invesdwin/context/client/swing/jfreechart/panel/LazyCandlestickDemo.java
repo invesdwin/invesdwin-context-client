@@ -33,6 +33,7 @@ import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.series.S
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.series.expression.IExpressionSeriesProvider;
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.series.indicator.IIndicatorSeriesParameter;
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.series.indicator.IIndicatorSeriesProvider;
+import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.series.indicator.MasterDatasetIndicatorSeriesProvider;
 import de.invesdwin.context.client.swing.jfreechart.plot.XYPlots;
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.IPlotSourceDataset;
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.IndexedDateTimeOHLCDataset;
@@ -68,7 +69,6 @@ import de.invesdwin.util.time.date.FDate;
 @NotThreadSafe
 public class LazyCandlestickDemo extends JFrame {
 
-    private static final String PRICE_PLOT_PANE_ID = "Price";
     private static final UniqueNameGenerator SERIES_ID_GENERATOR = new UniqueNameGenerator();
     private final List<TimeRangedOHLCDataItem> dataItems;
     private final AHistoricalCache<TimeRangedOHLCDataItem> dataItemsCache;
@@ -149,7 +149,7 @@ public class LazyCandlestickDemo extends JFrame {
         //Create a dataset, an Open, High, Low, Close dataset
         final IndexedDateTimeOHLCDataset result = new IndexedDateTimeOHLCDataset("MSFT", data);
         result.setPrecision(2);
-        result.setRangeAxisId(PRICE_PLOT_PANE_ID);
+        result.setRangeAxisId(MasterDatasetIndicatorSeriesProvider.PLOT_PANE_ID_PRICE);
 
         return result;
     }
@@ -230,7 +230,7 @@ public class LazyCandlestickDemo extends JFrame {
             final PlotSourceXYSeriesCollection dataset = new PlotSourceXYSeriesCollection(chartPanel.getMasterDataset(),
                     seriesId);
             dataset.setSeriesTitle(expression);
-            final XYPlot plot = chartPanel.getOhlcPlot();
+            final XYPlot plot = chartPanel.getMasterDataset().getPlot();
             dataset.setPlot(plot);
             dataset.setPrecision(4);
             dataset.setInitialPlotPaneId(plotPaneId);
@@ -317,7 +317,7 @@ public class LazyCandlestickDemo extends JFrame {
 
         @Override
         public String getPlotPaneId() {
-            return PRICE_PLOT_PANE_ID;
+            return MasterDatasetIndicatorSeriesProvider.PLOT_PANE_ID_PRICE;
         }
 
         @Override
@@ -359,7 +359,7 @@ public class LazyCandlestickDemo extends JFrame {
 
             final PlotSourceXYSeriesCollection dataset = new PlotSourceXYSeriesCollection(chartPanel.getMasterDataset(),
                     getExpressionString(args));
-            final XYPlot plot = chartPanel.getOhlcPlot();
+            final XYPlot plot = chartPanel.getMasterDataset().getPlot();
             dataset.setPlot(plot);
             dataset.setPrecision(4);
             dataset.setInitialPlotPaneId(getPlotPaneId());
@@ -425,7 +425,7 @@ public class LazyCandlestickDemo extends JFrame {
 
         @Override
         public String getPlotPaneId() {
-            return PRICE_PLOT_PANE_ID;
+            return MasterDatasetIndicatorSeriesProvider.PLOT_PANE_ID_PRICE;
         }
 
         @Override

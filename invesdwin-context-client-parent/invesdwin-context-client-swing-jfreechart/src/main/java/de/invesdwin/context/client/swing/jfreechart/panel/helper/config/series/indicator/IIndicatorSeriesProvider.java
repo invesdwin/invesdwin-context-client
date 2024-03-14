@@ -54,7 +54,7 @@ public interface IIndicatorSeriesProvider {
 
     void modifyDataset(InteractiveChartPanel chartPanel, IPlotSourceDataset dataset, IExpression[] args);
 
-    default String getTitle(final String expression) {
+    default String getSeriesTitle(final String expression) {
         if (Strings.isBlank(expression)) {
             return getName();
         } else {

@@ -315,6 +315,9 @@ public class StyleSettingsPanel extends JPanel implements ISettingsPanelActions 
             final PriceRendererType rendererType = plotConfigurationHelper.getPriceInitialSettings()
                     .getCurrentPriceRendererType();
             for (final PriceRendererType type : PriceRendererType.values()) {
+                if (type == PriceRendererType.None) {
+                    continue;
+                }
                 panel.cmb_priceRenderer.addItem(type);
             }
             panel.cmb_priceRenderer.setSelectedItem(rendererType);

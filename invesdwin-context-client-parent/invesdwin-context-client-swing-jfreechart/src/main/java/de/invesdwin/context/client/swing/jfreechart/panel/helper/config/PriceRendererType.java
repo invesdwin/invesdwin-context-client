@@ -6,6 +6,37 @@ import de.invesdwin.context.client.swing.jfreechart.panel.helper.legend.Highligh
 
 @NotThreadSafe
 public enum PriceRendererType implements IRendererType {
+    None {
+        @Override
+        public boolean isLineStyleConfigurable() {
+            return false;
+        }
+
+        @Override
+        public boolean isLineWidthConfigurable() {
+            return false;
+        }
+
+        @Override
+        public boolean isUpColorConfigurable() {
+            return false;
+        }
+
+        @Override
+        public boolean isDownColorConfigurable() {
+            return false;
+        }
+
+        @Override
+        public boolean isSeriesColorConfigurable() {
+            return false;
+        }
+
+        @Override
+        public PriceRendererType orDefault() {
+            return DEFAULT;
+        }
+    },
     Line {
         @Override
         public boolean isLineStyleConfigurable() {
@@ -30,6 +61,11 @@ public enum PriceRendererType implements IRendererType {
         @Override
         public boolean isSeriesColorConfigurable() {
             return true;
+        }
+
+        @Override
+        public PriceRendererType orDefault() {
+            return this;
         }
     },
     Step {
@@ -57,6 +93,11 @@ public enum PriceRendererType implements IRendererType {
         public boolean isSeriesColorConfigurable() {
             return true;
         }
+
+        @Override
+        public PriceRendererType orDefault() {
+            return this;
+        }
     },
     Area {
         @Override
@@ -82,6 +123,11 @@ public enum PriceRendererType implements IRendererType {
         @Override
         public boolean isSeriesColorConfigurable() {
             return true;
+        }
+
+        @Override
+        public PriceRendererType orDefault() {
+            return this;
         }
     },
     OHLC {
@@ -109,6 +155,11 @@ public enum PriceRendererType implements IRendererType {
         public boolean isSeriesColorConfigurable() {
             return false;
         }
+
+        @Override
+        public PriceRendererType orDefault() {
+            return this;
+        }
     },
     Candlestick {
         @Override
@@ -135,7 +186,14 @@ public enum PriceRendererType implements IRendererType {
         public boolean isSeriesColorConfigurable() {
             return false;
         }
+
+        @Override
+        public PriceRendererType orDefault() {
+            return this;
+        }
     };
+
+    public static final PriceRendererType DEFAULT = Candlestick;
 
     @Override
     public void reset(final HighlightedLegendInfo highlighted, final SeriesInitialSettings initialSettings) {
@@ -156,5 +214,7 @@ public enum PriceRendererType implements IRendererType {
     public boolean isPriceLineConfigurable() {
         return true;
     }
+
+    public abstract PriceRendererType orDefault();
 
 }

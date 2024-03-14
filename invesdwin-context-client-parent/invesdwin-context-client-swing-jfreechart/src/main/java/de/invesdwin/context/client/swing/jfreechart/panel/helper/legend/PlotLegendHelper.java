@@ -80,7 +80,9 @@ public class PlotLegendHelper {
         for (int i = 0; i < plots.size(); i++) {
             final XYPlot plot = plots.get(i);
             final CustomLegendTitle title = getTitle(plot);
-            title.setBackgroundPaint(title.getBackgroundPaint()); //fire change event
+            if (title != null) {
+                title.setBackgroundPaint(title.getBackgroundPaint()); //fire change event
+            }
         }
     }
 
@@ -102,6 +104,9 @@ public class PlotLegendHelper {
             final IPlotSourceDataset dataset = (IPlotSourceDataset) l.getDataset();
             final XYPlot plot = dataset.getPlot();
             final CustomLegendTitle title = getTitle(plot);
+            if (title == null) {
+                return;
+            }
             final Integer datasetIndex = XYPlots.getDatasetIndexForDataset(plot, dataset, false);
             if (datasetIndex != null) {
                 if (highlightedLegendInfo == null || highlightedLegendInfo.getTitle() != title
@@ -167,8 +172,19 @@ public class PlotLegendHelper {
     public void removeEmptyPlotsAndResetTrashPlot() {
         final XYPlot trashPlot = chartPanel.getCombinedPlot().getTrashPlot();
         final List<XYPlot> subplotsCopy = new ArrayList<>(chartPanel.getCombinedPlot().getSubplots());
-        for (int subplotIndex = 0; subplotIndex < subplotsCopy.size(); subplotIndex++) {
+        //iterate from last to first, so that the add-plot gets removed first and is not left over as the last empty plot at the end
+        for (int subplotIndex = subplotsCopy.size() - 1; subplotIndex >= 0; subplotIndex--) {
             final XYPlot subplot = subplotsCopy.get(subplotIndex);
+            if (chartPanel.getCombinedPlot().getSubplots().size() <= 2) {
+                /*
+                 * make sure we have at least one plot left, first plot is always the trash plot, last plot might be the
+                 * add plot which we restore in look
+                 */
+                subplot.removeAnnotation(addAnnotation);
+                subplot.removeAnnotation(removeAnnotation);
+                subplot.setBackgroundPaint(DEFAULT_BACKGROUND_COLOR);
+                break;
+            }
             if (subplot != trashPlot && !XYPlots.hasDataset(subplot)) {
                 /*
                  * restore look because plot might be saved in plot pane model or somewhere else for future addition
@@ -307,7 +323,10 @@ public class PlotLegendHelper {
 
                 toPlot.setNotify(true);
                 fromPlot.setNotify(true);
-                highlightedLegendInfo.getTitle().setBackgroundPaint(LEGEND_BACKGROUND_PAINT);
+                final CustomLegendTitle title = highlightedLegendInfo.getTitle();
+                if (title != null) {
+                    title.setBackgroundPaint(LEGEND_BACKGROUND_PAINT);
+                }
                 dragStart = new HighlightedLegendInfo(chartPanel, toSubplotIndex, toPlot, getTitle(toPlot),
                         toDatasetIndex);
                 dragStart.getTitle().setBackgroundPaint(HIGHLIGHTED_LEGEND_BACKGROUND_PAINT);
@@ -354,7 +373,7 @@ public class PlotLegendHelper {
                 return title;
             }
         }
-        throw new IllegalStateException("title not found");
+        return null;
     }
 
     public boolean isHighlighting() {

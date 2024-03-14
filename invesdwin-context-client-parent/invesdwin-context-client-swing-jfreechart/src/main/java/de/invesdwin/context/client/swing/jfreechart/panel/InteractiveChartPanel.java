@@ -33,6 +33,7 @@ import de.invesdwin.context.client.swing.jfreechart.panel.helper.PlotPanHelper;
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.PlotResizeHelper;
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.PlotZoomHelper;
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.PlotConfigurationHelper;
+import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.series.indicator.MasterDatasetIndicatorSeriesProvider;
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.crosshair.PlotCoordinateHelper;
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.crosshair.PlotCrosshairHelper;
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.legend.PlotLegendHelper;
@@ -73,7 +74,6 @@ public class InteractiveChartPanel extends JPanel {
     private final NumberAxis domainAxis;
     private final IndexedDateTimeOHLCDataset masterDataset;
     private final CustomCombinedDomainXYPlot combinedPlot;
-    private XYPlot ohlcPlot;
     private final JFreeChart chart;
     private final CustomChartPanel chartPanel;
     private final IndexedDateTimeNumberFormat domainAxisFormat;
@@ -128,8 +128,6 @@ public class InteractiveChartPanel extends JPanel {
         combinedPlot.setDomainPannable(true);
 
         masterDataset.addChangeListener(new DatasetChangeListenerImpl());
-        plotLegendHelper.setDatasetRemovable(masterDataset, false);
-
         initPlots();
         chart = new JFreeChart(null, null, combinedPlot, false);
         chartPanel = new CustomChartPanel(chart, true) {
@@ -192,6 +190,15 @@ public class InteractiveChartPanel extends JPanel {
                 resetRange(getInitialVisibleItemCount());
             }
         });
+    }
+
+    /**
+     * WARNING: when this flag is true, the price series can be removed and a series provider will be registered for
+     * adding it again. Though if that is the case, getMasterDataset().getPlot() can return null. This needs to be
+     * properly handled.
+     */
+    protected boolean isMasterDatasetRemovable() {
+        return false;
     }
 
     public void initialize() {
@@ -406,18 +413,6 @@ public class InteractiveChartPanel extends JPanel {
 
     public int getInitialVisibleItemCount() {
         return 200;
-    }
-
-    protected void initPlots() {
-        ohlcPlot = new XYPlot(masterDataset, domainAxis, XYPlots.newRangeAxis(0, false, true),
-                plotConfigurationHelper.getPriceInitialSettings().getPriceRenderer());
-        XYPlots.makeThreadSafe(ohlcPlot);
-        ohlcPlot.setRangeAxisLocation(AxisLocation.BOTTOM_OR_RIGHT);
-        plotLegendHelper.addLegendAnnotation(ohlcPlot);
-        masterDataset.setPlot(ohlcPlot);
-        //give main plot twice the weight
-        combinedPlot.add(ohlcPlot, CustomCombinedDomainXYPlot.MAIN_PLOT_WEIGHT);
-        XYPlots.updateRangeAxes(ohlcPlot);
     }
 
     public void update() {
@@ -746,8 +741,21 @@ public class InteractiveChartPanel extends JPanel {
         }
     }
 
-    public XYPlot getOhlcPlot() {
-        return ohlcPlot;
+    protected void initPlots() {
+        final XYPlot pricePlot = new XYPlot(masterDataset, domainAxis, XYPlots.newRangeAxis(0, false, true),
+                plotConfigurationHelper.getPriceInitialSettings().getPriceRenderer());
+        XYPlots.makeThreadSafe(pricePlot);
+        pricePlot.setRangeAxisLocation(AxisLocation.BOTTOM_OR_RIGHT);
+        plotLegendHelper.addLegendAnnotation(pricePlot);
+        masterDataset.setPlot(pricePlot);
+        //give main plot twice the weight
+        combinedPlot.add(pricePlot, CustomCombinedDomainXYPlot.MAIN_PLOT_WEIGHT);
+        XYPlots.updateRangeAxes(pricePlot);
+
+        plotLegendHelper.setDatasetRemovable(masterDataset, isMasterDatasetRemovable());
+        if (isMasterDatasetRemovable()) {
+            plotConfigurationHelper.putIndicatorSeriesProvider(new MasterDatasetIndicatorSeriesProvider(this));
+        }
     }
 
     public XYPlot newPlot() {

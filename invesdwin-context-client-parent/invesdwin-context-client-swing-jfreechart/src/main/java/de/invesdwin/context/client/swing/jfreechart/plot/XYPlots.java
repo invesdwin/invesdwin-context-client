@@ -177,7 +177,7 @@ public final class XYPlots {
         }
         removeRangeAxes(plot);
         if (rangeAxisId_data.isEmpty()) {
-            plot.setRangeAxis(newRangeAxis(0, false, false));
+            plot.setRangeAxis(newRangeAxis(0, false, true));
         } else {
             int countVisibleRangeAxes = 0;
             //first add the visible range axis, right=0 and left=1
@@ -261,6 +261,16 @@ public final class XYPlots {
         rangeAxis.setTickLabelFont(DEFAULT_FONT);
         rangeAxis.setTickLabelPaint(AXIS_LABEL_PAINT);
         return rangeAxis;
+    }
+
+    public static boolean hasDataset(final List<XYPlot> plots) {
+        for (int i = 0; i < plots.size(); i++) {
+            final XYPlot plot = plots.get(i);
+            if (hasDataset(plot)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public static boolean hasDataset(final XYPlot plot) {
@@ -353,6 +363,24 @@ public final class XYPlots {
             }
         }
         return false;
+    }
+
+    public static XYPlot getPlotWithRangeAxisId(final InteractiveChartPanel chartPanel, final String rangeAxisId) {
+        final CustomCombinedDomainXYPlot combinedXyPlot = chartPanel.getCombinedPlot();
+        final List<XYPlot> subplots = combinedXyPlot.getSubplots();
+        for (int i = 0; i < subplots.size(); i++) {
+            final XYPlot subplot = subplots.get(i);
+            if (doesPlotContainRangeAxisId(subplot, rangeAxisId)) {
+                return subplot;
+            }
+        }
+        if (subplots.size() <= 2) {
+            final XYPlot emptyMainPlot = subplots.get(subplots.size() - 1);
+            if (!hasDataset(emptyMainPlot)) {
+                return emptyMainPlot;
+            }
+        }
+        return null;
     }
 
     public static XYPlot getSubplot(final InteractiveChartPanel chartPanel, final MouseEvent e) {

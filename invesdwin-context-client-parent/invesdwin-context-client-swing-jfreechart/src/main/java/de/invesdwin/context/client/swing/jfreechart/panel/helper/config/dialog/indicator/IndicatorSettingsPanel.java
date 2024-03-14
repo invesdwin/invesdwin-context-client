@@ -111,7 +111,7 @@ public class IndicatorSettingsPanel extends JPanel implements ISettingsPanelActi
         try {
             indicatorSeriesProvider.modifyDataset(plotConfigurationHelper.getChartPanel(), dataset, arguments);
             dataset.setIndicatorSeriesArguments(arguments);
-            dataset.setSeriesTitle(indicatorSeriesProvider.getTitle(toExpression));
+            dataset.setSeriesTitle(indicatorSeriesProvider.getSeriesTitle(toExpression));
         } catch (final Throwable t) {
             final String fromExpression = dataset.getSeriesTitle();
             LOG.warn("Error modifying series [" + indicatorSeriesProvider.getName() + "] expression from ["
