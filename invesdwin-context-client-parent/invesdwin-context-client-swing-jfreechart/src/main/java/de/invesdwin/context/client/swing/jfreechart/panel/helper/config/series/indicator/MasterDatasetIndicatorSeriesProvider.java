@@ -23,31 +23,7 @@ public class MasterDatasetIndicatorSeriesProvider implements IIndicatorSeriesPro
 
     @Override
     public IPlotSourceDataset newInstance(final InteractiveChartPanel chartPanel, final IExpression[] args) {
-        final IndexedDateTimeOHLCDataset masterDataset = chartPanel.getMasterDataset();
-        if (masterDataset.getPlot() != null) {
-            //already exists
-            return masterDataset;
-        }
-
-        XYPlot plot = XYPlots.getPlotWithRangeAxisId(chartPanel, masterDataset.getRangeAxisId());
-        if (plot == null) {
-            plot = chartPanel.newPlot();
-        }
-
-        final int datasetIndex = XYPlots.getFreeDatasetIndex(plot);
-        plot.setDataset(datasetIndex, masterDataset);
-        plot.setRenderer(datasetIndex,
-                chartPanel.getPlotConfigurationHelper().getPriceInitialSettings().getPriceRenderer());
-        XYPlots.updateRangeAxes(plot);
-        masterDataset.setPlot(plot);
-
-        if (!chartPanel.getCombinedPlot().isSubplotVisible(plot)) {
-            chartPanel.getCombinedPlot().add(plot, CustomCombinedDomainXYPlot.INITIAL_PLOT_WEIGHT);
-        }
-
-        chartPanel.update();
-
-        return chartPanel.getMasterDataset();
+        return addIntrumentSeries(chartPanel);
     }
 
     @Override
@@ -85,5 +61,33 @@ public class MasterDatasetIndicatorSeriesProvider implements IIndicatorSeriesPro
     @Override
     public String getDescription() {
         return "";
+    }
+
+    public static IPlotSourceDataset addIntrumentSeries(final InteractiveChartPanel chartPanel) {
+        final IndexedDateTimeOHLCDataset masterDataset = chartPanel.getMasterDataset();
+        if (masterDataset.getPlot() != null) {
+            //already exists
+            return masterDataset;
+        }
+
+        XYPlot plot = XYPlots.getPlotWithRangeAxisId(chartPanel, masterDataset.getRangeAxisId());
+        if (plot == null) {
+            plot = chartPanel.newPlot();
+        }
+
+        final int datasetIndex = XYPlots.getFreeDatasetIndex(plot);
+        plot.setDataset(datasetIndex, masterDataset);
+        plot.setRenderer(datasetIndex,
+                chartPanel.getPlotConfigurationHelper().getPriceInitialSettings().getPriceRenderer());
+        XYPlots.updateRangeAxes(plot);
+        masterDataset.setPlot(plot);
+
+        if (!chartPanel.getCombinedPlot().isSubplotVisible(plot)) {
+            chartPanel.getCombinedPlot().add(plot, CustomCombinedDomainXYPlot.INITIAL_PLOT_WEIGHT);
+        }
+
+        chartPanel.update();
+
+        return chartPanel.getMasterDataset();
     }
 }

@@ -97,6 +97,10 @@ public class InteractiveChartPanel extends JPanel {
     private boolean dragging = false;
 
     public InteractiveChartPanel(final IndexedDateTimeOHLCDataset masterDataset) {
+        this(masterDataset, true);
+    }
+
+    public InteractiveChartPanel(final IndexedDateTimeOHLCDataset masterDataset, final boolean plotInstrument) {
         this.masterDataset = masterDataset;
         Assertions.checkNotBlank(masterDataset.getRangeAxisId());
         Assertions.checkNotNull(masterDataset.getPrecision());
@@ -128,7 +132,7 @@ public class InteractiveChartPanel extends JPanel {
         combinedPlot.setDomainPannable(true);
 
         masterDataset.addChangeListener(new DatasetChangeListenerImpl());
-        initPlots();
+        initPlots(plotInstrument);
         chart = new JFreeChart(null, null, combinedPlot, false);
         chartPanel = new CustomChartPanel(chart, true) {
             @Override
@@ -174,7 +178,7 @@ public class InteractiveChartPanel extends JPanel {
         };
 
         new JFreeChartLocaleChanger().process(chart);
-        plotZoomHelper.init();
+        //        plotZoomHelper.init();
 
         setLayout(new GridLayout());
         add(chartPanel);
@@ -209,6 +213,7 @@ public class InteractiveChartPanel extends JPanel {
         chartPanel.setFocusable(true); //key listener only works on focusable panels
         chartPanel.addMouseListener(new MouseListenerImpl());
         chartPanel.addMouseWheelListener(new MouseWheelListenerImpl());
+        plotZoomHelper.init();
         initialized = true;
     }
 
@@ -741,16 +746,18 @@ public class InteractiveChartPanel extends JPanel {
         }
     }
 
-    protected void initPlots() {
-        final XYPlot pricePlot = new XYPlot(masterDataset, domainAxis, XYPlots.newRangeAxis(0, false, true),
-                plotConfigurationHelper.getPriceInitialSettings().getPriceRenderer());
-        XYPlots.makeThreadSafe(pricePlot);
-        pricePlot.setRangeAxisLocation(AxisLocation.BOTTOM_OR_RIGHT);
-        plotLegendHelper.addLegendAnnotation(pricePlot);
-        masterDataset.setPlot(pricePlot);
-        //give main plot twice the weight
-        combinedPlot.add(pricePlot, CustomCombinedDomainXYPlot.MAIN_PLOT_WEIGHT);
-        XYPlots.updateRangeAxes(pricePlot);
+    protected void initPlots(final boolean plotInstrument) {
+        if (plotInstrument) {
+            final XYPlot pricePlot = new XYPlot(masterDataset, domainAxis, XYPlots.newRangeAxis(0, false, true),
+                    plotConfigurationHelper.getPriceInitialSettings().getPriceRenderer());
+            XYPlots.makeThreadSafe(pricePlot);
+            pricePlot.setRangeAxisLocation(AxisLocation.BOTTOM_OR_RIGHT);
+            plotLegendHelper.addLegendAnnotation(pricePlot);
+            masterDataset.setPlot(pricePlot);
+            //give main plot twice the weight
+            combinedPlot.add(pricePlot, CustomCombinedDomainXYPlot.MAIN_PLOT_WEIGHT);
+            XYPlots.updateRangeAxes(pricePlot);
+        }
 
         plotLegendHelper.setDatasetRemovable(masterDataset, isMasterDatasetRemovable());
         if (isMasterDatasetRemovable()) {

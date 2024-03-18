@@ -114,8 +114,10 @@ public class PlotZoomHelper {
     }
 
     public void init() {
-        final XYPlot plot = this.chartPanel.getCombinedPlot().getMainPlot();
-        plot.addAnnotation(zoomAnnotation);
+        final XYPlot plot = this.chartPanel.getMasterDataset().getPlot();
+        if (plot != null) {
+            plot.addAnnotation(zoomAnnotation);
+        }
     }
 
     public void mouseWheelMoved(final MouseWheelEvent e) {

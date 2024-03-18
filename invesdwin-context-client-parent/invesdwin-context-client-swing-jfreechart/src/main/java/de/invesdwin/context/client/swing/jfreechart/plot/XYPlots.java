@@ -376,7 +376,7 @@ public final class XYPlots {
         }
         if (subplots.size() <= 2) {
             final XYPlot emptyMainPlot = subplots.get(subplots.size() - 1);
-            if (!hasDataset(emptyMainPlot)) {
+            if (!hasDataset(emptyMainPlot) && !chartPanel.getCombinedPlot().getTrashPlot().equals(emptyMainPlot)) {
                 return emptyMainPlot;
             }
         }
