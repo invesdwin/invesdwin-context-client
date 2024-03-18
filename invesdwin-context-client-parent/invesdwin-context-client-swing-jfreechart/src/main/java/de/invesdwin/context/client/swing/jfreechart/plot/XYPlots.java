@@ -370,14 +370,28 @@ public final class XYPlots {
         final List<XYPlot> subplots = combinedXyPlot.getSubplots();
         for (int i = 0; i < subplots.size(); i++) {
             final XYPlot subplot = subplots.get(i);
+            if (subplot == chartPanel.getCombinedPlot().getTrashPlot()) {
+                continue;
+            }
             if (doesPlotContainRangeAxisId(subplot, rangeAxisId)) {
                 return subplot;
             }
         }
+        return getEmptyMainPlot(chartPanel);
+    }
+
+    public static XYPlot getEmptyMainPlot(final InteractiveChartPanel chartPanel) {
+        final CustomCombinedDomainXYPlot combinedXyPlot = chartPanel.getCombinedPlot();
+        final List<XYPlot> subplots = combinedXyPlot.getSubplots();
         if (subplots.size() <= 2) {
-            final XYPlot emptyMainPlot = subplots.get(subplots.size() - 1);
-            if (!hasDataset(emptyMainPlot) && !chartPanel.getCombinedPlot().getTrashPlot().equals(emptyMainPlot)) {
-                return emptyMainPlot;
+            for (int i = 0; i < subplots.size(); i++) {
+                final XYPlot emptyMainPlot = subplots.get(i);
+                if (emptyMainPlot == chartPanel.getCombinedPlot().getTrashPlot()) {
+                    continue;
+                }
+                if (!hasDataset(emptyMainPlot)) {
+                    return emptyMainPlot;
+                }
             }
         }
         return null;
