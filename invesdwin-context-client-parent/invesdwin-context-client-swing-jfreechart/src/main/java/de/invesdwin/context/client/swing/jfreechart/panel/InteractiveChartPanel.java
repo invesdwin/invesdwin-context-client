@@ -97,10 +97,6 @@ public class InteractiveChartPanel extends JPanel {
     private boolean dragging = false;
 
     public InteractiveChartPanel(final IndexedDateTimeOHLCDataset masterDataset) {
-        this(masterDataset, true);
-    }
-
-    public InteractiveChartPanel(final IndexedDateTimeOHLCDataset masterDataset, final boolean plotInstrument) {
         this.masterDataset = masterDataset;
         Assertions.checkNotBlank(masterDataset.getRangeAxisId());
         Assertions.checkNotNull(masterDataset.getPrecision());
@@ -132,7 +128,7 @@ public class InteractiveChartPanel extends JPanel {
         combinedPlot.setDomainPannable(true);
 
         masterDataset.addChangeListener(new DatasetChangeListenerImpl());
-        initPlots(plotInstrument);
+        initMasterDatasetPlot();
         chart = new JFreeChart(null, null, combinedPlot, false);
         chartPanel = new CustomChartPanel(chart, true) {
             @Override
@@ -193,6 +189,13 @@ public class InteractiveChartPanel extends JPanel {
                 resetRange(getInitialVisibleItemCount());
             }
         });
+    }
+
+    /**
+     * When this flag is false, the master dataset series will not be added to the plot.
+     */
+    protected boolean isMasterDatasetPlottedInitially() {
+        return true;
     }
 
     /**
@@ -745,21 +748,25 @@ public class InteractiveChartPanel extends JPanel {
         }
     }
 
-    protected void initPlots(final boolean plotInstrument) {
-        if (plotInstrument) {
-            final XYPlot pricePlot = new XYPlot(masterDataset, domainAxis, XYPlots.newRangeAxis(0, false, true),
+    private void initMasterDatasetPlot() {
+        if (isMasterDatasetPlottedInitially()) {
+            final XYPlot masterDatasetPlot = new XYPlot(masterDataset, domainAxis, XYPlots.newRangeAxis(0, false, true),
                     plotConfigurationHelper.getPriceInitialSettings().getPriceRenderer());
-            XYPlots.makeThreadSafe(pricePlot);
-            pricePlot.setRangeAxisLocation(AxisLocation.BOTTOM_OR_RIGHT);
-            plotLegendHelper.addLegendAnnotation(pricePlot);
-            masterDataset.setPlot(pricePlot);
+            XYPlots.makeThreadSafe(masterDatasetPlot);
+            masterDatasetPlot.setRangeAxisLocation(AxisLocation.BOTTOM_OR_RIGHT);
+            plotLegendHelper.addLegendAnnotation(masterDatasetPlot);
+            masterDataset.setPlot(masterDatasetPlot);
             //give main plot twice the weight
-            combinedPlot.add(pricePlot, CustomCombinedDomainXYPlot.MAIN_PLOT_WEIGHT);
-            XYPlots.updateRangeAxes(pricePlot);
+            combinedPlot.add(masterDatasetPlot, CustomCombinedDomainXYPlot.MAIN_PLOT_WEIGHT);
+            XYPlots.updateRangeAxes(masterDatasetPlot);
+        } else {
+            final XYPlot emptyPlot = newPlot();
+            combinedPlot.add(emptyPlot, CustomCombinedDomainXYPlot.MAIN_PLOT_WEIGHT);
         }
 
-        plotLegendHelper.setDatasetRemovable(masterDataset, isMasterDatasetRemovable());
-        if (isMasterDatasetRemovable()) {
+        final boolean masterDatasetRemovable = isMasterDatasetRemovable();
+        plotLegendHelper.setDatasetRemovable(masterDataset, masterDatasetRemovable);
+        if (masterDatasetRemovable) {
             plotConfigurationHelper.putIndicatorSeriesProvider(new MasterDatasetIndicatorSeriesProvider(this));
         }
     }
