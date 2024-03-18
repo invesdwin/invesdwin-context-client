@@ -178,7 +178,6 @@ public class InteractiveChartPanel extends JPanel {
         };
 
         new JFreeChartLocaleChanger().process(chart);
-        //        plotZoomHelper.init();
 
         setLayout(new GridLayout());
         add(chartPanel);
