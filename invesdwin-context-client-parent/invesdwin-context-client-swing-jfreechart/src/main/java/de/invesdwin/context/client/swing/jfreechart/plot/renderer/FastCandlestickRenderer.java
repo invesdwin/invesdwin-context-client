@@ -317,7 +317,7 @@ public class FastCandlestickRenderer extends ACustomXYItemRenderer
         final double yyClose = rangeAxis.valueToJava2D(yClose, dataArea, edge);
 
         calculateItemStroke(state, getDefaultStroke());
-        final double stickWidth = calculateStickWidth(state, dataArea, horiz);
+        final double stickWidth = calculateStickWidth(dataArea, horiz, domainAxis, rangeAxis);
 
         final Paint p = getItemPaint(series, item);
         final Stroke s = getItemStroke(series, item);
@@ -411,11 +411,13 @@ public class FastCandlestickRenderer extends ACustomXYItemRenderer
         this.itemStroke = new BasicStroke(strokeWidth, BasicStroke.CAP_SQUARE, BasicStroke.JOIN_BEVEL);
     }
 
-    public double calculateStickWidth(final XYItemRendererState state, final Rectangle2D dataArea,
-            final boolean horiz) {
+    public double calculateStickWidth(final Rectangle2D dataArea, final boolean horiz, final ValueAxis domainAxis,
+            final ValueAxis rangeAxis) {
+        final ValueAxis mainAxis = horiz ? rangeAxis : domainAxis;
+        final int itemCount = (int) mainAxis.getRange().getLength();
+
         final double stickWidth;
         double xxWidth = 0;
-        final int itemCount = state.getLastItemIndex() - state.getFirstItemIndex();
         if (horiz) {
             xxWidth = dataArea.getHeight() / itemCount;
         } else {
@@ -521,4 +523,9 @@ public class FastCandlestickRenderer extends ACustomXYItemRenderer
             final ValueAxis rangeAxis, final Layer layer, final PlotRenderingInfo info) {
         super.drawAnnotations(g2, dataArea, domainAxis, rangeAxis, layer, info);
     }
+
+    //    public static int calcDisplayableItemCount(final XYDataset dataset, final int series, final ValueAxis axis) {
+    //        //TODO: brauche ich da ne eigene methode für ?
+    //        return (int) axis.getRange().getLength();
+    //    }
 }

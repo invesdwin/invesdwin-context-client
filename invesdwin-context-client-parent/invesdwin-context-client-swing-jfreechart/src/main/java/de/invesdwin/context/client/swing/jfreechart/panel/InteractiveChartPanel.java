@@ -191,7 +191,7 @@ public class InteractiveChartPanel extends JPanel {
             @Override
             public void run() {
                 //prevent blocking component initialization
-                resetRange(getInitialVisibleItemCount());
+                resetRange(getInitialVisibleItemCount(), getCurrentGap());
             }
         });
     }
@@ -249,8 +249,12 @@ public class InteractiveChartPanel extends JPanel {
         return plotPanHelper;
     }
 
-    public int getAllowedRangeGap(final double range) {
-        return chartPanel.getAllowedRangeGap(range);
+    public int getAllowedTrailingRangeGap(final double range) {
+        return chartPanel.getAllowedTrailingRangeGap(range);
+    }
+
+    public int getAllowedMaximumRangeGap(final double range) {
+        return chartPanel.getAllowedMaximumRangeGap(range);
     }
 
     public IndexedDateTimeOHLCDataset getMasterDataset() {
@@ -277,20 +281,21 @@ public class InteractiveChartPanel extends JPanel {
         return chartPanel;
     }
 
-    public void resetRange(final int visibleItemCount) {
-        resetRange(visibleItemCount, Runnables.doNothing());
+    public void resetRange(final int visibleItemCount, final int gapBefore) {
+        resetRange(visibleItemCount, gapBefore, Runnables.doNothing());
     }
 
-    public void resetRange(final int visibleItemCount, final Runnable followUp) {
-        resetRangeRetry(visibleItemCount, followUp, true);
+    public void resetRange(final int visibleItemCount, final int gapBefore, final Runnable followUp) {
+        resetRangeRetry(visibleItemCount, gapBefore, followUp, true);
     }
 
-    private void resetRangeRetry(final int visibleItemCount, final Runnable followUp, final boolean retryAllowed) {
+    private void resetRangeRetry(final int visibleItemCount, final int gapBefore, final Runnable followUp,
+            final boolean retryAllowed) {
         if (masterDataset.getItemCount(0) > 0) {
             final FDate firstItemDate = masterDataset.getData().get(0).getStartTime();
             final FDate lastItemDate = masterDataset.getData().get(masterDataset.getItemCount(0) - 1).getStartTime();
             beforeResetRange();
-            doResetRange(visibleItemCount);
+            doResetRange(visibleItemCount, gapBefore);
             update();
             final FDate newFirstItemDate = masterDataset.getData().get(0).getStartTime();
             final FDate newLastItemDate = masterDataset.getData().get(masterDataset.getItemCount(0) - 1).getStartTime();
@@ -303,7 +308,7 @@ public class InteractiveChartPanel extends JPanel {
                                 @Override
                                 public void run() {
                                     //retry only once
-                                    resetRangeRetry(visibleItemCount, followUp, false);
+                                    resetRangeRetry(visibleItemCount, gapBefore, followUp, false);
                                 }
                             });
                         } catch (final InterruptedException e) {
@@ -316,18 +321,20 @@ public class InteractiveChartPanel extends JPanel {
             }
         } else {
             beforeResetRange();
-            doResetRange(visibleItemCount);
+            doResetRange(visibleItemCount, gapBefore);
             update();
             followUp.run();
         }
     }
 
-    protected void doResetRange(final int visibleItemCount) {
-        final int gap = chartPanel.getAllowedRangeGap(visibleItemCount);
-        final int minLowerBound = -gap;
+    protected void doResetRange(final int visibleItemCount, final int gapBefore) {
+        final int trailingGap = chartPanel.getAllowedTrailingRangeGap(visibleItemCount);
+        final int userGap = Integers.min(gapBefore, chartPanel.getAllowedMaximumRangeGap(visibleItemCount))
+                - trailingGap;
+        final int minLowerBound = -trailingGap;
         final int lastItemIndex = masterDataset.getItemCount(0) - 1;
-        final int lowerBound = lastItemIndex - visibleItemCount;
-        final int upperBound = lastItemIndex + gap;
+        final int lowerBound = lastItemIndex - visibleItemCount + userGap;
+        final int upperBound = lastItemIndex + trailingGap + userGap;
         final Range range = new Range(Doubles.max(minLowerBound, lowerBound), upperBound);
         domainAxis.setRange(range);
     }
@@ -418,6 +425,20 @@ public class InteractiveChartPanel extends JPanel {
 
     public int getInitialVisibleItemCount() {
         return 200;
+    }
+
+    public int getCurrentGap() {
+        return getCurrentGap(domainAxis.getRange());
+    }
+
+    public int getCurrentGap(final Range range) {
+        final int lastDataIndex = masterDataset.getData().size() - 1;
+        final int upperBound = (int) range.getUpperBound();
+        if (lastDataIndex < upperBound) {
+            return upperBound - lastDataIndex;
+        } else {
+            return 0;
+        }
     }
 
     public void update() {

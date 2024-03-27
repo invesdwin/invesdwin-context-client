@@ -88,7 +88,7 @@ public class FastOHLCRenderer extends HighLowRenderer
             final XYDataset dataset, final int series, final int item, final CrosshairState crosshairState,
             final int pass) {
         final boolean horiz = candlestickRenderer.isHorizontal(plot);
-        final double stickWidth = candlestickRenderer.calculateStickWidth(state, dataArea, horiz);
+        final double stickWidth = candlestickRenderer.calculateStickWidth(dataArea, horiz, domainAxis, rangeAxis);
         candlestickRenderer.calculateItemStroke(state, getDefaultStroke());
         setTickLength(stickWidth / 2);
         //info null to skip entitycollection stuff

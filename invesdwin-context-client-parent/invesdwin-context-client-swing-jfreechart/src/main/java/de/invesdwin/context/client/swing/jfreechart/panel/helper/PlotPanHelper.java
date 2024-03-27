@@ -37,7 +37,7 @@ public class PlotPanHelper {
         final Range range = chartPanel.getDomainAxis().getRange();
         final double length = range.getLength();
         final double newLowerBound = Doubles.max(range.getLowerBound() - length * scrollFactor,
-                0 - chartPanel.getAllowedRangeGap(length));
+                0 - chartPanel.getAllowedMaximumRangeGap(length));
         final Range newRange = new Range(newLowerBound, newLowerBound + length);
         chartPanel.getDomainAxis().setRange(newRange);
         chartPanel.update();
@@ -46,7 +46,7 @@ public class PlotPanHelper {
     private double getPanLiveUpperBound() {
         return chartPanel.getPlotZoomHelper()
                 .getMaxUpperBoundWithGap(chartPanel.getMasterDataset().getData(),
-                        chartPanel.getAllowedRangeGap(chartPanel.getDomainAxis().getRange().getLength()));
+                        chartPanel.getAllowedTrailingRangeGap(chartPanel.getDomainAxis().getRange().getLength()));
     }
 
     public void panRight() {
@@ -55,7 +55,9 @@ public class PlotPanHelper {
         }
         final Range range = chartPanel.getDomainAxis().getRange();
         final double length = range.getLength();
-        final double newUpperBound = Doubles.min(range.getUpperBound() + length * scrollFactor, getPanLiveUpperBound());
+        final double newUpperBound = Doubles.min(range.getUpperBound() + length * scrollFactor,
+                range.getUpperBound() + chartPanel.getAllowedMaximumRangeGap(length));
+
         final Range newRange = new Range(newUpperBound - length, newUpperBound);
         chartPanel.getDomainAxis().setRange(newRange);
         chartPanel.update();
@@ -120,7 +122,7 @@ public class PlotPanHelper {
             final Point2D point2D = chartPanel.getChartPanel().translateScreenToJava2D(e.getPoint());
             final Axis axis = Axises.getAxisForMousePosition(chartPanel, point2D);
             if (axis != null && Axis.DOMAIN_AXIS.equals(axis)) {
-                chartPanel.resetRange(chartPanel.getInitialVisibleItemCount());
+                chartPanel.resetRange(chartPanel.getInitialVisibleItemCount(), chartPanel.getCurrentGap());
             }
         }
     }

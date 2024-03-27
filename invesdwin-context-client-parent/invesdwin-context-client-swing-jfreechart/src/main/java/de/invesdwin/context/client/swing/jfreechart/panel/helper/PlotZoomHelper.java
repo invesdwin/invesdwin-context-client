@@ -220,7 +220,7 @@ public class PlotZoomHelper {
         final List<? extends TimeRangedOHLCDataItem> data = chartPanel.getMasterDataset().getData();
         final double minLowerBound = getMinLowerBound(data);
         final double maxUpperBound = getMaxUpperBound(data);
-        final int gapAfter = chartPanel.getAllowedRangeGap(lengthAfter);
+        final int gapAfter = chartPanel.getAllowedMaximumRangeGap(lengthAfter);
         final double anchorUpperEdgeTolerance = width - (width * EDGE_ANCHOR_TOLERANCE);
         if (anchor >= anchorUpperEdgeTolerance) {
             if (rangeBefore.getUpperBound() >= maxUpperBound) {
@@ -298,7 +298,7 @@ public class PlotZoomHelper {
             }
         }
         final int length = (int) range.getLength();
-        final int gap = chartPanel.getAllowedRangeGap(length);
+        final int gap = chartPanel.getAllowedMaximumRangeGap(length);
         final List<? extends TimeRangedOHLCDataItem> data = chartPanel.getMasterDataset().getData();
         final double minLowerBound = getMinLowerBoundWithGap(data, gap);
         final double maxUpperBound = getMaxUpperBoundWithGap(data, gap);

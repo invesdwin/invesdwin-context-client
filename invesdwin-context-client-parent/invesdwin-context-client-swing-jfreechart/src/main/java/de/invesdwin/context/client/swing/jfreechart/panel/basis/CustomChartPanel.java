@@ -159,7 +159,15 @@ public class CustomChartPanel extends JPanel implements ChartChangeListener, Cha
     /** The last mouse position during panning. */
     private Point panLast;
 
-    private double allowedRangeGapRate = 0.085;
+    /**
+     * Determines how far we scroll beyond the upperBound of the available data (most recent/live-bar).
+     */
+    private double allowedTrailingRangeGapRate = 0.085;
+    /**
+     * Determines how far we can drag to the left/right of the chart when there is no data to display there anymore. We
+     * want to be able to scroll a bit less than the whole domain-axis range further.
+     */
+    private final double allowedMaximumRangeGapRate = 0.98;
     private int allowedRangeGapMinimum = 2;
 
     /**
@@ -506,14 +514,18 @@ public class CustomChartPanel extends JPanel implements ChartChangeListener, Cha
         this.verticalTraceLine = line;
     }
 
-    public int getAllowedRangeGap(final double range) {
-        final int allowedRangeGap = (int) (allowedRangeGapRate * range);
+    public int getAllowedTrailingRangeGap(final double range) {
+        final int allowedRangeGap = (int) (allowedTrailingRangeGapRate * range);
         return Integers.max(allowedRangeGapMinimum, allowedRangeGap);
     }
 
     public void setAllowedRangeGap(final int allowedRangeGapMinimum, final Percent allowedRangeGapPercent) {
         this.allowedRangeGapMinimum = allowedRangeGapMinimum;
-        this.allowedRangeGapRate = allowedRangeGapPercent.getValue(PercentScale.RATE);
+        this.allowedTrailingRangeGapRate = allowedRangeGapPercent.getValue(PercentScale.RATE);
+    }
+
+    public int getAllowedMaximumRangeGap(final double range) {
+        return (int) (allowedMaximumRangeGapRate * range);
     }
 
     /**
@@ -1063,7 +1075,7 @@ public class CustomChartPanel extends JPanel implements ChartChangeListener, Cha
                 final XYPlot plot = chart.getXYPlot();
                 final ValueAxis domainAxis = plot.getDomainAxis();
                 final Range range = domainAxis.getRange();
-                final int gap = getAllowedRangeGap(range.getLength());
+                final int gap = getAllowedMaximumRangeGap(range.getLength());
                 if (wPercent > 0 && range.getUpperBound() >= plot.getDataset().getItemCount(0) + gap) {
                     return;
                 }
