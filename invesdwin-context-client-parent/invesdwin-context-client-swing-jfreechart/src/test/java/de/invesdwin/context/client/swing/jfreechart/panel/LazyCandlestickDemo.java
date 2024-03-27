@@ -230,7 +230,13 @@ public class LazyCandlestickDemo extends JFrame {
             final PlotSourceXYSeriesCollection dataset = new PlotSourceXYSeriesCollection(chartPanel.getMasterDataset(),
                     seriesId);
             dataset.setSeriesTitle(expression);
-            final XYPlot plot = chartPanel.getMasterDataset().getPlot();
+            XYPlot plot = chartPanel.getMasterDataset().getPlot();
+            if (plot == null) {
+                plot = XYPlots.getPlotWithRangeAxisId(chartPanel, plotPaneId);
+            }
+            if (plot == null) {
+                plot = chartPanel.newPlot();
+            }
             dataset.setPlot(plot);
             dataset.setPrecision(4);
             dataset.setInitialPlotPaneId(plotPaneId);

@@ -292,6 +292,7 @@ public class CandlestickDemo extends JFrame {
     private final class CustomIndicatorSeriesProvider implements IIndicatorSeriesProvider {
         @Override
         public IPlotSourceDataset newInstance(final InteractiveChartPanel chartPanel, final IExpression[] args) {
+            final String plotPaneId = getPlotPaneId();
             final Stroke stroke = chartPanel.getPlotConfigurationHelper().getPriceInitialSettings().getSeriesStroke();
             final LineStyleType lineStyleType = LineStyleType.valueOf(stroke);
             final LineWidthType lineWidthType = LineWidthType.valueOf(stroke);
@@ -301,12 +302,18 @@ public class CandlestickDemo extends JFrame {
 
             final PlotSourceXYSeriesCollection dataset = new PlotSourceXYSeriesCollection(chartPanel.getMasterDataset(),
                     getExpressionString(args));
-            final XYPlot plot = chartPanel.getMasterDataset().getPlot();
+            XYPlot plot = chartPanel.getMasterDataset().getPlot();
+            if (plot == null) {
+                plot = XYPlots.getPlotWithRangeAxisId(chartPanel, plotPaneId);
+            }
+            if (plot == null) {
+                plot = chartPanel.newPlot();
+            }
             dataset.setPlot(plot);
             dataset.setPrecision(4);
-            dataset.setInitialPlotPaneId(getPlotPaneId());
-            dataset.setRangeAxisId(getPlotPaneId());
-            final String seriesId = SERIES_ID_GENERATOR.get(getPlotPaneId());
+            dataset.setInitialPlotPaneId(plotPaneId);
+            dataset.setRangeAxisId(plotPaneId);
+            final String seriesId = SERIES_ID_GENERATOR.get(plotPaneId);
             final IndexedDateTimeXYSeries series = newSeriesPrefilled(chartPanel, args, seriesId);
             final int datasetIndex = plot.getDatasetCount();
             dataset.addSeries(series);
