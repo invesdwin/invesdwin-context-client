@@ -251,8 +251,8 @@ public class InteractiveChartPanel extends JPanel {
         return plotPanHelper;
     }
 
-    public int getAllowedTrailingRangeGap(final double range) {
-        return chartPanel.getAllowedTrailingRangeGap(range);
+    public int getAllowedTrailingRangeGap(final double length) {
+        return chartPanel.getAllowedTrailingRangeGap(length);
     }
 
     public int getAllowedMaximumRangeGap(final double range) {

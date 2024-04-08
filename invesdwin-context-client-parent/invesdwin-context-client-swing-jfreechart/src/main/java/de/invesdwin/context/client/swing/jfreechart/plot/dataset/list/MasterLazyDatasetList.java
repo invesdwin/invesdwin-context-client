@@ -765,13 +765,6 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
         appendSlaves(appendCount);
         lastUpdateTime = getLastLoadedItem().getEndTime();
 
-        if (appendCount > 0) {
-            //trail range
-            final Range updatedRange = new Range(rangeBefore.getLowerBound() + appendCount,
-                    rangeBefore.getUpperBound() + appendCount);
-            chartPanel.getDomainAxis().setRange(updatedRange);
-        }
-
         //load slave items
         //this is actually lastItemIndex+1, so don't use <=
         final int size = Integers.min(lastItemIndex, data.size());
@@ -785,6 +778,13 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
             }
         }
         maxUpperBound = data.size() - 1;
+
+        if (appendCount > 0) {
+            //trail range
+            final Range updatedRange = new Range(rangeBefore.getLowerBound() + appendCount,
+                    rangeBefore.getUpperBound() + appendCount);
+            chartPanel.getDomainAxis().setRange(updatedRange);
+        }
 
         /*
          * we don't have to trim the dataset since Datasets.iterateToFindRangeBounds is fast enough with large datasets,
