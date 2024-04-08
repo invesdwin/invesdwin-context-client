@@ -43,7 +43,7 @@ public class PlotPanHelper {
         chartPanel.update();
     }
 
-    private double getPanLiveUpperBound() {
+    public double getPanLiveUpperBound() {
         return chartPanel.getPlotZoomHelper()
                 .getMaxUpperBoundWithGap(chartPanel.getMasterDataset().getData(),
                         chartPanel.getAllowedTrailingRangeGap(chartPanel.getDomainAxis().getRange().getLength()));
@@ -80,9 +80,18 @@ public class PlotPanHelper {
     public void maybeToggleVisibilityPanLiveIcon() {
         if (MasterLazyDatasetList.isTrailingRange(chartPanel.getDomainAxis().getRange(),
                 chartPanel.getMasterDataset().getItemCount(0))) {
-            chartPanel.getPlotNavigationHelper().hidePanLiveIcon();
+            final double currUpperBound = chartPanel.getDomainAxis().getRange().getUpperBound();
+            final double panLiveUpperBound = chartPanel.getPlotPanHelper().getPanLiveUpperBound();
+            if (currUpperBound > panLiveUpperBound) {
+                //We scrolled beyond the PanLive-UpperBound and want to show the Scroll-Backwards-PanLive-Icon
+                chartPanel.getPlotNavigationHelper().showPanLiveIcon(true);
+            } else {
+                //We actually scrolled somewhere before the trailing range and want to show the regular Pan-Live-Button
+                chartPanel.getPlotNavigationHelper().hidePanLiveIcon();
+            }
         } else {
-            chartPanel.getPlotNavigationHelper().showPanLiveIcon();
+            //We are trailing and don't need to show the PanLive-Button
+            chartPanel.getPlotNavigationHelper().showPanLiveIcon(false);
         }
     }
 
