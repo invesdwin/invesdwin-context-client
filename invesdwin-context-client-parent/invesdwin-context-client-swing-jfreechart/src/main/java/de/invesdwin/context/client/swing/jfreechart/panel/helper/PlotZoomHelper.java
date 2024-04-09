@@ -218,9 +218,11 @@ public class PlotZoomHelper {
         final Range rangeAfter = chartPanel.getDomainAxis().getRange();
         final double lengthAfter = rangeAfter.getLength();
         final List<? extends TimeRangedOHLCDataItem> data = chartPanel.getMasterDataset().getData();
-        final double minLowerBound = getMinLowerBound(data);
-        final double maxUpperBound = getMaxUpperBound(data);
+
         final int gapAfter = chartPanel.getAllowedMaximumRangeGap(lengthAfter);
+        final double minLowerBound = getMinLowerBoundWithGap(data, gapAfter);
+        final double maxUpperBound = getMaxUpperBoundWithGap(data, gapAfter);
+
         final double anchorUpperEdgeTolerance = width - (width * EDGE_ANCHOR_TOLERANCE);
         if (anchor >= anchorUpperEdgeTolerance) {
             if (rangeBefore.getUpperBound() >= maxUpperBound) {
