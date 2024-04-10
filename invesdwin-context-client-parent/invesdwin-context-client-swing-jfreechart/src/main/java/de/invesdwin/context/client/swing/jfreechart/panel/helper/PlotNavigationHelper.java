@@ -435,11 +435,11 @@ public class PlotNavigationHelper {
             plot.removeAnnotation(panLive_highlighted, false);
             plot.addAnnotation(panLive, false);
             this.panLiveHighlighted = false;
-        } else if (highlighted != panLiveBackward && panLiveBackwardVisible
+        } else if (highlighted == panLiveBackward && panLiveBackwardVisible
                 && !XYPlots.getAnnotations(plot).contains(panLiveBackward_highlighted)) {
             plot.removeAnnotation(panLiveBackward, false);
             plot.addAnnotation(panLiveBackward_highlighted, false);
-            this.panLiveBackwardHighlighted = false;
+            this.panLiveBackwardHighlighted = true;
         } else if (highlighted != panLiveBackward && panLiveBackwardVisible
                 && !XYPlots.getAnnotations(plot).contains(panLiveBackward)) {
             plot.removeAnnotation(panLiveBackward_highlighted, false);
