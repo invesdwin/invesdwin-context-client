@@ -60,16 +60,16 @@
 		<version.miglayout>5.2</version.miglayout>
 		<version.designgridlayout>1.11</version.designgridlayout>
 
-		<version.eclipse-swt>3.122.0</version.eclipse-swt>
-		<version.eclipse-jface>3.16.0</version.eclipse-jface>
-		<version.eclipse-commands>3.9.400</version.eclipse-commands>
-		<version.eclipse-common>3.10.400</version.eclipse-common>
+		<version.eclipse-swt>3.125.0</version.eclipse-swt>
+		<version.eclipse-jface>3.33.0</version.eclipse-jface>
+		<version.eclipse-commands>3.12.0</version.eclipse-commands>
+		<version.eclipse-common>3.19.0</version.eclipse-common>
 		<version.swingexplorer>1.7.0</version.swingexplorer>
 
-		<version.rsyntaxtextarea>3.0.3</version.rsyntaxtextarea>
-		<version.autocomplete>3.0.0</version.autocomplete>
-		<version.languagesupport>3.0.0</version.languagesupport>
-		<version.rstaui>3.0.0</version.rstaui>
+		<version.rsyntaxtextarea>3.4.0</version.rsyntaxtextarea>
+		<version.autocomplete>3.3.1</version.autocomplete>
+		<version.languagesupport>3.3.0</version.languagesupport>
+		<version.rstaui>3.3.1</version.rstaui>
 
 		<version.javafx>13.0.1</version.javafx>
 
