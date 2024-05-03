@@ -17,6 +17,7 @@ import de.invesdwin.nowicket.generated.guiservice.test.GuiServiceMethod;
 import de.invesdwin.nowicket.generated.guiservice.test.GuiServiceMethodCall;
 import de.invesdwin.nowicket.generated.guiservice.test.GuiServiceTester;
 import de.invesdwin.util.assertions.Assertions;
+import de.invesdwin.util.collections.Collections;
 import jakarta.inject.Inject;
 
 @NotThreadSafe
@@ -76,8 +77,9 @@ public class AutomatedAnotherSampleModelTest extends ATest {
 
     @Test
     public void testRememberMeConversion() {
-        Roles.getAuthenticationService()
-                .setAuthentication(new UsernamePasswordAuthenticationToken("someUser", "somePassword"));
+        final UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken("someUser",
+                "somePassword", Collections.emptyCollection());
+        Roles.getAuthenticationService().setAuthentication(auth);
         Assertions.assertThat(Roles.isAuthenticated()).isTrue();
         Assertions.assertThat(Roles.isRememberMe()).isFalse();
         Assertions.assertThat(Roles.isAnonymous()).isFalse();
