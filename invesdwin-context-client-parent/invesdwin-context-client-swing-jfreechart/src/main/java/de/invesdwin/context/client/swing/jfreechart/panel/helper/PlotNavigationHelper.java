@@ -568,10 +568,12 @@ public class PlotNavigationHelper {
                         chartPanel.resetRange(initialVisibleItemCount,
                                 chartPanel.getAllowedTrailingRangeGap(initialVisibleItemCount),
                                 () -> chartPanel.reloadData());
+                        chartPanel.updateUserGap();
                     }
                 } else {
                     chartPanel.resetRange(initialVisibleItemCount,
                             chartPanel.getAllowedTrailingRangeGap(initialVisibleItemCount));
+                    chartPanel.updateUserGap();
                 }
                 Axises.resetAllAutoRanges(chartPanel);
                 XYPlots.resetAllRangePannables(chartPanel);

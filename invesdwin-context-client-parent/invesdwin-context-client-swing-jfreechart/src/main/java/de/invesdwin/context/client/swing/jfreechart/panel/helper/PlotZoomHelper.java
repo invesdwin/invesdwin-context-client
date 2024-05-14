@@ -178,9 +178,12 @@ public class PlotZoomHelper {
             final boolean notifyState = plot.isNotify();
             plot.setNotify(false);
             final PlotRenderingInfo plotInfo = this.chartPanel.getChartPanel().getChartRenderingInfo().getPlotInfo();
+            final int maxUpperBound = chartPanel.getPlotZoomHelper().getMaxUpperBound();
             plot.zoomDomainAxes(zoomFactor, plotInfo, point, true);
 
             applyEdgeAnchor(rangeBefore, lengthBefore, point.getX(), plotInfo.getDataArea().getWidth());
+
+            chartPanel.updateUserGap(maxUpperBound);
             plot.setNotify(notifyState); // this generates the change event too
             chartPanel.update();
         } finally {

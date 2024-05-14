@@ -96,6 +96,8 @@ public class InteractiveChartPanel extends JPanel {
     private boolean initialized = false;
     private boolean dragging = false;
 
+    private int userGap = 0;
+
     public InteractiveChartPanel(final IndexedDateTimeOHLCDataset masterDataset) {
         this.masterDataset = masterDataset;
         Assertions.checkNotBlank(masterDataset.getRangeAxisId());
@@ -186,7 +188,7 @@ public class InteractiveChartPanel extends JPanel {
             @Override
             public void run() {
                 //prevent blocking component initialization
-                resetRange(getInitialVisibleItemCount(), getCurrentGap());
+                resetRange(getInitialVisibleItemCount(), getUserGap());
             }
         });
     }
@@ -216,6 +218,7 @@ public class InteractiveChartPanel extends JPanel {
         chartPanel.addMouseListener(new MouseListenerImpl());
         chartPanel.addMouseWheelListener(new MouseWheelListenerImpl());
         plotZoomHelper.init();
+        plotPanHelper.panLive(null);
         initialized = true;
     }
 
@@ -427,20 +430,6 @@ public class InteractiveChartPanel extends JPanel {
 
     public int getInitialVisibleItemCount() {
         return 200;
-    }
-
-    public int getCurrentGap() {
-        return getCurrentGap(domainAxis.getRange());
-    }
-
-    public int getCurrentGap(final Range range) {
-        final int lastDataIndex = masterDataset.getData().size() - 1;
-        final int upperBound = (int) range.getUpperBound();
-        if (lastDataIndex < upperBound) {
-            return upperBound - lastDataIndex;
-        } else {
-            return 0;
-        }
     }
 
     public void update() {
@@ -683,6 +672,8 @@ public class InteractiveChartPanel extends JPanel {
                 } else {
                     plotNavigationHelper.mouseDragged(e);
                 }
+
+                updateUserGap();
                 update();
             } catch (final Throwable t) {
                 Err.process(new Exception("Ignoring", t));
@@ -847,5 +838,30 @@ public class InteractiveChartPanel extends JPanel {
 
     public boolean isDragging() {
         return dragging;
+    }
+
+    public int getUserGap() {
+        return userGap;
+    }
+
+    public void updateUserGap() {
+        final int maxUpperBound = plotZoomHelper.getMaxUpperBound();
+        updateUserGap(maxUpperBound);
+    }
+
+    public void updateUserGap(final int maxUpperBound) {
+        //Limit-User-Gap
+        final Range range = domainAxis.getRange();
+        final double length = range.getLength();
+        final double limitUpperBound = range.getUpperBound() + chartPanel.getAllowedMaximumRangeGap(length);
+
+        int newUserGap = maxUpperBound < domainAxis.getRange().getUpperBound()
+                ? (int) domainAxis.getRange().getUpperBound() - maxUpperBound
+                : 0;
+
+        if (newUserGap > limitUpperBound) {
+            newUserGap = (int) limitUpperBound;
+        }
+        this.userGap = newUserGap;
     }
 }
