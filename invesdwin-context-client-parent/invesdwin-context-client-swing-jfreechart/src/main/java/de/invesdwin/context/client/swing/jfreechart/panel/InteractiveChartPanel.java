@@ -333,14 +333,11 @@ public class InteractiveChartPanel extends JPanel {
     }
 
     protected void doResetRange(final int visibleItemCount, final int gapBefore) {
-        final int trailingGap = chartPanel.getAllowedTrailingRangeGap(visibleItemCount);
-        final int userGap = Integers.min(gapBefore, chartPanel.getAllowedMaximumRangeGap(visibleItemCount))
-                - trailingGap;
-        final int minLowerBound = -trailingGap;
+        final int userGap = Integers.min(gapBefore, chartPanel.getAllowedMaximumRangeGap(visibleItemCount));
         final int lastItemIndex = masterDataset.getItemCount(0) - 1;
-        final int lowerBound = lastItemIndex - visibleItemCount + userGap;
-        final int upperBound = lastItemIndex + trailingGap + userGap;
-        final Range range = new Range(Doubles.max(minLowerBound, lowerBound), upperBound);
+        final int upperBound = lastItemIndex + userGap;
+        final int lowerBound = upperBound - visibleItemCount;
+        final Range range = new Range(lowerBound, upperBound);
         domainAxis.setRange(range);
     }
 
