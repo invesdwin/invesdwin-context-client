@@ -861,4 +861,8 @@ public class InteractiveChartPanel extends JPanel {
         }
         this.userGap = newUserGap;
     }
+
+    public void updateData() {
+        //used to force an updateData in the ChartView
+    }
 }

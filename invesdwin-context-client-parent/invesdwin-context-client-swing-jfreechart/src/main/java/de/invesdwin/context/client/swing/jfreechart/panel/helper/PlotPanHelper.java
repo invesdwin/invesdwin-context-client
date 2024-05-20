@@ -80,6 +80,12 @@ public class PlotPanHelper {
             chartPanel.getPlotNavigationHelper().mouseMoved(e);
             chartPanel.getPlotCrosshairHelper().mouseMoved(e);
         }
+
+        /*
+         * In case we weren't trailing/panned-Live and new data got added to the Dataset. We need to force an updateData
+         * on the Dataset here to actually display/see the new Data.
+         */
+        chartPanel.updateData();
         chartPanel.update(false);
     }
 
