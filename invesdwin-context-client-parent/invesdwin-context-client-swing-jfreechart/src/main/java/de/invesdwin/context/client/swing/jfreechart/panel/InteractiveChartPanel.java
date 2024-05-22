@@ -96,7 +96,7 @@ public class InteractiveChartPanel extends JPanel {
     private boolean initialized = false;
     private boolean dragging = false;
 
-    private int userGap = 0;
+    private double userGapRate = 0D;
 
     public InteractiveChartPanel(final IndexedDateTimeOHLCDataset masterDataset) {
         this.masterDataset = masterDataset;
@@ -188,7 +188,7 @@ public class InteractiveChartPanel extends JPanel {
             @Override
             public void run() {
                 //prevent blocking component initialization
-                resetRange(getInitialVisibleItemCount(), getUserGap());
+                resetRange(getInitialVisibleItemCount(), getUserGapRate());
             }
         });
     }
@@ -258,6 +258,10 @@ public class InteractiveChartPanel extends JPanel {
         return chartPanel.getAllowedTrailingRangeGap(length);
     }
 
+    public double getDefaultTrailingRangeGapRate() {
+        return chartPanel.getDefaultTrailingRangeGapRate();
+    }
+
     public int getAllowedMaximumRangeGap(final double range) {
         return chartPanel.getAllowedMaximumRangeGap(range);
     }
@@ -286,20 +290,20 @@ public class InteractiveChartPanel extends JPanel {
         return chartPanel;
     }
 
-    public void resetRange(final int visibleItemCount, final int gapBefore) {
+    public void resetRange(final int visibleItemCount, final double gapBefore) {
         resetRange(visibleItemCount, gapBefore, Runnables.doNothing());
     }
 
-    public void resetRange(final int visibleItemCount, final int gapBefore, final Runnable followUp) {
+    public void resetRange(final int visibleItemCount, final double gapBefore, final Runnable followUp) {
         resetRangeRetry(visibleItemCount, gapBefore, followUp, true);
     }
 
-    private void resetRangeRetry(final int visibleItemCount, final int gapBefore, final Runnable followUp,
+    private void resetRangeRetry(final int visibleItemCount, final double gapBefore, final Runnable followUp,
             final boolean retryAllowed) {
         if (masterDataset.getItemCount(0) > 0) {
             final FDate firstItemDate = masterDataset.getData().get(0).getStartTime();
             final FDate lastItemDate = masterDataset.getData().get(masterDataset.getItemCount(0) - 1).getStartTime();
-            beforeResetRange();
+            beforeResetRange(visibleItemCount);
             doResetRange(visibleItemCount, gapBefore);
             update();
             final FDate newFirstItemDate = masterDataset.getData().get(0).getStartTime();
@@ -325,26 +329,27 @@ public class InteractiveChartPanel extends JPanel {
                 followUp.run();
             }
         } else {
-            beforeResetRange();
+            beforeResetRange(visibleItemCount);
             doResetRange(visibleItemCount, gapBefore);
             update();
             followUp.run();
         }
     }
 
-    protected void doResetRange(final int visibleItemCount, final int gapBefore) {
-        final int userGap = Integers.min(gapBefore, chartPanel.getAllowedMaximumRangeGap(visibleItemCount));
+    protected void doResetRange(final int visibleItemCount, final double gapRateBefore) {
+        final int userGapAbsolute = (int) (visibleItemCount * gapRateBefore);
         final int lastItemIndex = masterDataset.getItemCount(0) - 1;
-        final int upperBound = lastItemIndex + userGap;
+        final int upperBound = lastItemIndex + userGapAbsolute;
         final int lowerBound = upperBound - visibleItemCount;
+
         final Range range = new Range(lowerBound, upperBound);
         domainAxis.setRange(range);
     }
 
-    protected void beforeResetRange() {
+    protected void beforeResetRange(final int visibleItemCount) {
         if (masterDataset.getData() instanceof IChartPanelAwareDatasetList) {
             final IChartPanelAwareDatasetList cData = (IChartPanelAwareDatasetList) masterDataset.getData();
-            cData.resetRange();
+            cData.resetRange(visibleItemCount);
         }
     }
 
@@ -427,6 +432,10 @@ public class InteractiveChartPanel extends JPanel {
 
     public int getInitialVisibleItemCount() {
         return 200;
+    }
+
+    public int getLoadInitialDataMasterItemCount(final int visiableItemCount) {
+        return getInitialVisibleItemCount();
     }
 
     public void update() {
@@ -670,7 +679,7 @@ public class InteractiveChartPanel extends JPanel {
                     plotNavigationHelper.mouseDragged(e);
                 }
 
-                updateUserGap();
+                updateUserGapRate();
                 update();
             } catch (final Throwable t) {
                 Err.process(new Exception("Ignoring", t));
@@ -837,32 +846,26 @@ public class InteractiveChartPanel extends JPanel {
         return dragging;
     }
 
-    public int getUserGap() {
-        return userGap;
+    public double getUserGapRate() {
+        return userGapRate;
     }
 
-    public void updateUserGap() {
+    public void updateUserGapRate() {
         final int maxUpperBound = plotZoomHelper.getMaxUpperBound();
-        updateUserGap(maxUpperBound);
+        updateUserGapRate(maxUpperBound);
     }
 
-    public void updateUserGap(final int maxUpperBound) {
+    public void updateUserGapRate(final int maxUpperBound) {
         //Limit-User-Gap
-        final Range range = domainAxis.getRange();
-        final double length = range.getLength();
-        final double limitUpperBound = range.getUpperBound() + chartPanel.getAllowedMaximumRangeGap(length);
+        final double length = domainAxis.getRange().getLength();
 
-        int newUserGap = maxUpperBound < domainAxis.getRange().getUpperBound()
-                ? (int) domainAxis.getRange().getUpperBound() - maxUpperBound
+        double newUserGapRate = maxUpperBound < domainAxis.getRange().getUpperBound()
+                ? (domainAxis.getRange().getUpperBound() - maxUpperBound) / length
                 : 0;
 
-        if (newUserGap > limitUpperBound) {
-            newUserGap = (int) limitUpperBound;
+        if (newUserGapRate > chartPanel.getAllowedMaximumRangeGapRate()) {
+            newUserGapRate = chartPanel.getAllowedMaximumRangeGapRate();
         }
-        this.userGap = newUserGap;
-    }
-
-    public void updateData() {
-        //used to force an updateData in the ChartView
+        this.userGapRate = newUserGapRate;
     }
 }

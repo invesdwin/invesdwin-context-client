@@ -13,7 +13,7 @@ public interface IChartPanelAwareDatasetList {
 
     int getMaxUpperBound();
 
-    void resetRange();
+    void resetRange(int visibleItemCount);
 
     boolean isTrailingLoaded();
 

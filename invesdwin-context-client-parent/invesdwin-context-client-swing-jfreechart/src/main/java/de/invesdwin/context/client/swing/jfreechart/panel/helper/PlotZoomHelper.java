@@ -183,7 +183,7 @@ public class PlotZoomHelper {
 
             applyEdgeAnchor(rangeBefore, lengthBefore, point.getX(), plotInfo.getDataArea().getWidth());
 
-            chartPanel.updateUserGap(maxUpperBound);
+            chartPanel.updateUserGapRate(maxUpperBound);
             plot.setNotify(notifyState); // this generates the change event too
             chartPanel.update();
         } finally {

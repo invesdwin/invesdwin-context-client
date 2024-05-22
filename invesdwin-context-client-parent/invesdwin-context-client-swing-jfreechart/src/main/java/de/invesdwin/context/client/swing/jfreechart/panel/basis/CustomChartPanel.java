@@ -160,15 +160,16 @@ public class CustomChartPanel extends JPanel implements ChartChangeListener, Cha
     private Point panLast;
 
     /**
-     * Determines how far we scroll beyond the upperBound of the available data (most recent/live-bar).
+     * The default PanLive/Trailing-GapRate. Used on resets and PanLive.
      */
-    private double allowedTrailingRangeGapRate = 0.085;
+    private double defaultTrailingRangeGapRate = 0.085;
+    private int defaultTrailingRangeGapMinimum = 2;
+
     /**
      * Determines how far we can drag to the left/right of the chart when there is no data to display there anymore. We
      * want to be able to scroll a bit less than the whole domain-axis range further.
      */
     private final double allowedMaximumRangeGapRate = 0.98;
-    private int allowedRangeGapMinimum = 2;
 
     /**
      * Constructs a panel that displays the specified chart.
@@ -515,17 +516,25 @@ public class CustomChartPanel extends JPanel implements ChartChangeListener, Cha
     }
 
     public int getAllowedTrailingRangeGap(final double length) {
-        final int allowedRangeGap = (int) (allowedTrailingRangeGapRate * length);
-        return Integers.max(allowedRangeGapMinimum, allowedRangeGap);
+        final int defaultRangeGap = (int) (defaultTrailingRangeGapRate * length);
+        return Integers.max(defaultTrailingRangeGapMinimum, defaultRangeGap);
     }
 
-    public void setAllowedRangeGap(final int allowedRangeGapMinimum, final Percent allowedRangeGapPercent) {
-        this.allowedRangeGapMinimum = allowedRangeGapMinimum;
-        this.allowedTrailingRangeGapRate = allowedRangeGapPercent.getValue(PercentScale.RATE);
+    public double getDefaultTrailingRangeGapRate() {
+        return defaultTrailingRangeGapRate;
+    }
+
+    public void setDefaultTrailingRangeGap(final int defaultRangeGapMinimum, final Percent defaultRangeGapPercent) {
+        this.defaultTrailingRangeGapMinimum = defaultRangeGapMinimum;
+        this.defaultTrailingRangeGapRate = defaultRangeGapPercent.getValue(PercentScale.RATE);
     }
 
     public int getAllowedMaximumRangeGap(final double range) {
         return (int) (allowedMaximumRangeGapRate * range);
+    }
+
+    public double getAllowedMaximumRangeGapRate() {
+        return allowedMaximumRangeGapRate;
     }
 
     /**

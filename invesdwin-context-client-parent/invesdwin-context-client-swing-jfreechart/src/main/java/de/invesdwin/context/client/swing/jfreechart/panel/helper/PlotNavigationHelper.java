@@ -565,15 +565,13 @@ public class PlotNavigationHelper {
                         //only reload data, no reset range to the right
                         chartPanel.reloadData();
                     } else {
-                        chartPanel.resetRange(initialVisibleItemCount,
-                                chartPanel.getAllowedTrailingRangeGap(initialVisibleItemCount),
+                        chartPanel.resetRange(initialVisibleItemCount, chartPanel.getDefaultTrailingRangeGapRate(),
                                 () -> chartPanel.reloadData());
-                        chartPanel.updateUserGap();
+                        chartPanel.updateUserGapRate();
                     }
                 } else {
-                    chartPanel.resetRange(initialVisibleItemCount,
-                            chartPanel.getAllowedTrailingRangeGap(initialVisibleItemCount));
-                    chartPanel.updateUserGap();
+                    chartPanel.resetRange(initialVisibleItemCount, chartPanel.getDefaultTrailingRangeGapRate());
+                    chartPanel.updateUserGapRate();
                 }
                 Axises.resetAllAutoRanges(chartPanel);
                 XYPlots.resetAllRangePannables(chartPanel);

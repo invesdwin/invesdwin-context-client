@@ -101,7 +101,7 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
     }
 
     @Override
-    public synchronized void resetRange() {
+    public synchronized void resetRange(final int visiableItemCount) {
         if (getData().isEmpty() || getLastLoadedItem().getEndTime().isBefore(getResetReferenceTime())) {
             newData();
             final InteractiveChartPanel chartPanelCopy = chartPanel;
@@ -111,7 +111,7 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
                     try {
                         chartPanelCopy.incrementUpdatingCount(); //prevent flickering
                         try {
-                            loadInitialDataMaster(chartPanelCopy);
+                            loadInitialDataMaster(chartPanelCopy, visiableItemCount);
                             prevLastAvailableKeyTo = null;
                             minLowerBound = 0;
                             maxUpperBound = getData().size() - 1;
@@ -272,15 +272,16 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
                 trailingInitially = false;
             }
         }
-        return isTrailingRange(range, getData().size());
+        return chartPanel.getUserGapRate() > 0 || isTrailingRange(range, getData().size());
     }
 
     public static boolean isTrailingRange(final Range domainAxisRange, final int dataSize) {
         return domainAxisRange.getUpperBound() >= dataSize - 1;
     }
 
-    private void loadInitialDataMaster(final InteractiveChartPanel chartPanel) {
-        final int initialVisibleItemCount = chartPanel.getInitialVisibleItemCount() * PRELOAD_RANGE_MULTIPLIER;
+    private void loadInitialDataMaster(final InteractiveChartPanel chartPanel, final int visiableItemCount) {
+        final int initialVisibleItemCount = chartPanel.getLoadInitialDataMasterItemCount(visiableItemCount)
+                * PRELOAD_RANGE_MULTIPLIER;
         final FDate lastAvailableKeyTo = provider.getLastAvailableTickTime();
         if (lastAvailableKeyTo == null) {
             return;
@@ -692,7 +693,7 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
         }
         final List<MasterOHLCDataItem> data = getData();
         if (data.isEmpty()) {
-            resetRange();
+            resetRange(chartPanel.getInitialVisibleItemCount());
             return !data.isEmpty();
         }
         final Range rangeBefore = chartPanel.getDomainAxis().getRange();

@@ -41,7 +41,7 @@ public class PlotPanHelper {
         final Range newRange = new Range(newLowerBound, newLowerBound + length);
 
         chartPanel.getDomainAxis().setRange(newRange);
-        chartPanel.updateUserGap();
+        chartPanel.updateUserGapRate();
         chartPanel.update();
     }
 
@@ -62,7 +62,7 @@ public class PlotPanHelper {
 
         final Range newRange = new Range(newUpperBound - length, newUpperBound);
         chartPanel.getDomainAxis().setRange(newRange);
-        chartPanel.updateUserGap();
+        chartPanel.updateUserGapRate();
         chartPanel.update();
     }
 
@@ -70,23 +70,15 @@ public class PlotPanHelper {
      * pans the x-axis right till the most recent datapoint is visible.
      */
     public void panLive(final MouseEvent e) {
-        final double length = chartPanel.getDomainAxis().getRange().getLength();
-        final double newUpperBound = getPanLiveUpperBound();
-        final Range newRange = new Range(newUpperBound - length, newUpperBound);
-        chartPanel.getDomainAxis().setRange(newRange);
-        chartPanel.updateUserGap();
+        final int length = (int) chartPanel.getDomainAxis().getRange().getLength();
+        chartPanel.resetRange(length, chartPanel.getChartPanel().getDefaultTrailingRangeGapRate());
+        chartPanel.updateUserGapRate();
+
         //pan live button is removed, thus switch to crosshair
         if (e != null) {
             chartPanel.getPlotNavigationHelper().mouseMoved(e);
             chartPanel.getPlotCrosshairHelper().mouseMoved(e);
         }
-
-        /*
-         * In case we weren't trailing/panned-Live and new data got added to the Dataset. We need to force an updateData
-         * on the Dataset here to actually display/see the new Data.
-         */
-        chartPanel.updateData();
-        chartPanel.update(false);
     }
 
     public void maybeToggleVisibilityPanLiveIcon() {
@@ -143,7 +135,7 @@ public class PlotPanHelper {
             final Point2D point2D = chartPanel.getChartPanel().translateScreenToJava2D(e.getPoint());
             final Axis axis = Axises.getAxisForMousePosition(chartPanel, point2D);
             if (axis != null && Axis.DOMAIN_AXIS.equals(axis)) {
-                chartPanel.resetRange(chartPanel.getInitialVisibleItemCount(), chartPanel.getUserGap());
+                chartPanel.resetRange(chartPanel.getInitialVisibleItemCount(), chartPanel.getUserGapRate());
             }
         }
     }
