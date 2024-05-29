@@ -27,6 +27,7 @@ import de.invesdwin.context.client.swing.jfreechart.panel.basis.CustomCombinedDo
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.icons.PlotIcons;
 import de.invesdwin.context.client.swing.jfreechart.plot.RangeAxisData;
 import de.invesdwin.context.client.swing.jfreechart.plot.XYPlots;
+import de.invesdwin.context.client.swing.jfreechart.plot.annotation.HideableXYTitleAnnotation;
 import de.invesdwin.context.client.swing.jfreechart.plot.annotation.XYIconAnnotation;
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.DisabledXYDataset;
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.IPlotSourceDataset;
@@ -90,7 +91,8 @@ public class PlotLegendHelper {
         final CustomLegendTitle lt = new HighlightableLegendTitle(chartPanel, plot);
         lt.setBackgroundPaint(LEGEND_BACKGROUND_PAINT);
         lt.setPosition(RectangleEdge.TOP);
-        final XYTitleAnnotation ta = new XYTitleAnnotation(0.005, 0.99, lt, RectangleAnchor.TOP_LEFT);
+        final HideableXYTitleAnnotation ta = new HideableXYTitleAnnotation(0.005, 0.99, lt, RectangleAnchor.TOP_LEFT);
+        ta.setHidden(chartPanel.getPlotConfigurationHelper().isSeriesTitleAnnotationHidden());
         ta.setMaxWidth(0.9);
         ta.setMaxHeight(0.9);
         plot.addAnnotation(ta);

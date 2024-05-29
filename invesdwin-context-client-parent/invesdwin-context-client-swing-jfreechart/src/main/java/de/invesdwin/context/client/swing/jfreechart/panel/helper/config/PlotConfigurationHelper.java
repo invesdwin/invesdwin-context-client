@@ -29,6 +29,7 @@ import javax.swing.event.PopupMenuEvent;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 import org.jfree.chart.ChartUtils;
+import org.jfree.chart.annotations.XYAnnotation;
 import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.plot.XYPlot;
 
@@ -46,6 +47,7 @@ import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.series.i
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.crosshair.IPlotCoordinateListener;
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.legend.HighlightedLegendInfo;
 import de.invesdwin.context.client.swing.jfreechart.plot.Axises;
+import de.invesdwin.context.client.swing.jfreechart.plot.annotation.HideableXYTitleAnnotation;
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.IPlotSourceDataset;
 import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.lang.string.Strings;
@@ -80,6 +82,7 @@ public class PlotConfigurationHelper {
     private JMenu bookmarksItem;
 
     private JMenuItem addSeriesItem;
+    private JCheckBoxMenuItem hideSeriesTitleAnnotation;
     private JMenuItem pinItem;
     private JMenuItem unpinItem;
     private JMenuItem copyToClipboardItem;
@@ -123,6 +126,7 @@ public class PlotConfigurationHelper {
         initRangeAxisItems();
         initSeriesVisibilityItems();
         initAddSeriesItem();
+        initHideSeriesTitleAnnotations();
         initPinItems();
         initBookmarkItems();
         initExportItems();
@@ -163,6 +167,9 @@ public class PlotConfigurationHelper {
                         popupMenu.add(addSeriesItem);
                         addSeparator = true;
                     }
+
+                    popupMenu.add(hideSeriesTitleAnnotation);
+
                     if (plotPopupMenuConfig != null) {
                         final List<JMenuItem> addMenuItems = plotPopupMenuConfig.getAddMenuItems();
                         for (int i = 0; i < addMenuItems.size(); i++) {
@@ -419,6 +426,26 @@ public class PlotConfigurationHelper {
         });
     }
 
+    private void initHideSeriesTitleAnnotations() {
+        hideSeriesTitleAnnotation = new JCheckBoxMenuItem("Hide Series-Title-Annotation");
+        hideSeriesTitleAnnotation.setSelected(false);
+        hideSeriesTitleAnnotation.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(final ActionEvent e) {
+                final boolean hide = hideSeriesTitleAnnotation.isSelected();
+                final List<XYPlot> subplots = chartPanel.getCombinedPlot().getSubplots();
+                for (int i = 1; i < subplots.size(); i++) {
+                    final XYPlot xyPlot = subplots.get(i);
+                    for (final XYAnnotation annotation : xyPlot.getAnnotations()) {
+                        if (annotation instanceof HideableXYTitleAnnotation) {
+                            ((HideableXYTitleAnnotation) annotation).setHidden(hide);
+                        }
+                    }
+                }
+            }
+        });
+    }
+
     private void initPinItems() {
         pinItem = new JMenuItem("Pin");
         pinItem.addActionListener(new ActionListener() {
@@ -663,5 +690,9 @@ public class PlotConfigurationHelper {
 
     public void setPlotPopupMenuConfig(final IPlotPopupMenuConfig plotPopupMenuConfig) {
         this.plotPopupMenuConfig = plotPopupMenuConfig;
+    }
+
+    public boolean isSeriesTitleAnnotationHidden() {
+        return hideSeriesTitleAnnotation.isSelected();
     }
 }
