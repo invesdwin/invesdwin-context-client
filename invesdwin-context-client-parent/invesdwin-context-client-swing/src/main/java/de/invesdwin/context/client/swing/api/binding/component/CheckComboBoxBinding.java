@@ -92,7 +92,15 @@ public class CheckComboBoxBinding extends AComponentBinding<CheckComboBox, List<
         }
 
         if (choicesChanged || !Objects.equals(modelValue, this.prevSelection)) {
-            modelValue.forEach(v -> component.getModel().addCheck(v));
+            for (int i = 0; i < choices.size(); i++) {
+                final Object choice = choices.get(i);
+                final String renderedChoice = renderedChoices[i];
+                if (modelValue.contains(choice)) {
+                    component.getModel().addCheck(renderedChoice);
+                } else {
+                    component.getModel().removeCheck(renderedChoice);
+                }
+            }
             this.prevSelection = modelValue;
             return Optional.ofNullable(modelValue);
         } else {
