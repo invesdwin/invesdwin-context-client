@@ -237,6 +237,7 @@ public class PlotCoordinateHelper {
                 .get(masterDataset.getData().size() - 1)
                 .getStartTime();
         if (previousStartTime.isBefore(currentBarStartTime)) {
+            //Start of a new bar
             final FDate previousBarEndTime = masterDataset.getData()
                     .get(masterDataset.getData().size() - 2)
                     .getEndTime();
