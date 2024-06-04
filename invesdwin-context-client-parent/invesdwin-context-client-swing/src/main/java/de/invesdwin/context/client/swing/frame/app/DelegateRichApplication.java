@@ -1,6 +1,7 @@
 package de.invesdwin.context.client.swing.frame.app;
 
 import java.awt.Dimension;
+import java.awt.GraphicsEnvironment;
 import java.awt.event.WindowListener;
 import java.io.File;
 import java.util.Locale;
@@ -204,6 +205,9 @@ public class DelegateRichApplication extends SingleFrameApplication {
     }
 
     public static DelegateRichApplication getInstance() {
+        if (GraphicsEnvironment.isHeadless()) {
+            return null;
+        }
         return SingleFrameApplication.getInstance(DelegateRichApplication.class);
     }
 

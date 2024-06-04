@@ -1,5 +1,6 @@
 package de.invesdwin.context.client.swing.frame;
 
+import java.awt.GraphicsEnvironment;
 import java.awt.Toolkit;
 import java.beans.Beans;
 import java.io.File;
@@ -45,6 +46,9 @@ public final class RichApplicationProperties {
 
     public static synchronized Application getDesignTimeApplication() {
         if (designTimeApplication == null) {
+            if (GraphicsEnvironment.isHeadless()) {
+                return null;
+            }
             final boolean prevDesignTime = Beans.isDesignTime();
             Beans.setDesignTime(true);
             try {
