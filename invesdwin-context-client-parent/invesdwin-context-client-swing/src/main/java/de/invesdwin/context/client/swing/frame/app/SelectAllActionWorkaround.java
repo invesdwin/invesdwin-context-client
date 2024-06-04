@@ -42,6 +42,9 @@ public class SelectAllActionWorkaround implements IStartupHook {
     @Override
     public void startup() {
         final DelegateRichApplication application = DelegateRichApplication.getInstance();
+        if (application == null) {
+            return;
+        }
         selectAllAction = (ApplicationAction) application.getContext().getActionMap().get("select-all");
         if (selectAllAction != null) {
             selectAllAction.addPropertyChangeListener(new PropertyChangeListener() {

@@ -63,9 +63,11 @@ public class DelegateRichApplication extends SingleFrameApplication {
     private static boolean lookAndFeelConfigured = false;
 
     static {
-        Assertions.checkNull(Dialogs.getDialogVisitor());
-        Dialogs.setDialogVisitor(new ComponentStandardizer());
-        ConfiguredSplashScreen.INSTANCE.splash();
+        if (!GraphicsEnvironment.isHeadless()) {
+            Assertions.checkNull(Dialogs.getDialogVisitor());
+            Dialogs.setDialogVisitor(new ComponentStandardizer());
+            ConfiguredSplashScreen.INSTANCE.splash();
+        }
         INITIALIZED = true;
     }
 

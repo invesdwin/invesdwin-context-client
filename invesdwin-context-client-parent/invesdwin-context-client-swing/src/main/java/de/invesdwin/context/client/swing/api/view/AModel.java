@@ -27,9 +27,9 @@ public abstract class AModel extends AValueObject {
     private ActionMap actionMap;
 
     public AModel() {
-        final Application designTimeApplication = RichApplicationProperties.getDesignTimeApplication();
-        if (designTimeApplication != null) {
-            resourceMap = designTimeApplication.getContext().getResourceMap(this.getClass());
+        final Application application = RichApplicationProperties.getDesignTimeApplication();
+        if (application != null) {
+            resourceMap = application.getContext().getResourceMap(this.getClass());
             resourceMap.injectFields(this);
         } else {
             resourceMap = null;
