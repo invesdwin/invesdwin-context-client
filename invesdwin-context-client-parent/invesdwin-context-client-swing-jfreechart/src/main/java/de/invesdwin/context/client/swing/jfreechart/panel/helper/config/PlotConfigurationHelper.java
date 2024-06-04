@@ -427,7 +427,7 @@ public class PlotConfigurationHelper {
     }
 
     private void initHideSeriesTitleAnnotations() {
-        hideSeriesTitleAnnotation = new JCheckBoxMenuItem("Hide Series-Title-Annotation");
+        hideSeriesTitleAnnotation = new JCheckBoxMenuItem("Hide Legends");
         hideSeriesTitleAnnotation.setSelected(false);
         hideSeriesTitleAnnotation.addActionListener(new ActionListener() {
             @Override
