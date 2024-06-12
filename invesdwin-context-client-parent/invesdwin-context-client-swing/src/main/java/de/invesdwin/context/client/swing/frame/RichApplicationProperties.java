@@ -1,5 +1,6 @@
 package de.invesdwin.context.client.swing.frame;
 
+import java.awt.GraphicsEnvironment;
 import java.awt.Toolkit;
 import java.beans.Beans;
 import java.io.File;
@@ -45,6 +46,9 @@ public final class RichApplicationProperties {
 
     public static synchronized Application getDesignTimeApplication() {
         if (designTimeApplication == null) {
+            if (GraphicsEnvironment.isHeadless()) {
+                return null;
+            }
             final boolean prevDesignTime = Beans.isDesignTime();
             Beans.setDesignTime(true);
             try {
@@ -199,7 +203,11 @@ public final class RichApplicationProperties {
 
     public static File getStorageDirectory() {
         //use design time application so that the resource bundle is properly initialized
-        final ApplicationContext context = getDesignTimeApplication().getContext();
+        final Application application = getDesignTimeApplication();
+        if (application == null) {
+            return null;
+        }
+        final ApplicationContext context = application.getContext();
         final String applicationId = GuiService.i18n(context.getResourceMap(),
                 DelegateRichApplication.KEY_APPLICATION_ID, context.getApplicationClass().getSimpleName());
         if (UNDEFINED_APPLICATION_ID.equals(applicationId)) {

@@ -22,7 +22,12 @@ public class ApplicationMessageSource implements MessageSource {
     private final ResourceMap resourceMap;
 
     public ApplicationMessageSource() {
-        resourceMap = RichApplicationProperties.getDesignTimeApplication().getContext().getResourceMap();
+        final Application application = RichApplicationProperties.getDesignTimeApplication();
+        if (application != null) {
+            resourceMap = application.getContext().getResourceMap();
+        } else {
+            resourceMap = null;
+        }
     }
 
     @Override

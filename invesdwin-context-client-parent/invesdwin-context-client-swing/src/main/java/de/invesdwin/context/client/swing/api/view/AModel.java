@@ -4,6 +4,7 @@ import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 import javax.swing.ActionMap;
 
+import org.jdesktop.application.Application;
 import org.jdesktop.application.ResourceMap;
 
 import de.invesdwin.context.client.swing.frame.RichApplicationProperties;
@@ -26,8 +27,13 @@ public abstract class AModel extends AValueObject {
     private ActionMap actionMap;
 
     public AModel() {
-        resourceMap = RichApplicationProperties.getDesignTimeApplication().getContext().getResourceMap(this.getClass());
-        resourceMap.injectFields(this);
+        final Application application = RichApplicationProperties.getDesignTimeApplication();
+        if (application != null) {
+            resourceMap = application.getContext().getResourceMap(this.getClass());
+            resourceMap.injectFields(this);
+        } else {
+            resourceMap = null;
+        }
     }
 
     @Hidden(skip = true)

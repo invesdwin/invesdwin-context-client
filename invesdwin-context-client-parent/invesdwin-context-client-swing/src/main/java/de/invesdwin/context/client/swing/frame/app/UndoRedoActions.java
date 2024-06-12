@@ -36,8 +36,7 @@ public class UndoRedoActions extends AValueObject implements IStartupHook {
     private static final String KEY_UNDO_MANAGER = UndoRedoActions.class.getSimpleName() + ".undoManager";
     private final javax.swing.Action markerAction = new javax.swing.AbstractAction() {
         @Override
-        public void actionPerformed(final ActionEvent e) {
-        }
+        public void actionPerformed(final ActionEvent e) {}
     };
     private final PropertyChangeListener focusOwnerPCL = new PropertyChangeListener() {
         @Override
@@ -86,6 +85,9 @@ public class UndoRedoActions extends AValueObject implements IStartupHook {
     @Override
     public void startup() {
         final DelegateRichApplication application = DelegateRichApplication.getInstance();
+        if (application == null) {
+            return;
+        }
         application.getContext().addPropertyChangeListener("focusOwner", focusOwnerPCL);
         if (application.getContext().getFocusOwner() instanceof JTextComponent) {
             final JTextComponent text = (JTextComponent) application.getContext().getFocusOwner();
