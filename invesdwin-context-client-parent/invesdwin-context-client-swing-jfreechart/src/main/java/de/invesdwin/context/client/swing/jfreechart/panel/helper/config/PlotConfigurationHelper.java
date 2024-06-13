@@ -30,6 +30,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 
 import org.jfree.chart.ChartUtils;
 import org.jfree.chart.annotations.XYAnnotation;
+import org.jfree.chart.annotations.XYTitleAnnotation;
 import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.plot.XYPlot;
 
@@ -45,9 +46,9 @@ import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.series.A
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.series.expression.IExpressionSeriesProvider;
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.series.indicator.IIndicatorSeriesProvider;
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.crosshair.IPlotCoordinateListener;
+import de.invesdwin.context.client.swing.jfreechart.panel.helper.legend.CustomLegendTitle;
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.legend.HighlightedLegendInfo;
 import de.invesdwin.context.client.swing.jfreechart.plot.Axises;
-import de.invesdwin.context.client.swing.jfreechart.plot.annotation.HideableXYTitleAnnotation;
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.IPlotSourceDataset;
 import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.lang.string.Strings;
@@ -433,12 +434,16 @@ public class PlotConfigurationHelper {
             @Override
             public void actionPerformed(final ActionEvent e) {
                 final boolean hide = hideSeriesTitleAnnotation.isSelected();
+
                 final List<XYPlot> subplots = chartPanel.getCombinedPlot().getSubplots();
                 for (int i = 1; i < subplots.size(); i++) {
                     final XYPlot xyPlot = subplots.get(i);
                     for (final XYAnnotation annotation : xyPlot.getAnnotations()) {
-                        if (annotation instanceof HideableXYTitleAnnotation) {
-                            ((HideableXYTitleAnnotation) annotation).setHidden(hide);
+                        if (annotation instanceof XYTitleAnnotation
+                                && ((XYTitleAnnotation) annotation).getTitle() instanceof CustomLegendTitle) {
+                            final CustomLegendTitle title = (CustomLegendTitle) ((XYTitleAnnotation) annotation)
+                                    .getTitle();
+                            title.setHideLegendTitles(hide);
                         }
                     }
                 }
