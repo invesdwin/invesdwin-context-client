@@ -9,6 +9,8 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
@@ -107,6 +109,10 @@ public class CustomLegendTitle extends Title implements Cloneable, PublicCloneab
      * @since 1.0.15
      */
     private SortOrder sortOrder;
+
+    private boolean hideLegendTitles = false;
+
+    private final Set<String> neverHideSeriesKeys = new HashSet<>();
 
     /**
      * Constructs a new (empty) legend for the specified source.
@@ -391,8 +397,10 @@ public class CustomLegendTitle extends Title implements Cloneable, PublicCloneab
     }
 
     private void addItemBlock(final LegendItem item) {
-        final Block block = createLegendItemBlock(item);
-        this.items.add(block);
+        if (!isHideLegendTitles() || isNeverHideSeriesKey(item.getSeriesKey().toString())) {
+            final Block block = createLegendItemBlock(item);
+            this.items.add(block);
+        }
     }
 
     /**
@@ -655,4 +663,19 @@ public class CustomLegendTitle extends Title implements Cloneable, PublicCloneab
         this.itemPaint = SerialUtils.readPaint(stream);
     }
 
+    public boolean isHideLegendTitles() {
+        return hideLegendTitles;
+    }
+
+    public void setHideLegendTitles(final boolean hideLegendTitles) {
+        this.hideLegendTitles = hideLegendTitles;
+    }
+
+    public void addNeverHideSeriesKey(final String seriesKey) {
+        neverHideSeriesKeys.add(seriesKey);
+    }
+
+    public boolean isNeverHideSeriesKey(final String seriesKey) {
+        return neverHideSeriesKeys.contains(seriesKey);
+    }
 }
