@@ -113,9 +113,8 @@ public class UndoRedoActions extends AValueObject implements IStartupHook {
 
     private void updateUndoRedoActions(final JTextComponent text) {
         final UndoManager undoManager = maybeInstallUndoManager(text);
-        final boolean editable = text.isEditable();
-        setUndoEnabled(editable && undoManager != null && undoManager.canUndo());
-        setRedoEnabled(editable && undoManager != null && undoManager.canRedo());
+        setUndoEnabled(undoManager != null && undoManager.canUndo());
+        setRedoEnabled(undoManager != null && undoManager.canRedo());
     }
 
     private void maybeInstallUndoRedoActions(final JTextComponent text) {
