@@ -43,6 +43,7 @@ import de.invesdwin.context.client.swing.jfreechart.plot.XYPlots;
 import de.invesdwin.context.client.swing.jfreechart.plot.annotation.XYNoteIconAnnotation;
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.IndexedDateTimeOHLCDataset;
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.list.IChartPanelAwareDatasetList;
+import de.invesdwin.context.jfreechart.FiniteTickUnitSource;
 import de.invesdwin.context.jfreechart.dataset.TimeRangedOHLCDataItem;
 import de.invesdwin.context.jfreechart.visitor.JFreeChartLocaleChanger;
 import de.invesdwin.context.log.error.Err;
@@ -121,7 +122,7 @@ public class InteractiveChartPanel extends JPanel {
         domainAxis.setLabelFont(XYPlots.DEFAULT_FONT);
         domainAxis.setTickLabelFont(XYPlots.DEFAULT_FONT);
         domainAxis.setTickLabelPaint(XYPlots.AXIS_LABEL_PAINT);
-        domainAxis.setStandardTickUnits(NumberAxis.createIntegerTickUnits());
+        domainAxis.setStandardTickUnits(FiniteTickUnitSource.maybeWrap(NumberAxis.createIntegerTickUnits()));
         domainAxisFormat = new IndexedDateTimeNumberFormat(masterDataset, domainAxis);
         domainAxis.setNumberFormatOverride(domainAxisFormat);
 

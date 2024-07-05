@@ -33,6 +33,7 @@ import de.invesdwin.context.client.swing.jfreechart.panel.InteractiveChartPanel;
 import de.invesdwin.context.client.swing.jfreechart.panel.basis.CustomCombinedDomainXYPlot;
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.DisabledXYDataset;
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.IPlotSourceDataset;
+import de.invesdwin.context.jfreechart.FiniteTickUnitSource;
 import de.invesdwin.util.collections.delegate.NullSafeDelegateMap;
 import de.invesdwin.util.collections.fast.concurrent.SynchronizedFastIterableDelegateList;
 import de.invesdwin.util.lang.reflection.field.UnsafeField;
@@ -260,6 +261,9 @@ public final class XYPlots {
         rangeAxis.setLabelFont(DEFAULT_FONT);
         rangeAxis.setTickLabelFont(DEFAULT_FONT);
         rangeAxis.setTickLabelPaint(AXIS_LABEL_PAINT);
+        if (rangeAxis.getStandardTickUnits() != null) {
+            rangeAxis.setStandardTickUnits(FiniteTickUnitSource.maybeWrap(rangeAxis.getStandardTickUnits()));
+        }
         return rangeAxis;
     }
 
