@@ -15,6 +15,7 @@ import de.invesdwin.context.client.swing.api.binding.BindingGroup;
 import de.invesdwin.context.client.swing.api.binding.component.AComponentBinding;
 import de.invesdwin.context.client.swing.api.binding.component.IComponentBinding;
 import de.invesdwin.context.client.swing.api.guiservice.GuiService;
+import de.invesdwin.context.client.swing.api.guiservice.IGuiService;
 import de.invesdwin.context.client.swing.api.view.AView;
 import de.invesdwin.context.client.swing.util.SubmitAllViewsHelper;
 import de.invesdwin.norva.beanpath.impl.clazz.BeanClassContainer;
@@ -67,7 +68,13 @@ public class SubmitButtonBinding implements IComponentBinding {
                         if (!isModifiable()) {
                             return;
                         }
-                        super.process(view, component);
+                        final IGuiService guiService = GuiService.get();
+                        final boolean forcedBefore = guiService.setForced(true);
+                        try {
+                            super.process(view, component);
+                        } finally {
+                            guiService.setForced(forcedBefore);
+                        }
                     }
 
                     @Override

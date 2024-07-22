@@ -43,6 +43,7 @@ import jakarta.inject.Inject;
 public class GuiService implements IGuiService {
 
     private final Stack<DialogDockable> dialogs = new Stack<DialogDockable>();
+    private volatile boolean forced = false;
 
     @Inject
     private StatusBar statusBar;
@@ -340,6 +341,18 @@ public class GuiService implements IGuiService {
             i18n = defaultValue;
         }
         return i18n;
+    }
+
+    @Override
+    public boolean isForced() {
+        return forced;
+    }
+
+    @Override
+    public boolean setForced(final boolean forced) {
+        final boolean forcedBefore = this.forced;
+        this.forced = forced;
+        return forcedBefore;
     }
 
 }
