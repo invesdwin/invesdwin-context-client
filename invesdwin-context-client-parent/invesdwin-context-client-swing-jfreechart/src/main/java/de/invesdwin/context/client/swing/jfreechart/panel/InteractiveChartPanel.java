@@ -72,6 +72,8 @@ import de.invesdwin.util.time.range.TimeRange;
 @NotThreadSafe
 public class InteractiveChartPanel extends JPanel {
 
+    public static final JFreeChartThemeChanger DEFAULT_THEME = new JFreeChartThemeChanger();
+
     private static final Duration SCROLL_LOCK_DURATION = new Duration(250, FTimeUnit.MILLISECONDS);
 
     private final IndexedDateTimeOHLCDataset masterDataset;
@@ -202,7 +204,7 @@ public class InteractiveChartPanel extends JPanel {
      * Override to change the theme.
      */
     protected AJFreeChartVisitor newTheme() {
-        return new JFreeChartThemeChanger();
+        return DEFAULT_THEME;
     }
 
     public AJFreeChartVisitor getTheme() {
