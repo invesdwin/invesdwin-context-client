@@ -291,7 +291,7 @@ public enum SeriesRendererType implements IRendererType {
                 initialSettings.isPriceLineVisible(), initialSettings.isPriceLabelVisible());
         highlighted.setRenderer(newRenderer);
         dataset.setRangeAxisId(initialSettings.getRangeAxisId());
-        XYPlots.updateRangeAxes(dataset.getPlot());
+        XYPlots.updateRangeAxes(highlighted.getChartPanel().getTheme(), dataset.getPlot());
     }
 
     @Override
