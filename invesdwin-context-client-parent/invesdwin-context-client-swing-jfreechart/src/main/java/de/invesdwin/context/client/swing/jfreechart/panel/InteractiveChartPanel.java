@@ -46,7 +46,7 @@ import de.invesdwin.context.client.swing.jfreechart.plot.dataset.list.IChartPane
 import de.invesdwin.context.jfreechart.FiniteTickUnitSource;
 import de.invesdwin.context.jfreechart.dataset.TimeRangedOHLCDataItem;
 import de.invesdwin.context.jfreechart.visitor.AJFreeChartVisitor;
-import de.invesdwin.context.jfreechart.visitor.JFreeChartThemeChanger;
+import de.invesdwin.context.jfreechart.visitor.JFreeChartThemeSwing;
 import de.invesdwin.context.log.error.Err;
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.concurrent.Executors;
@@ -71,7 +71,7 @@ import de.invesdwin.util.time.range.TimeRange;
 @NotThreadSafe
 public class InteractiveChartPanel extends JPanel {
 
-    public static final JFreeChartThemeChanger DEFAULT_THEME = new JFreeChartThemeChanger();
+    public static final AJFreeChartVisitor DEFAULT_THEME = new JFreeChartThemeSwing();
 
     private static final Duration SCROLL_LOCK_DURATION = new Duration(250, FTimeUnit.MILLISECONDS);
 
