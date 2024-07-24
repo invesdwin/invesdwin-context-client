@@ -1,14 +1,9 @@
 package de.invesdwin.context.client.swing.jfreechart.panel.basis;
 
 import java.awt.Color;
-import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.geom.Point2D;
-import java.awt.geom.Rectangle2D;
 import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.atomic.AtomicLong;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
@@ -16,7 +11,6 @@ import org.jfree.chart.ChartRenderingInfo;
 import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.plot.CombinedDomainXYPlot;
 import org.jfree.chart.plot.PlotRenderingInfo;
-import org.jfree.chart.plot.PlotState;
 import org.jfree.chart.plot.XYPlot;
 
 import de.invesdwin.context.client.swing.jfreechart.panel.InteractiveChartPanel;
@@ -33,7 +27,6 @@ public class CustomCombinedDomainXYPlot extends CombinedDomainXYPlot {
     public static final int EMPTY_PLOT_WEIGHT = INITIAL_PLOT_WEIGHT / 5;
     private final InteractiveChartPanel chartPanel;
     private final XYPlot trashPlot;
-    private final ConcurrentMap<String, AtomicLong> labelOverlapCheckCounts = new ConcurrentHashMap<String, AtomicLong>();
 
     public CustomCombinedDomainXYPlot(final InteractiveChartPanel chartPanel) {
         super(chartPanel.getDomainAxis());
@@ -49,10 +42,6 @@ public class CustomCombinedDomainXYPlot extends CombinedDomainXYPlot {
 
     public XYPlot getTrashPlot() {
         return trashPlot;
-    }
-
-    public ConcurrentMap<String, AtomicLong> getLabelOverlapCheckCounts() {
-        return labelOverlapCheckCounts;
     }
 
     public int getSubplotIndex(final int mouseX, final int mouseY) {
@@ -136,10 +125,4 @@ public class CustomCombinedDomainXYPlot extends CombinedDomainXYPlot {
         }
     }
 
-    @Override
-    public void draw(final Graphics2D g2, final Rectangle2D area, final Point2D anchor, final PlotState parentState,
-            final PlotRenderingInfo info) {
-        super.draw(g2, area, anchor, parentState, info);
-        labelOverlapCheckCounts.clear();
-    }
 }

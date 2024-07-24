@@ -18,8 +18,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
-import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.atomic.AtomicLong;
 
 import javax.annotation.concurrent.NotThreadSafe;
 import javax.swing.JCheckBoxMenuItem;
@@ -689,10 +687,6 @@ public class PlotConfigurationHelper {
         if (rangeAxisId != null) {
             rangeAxisIds.add(rangeAxisId);
         }
-    }
-
-    public ConcurrentMap<String, AtomicLong> getLabelOverlapCheckCounts() {
-        return chartPanel.getCombinedPlot().getLabelOverlapCheckCounts();
     }
 
     public IPlotPopupMenuConfig getPlotPopupMenuConfig() {
