@@ -6,6 +6,8 @@ import java.awt.Paint;
 import java.awt.Stroke;
 import java.awt.geom.Rectangle2D;
 import java.util.NoSuchElementException;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.atomic.AtomicLong;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
@@ -41,14 +43,17 @@ import de.invesdwin.util.math.Doubles;
 public class CustomAnnotationPlottingRenderer extends AbstractXYItemRenderer implements ICustomRendererType {
 
     public static final Font FONT = XYPriceLineAnnotation.FONT;
+    private static final int OVERLAP_Y_ADD = FONT.getSize() + 2;
     private static final ValueAxis ABSOLUTE_AXIS = XYPlots.DRAWING_ABSOLUTE_AXIS;
 
+    private final PlotConfigurationHelper plotConfigurationHelper;
     private final AnnotationPlottingDataset dataset;
 
     public CustomAnnotationPlottingRenderer(final PlotConfigurationHelper plotConfigurationHelper,
             final AnnotationPlottingDataset dataset) {
         Renderers.disableAutoPopulate(this);
 
+        this.plotConfigurationHelper = plotConfigurationHelper;
         this.dataset = dataset;
         final PriceInitialSettings config = plotConfigurationHelper.getPriceInitialSettings();
         setDefaultStroke(config.getSeriesStroke());
@@ -220,7 +225,9 @@ public class CustomAnnotationPlottingRenderer extends AbstractXYItemRenderer imp
             final LabelAnnotationPlottingDataItem next) {
         final double x = domainAxis.valueToJava2D(next.getStartTimeLoadedIndex(), dataArea, domainEdge);
         final double price = next.getPrice();
-        final double y = rangeAxis.valueToJava2D(price, dataArea, rangeEdge);
+        double y = rangeAxis.valueToJava2D(price, dataArea, rangeEdge);
+        final double overlapYAdd = getOverlapYAdd(next);
+        y += overlapYAdd;
         final String label = next.getLabel().get();
         final TextAnchor textAnchor = next.getLabelTextAnchor();
 
@@ -231,4 +238,28 @@ public class CustomAnnotationPlottingRenderer extends AbstractXYItemRenderer imp
         priceAnnotation.draw(g2, plot, dataArea, ABSOLUTE_AXIS, ABSOLUTE_AXIS, rendererIndex, info);
     }
 
+    /**
+     * If there are several labels on the same bar we add/subtract (depending on the Position/Vertical-Align) we move
+     * every label up/down a couple of pixel's to prevent overlapping labels.
+     */
+    private double getOverlapYAdd(final LabelAnnotationPlottingDataItem next) {
+        final String overlapCheckKey = next.getLabelVerticalAlign().toString() + "_" + getPlot().toString() + "_"
+                + next.getTime();
+        getLabelOverlapCheckCounts().putIfAbsent(overlapCheckKey, new AtomicLong(0));
+        final long count = getLabelOverlapCheckCounts().get(overlapCheckKey).incrementAndGet();
+
+        if (count >= 2) {
+            final long yAdd = OVERLAP_Y_ADD * (count - 1);
+            if (LabelVerticalAlignType.Bottom.equals(next.getLabelVerticalAlign())) {
+                return yAdd;
+            } else {
+                return -yAdd;
+            }
+        }
+        return 0;
+    }
+
+    private ConcurrentMap<String, AtomicLong> getLabelOverlapCheckCounts() {
+        return plotConfigurationHelper.getLabelOverlapCheckCounts();
+    }
 }
