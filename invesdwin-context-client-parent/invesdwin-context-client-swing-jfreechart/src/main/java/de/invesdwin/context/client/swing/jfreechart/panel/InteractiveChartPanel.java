@@ -38,6 +38,7 @@ import de.invesdwin.context.client.swing.jfreechart.panel.helper.crosshair.PlotC
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.crosshair.PlotCrosshairHelper;
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.legend.PlotLegendHelper;
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.listener.IRangeListener;
+import de.invesdwin.context.client.swing.jfreechart.plot.CustomXYPlot;
 import de.invesdwin.context.client.swing.jfreechart.plot.IndexedDateTimeNumberFormat;
 import de.invesdwin.context.client.swing.jfreechart.plot.XYPlots;
 import de.invesdwin.context.client.swing.jfreechart.plot.annotation.XYNoteIconAnnotation;
@@ -769,7 +770,8 @@ public class InteractiveChartPanel extends JPanel {
 
     private void initMasterDatasetPlot() {
         if (isMasterDatasetPlottedInitially()) {
-            final XYPlot masterDatasetPlot = new XYPlot(masterDataset, domainAxis, XYPlots.newRangeAxis(0, false, true),
+            final XYPlot masterDatasetPlot = new CustomXYPlot(masterDataset, domainAxis,
+                    XYPlots.newRangeAxis(0, false, true),
                     plotConfigurationHelper.getPriceInitialSettings().getPriceRenderer());
             XYPlots.makeThreadSafe(masterDatasetPlot);
             masterDatasetPlot.setRangeAxisLocation(AxisLocation.BOTTOM_OR_RIGHT);
@@ -792,7 +794,7 @@ public class InteractiveChartPanel extends JPanel {
 
     public XYPlot newPlot() {
         final NumberAxis rangeAxis = XYPlots.newRangeAxis(0, false, true);
-        final XYPlot newPlot = new XYPlot(null, null, rangeAxis, null);
+        final XYPlot newPlot = new CustomXYPlot(null, null, rangeAxis, null);
         XYPlots.makeThreadSafe(newPlot);
         newPlot.setRangeAxisLocation(AxisLocation.BOTTOM_OR_RIGHT);
         plotLegendHelper.addLegendAnnotation(newPlot);
