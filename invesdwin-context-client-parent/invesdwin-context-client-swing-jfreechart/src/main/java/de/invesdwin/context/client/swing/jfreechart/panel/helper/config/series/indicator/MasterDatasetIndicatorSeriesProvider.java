@@ -79,7 +79,7 @@ public class MasterDatasetIndicatorSeriesProvider implements IIndicatorSeriesPro
         plot.setDataset(datasetIndex, masterDataset);
         plot.setRenderer(datasetIndex,
                 chartPanel.getPlotConfigurationHelper().getPriceInitialSettings().getPriceRenderer());
-        XYPlots.updateRangeAxes(plot);
+        XYPlots.updateRangeAxes(chartPanel.getTheme(), plot);
         masterDataset.setPlot(plot);
 
         if (!chartPanel.getCombinedPlot().isSubplotVisible(plot)) {

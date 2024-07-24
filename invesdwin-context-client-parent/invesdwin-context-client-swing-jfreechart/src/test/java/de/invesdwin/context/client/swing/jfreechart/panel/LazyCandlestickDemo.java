@@ -248,7 +248,7 @@ public class LazyCandlestickDemo extends JFrame {
                     priceLineVisible, priceLabelVisible);
             plot.setDataset(datasetIndex, dataset);
             plot.setRenderer(datasetIndex, renderer);
-            XYPlots.updateRangeAxes(plot);
+            XYPlots.updateRangeAxes(chartPanel.getTheme(), plot);
             chartPanel.update();
 
             if (!chartPanel.getCombinedPlot().isSubplotVisible(plot)) {
@@ -379,7 +379,7 @@ public class LazyCandlestickDemo extends JFrame {
                     priceLineVisible, priceLabelVisible);
             plot.setDataset(datasetIndex, dataset);
             plot.setRenderer(datasetIndex, renderer);
-            XYPlots.updateRangeAxes(plot);
+            XYPlots.updateRangeAxes(chartPanel.getTheme(), plot);
             chartPanel.update();
 
             if (!chartPanel.getCombinedPlot().isSubplotVisible(plot)) {

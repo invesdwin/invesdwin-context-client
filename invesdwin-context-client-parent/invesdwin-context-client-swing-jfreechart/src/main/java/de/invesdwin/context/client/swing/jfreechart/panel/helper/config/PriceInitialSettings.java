@@ -311,7 +311,7 @@ public class PriceInitialSettings {
         final IPlotSourceDataset dataset = renderer.getDataset();
         dataset.setRangeAxisId(rangeAxisId);
         if (dataset.getPlot() != null) {
-            XYPlots.updateRangeAxes(dataset.getPlot());
+            XYPlots.updateRangeAxes(plotConfigurationHelper.getChartPanel().getTheme(), dataset.getPlot());
         }
     }
 

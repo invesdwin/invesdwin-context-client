@@ -32,6 +32,10 @@ public class HighlightedLegendInfo {
         this.datasetIndex = datasetIndex;
     }
 
+    public InteractiveChartPanel getChartPanel() {
+        return chartPanel;
+    }
+
     public int getSubplotIndex() {
         return subplotIndex;
     }
@@ -112,7 +116,7 @@ public class HighlightedLegendInfo {
     }
 
     private void afterRemoveSeries() {
-        XYPlots.updateRangeAxes(plot);
+        XYPlots.updateRangeAxes(chartPanel.getTheme(), plot);
         chartPanel.getPlotLegendHelper().removeEmptyPlotsAndResetTrashPlot();
     }
 
