@@ -18,11 +18,12 @@ import de.invesdwin.context.client.swing.jfreechart.plot.renderer.custom.annotat
 @NotThreadSafe
 public class CustomXYPlot extends XYPlot {
 
-    private final AnnotationRenderingInfo annotationRenderingInfo = new AnnotationRenderingInfo();
+    private final AnnotationRenderingInfo annotationRenderingInfo;
 
     public CustomXYPlot(final XYDataset dataset, final ValueAxis domainAxis, final ValueAxis rangeAxis,
             final XYItemRenderer renderer) {
         super(dataset, domainAxis, rangeAxis, renderer);
+        this.annotationRenderingInfo = new AnnotationRenderingInfo();
     }
 
     @Override

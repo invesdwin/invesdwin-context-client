@@ -531,4 +531,12 @@ public final class XYPlots {
     private static <K, V> Map<K, V> newConcurrentNavigableMap(final Map<K, V> map) {
         return new ConcurrentSkipListMap<K, V>(map);
     }
+
+    public static ValueAxis getRangeAxisForDataset(final XYPlot plot, final XYDataset dataset) {
+        final int datasetIndex = plot.indexOf(dataset);
+        if (datasetIndex < 0) {
+            return null;
+        }
+        return plot.getRangeAxisForDataset(datasetIndex);
+    }
 }

@@ -294,4 +294,5 @@ public final class Axises {
         final double upper = originalRange.getUpperBound() + adj;
         return new Range(lower, upper);
     }
+
 }

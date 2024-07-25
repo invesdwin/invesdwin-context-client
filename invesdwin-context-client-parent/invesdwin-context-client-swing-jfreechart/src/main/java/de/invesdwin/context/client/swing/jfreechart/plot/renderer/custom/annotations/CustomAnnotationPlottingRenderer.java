@@ -3,6 +3,7 @@ package de.invesdwin.context.client.swing.jfreechart.plot.renderer.custom.annota
 import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.Paint;
+import java.awt.Shape;
 import java.awt.Stroke;
 import java.awt.geom.Rectangle2D;
 import java.util.NoSuchElementException;
@@ -25,6 +26,7 @@ import org.jfree.data.xy.XYDataset;
 
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.PlotConfigurationHelper;
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.PriceInitialSettings;
+import de.invesdwin.context.client.swing.jfreechart.plot.Annotations;
 import de.invesdwin.context.client.swing.jfreechart.plot.CustomXYPlot;
 import de.invesdwin.context.client.swing.jfreechart.plot.XYPlots;
 import de.invesdwin.context.client.swing.jfreechart.plot.annotation.priceline.XYPriceLineAnnotation;
@@ -42,7 +44,6 @@ import de.invesdwin.util.math.Doubles;
 public class CustomAnnotationPlottingRenderer extends AbstractXYItemRenderer implements ICustomRendererType {
 
     public static final Font FONT = XYPriceLineAnnotation.FONT;
-    private static final int OVERLAP_Y_ADD = FONT.getSize() + 2;
     private static final ValueAxis ABSOLUTE_AXIS = XYPlots.DRAWING_ABSOLUTE_AXIS;
 
     private final AnnotationPlottingDataset dataset;
@@ -101,7 +102,7 @@ public class CustomAnnotationPlottingRenderer extends AbstractXYItemRenderer imp
         if (item == lastItem) {
             final AnnotationPlottingDataset cDataset = (AnnotationPlottingDataset) dataset;
             final int firstItem = state.getFirstItemIndex();
-            final int rendererIndex = getPlot().getIndexOf(this);
+            final int rendererIndex = plot.getIndexOf(this);
             final PlotOrientation orientation = plot.getOrientation();
             final RectangleEdge domainEdge = Plot.resolveDomainAxisLocation(plot.getDomainAxisLocation(), orientation);
             final RectangleEdge rangeEdge = Plot.resolveRangeAxisLocation(plot.getRangeAxisLocation(), orientation);
@@ -160,13 +161,18 @@ public class CustomAnnotationPlottingRenderer extends AbstractXYItemRenderer imp
         final String label = next.getLabel().get();
         if (Strings.isNotBlank(label)) {
             final TextAnchor textAnchor = next.getLabelTextAnchor();
+
             final double labelX = getLineLabelX(next, x1, x2);
             final double labelY = getLineLabelY(next, y1, y2);
-            final XYTextAnnotation priceAnnotation = new XYTextAnnotation(label, labelX, labelY);
-            priceAnnotation.setPaint(color);
-            priceAnnotation.setFont(FONT);
-            priceAnnotation.setTextAnchor(textAnchor);
-            priceAnnotation.draw(g2, plot, dataArea, ABSOLUTE_AXIS, ABSOLUTE_AXIS, rendererIndex, info);
+
+            final XYTextAnnotation labelAnnotation = new XYTextAnnotation(label, labelX, labelY);
+            labelAnnotation.setPaint(color);
+            labelAnnotation.setFont(FONT);
+            labelAnnotation.setTextAnchor(textAnchor);
+            final Shape shape = Annotations.calculateShape(g2, domainAxis, dataArea, domainEdge, rangeEdge, rangeAxis,
+                    labelAnnotation);
+            applyCollisionPrevention(plot, next.getLabelVerticalAlign(), labelAnnotation, shape);
+            labelAnnotation.draw(g2, plot, dataArea, ABSOLUTE_AXIS, ABSOLUTE_AXIS, rendererIndex, info);
         }
     }
 
@@ -222,9 +228,7 @@ public class CustomAnnotationPlottingRenderer extends AbstractXYItemRenderer imp
             final LabelAnnotationPlottingDataItem next) {
         final double x = domainAxis.valueToJava2D(next.getStartTimeLoadedIndex(), dataArea, domainEdge);
         final double price = next.getPrice();
-        double y = rangeAxis.valueToJava2D(price, dataArea, rangeEdge);
-        final int overlapYAdd = getOverlapYAdd(plot, next);
-        y += overlapYAdd;
+        final double y = rangeAxis.valueToJava2D(price, dataArea, rangeEdge);
         final String label = next.getLabel().get();
         final TextAnchor textAnchor = next.getLabelTextAnchor();
 
@@ -232,6 +236,9 @@ public class CustomAnnotationPlottingRenderer extends AbstractXYItemRenderer imp
         priceAnnotation.setPaint(color);
         priceAnnotation.setFont(FONT);
         priceAnnotation.setTextAnchor(textAnchor);
+        final Shape shape = Annotations.calculateShape(g2, domainAxis, dataArea, domainEdge, rangeEdge, rangeAxis,
+                priceAnnotation);
+        applyCollisionPrevention(plot, next.getLabelVerticalAlign(), priceAnnotation, shape);
         priceAnnotation.draw(g2, plot, dataArea, ABSOLUTE_AXIS, ABSOLUTE_AXIS, rendererIndex, info);
     }
 
@@ -239,24 +246,14 @@ public class CustomAnnotationPlottingRenderer extends AbstractXYItemRenderer imp
      * If there are several labels on the same bar we add/subtract (depending on the Position/Vertical-Align) we move
      * every label up/down a couple of pixel's to prevent overlapping labels.
      */
-    private int getOverlapYAdd(final XYPlot plot, final LabelAnnotationPlottingDataItem next) {
+    private void applyCollisionPrevention(final XYPlot plot, final LabelVerticalAlignType verticalAlign,
+            final XYTextAnnotation annotation, final Shape annotationShape) {
         if (!(plot instanceof CustomXYPlot)) {
-            return 0;
+            return;
         }
         final CustomXYPlot cPlot = (CustomXYPlot) plot;
         final AnnotationRenderingInfo info = cPlot.getAnnotationRenderingInfo();
-        final int prevCount = info.getAndIncrementLabelOverlap(next.getLabelVerticalAlign(),
-                next.getStartTimeLoadedIndex());
-
-        if (prevCount > 0) {
-            final int yAdd = OVERLAP_Y_ADD * prevCount;
-            if (LabelVerticalAlignType.Bottom.equals(next.getLabelVerticalAlign())) {
-                return yAdd;
-            } else {
-                return -yAdd;
-            }
-        }
-        return 0;
+        info.applyCollisionPrevention(verticalAlign, annotation, annotationShape);
     }
 
 }
