@@ -80,19 +80,13 @@ public class AnnotationRenderingInfo {
             final ValueAxis rangeAxis, final LabelVerticalAlignType verticalAlign, final XYTextAnnotation annotation) {
 
         final double domainLength = domainAxis.getRange().getLength();
-        System.out.println(domainLength);
         if (domainLength > 1500) {
-            System.out.println("skip");
             return;
         }
 
         final Shape thisShape = Annotations.calculateShape(g2, plot, domainAxis, dataArea, domainEdge, rangeEdge,
                 rangeAxis, annotation);
         final Rectangle2D.Double thisBounds = (Rectangle2D.Double) thisShape.getBounds2D();
-
-        if (drawnAnnotationBounds.size() == 3) {
-            System.out.println("blaaa");
-        }
 
         thisBounds.x = domainAxis.java2DToValue(thisBounds.x, dataArea, domainEdge);
         thisBounds.y = rangeAxis.java2DToValue(thisBounds.y, dataArea, rangeEdge);
@@ -108,7 +102,6 @@ public class AnnotationRenderingInfo {
                 if (itemDistance <= 3 && otherBounds.intersects(thisBounds)) {
                     final double heightMultiplier = getHeightMultiplier(g2, plot, domainAxis, dataArea, domainEdge,
                             rangeEdge, rangeAxis, verticalAlign, annotation);
-                    System.out.println(i + ": " + heightMultiplier + " " + verticalAlign);
                     //draw to the bottom
                     final double updatedY = otherBounds.getY() + otherBounds.getHeight() * heightMultiplier;
                     thisBounds.y = updatedY;
@@ -122,7 +115,6 @@ public class AnnotationRenderingInfo {
                 if (itemDistance <= 3 && otherBounds.intersects(thisBounds)) {
                     final double heightMultiplier = getHeightMultiplier(g2, plot, domainAxis, dataArea, domainEdge,
                             rangeEdge, rangeAxis, verticalAlign, annotation);
-                    System.out.println(i + ": " + heightMultiplier + " " + verticalAlign);
                     //draw upwards
                     final double updatedY = otherBounds.getY() - thisBounds.getHeight() * heightMultiplier;
                     thisBounds.y = updatedY;
