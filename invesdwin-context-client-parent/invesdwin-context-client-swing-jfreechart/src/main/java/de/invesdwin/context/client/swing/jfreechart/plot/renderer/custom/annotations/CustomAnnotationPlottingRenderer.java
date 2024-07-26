@@ -3,7 +3,6 @@ package de.invesdwin.context.client.swing.jfreechart.plot.renderer.custom.annota
 import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.Paint;
-import java.awt.Shape;
 import java.awt.Stroke;
 import java.awt.geom.Rectangle2D;
 import java.util.NoSuchElementException;
@@ -26,7 +25,6 @@ import org.jfree.data.xy.XYDataset;
 
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.PlotConfigurationHelper;
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.PriceInitialSettings;
-import de.invesdwin.context.client.swing.jfreechart.plot.Annotations;
 import de.invesdwin.context.client.swing.jfreechart.plot.CustomXYPlot;
 import de.invesdwin.context.client.swing.jfreechart.plot.XYPlots;
 import de.invesdwin.context.client.swing.jfreechart.plot.annotation.priceline.XYPriceLineAnnotation;
@@ -169,9 +167,9 @@ public class CustomAnnotationPlottingRenderer extends AbstractXYItemRenderer imp
             labelAnnotation.setPaint(color);
             labelAnnotation.setFont(FONT);
             labelAnnotation.setTextAnchor(textAnchor);
-            final Shape shape = Annotations.calculateShape(g2, domainAxis, dataArea, domainEdge, rangeEdge, rangeAxis,
-                    labelAnnotation);
-            applyCollisionPrevention(plot, next.getLabelVerticalAlign(), labelAnnotation, shape);
+
+            applyCollisionPrevention(g2, plot, domainAxis, dataArea, domainEdge, rangeEdge, rangeAxis,
+                    next.getLabelVerticalAlign(), labelAnnotation);
             labelAnnotation.draw(g2, plot, dataArea, ABSOLUTE_AXIS, ABSOLUTE_AXIS, rendererIndex, info);
         }
     }
@@ -232,28 +230,31 @@ public class CustomAnnotationPlottingRenderer extends AbstractXYItemRenderer imp
         final String label = next.getLabel().get();
         final TextAnchor textAnchor = next.getLabelTextAnchor();
 
-        final XYTextAnnotation priceAnnotation = new XYTextAnnotation(label, x, y);
-        priceAnnotation.setPaint(color);
-        priceAnnotation.setFont(FONT);
-        priceAnnotation.setTextAnchor(textAnchor);
-        final Shape shape = Annotations.calculateShape(g2, domainAxis, dataArea, domainEdge, rangeEdge, rangeAxis,
-                priceAnnotation);
-        applyCollisionPrevention(plot, next.getLabelVerticalAlign(), priceAnnotation, shape);
-        priceAnnotation.draw(g2, plot, dataArea, ABSOLUTE_AXIS, ABSOLUTE_AXIS, rendererIndex, info);
+        final XYTextAnnotation labelAnnotation = new XYTextAnnotation(label, x, y);
+        labelAnnotation.setPaint(color);
+        labelAnnotation.setFont(FONT);
+        labelAnnotation.setTextAnchor(textAnchor);
+
+        applyCollisionPrevention(g2, plot, domainAxis, dataArea, domainEdge, rangeEdge, rangeAxis,
+                next.getLabelVerticalAlign(), labelAnnotation);
+        labelAnnotation.draw(g2, plot, dataArea, ABSOLUTE_AXIS, ABSOLUTE_AXIS, rendererIndex, info);
     }
 
     /**
      * If there are several labels on the same bar we add/subtract (depending on the Position/Vertical-Align) we move
      * every label up/down a couple of pixel's to prevent overlapping labels.
      */
-    private void applyCollisionPrevention(final XYPlot plot, final LabelVerticalAlignType verticalAlign,
-            final XYTextAnnotation annotation, final Shape annotationShape) {
+    private void applyCollisionPrevention(final Graphics2D g2, final XYPlot plot, final ValueAxis domainAxis,
+            final Rectangle2D dataArea, final RectangleEdge domainEdge, final RectangleEdge rangeEdge,
+            final ValueAxis rangeAxis, final LabelVerticalAlignType verticalAlign,
+            final XYTextAnnotation priceAnnotation) {
+
         if (!(plot instanceof CustomXYPlot)) {
             return;
         }
         final CustomXYPlot cPlot = (CustomXYPlot) plot;
         final AnnotationRenderingInfo info = cPlot.getAnnotationRenderingInfo();
-        info.applyCollisionPrevention(verticalAlign, annotation, annotationShape);
+        info.applyCollisionPrevention(g2, plot, domainAxis, dataArea, domainEdge, rangeEdge, rangeAxis, verticalAlign,
+                priceAnnotation);
     }
-
 }
