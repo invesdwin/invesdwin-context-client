@@ -12,6 +12,7 @@ import org.jfree.chart.plot.Plot;
 import org.jfree.chart.plot.PlotRenderingInfo;
 import org.jfree.chart.plot.ValueAxisPlot;
 import org.jfree.chart.plot.XYPlot;
+import org.jfree.chart.ui.RectangleEdge;
 import org.jfree.data.Range;
 import org.jfree.data.RangeType;
 
@@ -293,6 +294,13 @@ public final class Axises {
         final double lower = originalRange.getLowerBound() + adj;
         final double upper = originalRange.getUpperBound() + adj;
         return new Range(lower, upper);
+    }
+
+    public static double java2DToLength(final ValueAxis axis, final double length, final Rectangle2D area,
+            final RectangleEdge edge) {
+        final double zero = axis.java2DToValue(0.0, area, edge);
+        final double l = axis.java2DToValue(length, area, edge);
+        return Math.abs(l - zero);
     }
 
 }
