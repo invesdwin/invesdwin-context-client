@@ -34,14 +34,14 @@ public class AnnotationRenderingInfo {
             return Doubles.compare(o1.getMaxY(), o2.getMaxY());
         }
     };
-    private final BisectSortedList<Rectangle2D> drawnBoundsMinY = new BisectSortedList<>(MIN_Y_COMPARATOR);
-    private final BisectSortedList<Rectangle2D> drawnBoundsMaxY = new BisectSortedList<>(MAX_Y_COMPARATOR);
+    private final BisectSortedList<Rectangle2D> drawnBoundsMinYBottom = new BisectSortedList<>(MIN_Y_COMPARATOR);
+    private final BisectSortedList<Rectangle2D> drawnBoundsMaxYTop = new BisectSortedList<>(MAX_Y_COMPARATOR);
     private double heightMultiplierCached = Double.NaN;
 
     public void beforePlotDraw() {
-        if (!drawnBoundsMinY.isEmpty()) {
-            drawnBoundsMinY.clear();
-            drawnBoundsMaxY.clear();
+        if (!drawnBoundsMinYBottom.isEmpty() || !drawnBoundsMinYBottom.isEmpty()) {
+            drawnBoundsMinYBottom.clear();
+            drawnBoundsMaxYTop.clear();
             heightMultiplierCached = Double.NaN;
         }
     }
@@ -87,7 +87,10 @@ public class AnnotationRenderingInfo {
         final double thisInitialY = thisBounds.y;
         final boolean bottom = LabelVerticalAlignType.Bottom == verticalAlign;
         if (bottom) {
-            final BisectSortedList<Rectangle2D> drawnBounds = drawnBoundsMinY;
+            if (drawnBoundsMinYBottom.isEmpty() && !drawnBoundsMaxYTop.isEmpty()) {
+                drawnBoundsMinYBottom.addAll(drawnBoundsMaxYTop);
+            }
+            final BisectSortedList<Rectangle2D> drawnBounds = drawnBoundsMinYBottom;
             double stopMaxY = thisBounds.getMaxY();
             final int start = Integers.max(drawnBounds.bisect(thisBounds) - 1, 0);
             for (int i = start; i < drawnBounds.size(); i++) {
@@ -106,7 +109,10 @@ public class AnnotationRenderingInfo {
                 }
             }
         } else {
-            final BisectSortedList<Rectangle2D> drawnBounds = drawnBoundsMaxY;
+            if (drawnBoundsMaxYTop.isEmpty() && !drawnBoundsMinYBottom.isEmpty()) {
+                drawnBoundsMaxYTop.addAll(drawnBoundsMinYBottom);
+            }
+            final BisectSortedList<Rectangle2D> drawnBounds = drawnBoundsMaxYTop;
             double stopMinY = thisBounds.getMinY();
             final int start = Integers.min(drawnBounds.bisect(thisBounds) + 1, drawnBounds.size() - 1);
             for (int i = start; i >= 0; i--) {
@@ -130,8 +136,17 @@ public class AnnotationRenderingInfo {
             final double yDifference = thisBounds.y - thisInitialY;
             annotation.setY(annotation.getY() + yDifference);
         }
-        drawnBoundsMinY.add(thisBounds);
-        drawnBoundsMaxY.add(thisBounds);
+        if (bottom) {
+            drawnBoundsMinYBottom.add(thisBounds);
+            if (!drawnBoundsMaxYTop.isEmpty()) {
+                drawnBoundsMaxYTop.add(thisBounds);
+            }
+        } else {
+            drawnBoundsMaxYTop.add(thisBounds);
+            if (!drawnBoundsMinYBottom.isEmpty()) {
+                drawnBoundsMinYBottom.add(thisBounds);
+            }
+        }
     }
 
 }
