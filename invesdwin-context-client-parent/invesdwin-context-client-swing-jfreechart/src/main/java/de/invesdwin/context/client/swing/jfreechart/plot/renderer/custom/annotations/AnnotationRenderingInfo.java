@@ -18,10 +18,12 @@ import de.invesdwin.util.lang.comparator.AComparator;
 import de.invesdwin.util.lang.comparator.IComparator;
 import de.invesdwin.util.math.Doubles;
 import de.invesdwin.util.math.Integers;
+import de.invesdwin.util.time.date.BisectDuplicateKeyHandling;
 
 @NotThreadSafe
 public class AnnotationRenderingInfo {
 
+    private static final int MAX_X_DISTANCE = 3;
     private static final IComparator<Rectangle2D> MIN_Y_COMPARATOR = new AComparator<Rectangle2D>() {
         @Override
         public int compareTypedNotNullSafe(final Rectangle2D o1, final Rectangle2D o2) {
@@ -92,11 +94,11 @@ public class AnnotationRenderingInfo {
             }
             final BisectSortedList<Rectangle2D> drawnBounds = drawnBoundsMinYBottom;
             double stopMaxY = thisBounds.getMaxY();
-            final int start = Integers.max(drawnBounds.bisect(thisBounds) - 1, 0);
+            final int start = Integers.max(drawnBounds.bisect(thisBounds, BisectDuplicateKeyHandling.LOWEST) - 1, 0);
             for (int i = start; i < drawnBounds.size(); i++) {
                 final Rectangle2D otherBounds = drawnBounds.get(i);
                 final double itemDistance = Doubles.abs(otherBounds.getCenterX() - thisBounds.getCenterX());
-                if (itemDistance <= 3 && otherBounds.intersects(thisBounds)) {
+                if (itemDistance <= MAX_X_DISTANCE && otherBounds.intersects(thisBounds)) {
                     final double heightMultiplier = getHeightMultiplier(g2, plot, domainAxis, dataArea, domainEdge,
                             rangeEdge, rangeAxis, verticalAlign, annotation);
                     //draw to the bottom
@@ -114,11 +116,12 @@ public class AnnotationRenderingInfo {
             }
             final BisectSortedList<Rectangle2D> drawnBounds = drawnBoundsMaxYTop;
             double stopMinY = thisBounds.getMinY();
-            final int start = Integers.min(drawnBounds.bisect(thisBounds) + 1, drawnBounds.size() - 1);
+            final int start = Integers.min(drawnBounds.bisect(thisBounds, BisectDuplicateKeyHandling.HIGHEST) + 1,
+                    drawnBounds.size() - 1);
             for (int i = start; i >= 0; i--) {
                 final Rectangle2D otherBounds = drawnBounds.get(i);
                 final double itemDistance = Doubles.abs(otherBounds.getCenterX() - thisBounds.getCenterX());
-                if (itemDistance <= 3 && otherBounds.intersects(thisBounds)) {
+                if (itemDistance <= MAX_X_DISTANCE && otherBounds.intersects(thisBounds)) {
                     final double heightMultiplier = getHeightMultiplier(g2, plot, domainAxis, dataArea, domainEdge,
                             rangeEdge, rangeAxis, verticalAlign, annotation);
                     //draw upwards
