@@ -38,10 +38,10 @@ public class CustomVolumeBarRenderer extends FastXYBarRenderer implements IUpDow
         this.candlestickRenderer = (FastCandlestickRenderer) config.getPriceRenderer(PriceRendererType.Candlestick);
 
         setBarPainter(new StandardXYBarPainter());
-        setShadowVisible(false);
         setDefaultPaint(config.getSeriesColor());
         setDefaultStroke(config.getSeriesStroke());
         setDrawBarOutline(false);
+        setShadowVisible(false);
 
         this.upColor = Colors.setTransparency(config.getUpColor(), DEFAULT_VOLUME_TRANSPARENCY);
         this.downColor = Colors.setTransparency(config.getDownColor(), DEFAULT_VOLUME_TRANSPARENCY);

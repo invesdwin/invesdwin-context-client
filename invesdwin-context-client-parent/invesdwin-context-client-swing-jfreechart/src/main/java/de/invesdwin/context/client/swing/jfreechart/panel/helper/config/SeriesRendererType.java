@@ -103,11 +103,11 @@ public enum SeriesRendererType implements IRendererType {
                 final boolean priceLineVisible, final boolean priceLabelVisible) {
             final FastXYBarRenderer renderer = new FastXYBarRenderer(dataset);
             renderer.setBarPainter(new StandardXYBarPainter());
-            renderer.setShadowVisible(false);
             renderer.setDefaultPaint(color);
             renderer.setDefaultFillPaint(color);
             renderer.setDefaultStroke(lineStyleType.getStroke(lineWidthType));
             renderer.setDrawBarOutline(false);
+            renderer.setShadowVisible(false);
             renderer.setPriceLineVisible(priceLineVisible);
             renderer.setPriceLabelVisible(priceLabelVisible);
             return renderer;
@@ -130,11 +130,11 @@ public enum SeriesRendererType implements IRendererType {
                 final boolean priceLineVisible, final boolean priceLabelVisible) {
             final FastXYBarRenderer renderer = new FastXYBarRenderer(dataset, HISTOGRAM_MARGIN);
             renderer.setBarPainter(new StandardXYBarPainter());
-            renderer.setShadowVisible(false);
             renderer.setDefaultPaint(color);
             renderer.setDefaultFillPaint(color);
             renderer.setDefaultStroke(lineStyleType.getStroke(lineWidthType));
             renderer.setDrawBarOutline(false);
+            renderer.setShadowVisible(false);
             renderer.setPriceLineVisible(priceLineVisible);
             renderer.setPriceLabelVisible(priceLabelVisible);
             return renderer;
