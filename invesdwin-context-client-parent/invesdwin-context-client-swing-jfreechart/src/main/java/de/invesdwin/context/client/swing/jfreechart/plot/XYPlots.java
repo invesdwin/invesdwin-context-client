@@ -34,6 +34,7 @@ import de.invesdwin.context.client.swing.jfreechart.panel.basis.CustomCombinedDo
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.DisabledXYDataset;
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.IPlotSourceDataset;
 import de.invesdwin.context.jfreechart.FiniteTickUnitSource;
+import de.invesdwin.context.jfreechart.axis.AxisType;
 import de.invesdwin.context.jfreechart.visitor.AJFreeChartVisitor;
 import de.invesdwin.util.collections.delegate.NullSafeDelegateMap;
 import de.invesdwin.util.collections.fast.concurrent.SynchronizedFastIterableDelegateList;
@@ -267,7 +268,7 @@ public final class XYPlots {
             rangeAxis.setStandardTickUnits(FiniteTickUnitSource.maybeWrap(rangeAxis.getStandardTickUnits()));
         }
         if (theme != null) {
-            theme.processRangeAxis(rangeAxis);
+            theme.processAxis(rangeAxis, AxisType.RANGE_AXIS);
         }
         return rangeAxis;
     }

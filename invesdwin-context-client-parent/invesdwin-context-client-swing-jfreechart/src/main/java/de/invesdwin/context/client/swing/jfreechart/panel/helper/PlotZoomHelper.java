@@ -30,12 +30,12 @@ import org.jfree.data.Range;
 import de.invesdwin.context.client.swing.jfreechart.panel.InteractiveChartPanel;
 import de.invesdwin.context.client.swing.jfreechart.panel.basis.CustomCombinedDomainXYPlot;
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.listener.IRangeListener;
-import de.invesdwin.context.client.swing.jfreechart.plot.Axis;
 import de.invesdwin.context.client.swing.jfreechart.plot.Axises;
 import de.invesdwin.context.client.swing.jfreechart.plot.annotation.priceline.XYPriceLineAnnotation;
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.IPlotSourceDataset;
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.IndexedDateTimeOHLCDataset;
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.list.IChartPanelAwareDatasetList;
+import de.invesdwin.context.jfreechart.axis.AxisType;
 import de.invesdwin.context.jfreechart.dataset.TimeRangedOHLCDataItem;
 import de.invesdwin.util.collections.factory.ILockCollectionFactory;
 import de.invesdwin.util.collections.fast.IFastIterableSet;
@@ -416,12 +416,12 @@ public class PlotZoomHelper {
 
     public void mousePressed(final MouseEvent e) {
         final Point2D point2D = this.chartPanel.getChartPanel().translateScreenToJava2D(e.getPoint());
-        final Axis axis = Axises.getAxisForMousePosition(chartPanel, point2D);
+        final AxisType axis = Axises.getAxisForMousePosition(chartPanel, point2D);
         if (axis != null && MouseEvent.BUTTON1 == e.getButton()) {
             axisDragInfo = Axises.createAxisDragInfo(chartPanel, point2D, axis);
         }
 
-        if (axis != null && Axis.RANGE_AXIS.equals(axis)) {
+        if (axis != null && AxisType.RANGE_AXIS.equals(axis)) {
             final ValueAxis rangeAxis = axisDragInfo != null ? axisDragInfo.getValueAxis()
                     : Axises.getRangeAxis(chartPanel, point2D);
             maybeHandleRangeAxisReset(e, rangeAxis);
@@ -438,7 +438,7 @@ public class PlotZoomHelper {
             final Range newAxisRange = calculateNewAxisRange(point2D);
             if (newAxisRange != null) {
                 axisDragInfo.getValueAxis().setRange(newAxisRange);
-                if (Axis.RANGE_AXIS.equals(axisDragInfo.getAxis())) {
+                if (AxisType.RANGE_AXIS.equals(axisDragInfo.getAxis())) {
                     axisDragInfo.getValueAxis().setAutoRange(false);
                     ((XYPlot) axisDragInfo.getValueAxis().getPlot()).setRangePannable(true);
                 }
@@ -449,10 +449,10 @@ public class PlotZoomHelper {
     public boolean mouseMoved(final MouseEvent e) {
         final Point2D point2D = this.chartPanel.getChartPanel().translateScreenToJava2D(e.getPoint());
 
-        final Axis axis = Axises.getAxisForMousePosition(chartPanel, point2D);
+        final AxisType axis = Axises.getAxisForMousePosition(chartPanel, point2D);
         if (axis != null) {
             prevCursor = chartPanel.getCursor();
-            chartPanel.setCursor(Axis.DOMAIN_AXIS.equals(axis) ? HORIZONTAL_RESIZE_CURSOR : VERTICAL_RESIZE_CURSOR);
+            chartPanel.setCursor(AxisType.DOMAIN_AXIS.equals(axis) ? HORIZONTAL_RESIZE_CURSOR : VERTICAL_RESIZE_CURSOR);
             return true;
         } else if (prevCursor != null) {
             chartPanel.setCursor(prevCursor);
@@ -462,10 +462,10 @@ public class PlotZoomHelper {
     }
 
     private Range calculateNewAxisRange(final Point2D point2D) {
-        final double initialDragPoint = Axis.DOMAIN_AXIS.equals(axisDragInfo.getAxis())
+        final double initialDragPoint = AxisType.DOMAIN_AXIS.equals(axisDragInfo.getAxis())
                 ? axisDragInfo.getInitialDragPoint().getX()
                 : axisDragInfo.getInitialDragPoint().getY();
-        final double newDragPoint = Axis.DOMAIN_AXIS.equals(axisDragInfo.getAxis()) ? point2D.getX() : point2D.getY();
+        final double newDragPoint = AxisType.DOMAIN_AXIS.equals(axisDragInfo.getAxis()) ? point2D.getX() : point2D.getY();
         final double axisRangeChange = initialDragPoint - newDragPoint;
 
         final ValueAxis valueAxis = axisDragInfo.getValueAxis();
@@ -473,7 +473,7 @@ public class PlotZoomHelper {
         final IPlotSourceDataset dataset = (IPlotSourceDataset) xyPlot.getDataset();
         final IndexedDateTimeOHLCDataset masterDataset = dataset.getMasterDataset();
         final Range range;
-        if (Axis.DOMAIN_AXIS.equals(axisDragInfo.getAxis())) {
+        if (AxisType.DOMAIN_AXIS.equals(axisDragInfo.getAxis())) {
             // When we zoom on the domain axis it can happen that we reload/expand the dataset.. in which case the initialRange will point at invalid dates. When we zoom on the range-axis this won't ever be needed.
             final int lowerBoundIndex = masterDataset.getDateTimeStartAsItemIndex(0,
                     axisDragInfo.getInitialAxisLowerBoundFDate());
@@ -490,7 +490,7 @@ public class PlotZoomHelper {
 
         //Check new mouse location in reference to the initialDragStartMouse Position and zoom the axis accordingly
         final double zoomFactor;
-        final double axisLength = Axis.DOMAIN_AXIS.equals(axisDragInfo.getAxis()) ? axisDragInfo.getPlotWidth()
+        final double axisLength = AxisType.DOMAIN_AXIS.equals(axisDragInfo.getAxis()) ? axisDragInfo.getPlotWidth()
                 : axisDragInfo.getPlotHeight();
         if (axisRangeChange > 0.0D) {
             zoomFactor = 1D / (1D + Doubles.divide(Math.abs(axisRangeChange), axisLength / 2));
@@ -500,7 +500,7 @@ public class PlotZoomHelper {
 
         Range newRange = null;
 
-        if (Axis.RANGE_AXIS.equals(axisDragInfo.getAxis())) {
+        if (AxisType.RANGE_AXIS.equals(axisDragInfo.getAxis())) {
             final double halfLength = range.getLength() * zoomFactor / 2;
             final Range autoRange = Axises.calculateAutoRange(valueAxis);
             final double autoCentralValue = autoRange.getCentralValue();
