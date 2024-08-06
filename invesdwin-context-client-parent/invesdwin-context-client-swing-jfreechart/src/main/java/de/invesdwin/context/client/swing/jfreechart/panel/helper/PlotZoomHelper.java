@@ -465,7 +465,8 @@ public class PlotZoomHelper {
         final double initialDragPoint = AxisType.DOMAIN_AXIS.equals(axisDragInfo.getAxis())
                 ? axisDragInfo.getInitialDragPoint().getX()
                 : axisDragInfo.getInitialDragPoint().getY();
-        final double newDragPoint = AxisType.DOMAIN_AXIS.equals(axisDragInfo.getAxis()) ? point2D.getX() : point2D.getY();
+        final double newDragPoint = AxisType.DOMAIN_AXIS.equals(axisDragInfo.getAxis()) ? point2D.getX()
+                : point2D.getY();
         final double axisRangeChange = initialDragPoint - newDragPoint;
 
         final ValueAxis valueAxis = axisDragInfo.getValueAxis();

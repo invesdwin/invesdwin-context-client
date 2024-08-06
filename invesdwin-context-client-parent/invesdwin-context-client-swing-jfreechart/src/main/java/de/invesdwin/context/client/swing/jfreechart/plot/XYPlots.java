@@ -287,6 +287,7 @@ public final class XYPlots {
     private static NumberAxis newRangeAxis(final AJFreeChartVisitor theme, final int precision, final boolean visible) {
         final NumberAxis rangeAxis = new CustomNumberAxis();
         rangeAxis.setAutoRangeIncludesZero(false);
+        rangeAxis.setAutoRangeStickyZero(false);
         rangeAxis.setNumberFormatOverride(Decimal
                 .newDecimalFormatInstance(PercentScale.RATE.getFormat(Percent.ZERO_PERCENT, false, precision, false)));
         rangeAxis.setVisible(visible);

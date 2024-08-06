@@ -13,17 +13,24 @@ import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYItemRenderer;
 import org.jfree.data.xy.XYDataset;
 
+import de.invesdwin.context.client.swing.jfreechart.panel.basis.CustomCombinedDomainXYPlot;
 import de.invesdwin.context.client.swing.jfreechart.plot.renderer.custom.annotations.AnnotationRenderingInfo;
 
 @NotThreadSafe
 public class CustomXYPlot extends XYPlot {
 
+    private final CustomCombinedDomainXYPlot combinedPlot;
     private final AnnotationRenderingInfo annotationRenderingInfo;
 
-    public CustomXYPlot(final XYDataset dataset, final ValueAxis domainAxis, final ValueAxis rangeAxis,
-            final XYItemRenderer renderer) {
+    public CustomXYPlot(final CustomCombinedDomainXYPlot combinedPlot, final XYDataset dataset,
+            final ValueAxis domainAxis, final ValueAxis rangeAxis, final XYItemRenderer renderer) {
         super(dataset, domainAxis, rangeAxis, renderer);
+        this.combinedPlot = combinedPlot;
         this.annotationRenderingInfo = new AnnotationRenderingInfo();
+    }
+
+    public CustomCombinedDomainXYPlot getCombinedPlot() {
+        return combinedPlot;
     }
 
     @Override

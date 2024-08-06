@@ -10,8 +10,12 @@ import java.util.List;
 import javax.annotation.concurrent.NotThreadSafe;
 
 import org.jfree.chart.axis.NumberAxis;
+import org.jfree.chart.plot.Plot;
 import org.jfree.chart.ui.RectangleEdge;
 import org.jfree.data.Range;
+
+import de.invesdwin.context.client.swing.jfreechart.panel.basis.CustomCombinedDomainXYPlot;
+import de.invesdwin.context.client.swing.jfreechart.plot.CustomXYPlot;
 
 @NotThreadSafe
 public class CustomNumberAxis extends NumberAxis {
@@ -29,10 +33,25 @@ public class CustomNumberAxis extends NumberAxis {
             final double lowerBound = range.getLowerBound();
             final double upperBound = range.getUpperBound();
 
-            final double reducedLength = length * MIN_TICK_LABEL_VERTICAL_EDGE_DISTANCE_MULTIPLIER;
-            final double reducedLowerBound = lowerBound + reducedLength;
-            final double reducedUpperBound = upperBound - reducedLength;
-            return reducedLowerBound <= number && number <= reducedUpperBound;
+            final Plot plot = getPlot();
+            if (plot instanceof CustomXYPlot) {
+                final CustomXYPlot cPlot = (CustomXYPlot) plot;
+                final CustomCombinedDomainXYPlot combinedPlot = cPlot.getCombinedPlot();
+                if (combinedPlot.getGap() > 0D) {
+                    return true;
+                }
+
+                final double reducedLength = length * MIN_TICK_LABEL_VERTICAL_EDGE_DISTANCE_MULTIPLIER;
+                final double reducedLowerBound = lowerBound + reducedLength;
+                final double reducedUpperBound = upperBound - reducedLength;
+                if (!combinedPlot.isSubplotAtTopEdge(cPlot) && number > reducedUpperBound) {
+                    return false;
+                }
+                if (!combinedPlot.isSubplotAtBottomEdge(cPlot) && number < reducedLowerBound) {
+                    return false;
+                }
+            }
+            return true;
         }
 
         @Override
@@ -85,4 +104,5 @@ public class CustomNumberAxis extends NumberAxis {
             limitNumberFormatOverride = false;
         }
     }
+
 }

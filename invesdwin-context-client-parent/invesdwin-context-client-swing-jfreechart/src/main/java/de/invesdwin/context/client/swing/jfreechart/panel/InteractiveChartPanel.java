@@ -787,7 +787,7 @@ public class InteractiveChartPanel extends JPanel {
 
     private void initMasterDatasetPlot() {
         if (isMasterDatasetPlottedInitially()) {
-            final XYPlot masterDatasetPlot = new CustomXYPlot(masterDataset, domainAxis,
+            final XYPlot masterDatasetPlot = new CustomXYPlot(combinedPlot, masterDataset, domainAxis,
                     XYPlots.newRangeAxis(getTheme(), 0, false, true),
                     plotConfigurationHelper.getPriceInitialSettings().getPriceRenderer());
             XYPlots.makeThreadSafe(masterDatasetPlot);
@@ -811,7 +811,7 @@ public class InteractiveChartPanel extends JPanel {
 
     public XYPlot newPlot() {
         final NumberAxis rangeAxis = XYPlots.newRangeAxis(getTheme(), 0, false, true);
-        final XYPlot newPlot = new CustomXYPlot(null, null, rangeAxis, null);
+        final XYPlot newPlot = new CustomXYPlot(combinedPlot, null, null, rangeAxis, null);
 
         XYPlots.makeThreadSafe(newPlot);
         newPlot.setRangeAxisLocation(AxisLocation.BOTTOM_OR_RIGHT);
