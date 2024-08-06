@@ -31,10 +31,13 @@ import org.jfree.data.xy.XYDataset;
 
 import de.invesdwin.context.client.swing.jfreechart.panel.InteractiveChartPanel;
 import de.invesdwin.context.client.swing.jfreechart.panel.basis.CustomCombinedDomainXYPlot;
+import de.invesdwin.context.client.swing.jfreechart.plot.axis.CustomNumberAxis;
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.DisabledXYDataset;
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.IPlotSourceDataset;
 import de.invesdwin.context.jfreechart.FiniteTickUnitSource;
 import de.invesdwin.context.jfreechart.axis.AxisType;
+import de.invesdwin.context.jfreechart.axis.attached.AttachedRangeValueAxis;
+import de.invesdwin.context.jfreechart.plot.WrappedXYPlot;
 import de.invesdwin.context.jfreechart.visitor.AJFreeChartVisitor;
 import de.invesdwin.util.collections.delegate.NullSafeDelegateMap;
 import de.invesdwin.util.collections.fast.concurrent.SynchronizedFastIterableDelegateList;
@@ -196,7 +199,7 @@ public final class XYPlots {
                     addRangeAxis(theme, plot, countVisibleRangeAxes, rangeAxisData);
                 }
             }
-            configureRangeAxes(plot);
+            configureAndThemeRangeAxes(theme, plot);
         }
     }
 
@@ -219,7 +222,32 @@ public final class XYPlots {
         }
     }
 
+    public static void configureAndThemeRangeAxes(final AJFreeChartVisitor theme, final XYPlot plot) {
+        if (plot.getRangeAxisCount() == 0) {
+            return;
+        }
+        final WrappedXYPlot wrappedPlot;
+        if (theme != null) {
+            wrappedPlot = new WrappedXYPlot(plot);
+        } else {
+            wrappedPlot = null;
+        }
+        for (int i = 0; i < plot.getRangeAxisCount(); i++) {
+            final NumberAxis rangeAxis = (NumberAxis) plot.getRangeAxis(i);
+            if (rangeAxis == null) {
+                break;
+            }
+            if (theme != null) {
+                theme.processAttachedAxis(new AttachedRangeValueAxis(wrappedPlot, i, rangeAxis));
+            }
+            rangeAxis.configure();
+        }
+    }
+
     public static void configureRangeAxes(final XYPlot plot) {
+        if (plot.getRangeAxisCount() == 0) {
+            return;
+        }
         for (int i = 0; i < plot.getRangeAxisCount(); i++) {
             final NumberAxis rangeAxis = (NumberAxis) plot.getRangeAxis(i);
             if (rangeAxis == null) {
@@ -256,7 +284,7 @@ public final class XYPlots {
     }
 
     private static NumberAxis newRangeAxis(final AJFreeChartVisitor theme, final int precision, final boolean visible) {
-        final NumberAxis rangeAxis = new NumberAxis();
+        final NumberAxis rangeAxis = new CustomNumberAxis();
         rangeAxis.setAutoRangeIncludesZero(false);
         rangeAxis.setNumberFormatOverride(Decimal
                 .newDecimalFormatInstance(PercentScale.RATE.getFormat(Percent.ZERO_PERCENT, false, precision, false)));

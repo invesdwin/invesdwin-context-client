@@ -549,6 +549,7 @@ public class InteractiveChartPanel extends JPanel {
         final List<XYPlot> plots = combinedPlot.getSubplots();
         for (int i = 0; i < plots.size(); i++) {
             final XYPlot plot = plots.get(i);
+            //explicitly don't apply theme here to not cause unnecessary object allocations
             XYPlots.configureRangeAxes(plot);
         }
     }
