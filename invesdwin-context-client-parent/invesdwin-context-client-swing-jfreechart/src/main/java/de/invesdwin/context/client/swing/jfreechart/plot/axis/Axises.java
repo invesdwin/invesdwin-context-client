@@ -1,4 +1,4 @@
-package de.invesdwin.context.client.swing.jfreechart.plot;
+package de.invesdwin.context.client.swing.jfreechart.plot.axis;
 
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;

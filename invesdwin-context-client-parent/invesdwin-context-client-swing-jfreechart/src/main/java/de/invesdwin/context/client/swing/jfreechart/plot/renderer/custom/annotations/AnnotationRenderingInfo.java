@@ -11,8 +11,8 @@ import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.ui.RectangleEdge;
 
-import de.invesdwin.context.client.swing.jfreechart.plot.Annotations;
-import de.invesdwin.context.client.swing.jfreechart.plot.Axises;
+import de.invesdwin.context.client.swing.jfreechart.plot.annotation.Annotations;
+import de.invesdwin.context.client.swing.jfreechart.plot.axis.Axises;
 import de.invesdwin.util.collections.list.BisectSortedList;
 import de.invesdwin.util.lang.comparator.AComparator;
 import de.invesdwin.util.lang.comparator.IComparator;

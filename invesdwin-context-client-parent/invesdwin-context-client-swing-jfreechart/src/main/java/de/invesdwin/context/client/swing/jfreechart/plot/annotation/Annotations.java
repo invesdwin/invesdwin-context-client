@@ -1,4 +1,4 @@
-package de.invesdwin.context.client.swing.jfreechart.plot;
+package de.invesdwin.context.client.swing.jfreechart.plot.annotation;
 
 import java.awt.Graphics2D;
 import java.awt.Shape;

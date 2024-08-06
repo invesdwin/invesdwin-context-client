@@ -10,8 +10,8 @@ import org.jfree.chart.plot.XYPlot;
 import org.jfree.data.Range;
 
 import de.invesdwin.context.client.swing.jfreechart.panel.InteractiveChartPanel;
-import de.invesdwin.context.client.swing.jfreechart.plot.Axises;
 import de.invesdwin.context.client.swing.jfreechart.plot.XYPlots;
+import de.invesdwin.context.client.swing.jfreechart.plot.axis.Axises;
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.list.MasterLazyDatasetList;
 import de.invesdwin.context.jfreechart.axis.AxisType;
 import de.invesdwin.util.math.Doubles;

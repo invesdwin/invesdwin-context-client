@@ -199,6 +199,7 @@ public final class XYPlots {
                     addRangeAxis(theme, plot, countVisibleRangeAxes, rangeAxisData);
                 }
             }
+            //apply theme again because attached axes will yield potentiallly different results (based on location)
             configureAndThemeRangeAxes(theme, plot);
         }
     }
