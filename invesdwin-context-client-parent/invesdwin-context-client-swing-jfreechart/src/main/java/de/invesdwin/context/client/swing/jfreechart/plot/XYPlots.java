@@ -31,9 +31,14 @@ import org.jfree.data.xy.XYDataset;
 
 import de.invesdwin.context.client.swing.jfreechart.panel.InteractiveChartPanel;
 import de.invesdwin.context.client.swing.jfreechart.panel.basis.CustomCombinedDomainXYPlot;
+import de.invesdwin.context.client.swing.jfreechart.plot.axis.CustomNumberAxis;
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.DisabledXYDataset;
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.IPlotSourceDataset;
 import de.invesdwin.context.jfreechart.FiniteTickUnitSource;
+import de.invesdwin.context.jfreechart.axis.AxisType;
+import de.invesdwin.context.jfreechart.axis.attached.AttachedRangeValueAxis;
+import de.invesdwin.context.jfreechart.plot.WrappedXYPlot;
+import de.invesdwin.context.jfreechart.visitor.AJFreeChartVisitor;
 import de.invesdwin.util.collections.delegate.NullSafeDelegateMap;
 import de.invesdwin.util.collections.fast.concurrent.SynchronizedFastIterableDelegateList;
 import de.invesdwin.util.lang.reflection.field.UnsafeField;
@@ -148,7 +153,7 @@ public final class XYPlots {
         return XYPLOT_ANNOTATIONS_FIELD.get(plot);
     }
 
-    public static void updateRangeAxes(final XYPlot plot) {
+    public static void updateRangeAxes(final AJFreeChartVisitor theme, final XYPlot plot) {
         final Map<String, RangeAxisData> rangeAxisId_data = new LinkedHashMap<>();
         int rangeAxisIndex = -1;
         for (int datasetIndex = 0; datasetIndex < plot.getDatasetCount(); datasetIndex++) {
@@ -178,27 +183,28 @@ public final class XYPlots {
         }
         removeRangeAxes(plot);
         if (rangeAxisId_data.isEmpty()) {
-            plot.setRangeAxis(newRangeAxis(0, false, true));
+            plot.setRangeAxis(newRangeAxis(theme, 0, false, true));
         } else {
             int countVisibleRangeAxes = 0;
             //first add the visible range axis, right=0 and left=1
             for (final RangeAxisData rangeAxisData : rangeAxisId_data.values()) {
                 if (rangeAxisData.isVisible()) {
                     countVisibleRangeAxes++;
-                    addRangeAxis(plot, countVisibleRangeAxes, rangeAxisData);
+                    addRangeAxis(theme, plot, countVisibleRangeAxes, rangeAxisData);
                 }
             }
             //then the rest are the invisible ones
             for (final RangeAxisData rangeAxisData : rangeAxisId_data.values()) {
                 if (!rangeAxisData.isVisible()) {
-                    addRangeAxis(plot, countVisibleRangeAxes, rangeAxisData);
+                    addRangeAxis(theme, plot, countVisibleRangeAxes, rangeAxisData);
                 }
             }
-            configureRangeAxes(plot);
+            //apply theme again because attached axes will yield potentiallly different results (based on location)
+            configureAndThemeRangeAxes(theme, plot);
         }
     }
 
-    private static void addRangeAxis(final XYPlot plot, final int countVisibleRangeAxes,
+    private static void addRangeAxis(final AJFreeChartVisitor theme, final XYPlot plot, final int countVisibleRangeAxes,
             final RangeAxisData rangeAxisData) {
         final boolean visible = rangeAxisData.isVisible() && countVisibleRangeAxes <= 2;
         final AxisLocation location;
@@ -208,7 +214,7 @@ public final class XYPlots {
         } else {
             location = AxisLocation.TOP_OR_RIGHT;
         }
-        final NumberAxis rangeAxis = newRangeAxis(rangeAxisData.getPrecision(), visible, rangeAxisData);
+        final NumberAxis rangeAxis = newRangeAxis(theme, rangeAxisData.getPrecision(), visible, rangeAxisData);
         plot.setRangeAxis(rangeAxisIndex, rangeAxis);
         plot.setRangeAxisLocation(rangeAxisIndex, location);
         for (final int datasetIndex : rangeAxisData.getDatasetIndexes()) {
@@ -217,7 +223,32 @@ public final class XYPlots {
         }
     }
 
+    public static void configureAndThemeRangeAxes(final AJFreeChartVisitor theme, final XYPlot plot) {
+        if (plot.getRangeAxisCount() == 0) {
+            return;
+        }
+        final WrappedXYPlot wrappedPlot;
+        if (theme != null) {
+            wrappedPlot = new WrappedXYPlot(plot);
+        } else {
+            wrappedPlot = null;
+        }
+        for (int i = 0; i < plot.getRangeAxisCount(); i++) {
+            final NumberAxis rangeAxis = (NumberAxis) plot.getRangeAxis(i);
+            if (rangeAxis == null) {
+                break;
+            }
+            if (theme != null) {
+                theme.processAttachedAxis(new AttachedRangeValueAxis(wrappedPlot, i, rangeAxis));
+            }
+            rangeAxis.configure();
+        }
+    }
+
     public static void configureRangeAxes(final XYPlot plot) {
+        if (plot.getRangeAxisCount() == 0) {
+            return;
+        }
         for (int i = 0; i < plot.getRangeAxisCount(); i++) {
             final NumberAxis rangeAxis = (NumberAxis) plot.getRangeAxis(i);
             if (rangeAxis == null) {
@@ -234,8 +265,9 @@ public final class XYPlots {
         }
     }
 
-    public static NumberAxis newRangeAxis(final int precision, final boolean visible, final boolean autorange) {
-        final NumberAxis rangeAxis = newRangeAxis(precision, visible);
+    public static NumberAxis newRangeAxis(final AJFreeChartVisitor theme, final int precision, final boolean visible,
+            final boolean autorange) {
+        final NumberAxis rangeAxis = newRangeAxis(theme, precision, visible);
         rangeAxis.setAutoRange(autorange);
         if (!autorange) {
             rangeAxis.setRange(0, 1);
@@ -243,18 +275,19 @@ public final class XYPlots {
         return rangeAxis;
     }
 
-    public static NumberAxis newRangeAxis(final int precision, final boolean visible,
+    public static NumberAxis newRangeAxis(final AJFreeChartVisitor theme, final int precision, final boolean visible,
             final RangeAxisData rangeAxisData) {
-        final NumberAxis rangeAxis = newRangeAxis(precision, visible);
+        final NumberAxis rangeAxis = newRangeAxis(theme, precision, visible);
         if (!rangeAxisData.isAutoRange()) {
             rangeAxis.setRange(rangeAxisData.getRange());
         }
         return rangeAxis;
     }
 
-    private static NumberAxis newRangeAxis(final int precision, final boolean visible) {
-        final NumberAxis rangeAxis = new NumberAxis();
+    private static NumberAxis newRangeAxis(final AJFreeChartVisitor theme, final int precision, final boolean visible) {
+        final NumberAxis rangeAxis = new CustomNumberAxis();
         rangeAxis.setAutoRangeIncludesZero(false);
+        rangeAxis.setAutoRangeStickyZero(false);
         rangeAxis.setNumberFormatOverride(Decimal
                 .newDecimalFormatInstance(PercentScale.RATE.getFormat(Percent.ZERO_PERCENT, false, precision, false)));
         rangeAxis.setVisible(visible);
@@ -263,6 +296,9 @@ public final class XYPlots {
         rangeAxis.setTickLabelPaint(AXIS_LABEL_PAINT);
         if (rangeAxis.getStandardTickUnits() != null) {
             rangeAxis.setStandardTickUnits(FiniteTickUnitSource.maybeWrap(rangeAxis.getStandardTickUnits()));
+        }
+        if (theme != null) {
+            theme.processAxis(rangeAxis, AxisType.RANGE_AXIS);
         }
         return rangeAxis;
     }
@@ -525,5 +561,13 @@ public final class XYPlots {
 
     private static <K, V> Map<K, V> newConcurrentNavigableMap(final Map<K, V> map) {
         return new ConcurrentSkipListMap<K, V>(map);
+    }
+
+    public static ValueAxis getRangeAxisForDataset(final XYPlot plot, final XYDataset dataset) {
+        final int datasetIndex = plot.indexOf(dataset);
+        if (datasetIndex < 0) {
+            return null;
+        }
+        return plot.getRangeAxisForDataset(datasetIndex);
     }
 }

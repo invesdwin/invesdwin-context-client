@@ -41,7 +41,7 @@ import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.plot.Zoomable;
 import org.jfree.data.Range;
 
-import de.invesdwin.context.client.swing.jfreechart.plot.Axises;
+import de.invesdwin.context.client.swing.jfreechart.plot.axis.Axises;
 import de.invesdwin.context.log.error.Err;
 import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.math.decimal.scaled.Percent;

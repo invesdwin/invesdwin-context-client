@@ -10,9 +10,9 @@ import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.ui.RectangleEdge;
 import org.jfree.data.Range;
 
-import de.invesdwin.context.client.swing.jfreechart.plot.Axis;
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.IPlotSourceDataset;
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.IndexedDateTimeOHLCDataset;
+import de.invesdwin.context.jfreechart.axis.AxisType;
 import de.invesdwin.util.time.date.FDate;
 
 @NotThreadSafe
@@ -26,14 +26,14 @@ public class AxisDragInfo {
     private Integer subplotIndex;
     private double plotWidth;
     private double plotHeight;
-    private final Axis axis;
+    private final AxisType axis;
     private FDate domainAnchorFDate;
 
     /**
      * Constructor for Domain-AxisDragInfo since we don't need a subplotindex here.
      */
     public AxisDragInfo(final Point2D initialDragPoint, final ValueAxis valueAxis, final double plotWidth,
-            final Axis axis, final PlotRenderingInfo plotInfo) {
+            final AxisType axis, final PlotRenderingInfo plotInfo) {
         final Double domainAnchor = valueAxis.java2DToValue(initialDragPoint.getX(), plotInfo.getDataArea(),
                 RectangleEdge.BOTTOM);
         final XYPlot xyPlot = (XYPlot) valueAxis.getPlot();
@@ -59,7 +59,7 @@ public class AxisDragInfo {
      * Constructor for Range-AxisDragInfo.
      */
     public AxisDragInfo(final Point2D initialDragPoint, final ValueAxis valueAxis, final Integer subplotIndex,
-            final double plotHeight, final Axis axis) {
+            final double plotHeight, final AxisType axis) {
         this.initialDragPoint = initialDragPoint;
         this.initialAxisRange = valueAxis.getRange();
         this.valueAxis = valueAxis;
@@ -112,7 +112,7 @@ public class AxisDragInfo {
         this.plotHeight = plotHeight;
     }
 
-    public Axis getAxis() {
+    public AxisType getAxis() {
         return axis;
     }
 

@@ -10,10 +10,10 @@ import org.jfree.chart.plot.XYPlot;
 import org.jfree.data.Range;
 
 import de.invesdwin.context.client.swing.jfreechart.panel.InteractiveChartPanel;
-import de.invesdwin.context.client.swing.jfreechart.plot.Axis;
-import de.invesdwin.context.client.swing.jfreechart.plot.Axises;
 import de.invesdwin.context.client.swing.jfreechart.plot.XYPlots;
+import de.invesdwin.context.client.swing.jfreechart.plot.axis.Axises;
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.list.MasterLazyDatasetList;
+import de.invesdwin.context.jfreechart.axis.AxisType;
 import de.invesdwin.util.math.Doubles;
 
 @NotThreadSafe
@@ -133,8 +133,8 @@ public class PlotPanHelper {
     private void maybeHandleDomainAxisReset(final MouseEvent e) {
         if ((MouseEvent.BUTTON1 == e.getButton() && e.getClickCount() == 2) || MouseEvent.BUTTON2 == e.getButton()) {
             final Point2D point2D = chartPanel.getChartPanel().translateScreenToJava2D(e.getPoint());
-            final Axis axis = Axises.getAxisForMousePosition(chartPanel, point2D);
-            if (axis != null && Axis.DOMAIN_AXIS.equals(axis)) {
+            final AxisType axis = Axises.getAxisForMousePosition(chartPanel, point2D);
+            if (axis != null && AxisType.DOMAIN_AXIS.equals(axis)) {
                 chartPanel.resetRange(chartPanel.getInitialVisibleItemCount(), chartPanel.getUserGapRate());
             }
         }

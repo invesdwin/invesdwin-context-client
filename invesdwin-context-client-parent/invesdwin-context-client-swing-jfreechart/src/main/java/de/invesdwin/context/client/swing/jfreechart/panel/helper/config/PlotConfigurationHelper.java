@@ -48,7 +48,7 @@ import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.series.i
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.crosshair.IPlotCoordinateListener;
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.legend.CustomLegendTitle;
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.legend.HighlightedLegendInfo;
-import de.invesdwin.context.client.swing.jfreechart.plot.Axises;
+import de.invesdwin.context.client.swing.jfreechart.plot.axis.Axises;
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.IPlotSourceDataset;
 import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.lang.string.Strings;

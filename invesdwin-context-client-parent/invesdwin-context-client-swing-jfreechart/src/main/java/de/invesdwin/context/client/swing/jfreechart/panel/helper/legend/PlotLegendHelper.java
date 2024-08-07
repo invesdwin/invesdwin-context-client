@@ -243,7 +243,7 @@ public class PlotLegendHelper {
             plot.setDataset(datasetIndex, new DisabledXYDataset(dataset));
             plot.setRenderer(datasetIndex, new DisabledXYItemRenderer(renderer));
         }
-        XYPlots.updateRangeAxes(plot);
+        XYPlots.updateRangeAxes(chartPanel.getTheme(), plot);
     }
 
     public void mousePressed(final MouseEvent e) {
@@ -359,10 +359,10 @@ public class PlotLegendHelper {
         }
 
         if (fromPlot != visibleTrashPlot) {
-            XYPlots.updateRangeAxes(fromPlot);
+            XYPlots.updateRangeAxes(chartPanel.getTheme(), fromPlot);
         }
         if (toPlot != visibleTrashPlot) {
-            XYPlots.updateRangeAxes(toPlot);
+            XYPlots.updateRangeAxes(chartPanel.getTheme(), toPlot);
         }
     }
 

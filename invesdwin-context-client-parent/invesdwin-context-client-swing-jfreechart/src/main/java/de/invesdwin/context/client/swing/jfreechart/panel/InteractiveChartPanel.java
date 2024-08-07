@@ -38,6 +38,7 @@ import de.invesdwin.context.client.swing.jfreechart.panel.helper.crosshair.PlotC
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.crosshair.PlotCrosshairHelper;
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.legend.PlotLegendHelper;
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.listener.IRangeListener;
+import de.invesdwin.context.client.swing.jfreechart.plot.CustomXYPlot;
 import de.invesdwin.context.client.swing.jfreechart.plot.IndexedDateTimeNumberFormat;
 import de.invesdwin.context.client.swing.jfreechart.plot.XYPlots;
 import de.invesdwin.context.client.swing.jfreechart.plot.annotation.XYNoteIconAnnotation;
@@ -45,7 +46,8 @@ import de.invesdwin.context.client.swing.jfreechart.plot.dataset.IndexedDateTime
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.list.IChartPanelAwareDatasetList;
 import de.invesdwin.context.jfreechart.FiniteTickUnitSource;
 import de.invesdwin.context.jfreechart.dataset.TimeRangedOHLCDataItem;
-import de.invesdwin.context.jfreechart.visitor.JFreeChartLocaleChanger;
+import de.invesdwin.context.jfreechart.visitor.AJFreeChartVisitor;
+import de.invesdwin.context.jfreechart.visitor.JFreeChartThemeSwing;
 import de.invesdwin.context.log.error.Err;
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.concurrent.Executors;
@@ -70,10 +72,13 @@ import de.invesdwin.util.time.range.TimeRange;
 @NotThreadSafe
 public class InteractiveChartPanel extends JPanel {
 
+    public static final AJFreeChartVisitor DEFAULT_THEME = new JFreeChartThemeSwing();
+
     private static final Duration SCROLL_LOCK_DURATION = new Duration(250, FTimeUnit.MILLISECONDS);
 
-    private final NumberAxis domainAxis;
     private final IndexedDateTimeOHLCDataset masterDataset;
+    private final AJFreeChartVisitor theme;
+    private final NumberAxis domainAxis;
     private final CustomCombinedDomainXYPlot combinedPlot;
     private final JFreeChart chart;
     private final CustomChartPanel chartPanel;
@@ -101,6 +106,7 @@ public class InteractiveChartPanel extends JPanel {
 
     public InteractiveChartPanel(final IndexedDateTimeOHLCDataset masterDataset) {
         this.masterDataset = masterDataset;
+        this.theme = newTheme();
         Assertions.checkNotBlank(masterDataset.getRangeAxisId());
         Assertions.checkNotNull(masterDataset.getPrecision());
 
@@ -176,7 +182,7 @@ public class InteractiveChartPanel extends JPanel {
 
         };
 
-        new JFreeChartLocaleChanger().process(chart);
+        getTheme().process(chart);
 
         setLayout(new GridLayout());
         add(chartPanel);
@@ -192,6 +198,17 @@ public class InteractiveChartPanel extends JPanel {
                 resetRange(getInitialVisibleItemCount(), getUserGapRate());
             }
         });
+    }
+
+    /**
+     * Override to change the theme.
+     */
+    protected AJFreeChartVisitor newTheme() {
+        return DEFAULT_THEME;
+    }
+
+    public AJFreeChartVisitor getTheme() {
+        return theme;
     }
 
     /**
@@ -532,6 +549,7 @@ public class InteractiveChartPanel extends JPanel {
         final List<XYPlot> plots = combinedPlot.getSubplots();
         for (int i = 0; i < plots.size(); i++) {
             final XYPlot plot = plots.get(i);
+            //explicitly don't apply theme here to not cause unnecessary object allocations
             XYPlots.configureRangeAxes(plot);
         }
     }
@@ -769,7 +787,8 @@ public class InteractiveChartPanel extends JPanel {
 
     private void initMasterDatasetPlot() {
         if (isMasterDatasetPlottedInitially()) {
-            final XYPlot masterDatasetPlot = new XYPlot(masterDataset, domainAxis, XYPlots.newRangeAxis(0, false, true),
+            final XYPlot masterDatasetPlot = new CustomXYPlot(combinedPlot, masterDataset, domainAxis,
+                    XYPlots.newRangeAxis(getTheme(), 0, false, true),
                     plotConfigurationHelper.getPriceInitialSettings().getPriceRenderer());
             XYPlots.makeThreadSafe(masterDatasetPlot);
             masterDatasetPlot.setRangeAxisLocation(AxisLocation.BOTTOM_OR_RIGHT);
@@ -777,7 +796,7 @@ public class InteractiveChartPanel extends JPanel {
             masterDataset.setPlot(masterDatasetPlot);
             //give main plot twice the weight
             combinedPlot.add(masterDatasetPlot, CustomCombinedDomainXYPlot.MAIN_PLOT_WEIGHT);
-            XYPlots.updateRangeAxes(masterDatasetPlot);
+            XYPlots.updateRangeAxes(getTheme(), masterDatasetPlot);
         } else {
             final XYPlot emptyPlot = newPlot();
             combinedPlot.add(emptyPlot, CustomCombinedDomainXYPlot.MAIN_PLOT_WEIGHT);
@@ -791,11 +810,13 @@ public class InteractiveChartPanel extends JPanel {
     }
 
     public XYPlot newPlot() {
-        final NumberAxis rangeAxis = XYPlots.newRangeAxis(0, false, true);
-        final XYPlot newPlot = new XYPlot(null, null, rangeAxis, null);
+        final NumberAxis rangeAxis = XYPlots.newRangeAxis(getTheme(), 0, false, true);
+        final XYPlot newPlot = new CustomXYPlot(combinedPlot, null, null, rangeAxis, null);
+
         XYPlots.makeThreadSafe(newPlot);
         newPlot.setRangeAxisLocation(AxisLocation.BOTTOM_OR_RIGHT);
         plotLegendHelper.addLegendAnnotation(newPlot);
+        getTheme().processPlot(newPlot);
         return newPlot;
     }
 

@@ -11,6 +11,8 @@ import javax.swing.JComponent;
 import javax.swing.border.Border;
 
 import de.invesdwin.context.client.swing.api.binding.BindingGroup;
+import de.invesdwin.context.client.swing.api.guiservice.GuiService;
+import de.invesdwin.context.client.swing.api.guiservice.IGuiService;
 import de.invesdwin.context.client.swing.api.view.AModel;
 import de.invesdwin.context.client.swing.api.view.AView;
 import de.invesdwin.context.log.error.Err;
@@ -78,7 +80,13 @@ public abstract class AComponentBinding<C extends JComponent, V> implements ICom
                             if (!isModifiable()) {
                                 return;
                             }
-                            super.process(view, component);
+                            final IGuiService guiService = GuiService.get();
+                            final boolean forcedBefore = guiService.setForced(true);
+                            try {
+                                super.process(view, component);
+                            } finally {
+                                guiService.setForced(forcedBefore);
+                            }
                         }
 
                     };

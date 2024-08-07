@@ -1,4 +1,4 @@
-package de.invesdwin.context.client.swing.jfreechart.plot;
+package de.invesdwin.context.client.swing.jfreechart.plot.axis;
 
 import java.awt.geom.Point2D;
 import java.awt.geom.Rectangle2D;
@@ -12,12 +12,14 @@ import org.jfree.chart.plot.Plot;
 import org.jfree.chart.plot.PlotRenderingInfo;
 import org.jfree.chart.plot.ValueAxisPlot;
 import org.jfree.chart.plot.XYPlot;
+import org.jfree.chart.ui.RectangleEdge;
 import org.jfree.data.Range;
 import org.jfree.data.RangeType;
 
 import de.invesdwin.context.client.swing.jfreechart.panel.InteractiveChartPanel;
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.AxisDragInfo;
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.IPlotSourceDataset;
+import de.invesdwin.context.jfreechart.axis.AxisType;
 
 @Immutable
 public final class Axises {
@@ -119,13 +121,13 @@ public final class Axises {
      * creates a container containing Information about the plot/axis when a mouse-drag started.
      */
     public static AxisDragInfo createAxisDragInfo(final InteractiveChartPanel chartPanel, final Point2D point2D,
-            final Axis axis) {
+            final AxisType axis) {
         final PlotRenderingInfo plotRenderingInfo = chartPanel.getChartPanel().getChartRenderingInfo().getPlotInfo();
-        if (Axis.DOMAIN_AXIS.equals(axis)) {
+        if (AxisType.DOMAIN_AXIS.equals(axis)) {
             final ValueAxis domainAxis = chartPanel.getCombinedPlot().getDomainAxis();
             final double roundedPlotWidth = Math.round(plotRenderingInfo.getPlotArea().getWidth());
             return new AxisDragInfo(point2D, domainAxis, roundedPlotWidth, axis, plotRenderingInfo);
-        } else if (Axis.RANGE_AXIS.equals(axis)) {
+        } else if (AxisType.RANGE_AXIS.equals(axis)) {
             final int subplotIndex = Axises.getSubplotIndexFromPlotArea(chartPanel, point2D);
             final ValueAxis rangeAxis = getRangeAxis(chartPanel, point2D, subplotIndex);
             if (rangeAxis != null) {
@@ -178,14 +180,14 @@ public final class Axises {
     /**
      * Return die Axis (domain or range) for the given information
      */
-    public static Axis getAxisForMousePosition(final InteractiveChartPanel chartPanel, final Point2D point) {
+    public static AxisType getAxisForMousePosition(final InteractiveChartPanel chartPanel, final Point2D point) {
         final PlotRenderingInfo plotInfo = chartPanel.getChartPanel().getChartRenderingInfo().getPlotInfo();
         if (plotInfo.getDataArea() != null && !plotInfo.getDataArea().contains(point) && plotInfo.getPlotArea() != null
                 && plotInfo.getPlotArea().contains(point)) {
             if (Axises.getSubplotIndexFromPlotArea(chartPanel, point) == -1) {
-                return Axis.DOMAIN_AXIS;
+                return AxisType.DOMAIN_AXIS;
             } else {
-                return Axis.RANGE_AXIS;
+                return AxisType.RANGE_AXIS;
             }
         }
         return null;
@@ -294,4 +296,12 @@ public final class Axises {
         final double upper = originalRange.getUpperBound() + adj;
         return new Range(lower, upper);
     }
+
+    public static double java2DToLength(final ValueAxis axis, final double length, final Rectangle2D area,
+            final RectangleEdge edge) {
+        final double zero = axis.java2DToValue(0.0, area, edge);
+        final double l = axis.java2DToValue(length, area, edge);
+        return Math.abs(l - zero);
+    }
+
 }

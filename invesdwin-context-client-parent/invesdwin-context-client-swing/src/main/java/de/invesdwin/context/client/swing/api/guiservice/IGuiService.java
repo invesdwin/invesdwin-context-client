@@ -121,4 +121,8 @@ public interface IGuiService {
 
     Instant getLastMouseClickInstant();
 
+    boolean isForced();
+
+    boolean setForced(boolean forced);
+
 }

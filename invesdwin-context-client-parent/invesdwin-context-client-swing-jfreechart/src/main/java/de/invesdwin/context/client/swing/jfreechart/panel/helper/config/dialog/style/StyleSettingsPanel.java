@@ -140,7 +140,7 @@ public class StyleSettingsPanel extends JPanel implements ISettingsPanelActions 
                 final String rangeAxisId = (String) panel.cmb_rangeAxisId.getSelectedItem();
                 final IPlotSourceDataset dataset = highlighted.getDataset();
                 dataset.setRangeAxisId(rangeAxisId);
-                XYPlots.updateRangeAxes(dataset.getPlot());
+                XYPlots.updateRangeAxes(plotConfigurationHelper.getChartPanel().getTheme(), dataset.getPlot());
             }
         });
     }

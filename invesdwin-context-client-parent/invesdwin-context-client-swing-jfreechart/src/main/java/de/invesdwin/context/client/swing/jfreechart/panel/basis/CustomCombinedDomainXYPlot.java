@@ -48,6 +48,38 @@ public class CustomCombinedDomainXYPlot extends CombinedDomainXYPlot {
         return getSubplotIndex(chartPanel.getChartPanel().translateScreenToJava2D(new Point(mouseX, mouseY)));
     }
 
+    public boolean isSubplotAtBottomEdge(final XYPlot plot) {
+        final List<XYPlot> plots = getSubplots();
+        for (int i = plots.size() - 1; i >= 0; i--) {
+            final XYPlot potentialPlot = plots.get(i);
+            if (potentialPlot.getWeight() == INVISIBLE_PLOT_WEIGHT) {
+                continue;
+            }
+            if (potentialPlot == plot) {
+                return true;
+            } else {
+                break;
+            }
+        }
+        return false;
+    }
+
+    public boolean isSubplotAtTopEdge(final XYPlot plot) {
+        final List<XYPlot> plots = getSubplots();
+        for (int i = 0; i < plots.size(); i++) {
+            final XYPlot potentialPlot = plots.get(i);
+            if (potentialPlot.getWeight() == INVISIBLE_PLOT_WEIGHT) {
+                continue;
+            }
+            if (potentialPlot == plot) {
+                return true;
+            } else {
+                break;
+            }
+        }
+        return false;
+    }
+
     public int getSubplotIndex(final Point2D java2DPoint) {
         final ChartRenderingInfo chartInfo = chartPanel.getChartPanel().getChartRenderingInfo();
         // see if the point is in one of the subplots; this is the
@@ -124,4 +156,5 @@ public class CustomCombinedDomainXYPlot extends CombinedDomainXYPlot {
             super.panRangeAxes(panRange, info, source);
         }
     }
+
 }
