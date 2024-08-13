@@ -166,6 +166,11 @@ public class CustomChartPanel extends JPanel implements ChartChangeListener, Cha
     private int defaultTrailingRangeGapMinimum = 2;
 
     /**
+     * The default showAll/Trailing-GapRate. Used when the showAll-Option is checked.
+     */
+    private final double defaultShowAllGapRate = 0.01;
+
+    /**
      * Determines how far we can drag to the left/right of the chart when there is no data to display there anymore. We
      * want to be able to scroll a bit less than the whole domain-axis range further.
      */
@@ -527,6 +532,10 @@ public class CustomChartPanel extends JPanel implements ChartChangeListener, Cha
     public void setDefaultTrailingRangeGap(final int defaultRangeGapMinimum, final Percent defaultRangeGapPercent) {
         this.defaultTrailingRangeGapMinimum = defaultRangeGapMinimum;
         this.defaultTrailingRangeGapRate = defaultRangeGapPercent.getValue(PercentScale.RATE);
+    }
+
+    public double getDefaultShowAllGapRate() {
+        return defaultShowAllGapRate;
     }
 
     public int getAllowedMaximumRangeGap(final double range) {

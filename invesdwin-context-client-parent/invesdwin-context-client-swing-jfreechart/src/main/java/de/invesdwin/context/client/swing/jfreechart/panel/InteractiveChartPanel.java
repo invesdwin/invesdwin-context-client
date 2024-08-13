@@ -280,6 +280,10 @@ public class InteractiveChartPanel extends JPanel {
         return chartPanel.getDefaultTrailingRangeGapRate();
     }
 
+    public double getDefaultshowAllGapRate() {
+        return chartPanel.getDefaultShowAllGapRate();
+    }
+
     public int getAllowedMaximumRangeGap(final double range) {
         return chartPanel.getAllowedMaximumRangeGap(range);
     }
@@ -870,6 +874,10 @@ public class InteractiveChartPanel extends JPanel {
 
     public double getUserGapRate() {
         return userGapRate;
+    }
+
+    public void setUserGapRate(final double userGapRate) {
+        this.userGapRate = userGapRate;
     }
 
     public void updateUserGapRate() {
