@@ -542,9 +542,8 @@ public class PlotNavigationHelper {
          * reference for a timer which we never closed again and ran into an endless-loop. Therefore we check for
          * already running timers and eventually stop that one.
          */
-        if (navButtonTimer != null) {
-            stopButtonTimer();
-        }
+        stopButtonTimer();
+
         navButtonTimer = new Timer(BUTTON_TIMER_DELAY, action);
         navButtonTimer.setInitialDelay(0);
         navButtonTimer.start();
