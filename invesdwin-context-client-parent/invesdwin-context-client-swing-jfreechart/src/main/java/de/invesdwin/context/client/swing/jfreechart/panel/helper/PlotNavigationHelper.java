@@ -537,6 +537,14 @@ public class PlotNavigationHelper {
     }
 
     private void startButtonTimer(final XYIconAnnotation annotation, final ActionListener action) {
+        /*
+         * It happened that we initialized a timer here when the previous one wasn't closed yet. We then lost the
+         * reference for a timer which we never closed again and ran in an endless-loop. Therefore we check for already
+         * running timers and eventually stop that one.
+         */
+        if (navButtonTimer != null) {
+            stopButtonTimer();
+        }
         navButtonTimer = new Timer(BUTTON_TIMER_DELAY, action);
         navButtonTimer.setInitialDelay(0);
         navButtonTimer.start();
