@@ -178,12 +178,49 @@ public class PlotZoomHelper {
             final boolean notifyState = plot.isNotify();
             plot.setNotify(false);
             final PlotRenderingInfo plotInfo = this.chartPanel.getChartPanel().getChartRenderingInfo().getPlotInfo();
+
             final int maxUpperBound = chartPanel.getPlotZoomHelper().getMaxUpperBound();
-            plot.zoomDomainAxes(zoomFactor, plotInfo, point, true);
+            final int minLowerBound = chartPanel.getPlotZoomHelper()
+                    .getMinLowerBound(chartPanel.getMasterDataset().getData());
+            final boolean isGapPast = chartPanel.getDomainAxis().getRange().getLowerBound() < minLowerBound;
 
-            applyEdgeAnchor(rangeBefore, lengthBefore, point.getX(), plotInfo.getDataArea().getWidth());
+            if (zoomFactor > 1 && chartPanel.getUserGapRate() > 0 && !isGapPast) {
+                /*
+                 * We have a userGap and want to zoom out. We want to keep the userGap and only zoom out to the left..
+                 * until we reach the start of the history.
+                 */
+                final double length = plot.getDomainAxis().getRange().getLength();
+                final double newLength = length * zoomFactor;
 
-            chartPanel.updateUserGapRate(maxUpperBound);
+                final double gap = chartPanel.getUserGapRate() * newLength;
+                final double newUpperBound = maxUpperBound + gap;
+                final double newLowerBound = newUpperBound - newLength;
+                chartPanel.getDomainAxis().setRange(new Range(newLowerBound, newUpperBound));
+                applyEdgeAnchor(rangeBefore, lengthBefore, point.getX(), plotInfo.getDataArea().getWidth());
+            } else if (zoomFactor > 1 && isGapPast && chartPanel.getUserGapRate() <= 0) {
+                /*
+                 * We have a gap in the past (to the left, which we dont track separately) and want to zoom out. We want
+                 * to keep the gap and only zoom out to the right.. until we are live.
+                 */
+                final double length = plot.getDomainAxis().getRange().getLength();
+                final double newLength = length * zoomFactor;
+                final double gapRatePast = (minLowerBound - chartPanel.getDomainAxis().getRange().getLowerBound())
+                        / length;
+                final double gap = gapRatePast * newLength;
+
+                final double newLowerBound = minLowerBound - gap;
+                final double newUpperBound = newLowerBound + newLength;
+                chartPanel.getDomainAxis().setRange(new Range(newLowerBound, newUpperBound));
+                applyEdgeAnchor(rangeBefore, lengthBefore, point.getX(), plotInfo.getDataArea().getWidth());
+                //Update the userGap in case we scrolled so far out that we reached live-data.
+                chartPanel.updateUserGapRate(chartPanel.getPlotZoomHelper().getMaxUpperBound());
+            } else {
+                //Regular zoom depending on the mouse position
+                plot.zoomDomainAxes(zoomFactor, plotInfo, point, true);
+                applyEdgeAnchor(rangeBefore, lengthBefore, point.getX(), plotInfo.getDataArea().getWidth());
+                chartPanel.updateUserGapRate(maxUpperBound);
+            }
+
             plot.setNotify(notifyState); // this generates the change event too
             chartPanel.update();
         } finally {

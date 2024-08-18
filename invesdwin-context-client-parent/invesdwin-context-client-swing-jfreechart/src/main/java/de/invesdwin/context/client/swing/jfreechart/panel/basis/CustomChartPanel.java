@@ -171,10 +171,16 @@ public class CustomChartPanel extends JPanel implements ChartChangeListener, Cha
     private final double defaultShowAllGapRate = 0.01;
 
     /**
-     * Determines how far we can drag to the left/right of the chart when there is no data to display there anymore. We
+     * Determines how far we can drag to the left (past) of the chart when there is no data to display there anymore. We
      * want to be able to scroll a bit less than the whole domain-axis range further.
      */
-    private final double allowedMaximumRangeGapRate = 0.98;
+    private final double allowedMaximumPastRangeGapRate = 0.05;
+
+    /**
+     * Determines how far we can drag to the right (future) of the chart when there is no data to display there anymore.
+     * We want to be able to scroll a bit less than the whole domain-axis range further.
+     */
+    private final double allowedMaximumFutureRangeGapRate = 0.98;
 
     /**
      * Constructs a panel that displays the specified chart.
@@ -538,12 +544,16 @@ public class CustomChartPanel extends JPanel implements ChartChangeListener, Cha
         return defaultShowAllGapRate;
     }
 
-    public int getAllowedMaximumRangeGap(final double range) {
-        return (int) (allowedMaximumRangeGapRate * range);
+    public int getAllowedMaximumPastRangeGap(final double range) {
+        return (int) (allowedMaximumPastRangeGapRate * range);
     }
 
-    public double getAllowedMaximumRangeGapRate() {
-        return allowedMaximumRangeGapRate;
+    public int getAllowedMaximumFutureRangeGap(final double range) {
+        return (int) (allowedMaximumFutureRangeGapRate * range);
+    }
+
+    public double getAllowedMaximumFutureRangeGapRate() {
+        return allowedMaximumFutureRangeGapRate;
     }
 
     /**
@@ -1093,11 +1103,12 @@ public class CustomChartPanel extends JPanel implements ChartChangeListener, Cha
                 final XYPlot plot = chart.getXYPlot();
                 final ValueAxis domainAxis = plot.getDomainAxis();
                 final Range range = domainAxis.getRange();
-                final int gap = getAllowedMaximumRangeGap(range.getLength());
-                if (wPercent > 0 && range.getUpperBound() >= plot.getDataset().getItemCount(0) + gap) {
+                final int futureGap = getAllowedMaximumFutureRangeGap(range.getLength());
+                if (wPercent > 0 && range.getUpperBound() >= plot.getDataset().getItemCount(0) + futureGap) {
                     return;
                 }
-                if (wPercent < 0 && range.getLowerBound() <= 0 - gap) {
+                final int pastGap = getAllowedMaximumPastRangeGap(range.getLength());
+                if (wPercent < 0 && range.getLowerBound() <= 0 - pastGap) {
                     return;
                 }
 
