@@ -307,7 +307,7 @@ public class CandlestickDemo extends JFrame {
                 plot = XYPlots.getPlotWithRangeAxisId(chartPanel, plotPaneId);
             }
             if (plot == null) {
-                plot = chartPanel.newPlot();
+                plot = chartPanel.getCombinedPlot().newPlot();
             }
             dataset.setPlot(plot);
             dataset.setPrecision(4);

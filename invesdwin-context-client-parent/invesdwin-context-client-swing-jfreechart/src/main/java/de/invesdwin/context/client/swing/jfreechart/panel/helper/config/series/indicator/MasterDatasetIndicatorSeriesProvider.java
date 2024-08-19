@@ -72,7 +72,7 @@ public class MasterDatasetIndicatorSeriesProvider implements IIndicatorSeriesPro
 
         XYPlot plot = XYPlots.getPlotWithRangeAxisId(chartPanel, masterDataset.getRangeAxisId());
         if (plot == null) {
-            plot = chartPanel.newPlot();
+            plot = chartPanel.getCombinedPlot().newPlot();
         }
 
         final int datasetIndex = XYPlots.getFreeDatasetIndex(plot);
