@@ -413,11 +413,11 @@ public class PlotNavigationHelper {
                     plot.addAnnotation(zoomIn_invisible, false);
                     plot.addAnnotation(panRight_invisible, true);
                 }
-                if (highlighted == configure) {
-                    plot.addAnnotation(configure_highlighted, false);
-                } else {
-                    plot.addAnnotation(configure, false);
-                }
+            }
+            if (highlighted == configure) {
+                plot.addAnnotation(configure_highlighted, false);
+            } else {
+                plot.addAnnotation(configure, false);
             }
 
         } else {
