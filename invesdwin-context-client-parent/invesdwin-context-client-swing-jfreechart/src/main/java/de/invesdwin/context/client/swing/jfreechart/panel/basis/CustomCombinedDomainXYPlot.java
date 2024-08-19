@@ -32,7 +32,7 @@ public class CustomCombinedDomainXYPlot extends CombinedDomainXYPlot {
         super(chartPanel.getDomainAxis());
         XYPlots.makeThreadSafe(this);
         this.chartPanel = chartPanel;
-        trashPlot = chartPanel.newPlot();
+        trashPlot = chartPanel.newPlot(this);
         trashPlot.getRangeAxis().setVisible(false);
         trashPlot.setDomainGridlinesVisible(false);
         trashPlot.setRangeGridlinesVisible(false);

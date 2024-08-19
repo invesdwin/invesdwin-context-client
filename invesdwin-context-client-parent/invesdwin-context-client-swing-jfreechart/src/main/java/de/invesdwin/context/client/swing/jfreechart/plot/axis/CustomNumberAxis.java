@@ -37,6 +37,9 @@ public class CustomNumberAxis extends NumberAxis {
             if (plot instanceof CustomXYPlot) {
                 final CustomXYPlot cPlot = (CustomXYPlot) plot;
                 final CustomCombinedDomainXYPlot combinedPlot = cPlot.getCombinedPlot();
+                if (combinedPlot == null) {
+                    return false;
+                }
                 if (combinedPlot.getGap() > 0D) {
                     return true;
                 }

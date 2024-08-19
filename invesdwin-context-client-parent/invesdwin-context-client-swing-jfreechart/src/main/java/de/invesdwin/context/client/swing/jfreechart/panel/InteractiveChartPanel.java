@@ -814,6 +814,10 @@ public class InteractiveChartPanel extends JPanel {
     }
 
     public XYPlot newPlot() {
+        return newPlot(combinedPlot);
+    }
+
+    public XYPlot newPlot(final CustomCombinedDomainXYPlot combinedPlot) {
         final NumberAxis rangeAxis = XYPlots.newRangeAxis(getTheme(), 0, false, true);
         final XYPlot newPlot = new CustomXYPlot(combinedPlot, null, null, rangeAxis, null);
 
