@@ -372,47 +372,54 @@ public class PlotNavigationHelper {
             final boolean hasDataset) {
         //NavBarAnnotations
         if (visible) {
-            if (hasDataset) {
-                if (highlighted == panLeft) {
-                    plot.addAnnotation(panLeft_highlighted, false);
-                } else {
-                    plot.addAnnotation(panLeft, false);
-                }
-                if (highlighted == zoomOut) {
-                    plot.addAnnotation(zoomOut_highlighted, false);
-                } else {
-                    plot.addAnnotation(zoomOut, false);
-                }
+            final boolean isMasterDatasetEmpty = chartPanel.getMasterDataset().getData().isEmpty();
+            if (isMasterDatasetEmpty) {
                 if (highlighted == reset) {
                     plot.addAnnotation(reset_highlighted, false);
                 } else {
                     plot.addAnnotation(reset, false);
                 }
             } else {
-                plot.addAnnotation(panLeft_invisible, false);
-                plot.addAnnotation(zoomOut_invisible, false);
-                plot.addAnnotation(reset_invisible, false);
-            }
-            if (highlighted == configure) {
-                plot.addAnnotation(configure_highlighted, false);
-            } else {
-                plot.addAnnotation(configure, false);
-            }
-            if (hasDataset) {
-                if (highlighted == zoomIn) {
-                    plot.addAnnotation(zoomIn_highlighted, false);
+                if (hasDataset) {
+                    if (highlighted == panLeft) {
+                        plot.addAnnotation(panLeft_highlighted, false);
+                    } else {
+                        plot.addAnnotation(panLeft, false);
+                    }
+                    if (highlighted == zoomOut) {
+                        plot.addAnnotation(zoomOut_highlighted, false);
+                    } else {
+                        plot.addAnnotation(zoomOut, false);
+                    }
+                    if (highlighted == reset) {
+                        plot.addAnnotation(reset_highlighted, false);
+                    } else {
+                        plot.addAnnotation(reset, false);
+                    }
+                    if (highlighted == zoomIn) {
+                        plot.addAnnotation(zoomIn_highlighted, false);
+                    } else {
+                        plot.addAnnotation(zoomIn, false);
+                    }
+                    if (highlighted == panRight) {
+                        plot.addAnnotation(panRight_highlighted, true);
+                    } else {
+                        plot.addAnnotation(panRight, true);
+                    }
                 } else {
-                    plot.addAnnotation(zoomIn, false);
+                    plot.addAnnotation(panLeft_invisible, false);
+                    plot.addAnnotation(zoomOut_invisible, false);
+                    plot.addAnnotation(reset_invisible, false);
+                    plot.addAnnotation(zoomIn_invisible, false);
+                    plot.addAnnotation(panRight_invisible, true);
                 }
-                if (highlighted == panRight) {
-                    plot.addAnnotation(panRight_highlighted, true);
+                if (highlighted == configure) {
+                    plot.addAnnotation(configure_highlighted, false);
                 } else {
-                    plot.addAnnotation(panRight, true);
+                    plot.addAnnotation(configure, false);
                 }
-            } else {
-                plot.addAnnotation(zoomIn_invisible, false);
-                plot.addAnnotation(panRight_invisible, true);
             }
+
         } else {
             plot.addAnnotation(panLeft_invisible, false);
             plot.addAnnotation(zoomOut_invisible, false);

@@ -140,6 +140,9 @@ public class PlotZoomHelper {
             if (chartPanel.isLoading()) {
                 return;
             }
+            if (chartPanel.getMasterDataset().getData().isEmpty()) {
+                return;
+            }
             lastZoomable = new Instant();
             zoomTitleTimer.restart();
         }
@@ -259,7 +262,7 @@ public class PlotZoomHelper {
         final double lengthAfter = rangeAfter.getLength();
         final List<? extends TimeRangedOHLCDataItem> data = chartPanel.getMasterDataset().getData();
 
-        final int gapAfter = chartPanel.getAllowedMaximumRangeGap(lengthAfter);
+        final int gapAfter = chartPanel.getAllowedMaximumFutureRangeGap(lengthAfter);
         final double minLowerBound = getMinLowerBoundWithGap(data, gapAfter);
         final double maxUpperBound = getMaxUpperBoundWithGap(data, gapAfter);
 
@@ -340,7 +343,7 @@ public class PlotZoomHelper {
             }
         }
         final int length = (int) range.getLength();
-        final int gap = chartPanel.getAllowedMaximumRangeGap(length);
+        final int gap = chartPanel.getAllowedMaximumFutureRangeGap(length);
         final List<? extends TimeRangedOHLCDataItem> data = chartPanel.getMasterDataset().getData();
         final double minLowerBound = getMinLowerBoundWithGap(data, gap);
         final double maxUpperBound = getMaxUpperBoundWithGap(data, gap);

@@ -284,8 +284,12 @@ public class InteractiveChartPanel extends JPanel {
         return chartPanel.getDefaultShowAllGapRate();
     }
 
-    public int getAllowedMaximumRangeGap(final double range) {
+    public int getAllowedMaximumFutureRangeGap(final double range) {
         return chartPanel.getAllowedMaximumFutureRangeGap(range);
+    }
+
+    public int getAllowedMaximumPastRangeGap(final double range) {
+        return chartPanel.getAllowedMaximumPastRangeGap(range);
     }
 
     public IndexedDateTimeOHLCDataset getMasterDataset() {
