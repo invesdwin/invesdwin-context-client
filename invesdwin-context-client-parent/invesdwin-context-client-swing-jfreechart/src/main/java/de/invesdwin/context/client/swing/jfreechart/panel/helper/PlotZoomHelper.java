@@ -299,7 +299,7 @@ public class PlotZoomHelper {
         }
     }
 
-    private Range maybeLimitRangePast(final Range newRange) {
+    public Range maybeLimitRangePast(final Range newRange) {
         final double newLength = newRange.getLength();
         final List<? extends TimeRangedOHLCDataItem> data = chartPanel.getMasterDataset().getData();
         final int newMaxPastGap = chartPanel.getAllowedMaximumPastRangeGap(newLength);
@@ -312,7 +312,7 @@ public class PlotZoomHelper {
         return newRange;
     }
 
-    private Range maybeLimitRangeFuture(final Range newRange) {
+    public Range maybeLimitRangeFuture(final Range newRange) {
         final double newLength = newRange.getLength();
         final List<? extends TimeRangedOHLCDataItem> data = chartPanel.getMasterDataset().getData();
         final int newMaxFutureGap = chartPanel.getAllowedMaximumFutureRangeGap(newLength);

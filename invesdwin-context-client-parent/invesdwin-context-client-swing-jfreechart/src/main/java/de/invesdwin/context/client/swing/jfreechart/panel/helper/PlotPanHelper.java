@@ -38,11 +38,11 @@ public class PlotPanHelper {
         final double length = range.getLength();
         final double newLowerBound = Doubles.max(range.getLowerBound() - length * scrollFactor,
                 0 - chartPanel.getAllowedMaximumPastRangeGap(length));
-        final Range newRange = new Range(newLowerBound, newLowerBound + length);
+        Range newRange = new Range(newLowerBound, newLowerBound + length);
+        newRange = chartPanel.getPlotZoomHelper().maybeLimitRangePast(newRange);
 
         chartPanel.getDomainAxis().setRange(newRange);
         chartPanel.updateUserGapRate();
-        chartPanel.update();
     }
 
     public double getPanLiveUpperBound() {
@@ -60,10 +60,11 @@ public class PlotPanHelper {
         final double newUpperBound = Doubles.min(range.getUpperBound() + length * scrollFactor,
                 range.getUpperBound() + chartPanel.getAllowedMaximumFutureRangeGap(length));
 
-        final Range newRange = new Range(newUpperBound - length, newUpperBound);
+        Range newRange = new Range(newUpperBound - length, newUpperBound);
+        newRange = chartPanel.getPlotZoomHelper().maybeLimitRangeFuture(newRange);
+
         chartPanel.getDomainAxis().setRange(newRange);
         chartPanel.updateUserGapRate();
-        chartPanel.update();
     }
 
     /**
