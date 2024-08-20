@@ -8,12 +8,15 @@ import java.util.List;
 import javax.annotation.concurrent.NotThreadSafe;
 
 import org.jfree.chart.ChartRenderingInfo;
+import org.jfree.chart.axis.AxisLocation;
+import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.plot.CombinedDomainXYPlot;
 import org.jfree.chart.plot.PlotRenderingInfo;
 import org.jfree.chart.plot.XYPlot;
 
 import de.invesdwin.context.client.swing.jfreechart.panel.InteractiveChartPanel;
+import de.invesdwin.context.client.swing.jfreechart.plot.CustomXYPlot;
 import de.invesdwin.context.client.swing.jfreechart.plot.XYPlots;
 import de.invesdwin.util.swing.EventDispatchThreadUtil;
 
@@ -32,12 +35,23 @@ public class CustomCombinedDomainXYPlot extends CombinedDomainXYPlot {
         super(chartPanel.getDomainAxis());
         XYPlots.makeThreadSafe(this);
         this.chartPanel = chartPanel;
-        trashPlot = chartPanel.newPlot(this);
+        trashPlot = newPlot();
         trashPlot.getRangeAxis().setVisible(false);
         trashPlot.setDomainGridlinesVisible(false);
         trashPlot.setRangeGridlinesVisible(false);
         chartPanel.getPlotLegendHelper().addLegendAnnotation(trashPlot);
         add(trashPlot, INVISIBLE_PLOT_WEIGHT);
+    }
+
+    public XYPlot newPlot() {
+        final NumberAxis rangeAxis = XYPlots.newRangeAxis(chartPanel.getTheme(), 0, false, true);
+        final XYPlot newPlot = new CustomXYPlot(this, null, null, rangeAxis, null);
+
+        XYPlots.makeThreadSafe(newPlot);
+        newPlot.setRangeAxisLocation(AxisLocation.BOTTOM_OR_RIGHT);
+        chartPanel.getPlotLegendHelper().addLegendAnnotation(newPlot);
+        chartPanel.getTheme().processPlot(newPlot);
+        return newPlot;
     }
 
     public XYPlot getTrashPlot() {

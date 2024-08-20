@@ -5,10 +5,10 @@ import java.awt.Dimension;
 import java.awt.event.ComponentEvent;
 
 import javax.annotation.concurrent.ThreadSafe;
-import javax.swing.BorderFactory;
 import javax.swing.JPanel;
 
 import de.invesdwin.context.client.swing.api.view.AView;
+import de.invesdwin.context.client.swing.frame.status.task.StatusBarTaskView;
 import de.invesdwin.util.swing.Components;
 import de.invesdwin.util.swing.HiDPI;
 import de.invesdwin.util.swing.listener.ComponentListenerSupport;
@@ -25,13 +25,13 @@ public class HeapIndicatorView extends AView<HeapIndicatorView, JPanel> {
     @Override
     protected JPanel initComponent() {
         final JPanel component = new JPanel();
-        component.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        component.setBorder(StatusBarTaskView.INVISIBLE_BORDER);
         component.setMinimumSize(new Dimension(0, 0));
         component.setLayout(new BorderLayout(0, 0));
 
         pnlHeapIndicator = new JPanel();
         pnlHeapIndicator.setMinimumSize(new Dimension(0, 0));
-        pnlHeapIndicator.setBorder(BorderFactory.createEmptyBorder(1, 0, 2, 0));
+        pnlHeapIndicator.setBorder(StatusBarTaskView.VISIBLE_BORDER);
         component.add(pnlHeapIndicator, BorderLayout.CENTER);
         pnlHeapIndicator.setLayout(new BorderLayout(0, 0));
 

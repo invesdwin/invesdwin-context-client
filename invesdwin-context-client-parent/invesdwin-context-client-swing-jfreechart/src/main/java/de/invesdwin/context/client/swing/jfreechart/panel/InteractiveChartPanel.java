@@ -806,7 +806,7 @@ public class InteractiveChartPanel extends JPanel {
             combinedPlot.add(masterDatasetPlot, CustomCombinedDomainXYPlot.MAIN_PLOT_WEIGHT);
             XYPlots.updateRangeAxes(getTheme(), masterDatasetPlot);
         } else {
-            final XYPlot emptyPlot = newPlot();
+            final XYPlot emptyPlot = combinedPlot.newPlot();
             combinedPlot.add(emptyPlot, CustomCombinedDomainXYPlot.MAIN_PLOT_WEIGHT);
         }
 
@@ -815,21 +815,6 @@ public class InteractiveChartPanel extends JPanel {
         if (masterDatasetRemovable) {
             plotConfigurationHelper.putIndicatorSeriesProvider(new MasterDatasetIndicatorSeriesProvider(this));
         }
-    }
-
-    public XYPlot newPlot() {
-        return newPlot(combinedPlot);
-    }
-
-    public XYPlot newPlot(final CustomCombinedDomainXYPlot combinedPlot) {
-        final NumberAxis rangeAxis = XYPlots.newRangeAxis(getTheme(), 0, false, true);
-        final XYPlot newPlot = new CustomXYPlot(combinedPlot, null, null, rangeAxis, null);
-
-        XYPlots.makeThreadSafe(newPlot);
-        newPlot.setRangeAxisLocation(AxisLocation.BOTTOM_OR_RIGHT);
-        plotLegendHelper.addLegendAnnotation(newPlot);
-        getTheme().processPlot(newPlot);
-        return newPlot;
     }
 
     @Override
