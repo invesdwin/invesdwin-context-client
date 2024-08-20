@@ -194,12 +194,12 @@ public class PlotZoomHelper {
                  */
                 final double length = plot.getDomainAxis().getRange().getLength();
                 final double newLength = length * zoomFactor;
-
                 final double gap = chartPanel.getUserGapRate() * newLength;
                 final double newUpperBound = maxUpperBound + gap;
                 final double newLowerBound = newUpperBound - newLength;
-                chartPanel.getDomainAxis().setRange(new Range(newLowerBound, newUpperBound));
-                applyEdgeAnchor(rangeBefore, lengthBefore, point.getX(), plotInfo.getDataArea().getWidth());
+                Range newRange = new Range(newLowerBound, newUpperBound);
+                newRange = maybeLimitRangeFuture(newRange);
+                chartPanel.getDomainAxis().setRange(newRange);
             } else if (zoomFactor > 1 && isGapPast && chartPanel.getUserGapRate() <= 0) {
                 /*
                  * We have a gap in the past (to the left, which we dont track separately) and want to zoom out. We want
@@ -210,11 +210,12 @@ public class PlotZoomHelper {
                 final double gapRatePast = (minLowerBound - chartPanel.getDomainAxis().getRange().getLowerBound())
                         / length;
                 final double gap = gapRatePast * newLength;
-
                 final double newLowerBound = minLowerBound - gap;
                 final double newUpperBound = newLowerBound + newLength;
-                chartPanel.getDomainAxis().setRange(new Range(newLowerBound, newUpperBound));
-                applyEdgeAnchor(rangeBefore, lengthBefore, point.getX(), plotInfo.getDataArea().getWidth());
+                Range newRange = new Range(newLowerBound, newUpperBound);
+                newRange = maybeLimitRangePast(newRange);
+                chartPanel.getDomainAxis().setRange(newRange);
+
                 //Update the userGap in case we scrolled so far out that we reached live-data.
                 chartPanel.updateUserGapRate(chartPanel.getPlotZoomHelper().getMaxUpperBound());
             } else {
@@ -296,6 +297,32 @@ public class PlotZoomHelper {
                 }
             }
         }
+    }
+
+    private Range maybeLimitRangePast(final Range newRange) {
+        final double newLength = newRange.getLength();
+        final List<? extends TimeRangedOHLCDataItem> data = chartPanel.getMasterDataset().getData();
+        final int newMaxPastGap = chartPanel.getAllowedMaximumPastRangeGap(newLength);
+        final double minLowerBound = getMinLowerBoundWithGap(data, newMaxPastGap);
+
+        if (newRange.getLowerBound() < minLowerBound) {
+            return new Range(minLowerBound, minLowerBound + newLength);
+        }
+
+        return newRange;
+    }
+
+    private Range maybeLimitRangeFuture(final Range newRange) {
+        final double newLength = newRange.getLength();
+        final List<? extends TimeRangedOHLCDataItem> data = chartPanel.getMasterDataset().getData();
+        final int newMaxFutureGap = chartPanel.getAllowedMaximumFutureRangeGap(newLength);
+        final double maxUpperBound = getMaxUpperBoundWithGap(data, newMaxFutureGap);
+
+        if (newRange.getUpperBound() > maxUpperBound) {
+            return new Range(maxUpperBound - newLength, maxUpperBound);
+        }
+
+        return newRange;
     }
 
     public void zoomOut() {
