@@ -9,9 +9,11 @@ import de.invesdwin.context.client.swing.jfreechart.panel.InteractiveChartPanel;
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.list.item.MasterOHLCDataItem;
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.list.item.SlaveXYDataItemOHLC;
 import de.invesdwin.context.log.error.Err;
+import de.invesdwin.util.collections.list.Lists;
 import de.invesdwin.util.collections.loadingcache.historical.query.error.ResetCacheException;
 import de.invesdwin.util.concurrent.priority.IPriorityRunnable;
 import de.invesdwin.util.lang.Objects;
+import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.time.date.FDate;
 
 @ThreadSafe
@@ -59,9 +61,13 @@ public class SlaveLazyDatasetList extends ALazyDatasetList<SlaveXYDataItemOHLC> 
         assertSameSizeAsMaster();
     }
 
-    private void removeAndInvalidateItem(final List<SlaveXYDataItemOHLC> data, final int i) {
-        final SlaveXYDataItemOHLC removed = data.remove(i);
-        removed.invalidate();
+    private void removeAndInvalidateItems(final List<SlaveXYDataItemOHLC> data, final int fromIndexInclusive,
+            final int toIndexExclusive) {
+        for (int i = fromIndexInclusive; i < toIndexExclusive; i++) {
+            final SlaveXYDataItemOHLC item = data.get(i);
+            item.invalidate();
+        }
+        Lists.removeRange(data, fromIndexInclusive, toIndexExclusive);
     }
 
     @Override
@@ -90,9 +96,7 @@ public class SlaveLazyDatasetList extends ALazyDatasetList<SlaveXYDataItemOHLC> 
     @Override
     public synchronized void loadIinitialItems(final boolean eager) {
         List<SlaveXYDataItemOHLC> data = getData();
-        for (int i = 0; i < data.size(); i++) {
-            removeAndInvalidateItem(data, i);
-        }
+        removeAndInvalidateItems(data, 0, data.size());
         data = newData();
         for (int i = 0; i < master.size(); i++) {
             final SlaveXYDataItemOHLC slaveItem = new SlaveXYDataItemOHLC(provider);
@@ -131,27 +135,23 @@ public class SlaveLazyDatasetList extends ALazyDatasetList<SlaveXYDataItemOHLC> 
     @Override
     public synchronized void removeStartItems(final int tooManyBefore) {
         final List<SlaveXYDataItemOHLC> data = getData();
-        for (int i = 0; i < tooManyBefore; i++) {
-            removeAndInvalidateItem(data, 0);
-        }
+        removeAndInvalidateItems(data, 0, tooManyBefore);
         assertSameSizeAsMaster();
     }
 
     @Override
     public synchronized void removeEndItems(final int tooManyAfter) {
         final List<SlaveXYDataItemOHLC> data = getData();
-        for (int i = 0; i < tooManyAfter; i++) {
-            removeAndInvalidateItem(data, data.size() - 1);
-        }
+        final int size = data.size();
+        removeAndInvalidateItems(data, size - tooManyAfter, size);
         assertSameSizeAsMaster();
     }
 
     @Override
     public synchronized void removeMiddleItems(final int index, final int count) {
         final List<SlaveXYDataItemOHLC> data = getData();
-        for (int i = 0; i < count && data.size() > index; i++) {
-            data.remove(index);
-        }
+        final int toIndexExclusive = Integers.min(data.size(), index + count);
+        removeAndInvalidateItems(data, index, toIndexExclusive);
         assertSameSizeAsMaster();
     }
 
