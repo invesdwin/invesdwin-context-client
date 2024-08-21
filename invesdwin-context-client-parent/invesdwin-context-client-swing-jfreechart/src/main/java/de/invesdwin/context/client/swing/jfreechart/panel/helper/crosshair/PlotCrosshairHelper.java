@@ -147,14 +147,14 @@ public class PlotCrosshairHelper {
         // see if the point is in one of the subplots; this is the
         // intersection of the range and domain crosshairs
         final int subplotIndex = plotInfo.getSubplotIndex(java2DPoint);
-        boolean domainMakerChanged = false;
+        boolean domainMarkerChanged = false;
 
         if (subplotIndex >= 0) {
             final int xx = calculateDomainCrosshairMarkerValue(java2DPoint, plotInfo);
 
             final Rectangle2D panelArea = chartPanel.getChartPanel().getScreenDataArea(mouseX, mouseY);
 
-            domainMakerChanged = lastDomainCrosshairMarker.getValue() != xx;
+            domainMarkerChanged = lastDomainCrosshairMarker.getValue() != xx;
             domainCrosshairMarker.setValue(xx);
             lastDomainCrosshairMarker.setValue(xx);
             lastDomainCrosshairMarker.setLabel(chartPanel.getDomainAxis().getNumberFormatOverride().format(xx));
@@ -214,7 +214,7 @@ public class PlotCrosshairHelper {
             disableCrosshair(true);
         }
 
-        if (domainMakerChanged) {
+        if (domainMarkerChanged) {
             chartPanel.getPlotCoordinateHelper().coordinatesChanged((int) domainCrosshairMarker.getValue());
         }
     }
