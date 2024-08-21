@@ -198,7 +198,11 @@ public class PlotZoomHelper {
                 final double newUpperBound = maxUpperBound + gap;
                 final double newLowerBound = newUpperBound - newLength;
                 Range newRange = new Range(newLowerBound, newUpperBound);
-                newRange = maybeLimitRangeFuture(newRange);
+                final Range limitRange = getLimitRange(newRange);
+                if (limitRange != null) {
+                    newRange = limitRange;
+                }
+
                 chartPanel.getDomainAxis().setRange(newRange);
             } else if (zoomFactor > 1 && isGapPast && chartPanel.getUserGapRate() <= 0) {
                 /*
@@ -213,7 +217,11 @@ public class PlotZoomHelper {
                 final double newLowerBound = minLowerBound - gap;
                 final double newUpperBound = newLowerBound + newLength;
                 Range newRange = new Range(newLowerBound, newUpperBound);
-                newRange = maybeLimitRangePast(newRange);
+                final Range limitRange = getLimitRange(newRange);
+                if (limitRange != null) {
+                    newRange = limitRange;
+                }
+
                 chartPanel.getDomainAxis().setRange(newRange);
 
                 //Update the userGap in case we scrolled so far out that we reached live-data.
@@ -297,32 +305,6 @@ public class PlotZoomHelper {
                 }
             }
         }
-    }
-
-    public Range maybeLimitRangePast(final Range newRange) {
-        final double newLength = newRange.getLength();
-        final List<? extends TimeRangedOHLCDataItem> data = chartPanel.getMasterDataset().getData();
-        final int newMaxPastGap = chartPanel.getAllowedMaximumPastRangeGap(newLength);
-        final double minLowerBound = getMinLowerBoundWithGap(data, newMaxPastGap);
-
-        if (newRange.getLowerBound() < minLowerBound) {
-            return new Range(minLowerBound, minLowerBound + newLength);
-        }
-
-        return newRange;
-    }
-
-    public Range maybeLimitRangeFuture(final Range newRange) {
-        final double newLength = newRange.getLength();
-        final List<? extends TimeRangedOHLCDataItem> data = chartPanel.getMasterDataset().getData();
-        final int newMaxFutureGap = chartPanel.getAllowedMaximumFutureRangeGap(newLength);
-        final double maxUpperBound = getMaxUpperBoundWithGap(data, newMaxFutureGap);
-
-        if (newRange.getUpperBound() > maxUpperBound) {
-            return new Range(maxUpperBound - newLength, maxUpperBound);
-        }
-
-        return newRange;
     }
 
     public void zoomOut() {
