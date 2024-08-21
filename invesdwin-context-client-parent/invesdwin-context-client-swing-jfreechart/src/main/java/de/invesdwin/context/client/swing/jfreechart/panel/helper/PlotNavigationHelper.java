@@ -10,6 +10,7 @@ import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Set;
 
 import javax.annotation.concurrent.NotThreadSafe;
 import javax.swing.Timer;
@@ -30,13 +31,17 @@ import de.invesdwin.context.client.swing.jfreechart.plot.annotation.XYNoteAnnota
 import de.invesdwin.context.client.swing.jfreechart.plot.annotation.XYNoteIconAnnotation;
 import de.invesdwin.context.client.swing.jfreechart.plot.axis.Axises;
 import de.invesdwin.context.client.swing.jfreechart.plot.renderer.INoteRenderer;
+import de.invesdwin.util.collections.factory.ILockCollectionFactory;
 import de.invesdwin.util.collections.iterable.buffer.BufferingIterator;
+import de.invesdwin.util.collections.list.ListSet;
 import de.invesdwin.util.math.Doubles;
 import de.invesdwin.util.swing.HiDPI;
 
 @NotThreadSafe
 public class PlotNavigationHelper {
 
+    private static final XYAnnotationEntity PLACEHOLDER_ENTITY = new XYAnnotationEntity(
+            new Rectangle2D.Double(0, 0, 0, 0), -1, null, null);
     private static final int BUTTON_TIMER_DELAY = 50;
     private static final float INVISIBLE_ALPHA = 0.0f;
     private static final float VISIBLE_ALPHA = 0.6f;
@@ -86,6 +91,13 @@ public class PlotNavigationHelper {
     private boolean panLiveHighlighted = false;
     private boolean panLiveBackwardVisible = false;
     private boolean panLiveBackwardHighlighted = false;
+
+    private final List<XYIconAnnotation> addedAnnotations = new ListSet<XYIconAnnotation>() {
+        @Override
+        protected Set<XYIconAnnotation> newSet() {
+            return ILockCollectionFactory.getInstance(false).newIdentitySet();
+        }
+    };
 
     public PlotNavigationHelper(final InteractiveChartPanel chartPanel) {
         this.chartPanel = chartPanel;
@@ -150,6 +162,7 @@ public class PlotNavigationHelper {
                 return x + HiDPI.scale(xModification);
             }
         };
+        annotations.add(annotation);
         return annotation;
     }
 
@@ -232,10 +245,11 @@ public class PlotNavigationHelper {
         final boolean hasDataset = XYPlots.hasDataset(subplots);
 
         if (subplotIndex == lastSubPlotIndex) {
+            boolean changed = false;
             if (lastSubPlot != navShowingOnPlotPlot) {
                 mouseExited();
                 navShowingOnPlotPlot = lastSubPlot;
-                addAnnotations(navShowingOnPlotPlot, false, null, false);
+                changed = addAnnotations(false, null, false);
             }
             XYIconAnnotation newHighlightedAnnotation = null;
             if (entityForPoint instanceof XYIconAnnotationEntity) {
@@ -244,9 +258,9 @@ public class PlotNavigationHelper {
             }
             final boolean newVisible = findVisibleEntity(mouseX, mouseY);
             this.navHighlighting = determineHighlighting(mouseX, mouseY);
+
             if (newHighlightedAnnotation != this.navHighlightedAnnotation || navVisible != newVisible) {
-                removeAnnotations(navShowingOnPlotPlot, false);
-                addAnnotations(navShowingOnPlotPlot, newVisible, newHighlightedAnnotation, hasDataset);
+                changed |= addAnnotations(newVisible, newHighlightedAnnotation, hasDataset);
                 navHighlightingAreas.clear();
                 this.navHighlightedAnnotation = newHighlightedAnnotation;
                 this.navVisible = newVisible;
@@ -256,6 +270,9 @@ public class PlotNavigationHelper {
             }
             if (this.navHighlighting) {
                 chartPanel.getChartPanel().setCursor(PlotResizeHelper.DEFAULT_CURSOR);
+            }
+            if (changed) {
+                updateAnnotations(navShowingOnPlotPlot);
             }
         } else {
             mouseExited();
@@ -268,7 +285,7 @@ public class PlotNavigationHelper {
         for (int i = 0; i < visibleCheckAnnotations.length; i++) {
             final XYIconAnnotation annotation = visibleCheckAnnotations[i];
             final XYAnnotationEntity entity = annotation.getEntity();
-            if (entity != null) {
+            if (entity != null && entity != PLACEHOLDER_ENTITY) {
                 final Rectangle2D entityArea = (Rectangle2D) entity.getArea();
                 if (area.intersects(entityArea)) {
                     return true;
@@ -303,7 +320,7 @@ public class PlotNavigationHelper {
             for (int i = 0; i < visibleCheckAnnotations.length; i++) {
                 final XYIconAnnotation annotation = visibleCheckAnnotations[i];
                 final XYAnnotationEntity entity = annotation.getEntity();
-                if (entity != null) {
+                if (entity != null && entity != PLACEHOLDER_ENTITY) {
                     final Rectangle2D entityArea = (Rectangle2D) entity.getArea();
                     minX = Doubles.min(minX, entityArea.getX());
                     minY = Doubles.min(minY, entityArea.getY());
@@ -318,11 +335,14 @@ public class PlotNavigationHelper {
             }
 
             //PanLive-Icon
-            if (panLive.getEntity() != null && panLiveVisible) {
-                navHighlightingAreas.add(panLive.getEntity().getArea());
+            final XYAnnotationEntity panLiveEntity = panLive.getEntity();
+            if (panLiveEntity != null && panLiveEntity != PLACEHOLDER_ENTITY && panLiveVisible) {
+                navHighlightingAreas.add(panLiveEntity.getArea());
             }
-            if (panLiveBackward.getEntity() != null && panLiveBackwardVisible) {
-                navHighlightingAreas.add(panLiveBackward.getEntity().getArea());
+            final XYAnnotationEntity panLiveBackwardEntity = panLiveBackward.getEntity();
+            if (panLiveBackwardEntity != null && panLiveBackwardEntity != PLACEHOLDER_ENTITY
+                    && panLiveBackwardVisible) {
+                navHighlightingAreas.add(panLiveBackwardEntity.getArea());
             }
         }
         return navHighlightingAreas;
@@ -356,108 +376,125 @@ public class PlotNavigationHelper {
         return highlighted;
     }
 
-    private void removeAnnotations(final XYPlot plot, final boolean notify) {
+    private void updateAnnotations(final XYPlot plot) {
+        boolean changed = false;
         final int lastIndex = annotations.size() - 1;
         for (int i = 0; i <= lastIndex; i++) {
             final XYIconAnnotation annotation = annotations.get(i);
-            annotation.setEntity(null);
-            plot.removeAnnotation(annotation, false);
+            if (addedAnnotations.contains(annotation)) {
+                if (annotation.getEntity() == null) {
+                    annotation.setEntity(PLACEHOLDER_ENTITY);
+                    plot.addAnnotation(annotation, false);
+                    changed = true;
+                }
+            } else {
+                if (annotation.getEntity() != null) {
+                    annotation.setEntity(null);
+                    plot.removeAnnotation(annotation, false);
+                    changed = true;
+                }
+            }
         }
-        if (notify) {
+        if (changed) {
             chartPanel.getChart().fireChartChanged();
         }
     }
 
-    private void addAnnotations(final XYPlot plot, final boolean visible, final XYIconAnnotation highlighted,
+    private boolean addAnnotations(final boolean visible, final XYIconAnnotation highlighted,
             final boolean hasDataset) {
         //NavBarAnnotations
-        if (visible) {
-            final boolean isMasterDatasetEmpty = chartPanel.getMasterDataset().getData().isEmpty();
-            if (isMasterDatasetEmpty) {
-                if (highlighted == reset) {
-                    plot.addAnnotation(reset_highlighted, false);
-                } else {
-                    plot.addAnnotation(reset, false);
-                }
-            } else {
-                if (hasDataset) {
-                    if (highlighted == panLeft) {
-                        plot.addAnnotation(panLeft_highlighted, false);
-                    } else {
-                        plot.addAnnotation(panLeft, false);
-                    }
-                    if (highlighted == zoomOut) {
-                        plot.addAnnotation(zoomOut_highlighted, false);
-                    } else {
-                        plot.addAnnotation(zoomOut, false);
-                    }
-                    if (highlighted == reset) {
-                        plot.addAnnotation(reset_highlighted, false);
-                    } else {
-                        plot.addAnnotation(reset, false);
-                    }
-                    if (highlighted == zoomIn) {
-                        plot.addAnnotation(zoomIn_highlighted, false);
-                    } else {
-                        plot.addAnnotation(zoomIn, false);
-                    }
-                    if (highlighted == panRight) {
-                        plot.addAnnotation(panRight_highlighted, true);
-                    } else {
-                        plot.addAnnotation(panRight, true);
-                    }
-                } else {
-                    plot.addAnnotation(panLeft_invisible, false);
-                    plot.addAnnotation(zoomOut_invisible, false);
-                    plot.addAnnotation(reset_invisible, false);
-                    plot.addAnnotation(zoomIn_invisible, false);
-                    plot.addAnnotation(panRight_invisible, true);
-                }
-            }
-            if (highlighted == configure) {
-                plot.addAnnotation(configure_highlighted, false);
-            } else {
-                plot.addAnnotation(configure, false);
-            }
-
-        } else {
-            plot.addAnnotation(panLeft_invisible, false);
-            plot.addAnnotation(zoomOut_invisible, false);
-            plot.addAnnotation(reset_invisible, false);
-            plot.addAnnotation(configure_invisible, false);
-            plot.addAnnotation(zoomIn_invisible, false);
-            plot.addAnnotation(panRight_invisible, true);
-        }
+        boolean changed = addAnnotation(visible, highlighted, hasDataset, false, panLeft_invisible, panLeft,
+                panLeft_highlighted);
+        changed |= addAnnotation(visible, highlighted, hasDataset, false, zoomOut_invisible, zoomOut,
+                zoomOut_highlighted);
+        changed |= addAnnotation(visible, highlighted, hasDataset, true, reset_invisible, reset, reset_highlighted);
+        changed |= addAnnotation(visible, highlighted, hasDataset, true, configure_invisible, configure,
+                configure_highlighted);
+        changed |= addAnnotation(visible, highlighted, hasDataset, false, zoomIn_invisible, zoomIn, zoomIn_highlighted);
+        changed |= addAnnotation(visible, highlighted, hasDataset, false, panRight_invisible, panRight,
+                panRight_highlighted);
 
         //Other annotations
-        addFreeAnnotations(plot, highlighted);
+        changed |= addFreeAnnotations(highlighted); //TODO: funktioniert noch nicht wieder
+        return changed;
     }
 
-    private void addFreeAnnotations(final XYPlot plot, final XYIconAnnotation highlighted) {
-        if (highlighted == panLive && panLiveVisible && !XYPlots.getAnnotations(plot).contains(panLive_highlighted)) {
-            plot.removeAnnotation(panLive, false);
-            plot.addAnnotation(panLive_highlighted, false);
-            this.panLiveHighlighted = true;
-        } else if (highlighted != panLive && panLiveVisible && !XYPlots.getAnnotations(plot).contains(panLive)) {
-            plot.removeAnnotation(panLive_highlighted, false);
-            plot.addAnnotation(panLive, false);
-            this.panLiveHighlighted = false;
-        } else if (highlighted == panLiveBackward && panLiveBackwardVisible
-                && !XYPlots.getAnnotations(plot).contains(panLiveBackward_highlighted)) {
-            plot.removeAnnotation(panLiveBackward, false);
-            plot.addAnnotation(panLiveBackward_highlighted, false);
-            this.panLiveBackwardHighlighted = true;
-        } else if (highlighted != panLiveBackward && panLiveBackwardVisible
-                && !XYPlots.getAnnotations(plot).contains(panLiveBackward)) {
-            plot.removeAnnotation(panLiveBackward_highlighted, false);
-            plot.addAnnotation(panLiveBackward, false);
-            this.panLiveBackwardHighlighted = false;
+    private boolean addAnnotation(final boolean visible, final XYIconAnnotation highlighted, final boolean hasDataset,
+            final boolean allowMasterDatasetEmpty, final XYIconAnnotation invisibleIcon,
+            final XYIconAnnotation visibleIcon, final XYIconAnnotation highlightedIcon) {
+        if (visible) {
+            if (shouldShowAnnotation(hasDataset, allowMasterDatasetEmpty)) {
+                if (highlighted == visibleIcon) {
+                    if (addedAnnotations.add(highlightedIcon)) {
+                        addedAnnotations.remove(visibleIcon);
+                        addedAnnotations.remove(invisibleIcon);
+                        return true;
+                    }
+                } else {
+                    if (addedAnnotations.add(visibleIcon)) {
+                        addedAnnotations.remove(highlightedIcon);
+                        addedAnnotations.remove(invisibleIcon);
+                        return true;
+                    }
+                }
+            } else {
+                if (addedAnnotations.add(invisibleIcon)) {
+                    addedAnnotations.remove(visibleIcon);
+                    addedAnnotations.remove(highlightedIcon);
+                    return true;
+                }
+            }
+        } else {
+            if (addedAnnotations.add(invisibleIcon)) {
+                addedAnnotations.remove(visibleIcon);
+                addedAnnotations.remove(highlightedIcon);
+                return true;
+            }
         }
+        return false;
+    }
+
+    private boolean shouldShowAnnotation(final boolean hasDataset, final boolean allowMasterDatasetEmpty) {
+        final boolean isMasterDatasetEmpty = chartPanel.getMasterDataset().getData().isEmpty();
+        if (isMasterDatasetEmpty) {
+            return allowMasterDatasetEmpty;
+        }
+        return hasDataset;
+    }
+
+    private boolean addFreeAnnotations(final XYIconAnnotation highlighted) {
+        if (highlighted == panLive && panLiveVisible) {
+            if (addedAnnotations.add(panLive_highlighted)) {
+                addedAnnotations.remove(panLive);
+                this.panLiveHighlighted = true;
+                return true;
+            }
+        } else if (highlighted != panLive && panLiveVisible) {
+            if (addedAnnotations.add(panLive)) {
+                addedAnnotations.remove(panLive_highlighted);
+                this.panLiveHighlighted = false;
+                return true;
+            }
+        } else if (highlighted == panLiveBackward && panLiveBackwardVisible) {
+            if (addedAnnotations.add(panLiveBackward_highlighted)) {
+                addedAnnotations.remove(panLiveBackward);
+                this.panLiveBackwardHighlighted = true;
+                return true;
+            }
+        } else if (highlighted != panLiveBackward && panLiveBackwardVisible) {
+            if (addedAnnotations.add(panLiveBackward)) {
+                addedAnnotations.remove(panLiveBackward_highlighted);
+                this.panLiveBackwardHighlighted = false;
+                return true;
+            }
+        }
+        return false;
     }
 
     public void mouseExited() {
         if (navShowingOnPlotPlot != null) {
-            removeAnnotations(navShowingOnPlotPlot, true);
+            addedAnnotations.clear();
+            updateAnnotations(navShowingOnPlotPlot);
             navShowingOnPlotPlot = null;
         }
         navHighlighting = false;
@@ -615,13 +652,29 @@ public class PlotNavigationHelper {
         final XYPlot lastSubPlot = getLastSubplot();
         if (backward) {
             panLiveBackwardVisible = true;
-            if (!XYPlots.getAnnotations(lastSubPlot).contains(panLiveBackward)) {
-                lastSubPlot.addAnnotation(panLiveBackward);
+            if (panLiveBackwardHighlighted) {
+                if (addedAnnotations.add(panLiveBackward_highlighted)) {
+                    addedAnnotations.remove(panLiveBackward);
+                    updateAnnotations(lastSubPlot);
+                }
+            } else {
+                if (addedAnnotations.add(panLiveBackward)) {
+                    addedAnnotations.remove(panLiveBackward_highlighted);
+                    updateAnnotations(lastSubPlot);
+                }
             }
         } else {
             panLiveVisible = true;
-            if (!XYPlots.getAnnotations(lastSubPlot).contains(panLive)) {
-                lastSubPlot.addAnnotation(panLive);
+            if (panLiveHighlighted) {
+                if (addedAnnotations.add(panLive_highlighted)) {
+                    addedAnnotations.remove(panLive);
+                    updateAnnotations(lastSubPlot);
+                }
+            } else {
+                if (addedAnnotations.add(panLive)) {
+                    addedAnnotations.remove(panLive_highlighted);
+                    updateAnnotations(lastSubPlot);
+                }
             }
         }
 
@@ -632,12 +685,14 @@ public class PlotNavigationHelper {
         panLiveHighlighted = false;
         panLiveBackwardVisible = false;
         panLiveBackwardHighlighted = false;
-        final XYPlot lastSubPlot = getLastSubplot();
-
-        lastSubPlot.removeAnnotation(panLive);
-        lastSubPlot.removeAnnotation(panLive_highlighted);
-        lastSubPlot.removeAnnotation(panLiveBackward);
-        lastSubPlot.removeAnnotation(panLiveBackward_highlighted);
+        boolean changed = addedAnnotations.remove(panLive);
+        changed |= addedAnnotations.remove(panLive_highlighted);
+        changed |= addedAnnotations.remove(panLiveBackward);
+        changed |= addedAnnotations.remove(panLiveBackward_highlighted);
+        if (changed) {
+            final XYPlot lastSubPlot = getLastSubplot();
+            updateAnnotations(lastSubPlot);
+        }
         navHighlightingAreas.clear();
     }
 

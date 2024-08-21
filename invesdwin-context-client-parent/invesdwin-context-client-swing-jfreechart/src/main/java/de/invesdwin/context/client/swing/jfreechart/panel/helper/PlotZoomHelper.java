@@ -194,12 +194,16 @@ public class PlotZoomHelper {
                  */
                 final double length = plot.getDomainAxis().getRange().getLength();
                 final double newLength = length * zoomFactor;
-
                 final double gap = chartPanel.getUserGapRate() * newLength;
                 final double newUpperBound = maxUpperBound + gap;
                 final double newLowerBound = newUpperBound - newLength;
-                chartPanel.getDomainAxis().setRange(new Range(newLowerBound, newUpperBound));
-                applyEdgeAnchor(rangeBefore, lengthBefore, point.getX(), plotInfo.getDataArea().getWidth());
+                Range newRange = new Range(newLowerBound, newUpperBound);
+                final Range limitRange = getLimitRange(newRange);
+                if (limitRange != null) {
+                    newRange = limitRange;
+                }
+
+                chartPanel.getDomainAxis().setRange(newRange);
             } else if (zoomFactor > 1 && isGapPast && chartPanel.getUserGapRate() <= 0) {
                 /*
                  * We have a gap in the past (to the left, which we dont track separately) and want to zoom out. We want
@@ -210,11 +214,16 @@ public class PlotZoomHelper {
                 final double gapRatePast = (minLowerBound - chartPanel.getDomainAxis().getRange().getLowerBound())
                         / length;
                 final double gap = gapRatePast * newLength;
-
                 final double newLowerBound = minLowerBound - gap;
                 final double newUpperBound = newLowerBound + newLength;
-                chartPanel.getDomainAxis().setRange(new Range(newLowerBound, newUpperBound));
-                applyEdgeAnchor(rangeBefore, lengthBefore, point.getX(), plotInfo.getDataArea().getWidth());
+                Range newRange = new Range(newLowerBound, newUpperBound);
+                final Range limitRange = getLimitRange(newRange);
+                if (limitRange != null) {
+                    newRange = limitRange;
+                }
+
+                chartPanel.getDomainAxis().setRange(newRange);
+
                 //Update the userGap in case we scrolled so far out that we reached live-data.
                 chartPanel.updateUserGapRate(chartPanel.getPlotZoomHelper().getMaxUpperBound());
             } else {
