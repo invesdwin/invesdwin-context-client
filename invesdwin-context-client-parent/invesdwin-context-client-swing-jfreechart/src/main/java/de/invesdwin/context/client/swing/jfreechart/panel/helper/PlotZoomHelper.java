@@ -187,7 +187,7 @@ public class PlotZoomHelper {
                     .getMinLowerBound(chartPanel.getMasterDataset().getData());
             final boolean isGapPast = chartPanel.getDomainAxis().getRange().getLowerBound() < minLowerBound;
 
-            if (zoomFactor > 1 && chartPanel.getUserGapRate() > 0 && !isGapPast) {
+            if (chartPanel.getUserGapRate() > 0 && !isGapPast) {
                 /*
                  * We have a userGap and want to zoom out. We want to keep the userGap and only zoom out to the left..
                  * until we reach the start of the history.
@@ -204,7 +204,7 @@ public class PlotZoomHelper {
                 }
 
                 chartPanel.getDomainAxis().setRange(newRange);
-            } else if (zoomFactor > 1 && isGapPast && chartPanel.getUserGapRate() <= 0) {
+            } else if (isGapPast && chartPanel.getUserGapRate() <= 0) {
                 /*
                  * We have a gap in the past (to the left, which we dont track separately) and want to zoom out. We want
                  * to keep the gap and only zoom out to the right.. until we are live.
