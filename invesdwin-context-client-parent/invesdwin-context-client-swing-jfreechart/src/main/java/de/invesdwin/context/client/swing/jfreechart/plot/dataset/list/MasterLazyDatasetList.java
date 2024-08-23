@@ -521,7 +521,7 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
             private void removeTooManyAfter(final List<MasterOHLCDataItem> data, final int index, final int count) {
                 final int toIndexExclusive = Integers.min(data.size(), index + count);
                 Lists.removeRange(data, index, toIndexExclusive);
-                if (!slaveDatasetListeners.isEmpty() && count > 0) {
+                if (!slaveDatasetListeners.isEmpty()) {
                     for (final ISlaveLazyDatasetListener slave : slaveDatasetListeners) {
                         slave.removeMiddleItems(index, count);
                     }
