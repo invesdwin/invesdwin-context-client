@@ -517,7 +517,7 @@ public class InteractiveChartPanel extends JPanel {
 
     @Override
     public void repaint() {
-        Components.triggerMouseMoved(InteractiveChartPanel.this, mouseMotionListener);
+        Components.triggerMouseMovedWithWindowActive(InteractiveChartPanel.this, mouseMotionListener);
     }
 
     public boolean isUpdating() {
