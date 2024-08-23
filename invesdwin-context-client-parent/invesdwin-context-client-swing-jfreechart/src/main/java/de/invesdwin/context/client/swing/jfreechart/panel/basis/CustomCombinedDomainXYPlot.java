@@ -2,6 +2,7 @@ package de.invesdwin.context.client.swing.jfreechart.panel.basis;
 
 import java.awt.Color;
 import java.awt.Point;
+import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
 import java.util.List;
 
@@ -59,6 +60,9 @@ public class CustomCombinedDomainXYPlot extends CombinedDomainXYPlot {
     }
 
     public int getSubplotIndex(final int mouseX, final int mouseY) {
+        if (mouseX < 0 || mouseY < 0) {
+            return -1;
+        }
         return getSubplotIndex(chartPanel.getChartPanel().translateScreenToJava2D(new Point(mouseX, mouseY)));
     }
 
@@ -101,10 +105,27 @@ public class CustomCombinedDomainXYPlot extends CombinedDomainXYPlot {
         return chartInfo.getPlotInfo().getSubplotIndex(java2DPoint);
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public List<XYPlot> getSubplots() {
-        return super.getSubplots();
+        return XYPlots.getSubPlots(this);
+    }
+
+    public XYPlot getSubplot(final MouseEvent e) {
+        final int subplotIndex = getSubplotIndex(e.getX(), e.getY());
+        if (subplotIndex == -1) {
+            return null;
+        }
+        return getSubplots().get(subplotIndex);
+    }
+
+    public XYPlot getLastSubplot() {
+        final List<XYPlot> subplots = getSubplots();
+        final int lastSubPlotIndex = subplots.size() - 1;
+        if (lastSubPlotIndex < 0) {
+            return null;
+        }
+        final XYPlot lastSubPlot = subplots.get(lastSubPlotIndex);
+        return lastSubPlot;
     }
 
     public boolean isSubplotVisible(final XYPlot plot) {

@@ -16,8 +16,8 @@ public enum PlotIcons {
     CONFIGURE("configure_128.png"),
     ZOOM_IN("zoomIn_128.png"),
     PAN_RIGHT("panRight_128.png"),
-    PAN_LIVE("panLive_128.png"),
-    PAN_LIVE_BACKWARD("panLive_backward_128.png"),
+    PAN_LIVE_FORWARD("panLiveForward_128.png"),
+    PAN_LIVE_BACKWARD("panLiveBackward_128.png"),
 
     //legend
     ADD("add_256.png"),
@@ -31,7 +31,7 @@ public enum PlotIcons {
     SEARCH("search_256.png"),
     EXPRESSION("expression_256.png");
 
-    private String name;
+    private final String name;
 
     PlotIcons(final String name) {
         this.name = name;

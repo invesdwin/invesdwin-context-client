@@ -118,7 +118,7 @@ public class PlotPanHelper {
             // If we are hovering over a LegendItem we don't want to pan on the plot.
             return;
         }
-        panStartPlot = XYPlots.getSubplot(chartPanel, e);
+        panStartPlot = chartPanel.getCombinedPlot().getSubplot(e);
         XYPlots.disableRangePannables(chartPanel, panStartPlot);
         maybeHandleDomainAxisReset(e);
     }

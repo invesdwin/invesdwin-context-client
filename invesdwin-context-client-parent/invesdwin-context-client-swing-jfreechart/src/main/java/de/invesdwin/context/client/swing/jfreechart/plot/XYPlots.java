@@ -2,7 +2,6 @@ package de.invesdwin.context.client.swing.jfreechart.plot;
 
 import java.awt.Font;
 import java.awt.Paint;
-import java.awt.event.MouseEvent;
 import java.awt.geom.Rectangle2D;
 import java.lang.reflect.Field;
 import java.util.HashMap;
@@ -19,6 +18,7 @@ import org.jfree.chart.annotations.XYAnnotation;
 import org.jfree.chart.axis.AxisLocation;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.axis.ValueAxis;
+import org.jfree.chart.plot.CombinedDomainXYPlot;
 import org.jfree.chart.plot.Marker;
 import org.jfree.chart.plot.ValueMarker;
 import org.jfree.chart.plot.XYPlot;
@@ -80,6 +80,7 @@ public final class XYPlots {
     @SuppressWarnings("rawtypes")
     private static final UnsafeField<Map> XYPLOT_BACKGROUNDRANGEMARKERS_FIELD;
     private static final UnsafeField<List<XYAnnotation>> XYPLOT_ANNOTATIONS_FIELD;
+    private static final UnsafeField<List<XYPlot>> COMBINEDDOMAINXYPLOT_SUBPLOTS_FIELD;
 
     static {
         try {
@@ -130,6 +131,9 @@ public final class XYPlots {
             final Field xyPlotDomainCrosshairLockedOnDataField = XYPlot.class
                     .getDeclaredField("domainCrosshairLockedOnData");
             XYPLOT_DOMAIN_CROSSHAIR_LOCKED_ON_DATA_FIELD = new UnsafeField<>(xyPlotDomainCrosshairLockedOnDataField);
+
+            final Field combinedDomainXYPlotSubplotsField = CombinedDomainXYPlot.class.getDeclaredField("subplots");
+            COMBINEDDOMAINXYPLOT_SUBPLOTS_FIELD = new UnsafeField<>(combinedDomainXYPlotSubplotsField);
         } catch (NoSuchFieldException | SecurityException e) {
             throw new RuntimeException(e);
         }
@@ -437,15 +441,6 @@ public final class XYPlots {
         return null;
     }
 
-    public static XYPlot getSubplot(final InteractiveChartPanel chartPanel, final MouseEvent e) {
-        final CustomCombinedDomainXYPlot combinedXyPlot = chartPanel.getCombinedPlot();
-        final int subplotIndex = combinedXyPlot.getSubplotIndex(e.getX(), e.getY());
-        if (subplotIndex == -1) {
-            return null;
-        }
-        return combinedXyPlot.getSubplots().get(subplotIndex);
-    }
-
     /**
      * Checks every subplot for the autoRange-property on every of it's axises and set's the rangePannable-property of
      * that subplot accordingly. If there is an axis with autoRange = false the rangePannable-property will be set to
@@ -569,5 +564,9 @@ public final class XYPlots {
             return null;
         }
         return plot.getRangeAxisForDataset(datasetIndex);
+    }
+
+    public static List<XYPlot> getSubPlots(final CombinedDomainXYPlot combinedPlot) {
+        return COMBINEDDOMAINXYPLOT_SUBPLOTS_FIELD.get(combinedPlot);
     }
 }

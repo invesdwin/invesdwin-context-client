@@ -17,7 +17,6 @@ import org.jfree.data.Range;
 import org.jfree.data.RangeType;
 
 import de.invesdwin.context.client.swing.jfreechart.panel.InteractiveChartPanel;
-import de.invesdwin.context.client.swing.jfreechart.panel.helper.AxisDragInfo;
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.IPlotSourceDataset;
 import de.invesdwin.context.jfreechart.axis.AxisType;
 
