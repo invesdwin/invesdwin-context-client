@@ -466,25 +466,37 @@ public class PlotNavigationHelper {
         if (highlighted == panLive && panLiveVisible) {
             if (addedAnnotations.add(panLive_highlighted)) {
                 addedAnnotations.remove(panLive);
+                addedAnnotations.remove(panLiveBackward);
+                addedAnnotations.remove(panLiveBackward_highlighted);
                 this.panLiveHighlighted = true;
+                this.panLiveBackwardHighlighted = false;
                 return true;
             }
         } else if (highlighted != panLive && panLiveVisible) {
             if (addedAnnotations.add(panLive)) {
                 addedAnnotations.remove(panLive_highlighted);
+                addedAnnotations.remove(panLiveBackward);
+                addedAnnotations.remove(panLiveBackward_highlighted);
                 this.panLiveHighlighted = false;
+                this.panLiveBackwardHighlighted = false;
                 return true;
             }
         } else if (highlighted == panLiveBackward && panLiveBackwardVisible) {
             if (addedAnnotations.add(panLiveBackward_highlighted)) {
                 addedAnnotations.remove(panLiveBackward);
+                addedAnnotations.remove(panLive);
+                addedAnnotations.remove(panLive_highlighted);
                 this.panLiveBackwardHighlighted = true;
+                this.panLiveHighlighted = false;
                 return true;
             }
         } else if (highlighted != panLiveBackward && panLiveBackwardVisible) {
             if (addedAnnotations.add(panLiveBackward)) {
                 addedAnnotations.remove(panLiveBackward_highlighted);
+                addedAnnotations.remove(panLive);
+                addedAnnotations.remove(panLive_highlighted);
                 this.panLiveBackwardHighlighted = false;
+                this.panLiveHighlighted = false;
                 return true;
             }
         }
@@ -652,27 +664,37 @@ public class PlotNavigationHelper {
         final XYPlot lastSubPlot = getLastSubplot();
         if (backward) {
             panLiveBackwardVisible = true;
+            panLiveVisible = false;
             if (panLiveBackwardHighlighted) {
                 if (addedAnnotations.add(panLiveBackward_highlighted)) {
                     addedAnnotations.remove(panLiveBackward);
+                    addedAnnotations.remove(panLive);
+                    addedAnnotations.remove(panLive_highlighted);
                     updateAnnotations(lastSubPlot);
                 }
             } else {
                 if (addedAnnotations.add(panLiveBackward)) {
                     addedAnnotations.remove(panLiveBackward_highlighted);
+                    addedAnnotations.remove(panLive);
+                    addedAnnotations.remove(panLive_highlighted);
                     updateAnnotations(lastSubPlot);
                 }
             }
         } else {
             panLiveVisible = true;
+            panLiveBackwardVisible = false;
             if (panLiveHighlighted) {
                 if (addedAnnotations.add(panLive_highlighted)) {
                     addedAnnotations.remove(panLive);
+                    addedAnnotations.remove(panLiveBackward);
+                    addedAnnotations.remove(panLiveBackward_highlighted);
                     updateAnnotations(lastSubPlot);
                 }
             } else {
                 if (addedAnnotations.add(panLive)) {
                     addedAnnotations.remove(panLive_highlighted);
+                    addedAnnotations.remove(panLiveBackward);
+                    addedAnnotations.remove(panLiveBackward_highlighted);
                     updateAnnotations(lastSubPlot);
                 }
             }
@@ -682,8 +704,8 @@ public class PlotNavigationHelper {
 
     public void hidePanLiveIcon() {
         panLiveVisible = false;
-        panLiveHighlighted = false;
         panLiveBackwardVisible = false;
+        panLiveHighlighted = false;
         panLiveBackwardHighlighted = false;
         boolean changed = addedAnnotations.remove(panLive);
         changed |= addedAnnotations.remove(panLive_highlighted);
