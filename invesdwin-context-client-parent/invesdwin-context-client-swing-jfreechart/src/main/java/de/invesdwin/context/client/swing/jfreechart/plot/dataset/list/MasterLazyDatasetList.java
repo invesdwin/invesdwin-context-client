@@ -477,7 +477,8 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
             @Override
             public void run() {
                 try {
-                    int nextItemsIndex = insertedIndex;
+                    int nextItemsIndex = 0;
+
                     final List<MasterOHLCDataItem> loadedItems = new ArrayList<>();
                     try (ICloseableIterator<? extends TimeRangedOHLCDataItem> it = masterValues.iterator()) {
                         while (true) {
@@ -494,11 +495,9 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
                     try {
                         final int tooManyAfter = items.size() - nextItemsIndex;
                         if (tooManyAfter > 0) {
-                            final int removeMasterIndex = nextItemsIndex;
-                            if (removeMasterIndex >= 0) {
-                                synchronized (MasterLazyDatasetList.this) {
-                                    removeTooManyAfter(data, removeMasterIndex, tooManyAfter);
-                                }
+                            final int removeMasterIndex = insertedIndex + nextItemsIndex;
+                            synchronized (MasterLazyDatasetList.this) {
+                                removeTooManyAfter(data, removeMasterIndex, tooManyAfter);
                             }
                         }
                         if (!slaveDatasetListeners.isEmpty()) {
