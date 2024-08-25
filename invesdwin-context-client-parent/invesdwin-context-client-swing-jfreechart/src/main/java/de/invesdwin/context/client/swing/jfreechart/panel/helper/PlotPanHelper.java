@@ -34,7 +34,7 @@ public class PlotPanHelper {
         final Range range = chartPanel.getDomainAxis().getRange();
         final double length = range.getLength();
         final double newLowerBound = Doubles.max(range.getLowerBound() - length * scrollFactor,
-                0 - chartPanel.getAllowedMaximumPastRangeGap(length));
+                0 - chartPanel.getAllowedMaximumRangeGap(length));
         Range newRange = new Range(newLowerBound, newLowerBound + length);
         final Range limitRange = chartPanel.getPlotZoomHelper().getLimitRange(newRange);
         if (limitRange != null) {
@@ -55,7 +55,7 @@ public class PlotPanHelper {
         final Range range = chartPanel.getDomainAxis().getRange();
         final double length = range.getLength();
         final double newUpperBound = Doubles.min(range.getUpperBound() + length * scrollFactor,
-                range.getUpperBound() + chartPanel.getAllowedMaximumFutureRangeGap(length));
+                range.getUpperBound() + chartPanel.getAllowedMaximumRangeGap(length));
 
         Range newRange = new Range(newUpperBound - length, newUpperBound);
         final Range limitRange = chartPanel.getPlotZoomHelper().getLimitRange(newRange);

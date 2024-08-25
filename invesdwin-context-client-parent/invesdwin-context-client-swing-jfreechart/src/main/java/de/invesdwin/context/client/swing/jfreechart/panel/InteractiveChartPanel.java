@@ -284,12 +284,8 @@ public class InteractiveChartPanel extends JPanel {
         return chartPanel.getDefaultShowAllGapRate();
     }
 
-    public int getAllowedMaximumFutureRangeGap(final double range) {
-        return chartPanel.getAllowedMaximumFutureRangeGap(range);
-    }
-
-    public int getAllowedMaximumPastRangeGap(final double range) {
-        return chartPanel.getAllowedMaximumPastRangeGap(range);
+    public int getAllowedMaximumRangeGap(final double range) {
+        return chartPanel.getAllowedMaximumRangeGap(range);
     }
 
     public IndexedDateTimeOHLCDataset getMasterDataset() {
@@ -886,8 +882,8 @@ public class InteractiveChartPanel extends JPanel {
                 ? (domainAxis.getRange().getUpperBound() - maxUpperBound) / length
                 : 0;
 
-        if (newUserGapRate > chartPanel.getAllowedMaximumFutureRangeGapRate()) {
-            newUserGapRate = chartPanel.getAllowedMaximumFutureRangeGapRate();
+        if (newUserGapRate > chartPanel.getAllowedMaximumRangeGapRate()) {
+            newUserGapRate = chartPanel.getAllowedMaximumRangeGapRate();
         }
         this.userGapRate = newUserGapRate;
     }
