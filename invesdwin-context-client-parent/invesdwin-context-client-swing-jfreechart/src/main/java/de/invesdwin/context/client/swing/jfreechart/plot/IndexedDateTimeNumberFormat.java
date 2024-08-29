@@ -51,7 +51,8 @@ public class IndexedDateTimeNumberFormat extends NumberFormat {
     private String formatItem(final int item) {
         final long prevEndTime = (long) dataset.getXValueAsDateTimeEnd(0, item - 1);
         final long endTime = (long) dataset.getXValueAsDateTimeEnd(0, item);
-        final String endTimeStr = formatTime(prevEndTime, endTime);
+        final boolean lastItem = item == dataset.getItemCount(0) - 1;
+        final String endTimeStr = formatTime(prevEndTime, endTime, lastItem);
         return endTimeStr;
     }
 
@@ -67,11 +68,12 @@ public class IndexedDateTimeNumberFormat extends NumberFormat {
         final StringBuilder sb = new StringBuilder();
         final long prevStartTime = (long) dataset.getXValueAsDateTimeStart(0, item - 1);
         final long startTime = (long) dataset.getXValueAsDateTimeStart(0, item);
-        final String startTimeStr = formatTime(prevStartTime, startTime);
+        final boolean lastItem = item == dataset.getItemCount(0) - 1;
+        final String startTimeStr = formatTime(prevStartTime, startTime, lastItem);
         sb.append(startTimeStr);
         final long endTime = (long) dataset.getXValueAsDateTimeEnd(0, item);
         if (endTime != startTime) {
-            final String endTimeStr = formatTime(startTime, endTime);
+            final String endTimeStr = formatTime(startTime, endTime, lastItem);
             if (!endTimeStr.equals(startTimeStr)) {
                 sb.append(" -> ");
                 sb.append(endTimeStr);
@@ -80,7 +82,7 @@ public class IndexedDateTimeNumberFormat extends NumberFormat {
         return sb.toString();
     }
 
-    private String formatTime(final long prevTime, final long time) {
+    private String formatTime(final long prevTime, final long time, final boolean lastItem) {
         final FDate prevDate = new FDate(prevTime);
         final FDate date = new FDate(time);
         final Range range = domainAxis.getRange();
@@ -88,28 +90,36 @@ public class IndexedDateTimeNumberFormat extends NumberFormat {
                 - dataset.getXValueAsDateTimeStart(0, (int) range.getLowerBound());
         final Duration duration = new Duration((long) millis, FTimeUnit.MILLISECONDS);
         final DateFormat format;
-        if (duration.isLessThan(MILLISECOND_THRESHOLD) && FDates.isSameSecond(date, prevDate)) {
-            format = millisecondFormat;
-        } else if (duration.isLessThan(SECOND_THRESHOLD) && FDates.isSameMinute(date, prevDate)) {
-            format = secondFormat;
-        } else if (duration.isLessThan(MINUTE_THRESHOLD) && FDates.isSameJulianDay(date, prevDate)) {
-            format = minuteFormat;
-        } else if (date.isWithoutTime()) {
-            format = dateFormat;
+        if (lastItem) {
+            format = getFallbackTimeFormat(date);
         } else {
-            if (date.getMillisecond() != 0) {
+            if (duration.isLessThan(MILLISECOND_THRESHOLD) && FDates.isSameSecond(date, prevDate)) {
                 format = millisecondFormat;
-            } else if (date.getSecond() != 0) {
+            } else if (duration.isLessThan(SECOND_THRESHOLD) && FDates.isSameMinute(date, prevDate)) {
                 format = secondFormat;
-            } else if (date.getMinute() != 0) {
+            } else if (duration.isLessThan(MINUTE_THRESHOLD) && FDates.isSameJulianDay(date, prevDate)) {
                 format = minuteFormat;
-            } else if (date.getHour() == 0) {
+            } else if (date.isWithoutTime()) {
                 format = dateFormat;
             } else {
-                format = minuteFormat;
+                format = getFallbackTimeFormat(date);
             }
         }
         return format.format(date.dateValue());
+    }
+
+    private DateFormat getFallbackTimeFormat(final FDate date) {
+        if (date.getMillisecond() != 0) {
+            return millisecondFormat;
+        } else if (date.getSecond() != 0) {
+            return secondFormat;
+        } else if (date.getMinute() != 0) {
+            return minuteFormat;
+        } else if (date.getHour() == 0) {
+            return dateFormat;
+        } else {
+            return minuteFormat;
+        }
     }
 
     @Override
