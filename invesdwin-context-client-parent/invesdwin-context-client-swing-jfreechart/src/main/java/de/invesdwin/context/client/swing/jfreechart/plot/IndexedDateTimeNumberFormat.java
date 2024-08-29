@@ -97,7 +97,17 @@ public class IndexedDateTimeNumberFormat extends NumberFormat {
         } else if (date.isWithoutTime()) {
             format = dateFormat;
         } else {
-            format = minuteFormat;
+            if (date.getMillisecond() != 0) {
+                format = millisecondFormat;
+            } else if (date.getSecond() != 0) {
+                format = secondFormat;
+            } else if (date.getMinute() != 0) {
+                format = minuteFormat;
+            } else if (date.getHour() == 0) {
+                format = dateFormat;
+            } else {
+                format = minuteFormat;
+            }
         }
         return format.format(date.dateValue());
     }
