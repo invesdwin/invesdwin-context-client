@@ -571,7 +571,11 @@ public class InteractiveChartPanel extends JPanel {
                     }
                 }
                 configureRangeAxis();
-                plotPanHelper.maybeToggleVisibilityPanLiveIcon();
+                final boolean navigationUpdated = plotPanHelper.maybeToggleVisibilityPanLiveIcon();
+                if (!navigationUpdated) {
+                    //Update for Pan/Zoom-Icon's if not alreay called by panLiveVisibility-handling
+                    plotNavigationHelper.updateNavigation();
+                }
             }
         }
     }

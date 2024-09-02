@@ -238,7 +238,7 @@ public class PlotNavigationHelper {
         return null;
     }
 
-    private void updateNavigation() {
+    public void updateNavigation() {
         final Point mouseLocation = Components.getMouseLocationOnComponent(chartPanel.getChartPanel());
         final int mouseX;
         final int mouseY;
@@ -696,25 +696,33 @@ public class PlotNavigationHelper {
         return highlighting || noteShowingOnPlot != null || panLiveIconState.isHighlighted();
     }
 
-    public void showPanLiveIcon(final boolean backward) {
+    /**
+     * Return's if Nav-Icons have been changed/updated.
+     */
+    public boolean showPanLiveIcon(final boolean backward) {
         if (backward) {
             if (!panLiveIconState.isBackwardVisible()) {
                 panLiveIconState = PanLiveIconState.PanLiveBackwardVisible;
                 updateNavigation();
+                return true;
             }
         } else {
             if (!panLiveIconState.isForwardVisible()) {
                 panLiveIconState = PanLiveIconState.PanLiveForwardVisible;
                 updateNavigation();
+                return true;
             }
         }
+        return false;
     }
 
-    public void hidePanLiveIcon() {
+    public boolean hidePanLiveIcon() {
         if (panLiveIconState != PanLiveIconState.Invisible) {
             panLiveIconState = PanLiveIconState.Invisible;
             updateNavigation();
+            return true;
         }
+        return false;
     }
 
     public XYNoteIconAnnotation getNoteShowingIconAnnotation() {
