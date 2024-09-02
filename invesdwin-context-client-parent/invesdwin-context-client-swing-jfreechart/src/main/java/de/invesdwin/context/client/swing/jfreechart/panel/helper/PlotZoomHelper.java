@@ -395,7 +395,7 @@ public class PlotZoomHelper {
         }
     }
 
-    private double getMinLowerBoundWithGap(final List<? extends TimeRangedOHLCDataItem> data, final int gap) {
+    public double getMinLowerBoundWithGap(final List<? extends TimeRangedOHLCDataItem> data, final int gap) {
         final double minLowerBound = getMinLowerBound(data);
         if (minLowerBound <= 0) {
             return -gap;

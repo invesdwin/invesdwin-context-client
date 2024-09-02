@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Set;
+import java.util.function.BooleanSupplier;
 
 import javax.annotation.concurrent.NotThreadSafe;
 import javax.swing.Timer;
@@ -20,6 +21,7 @@ import org.jfree.chart.entity.ChartEntity;
 import org.jfree.chart.entity.XYAnnotationEntity;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYItemRenderer;
+import org.jfree.data.Range;
 
 import de.invesdwin.context.client.swing.jfreechart.panel.InteractiveChartPanel;
 import de.invesdwin.context.client.swing.jfreechart.panel.basis.CustomCombinedDomainXYPlot;
@@ -31,6 +33,7 @@ import de.invesdwin.context.client.swing.jfreechart.plot.annotation.XYNoteAnnota
 import de.invesdwin.context.client.swing.jfreechart.plot.annotation.XYNoteIconAnnotation;
 import de.invesdwin.context.client.swing.jfreechart.plot.axis.Axises;
 import de.invesdwin.context.client.swing.jfreechart.plot.renderer.INoteRenderer;
+import de.invesdwin.context.jfreechart.dataset.TimeRangedOHLCDataItem;
 import de.invesdwin.util.collections.factory.ILockCollectionFactory;
 import de.invesdwin.util.collections.iterable.buffer.BufferingIterator;
 import de.invesdwin.util.collections.list.ListSet;
@@ -87,12 +90,46 @@ public class PlotNavigationHelper {
 
     public PlotNavigationHelper(final InteractiveChartPanel chartPanel) {
         this.chartPanel = chartPanel;
-        this.panLeft = newIcons(PlotIcons.PAN_LEFT, -60 - 15);
-        this.zoomOut = newIcons(PlotIcons.ZOOM_OUT, -30 - 15);
+        this.panLeft = newIcons(PlotIcons.PAN_LEFT, -60 - 15).setDisabledCheck(new BooleanSupplier() {
+            @Override
+            public boolean getAsBoolean() {
+                final Range domainAxisRange = chartPanel.getDomainAxis().getRange();
+                final double domainAxisLength = domainAxisRange.getLength();
+                final List<? extends TimeRangedOHLCDataItem> data = chartPanel.getMasterDataset().getData();
+                final int allowedGap = chartPanel.getAllowedMaximumRangeGap(domainAxisLength);
+                final double minLowerBound = chartPanel.getPlotZoomHelper().getMinLowerBoundWithGap(data, allowedGap);
+
+                return domainAxisRange.getLowerBound() == minLowerBound;
+            }
+        });
+        this.zoomOut = newIcons(PlotIcons.ZOOM_OUT, -30 - 15).setDisabledCheck(new BooleanSupplier() {
+            @Override
+            public boolean getAsBoolean() {
+                final double domainAxisLength = chartPanel.getDomainAxis().getRange().getLength();
+                return domainAxisLength >= PlotZoomHelper.MAX_ZOOM_ITEM_COUNT
+                        || domainAxisLength >= chartPanel.getMasterDataset().getData().size();
+            }
+        });
         this.reset = newIcons(PlotIcons.RESET, -15).setAllowMasterDatasetEmpty(true);
         this.configure = newIcons(PlotIcons.CONFIGURE, +15).setAllowMasterDatasetEmpty(true);
-        this.zoomIn = newIcons(PlotIcons.ZOOM_IN, +30 + 15);
-        this.panRight = newIcons(PlotIcons.PAN_RIGHT, +60 + 15);
+        this.zoomIn = newIcons(PlotIcons.ZOOM_IN, +30 + 15).setDisabledCheck(new BooleanSupplier() {
+            @Override
+            public boolean getAsBoolean() {
+                return chartPanel.getDomainAxis().getRange().getLength() <= PlotZoomHelper.MIN_ZOOM_ITEM_COUNT;
+            }
+        });
+        this.panRight = newIcons(PlotIcons.PAN_RIGHT, +60 + 15).setDisabledCheck(new BooleanSupplier() {
+            @Override
+            public boolean getAsBoolean() {
+                final Range domainAxisRange = chartPanel.getDomainAxis().getRange();
+                final double domainAxisLength = domainAxisRange.getLength();
+                final List<? extends TimeRangedOHLCDataItem> data = chartPanel.getMasterDataset().getData();
+                final int allowedGap = chartPanel.getAllowedMaximumRangeGap(domainAxisLength);
+                final double maxUpperBound = chartPanel.getPlotZoomHelper().getMaxUpperBoundWithGap(data, allowedGap);
+
+                return domainAxisRange.getUpperBound() == maxUpperBound;
+            }
+        });
 
         this.navVisibleCheckAnnotations = new StatefulXYIconAnnotation[] { panLeft, panRight };
 
