@@ -273,7 +273,7 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
                 trailingInitially = false;
             }
         }
-        return chartPanel.getUserGapRate() > 0 || isTrailingRange(range, getData().size());
+        return chartPanel.getUserGapRateRight() > 0 || isTrailingRange(range, getData().size());
     }
 
     public static boolean isTrailingRange(final Range domainAxisRange, final int dataSize) {

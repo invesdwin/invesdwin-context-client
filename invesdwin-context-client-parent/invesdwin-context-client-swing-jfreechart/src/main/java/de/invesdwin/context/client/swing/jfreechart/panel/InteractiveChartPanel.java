@@ -102,7 +102,7 @@ public class InteractiveChartPanel extends JPanel {
     private boolean initialized = false;
     private boolean dragging = false;
 
-    private double userGapRate = 0D;
+    private double userGapRateRight = 0D;
 
     public InteractiveChartPanel(final IndexedDateTimeOHLCDataset masterDataset) {
         this.masterDataset = masterDataset;
@@ -195,7 +195,7 @@ public class InteractiveChartPanel extends JPanel {
             @Override
             public void run() {
                 //prevent blocking component initialization
-                resetRange(getInitialVisibleItemCount(), getUserGapRate());
+                resetRange(getInitialVisibleItemCount(), getUserGapRateRight());
             }
         });
     }
@@ -706,7 +706,7 @@ public class InteractiveChartPanel extends JPanel {
                     plotNavigationHelper.mouseDragged(e);
                 }
 
-                updateUserGapRate();
+                updateUserGapRateRight();
                 update();
             } catch (final Throwable t) {
                 Err.process(new Exception("Ignoring", t));
@@ -865,30 +865,34 @@ public class InteractiveChartPanel extends JPanel {
         return dragging;
     }
 
-    public double getUserGapRate() {
-        return userGapRate;
+    public double getUserGapRateRight() {
+        return userGapRateRight;
     }
 
-    public void setUserGapRate(final double userGapRate) {
-        this.userGapRate = userGapRate;
+    public void setUserGapRateRight(final double userGapRateRight) {
+        this.userGapRateRight = userGapRateRight;
     }
 
-    public void updateUserGapRate() {
+    public void updateUserGapRateRight() {
         final int maxUpperBound = plotZoomHelper.getMaxUpperBound();
-        updateUserGapRate(maxUpperBound);
+        updateUserGapRateRight(maxUpperBound);
     }
 
-    public void updateUserGapRate(final int maxUpperBound) {
+    public void updateUserGapRateRight(final int maxUpperBound) {
         //Limit-User-Gap
-        final double length = domainAxis.getRange().getLength();
+        final double domainRangeLength = domainAxis.getRange().getLength();
 
-        double newUserGapRate = maxUpperBound < domainAxis.getRange().getUpperBound()
-                ? (domainAxis.getRange().getUpperBound() - maxUpperBound) / length
-                : 0;
+        double newUserGapRateRight = calculateUserGapRateRight(maxUpperBound, domainRangeLength);
 
-        if (newUserGapRate > chartPanel.getAllowedMaximumRangeGapRate()) {
-            newUserGapRate = chartPanel.getAllowedMaximumRangeGapRate();
+        if (newUserGapRateRight > chartPanel.getAllowedMaximumRangeGapRate()) {
+            newUserGapRateRight = chartPanel.getAllowedMaximumRangeGapRate();
         }
-        this.userGapRate = newUserGapRate;
+        this.userGapRateRight = newUserGapRateRight;
+    }
+
+    public double calculateUserGapRateRight(final int maxUpperBound, final double domainRangeLength) {
+        return maxUpperBound < domainAxis.getRange().getUpperBound()
+                ? (domainAxis.getRange().getUpperBound() - maxUpperBound) / domainRangeLength
+                : 0;
     }
 }

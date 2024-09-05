@@ -105,9 +105,7 @@ public class PlotNavigationHelper {
         this.zoomOut = newIcons(PlotIcons.ZOOM_OUT, -30 - 15).setDisabledCheck(new BooleanSupplier() {
             @Override
             public boolean getAsBoolean() {
-                final double domainAxisLength = chartPanel.getDomainAxis().getRange().getLength();
-                return domainAxisLength >= PlotZoomHelper.MAX_ZOOM_ITEM_COUNT
-                        || domainAxisLength >= chartPanel.getMasterDataset().getData().size();
+                return chartPanel.getPlotZoomHelper().isMaxZoomOut(chartPanel.getDomainAxis().getRange());
             }
         });
         this.reset = newIcons(PlotIcons.RESET, -15).setAllowMasterDatasetEmpty(true);
@@ -666,11 +664,11 @@ public class PlotNavigationHelper {
                     } else {
                         chartPanel.resetRange(initialVisibleItemCount, chartPanel.getDefaultTrailingRangeGapRate(),
                                 () -> chartPanel.reloadData());
-                        chartPanel.updateUserGapRate();
+                        chartPanel.updateUserGapRateRight();
                     }
                 } else {
                     chartPanel.resetRange(initialVisibleItemCount, chartPanel.getDefaultTrailingRangeGapRate());
-                    chartPanel.updateUserGapRate();
+                    chartPanel.updateUserGapRateRight();
                 }
                 Axises.resetAllAutoRanges(chartPanel);
                 XYPlots.resetAllRangePannables(chartPanel);

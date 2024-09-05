@@ -63,6 +63,7 @@ public class PlotZoomHelper {
     private static final double ZOOM_IN_FACTOR = 1D / ZOOM_OUT_FACTOR;
     private static final Duration ZOOMABLE_THRESHOLD = new Duration(10, FTimeUnit.MILLISECONDS);
     private static final double EDGE_ANCHOR_TOLERANCE = 0.1D;
+
     private Instant lastZoomable = new Instant();
     private boolean lastZoomOnRangeAxis = false;
 
@@ -89,11 +90,10 @@ public class PlotZoomHelper {
                 if (lastZoomable.isGreaterThan(ZOOM_ANNOTATION_TIMEOUT) || lastZoomOnRangeAxis) {
                     return;
                 }
-                final double domainAxisLength = plot.getDomainAxis().getRange().getLength();
-                if (domainAxisLength >= MAX_ZOOM_ITEM_COUNT
-                        || domainAxisLength >= chartPanel.getMasterDataset().getData().size()) {
+                final Range domainAxisRange = plot.getDomainAxis().getRange();
+                if (isMaxZoomOut(domainAxisRange)) {
                     zoomTitle.setText("Zoom: MAX");
-                } else if (domainAxisLength <= MIN_ZOOM_ITEM_COUNT) {
+                } else if (domainAxisRange.getLength() <= MIN_ZOOM_ITEM_COUNT) {
                     zoomTitle.setText("Zoom: MIN");
                 } else {
                     zoomTitle.setText("");
@@ -183,55 +183,55 @@ public class PlotZoomHelper {
             plot.setNotify(false);
             final PlotRenderingInfo plotInfo = this.chartPanel.getChartPanel().getChartRenderingInfo().getPlotInfo();
 
-            final int maxUpperBound = chartPanel.getPlotZoomHelper().getMaxUpperBound();
-            final int minLowerBound = chartPanel.getPlotZoomHelper()
-                    .getMinLowerBound(chartPanel.getMasterDataset().getData());
-            final boolean isGapPast = chartPanel.getDomainAxis().getRange().getLowerBound() < minLowerBound;
+            final Range currentRange = chartPanel.getDomainAxis().getRange();
+            final int maxUpperBound = getMaxUpperBound();
+            final int minLowerBound = getMinLowerBound(chartPanel.getMasterDataset().getData());
+            final boolean isGapLeft = chartPanel.getDomainAxis().getRange().getLowerBound() < minLowerBound;
+            final boolean isGapRight = chartPanel.getUserGapRateRight() > 0;
 
-            if (chartPanel.getUserGapRate() > 0 && !isGapPast) {
+            if ((isGapLeft || isGapRight) && zoomFactor > 1) {
+                //ZoomOut when we have a UserGap in the past or future (or both)
                 /*
-                 * We have a userGap and want to zoom out. We want to keep the userGap and only zoom out to the left..
-                 * until we reach the start of the history.
+                 * If we have a UserGap on one side and ZoomOut. We only zoom to the other side till we reached the the
+                 * same gapRate in that direction. If we have a UserGap on both sides we will keep the UserGap on the
+                 * side with the bigger Rate constant and only ZoomOut as far till the USerGapRate on the other side is
+                 * equal.
                  */
+
                 final double length = plot.getDomainAxis().getRange().getLength();
                 final double newLength = length * zoomFactor;
-                final double gap = chartPanel.getUserGapRate() * newLength;
-                final double newUpperBound = maxUpperBound + gap;
-                final double newLowerBound = newUpperBound - newLength;
-                Range newRange = new Range(newLowerBound, newUpperBound);
-                final Range limitRange = getLimitRange(newRange);
-                if (limitRange != null) {
-                    newRange = limitRange;
-                }
-
-                chartPanel.getDomainAxis().setRange(newRange);
-            } else if (isGapPast && chartPanel.getUserGapRate() <= 0) {
-                /*
-                 * We have a gap in the past (to the left, which we dont track separately) and want to zoom out. We want
-                 * to keep the gap and only zoom out to the right.. until we are live.
-                 */
-                final double length = plot.getDomainAxis().getRange().getLength();
-                final double newLength = length * zoomFactor;
-                final double gapRatePast = (minLowerBound - chartPanel.getDomainAxis().getRange().getLowerBound())
+                final double gapRateLeft = (minLowerBound - chartPanel.getDomainAxis().getRange().getLowerBound())
                         / length;
-                final double gap = gapRatePast * newLength;
-                final double newLowerBound = minLowerBound - gap;
-                final double newUpperBound = newLowerBound + newLength;
-                Range newRange = new Range(newLowerBound, newUpperBound);
-                final Range limitRange = getLimitRange(newRange);
-                if (limitRange != null) {
-                    newRange = limitRange;
+                final double gapRateRight = chartPanel.getUserGapRateRight();
+
+                if (!isMaxZoomOut(currentRange)) {
+                    if (gapRateLeft < gapRateRight) {
+                        zoomKeepUserGapRight(currentRange, minLowerBound, maxUpperBound, newLength);
+                    } else if (gapRateLeft > gapRateRight) {
+                        zoomKeepUserGapLeft(currentRange, minLowerBound, maxUpperBound, newLength, gapRateLeft);
+                    }
+                }
+            } else if (((isGapLeft && !isGapRight) || (!isGapLeft && isGapRight)) && zoomFactor < 1) {
+                //ZoomIn with UserGap on only one side
+                /*
+                 * We keep the UserGap on whichever side it is constant and ZoomIn on the other side.
+                 */
+                final double length = plot.getDomainAxis().getRange().getLength();
+                final double newLength = length * zoomFactor;
+
+                if (isGapLeft) {
+                    final double gapRateLeft = (minLowerBound - chartPanel.getDomainAxis().getRange().getLowerBound())
+                            / length;
+                    zoomKeepUserGapLeft(currentRange, minLowerBound, maxUpperBound, newLength, gapRateLeft);
+                } else {
+                    zoomKeepUserGapRight(currentRange, minLowerBound, maxUpperBound, newLength);
                 }
 
-                chartPanel.getDomainAxis().setRange(newRange);
-
-                //Update the userGap in case we scrolled so far out that we reached live-data.
-                chartPanel.updateUserGapRate(chartPanel.getPlotZoomHelper().getMaxUpperBound());
             } else {
                 //Regular zoom depending on the mouse position
                 plot.zoomDomainAxes(zoomFactor, plotInfo, point, true);
                 applyEdgeAnchor(rangeBefore, lengthBefore, point.getX(), plotInfo.getDataArea().getWidth());
-                chartPanel.updateUserGapRate(maxUpperBound);
+                chartPanel.updateUserGapRateRight(maxUpperBound);
             }
 
             plot.setNotify(notifyState); // this generates the change event too
@@ -239,6 +239,69 @@ public class PlotZoomHelper {
         } finally {
             chartPanel.decrementUpdatingCount();
         }
+    }
+
+    /**
+     * Zoom (in or out) while keeping the userGapLeft (which we don't keep track of as a separate variable, like the
+     * userGapRight).
+     */
+    protected void zoomKeepUserGapLeft(final Range oldRange, final int minLowerBound, final int maxUpperBound,
+            final double newLength, final double gapRateLeft) {
+        /*
+         * We have a gap in the past (to the left, which we don't track separately) and want to zoom. We want to keep
+         * the gap and only zoom on the right.. until we are live.
+         */
+
+        final double gap = gapRateLeft * newLength;
+        final double newLowerBound = minLowerBound - gap;
+        final double newUpperBound = newLowerBound + newLength;
+        Range newRange = new Range(newLowerBound, newUpperBound);
+
+        final Range fullDatasetVisibleLimitRange = getFullDatasetVisibleLimitRange(oldRange, minLowerBound,
+                maxUpperBound);
+        if (fullDatasetVisibleLimitRange != null) {
+            final double newGapRateRight = (newRange.getUpperBound() - maxUpperBound) / newRange.getLength();
+            if (newGapRateRight > gapRateLeft) {
+                newRange = fullDatasetVisibleLimitRange;
+            }
+        }
+
+        final Range limitRange = getLimitRange(newRange);
+        if (limitRange != null) {
+            newRange = limitRange;
+        }
+
+        chartPanel.getDomainAxis().setRange(newRange);
+
+        //Update the userGapRight in case we scrolled so far out that we reached live-data.
+        chartPanel.updateUserGapRateRight(chartPanel.getPlotZoomHelper().getMaxUpperBound());
+    }
+
+    /**
+     * Zoom (in or out) while keeping the userGapRight.
+     */
+    protected void zoomKeepUserGapRight(final Range oldRange, final int minLowerBound, final int maxUpperBound,
+            final double newLength) {
+        final double gap = chartPanel.getUserGapRateRight() * newLength;
+        final double newUpperBound = maxUpperBound + gap;
+        final double newLowerBound = newUpperBound - newLength;
+        Range newRange = new Range(newLowerBound, newUpperBound);
+
+        final Range fullDatasetVisibleLimitRange = getFullDatasetVisibleLimitRange(oldRange, minLowerBound,
+                maxUpperBound);
+        if (fullDatasetVisibleLimitRange != null) {
+            final double newGapRateLeft = (minLowerBound - newLowerBound) / newRange.getLength();
+            if (newGapRateLeft > chartPanel.getUserGapRateRight()) {
+                newRange = fullDatasetVisibleLimitRange;
+            }
+        }
+
+        final Range limitRange = getLimitRange(newRange);
+        if (limitRange != null) {
+            newRange = limitRange;
+        }
+
+        chartPanel.getDomainAxis().setRange(newRange);
     }
 
     private void handleZoomableRangeAxisArea(final Point2D point, final double zoomFactor,
@@ -415,6 +478,10 @@ public class PlotZoomHelper {
 
     public int getMaxUpperBound() {
         return getMaxUpperBound(chartPanel.getMasterDataset().getData());
+    }
+
+    public int getMinLowerBound() {
+        return getMinLowerBound(chartPanel.getMasterDataset().getData());
     }
 
     private int getMinLowerBound(final List<?> data) {
@@ -609,6 +676,77 @@ public class PlotZoomHelper {
             // We make the xyplot y-pannable if at least one axis/indicator is on AutoRange = false.
             xyPlot.setRangePannable(!Axises.isEveryAxisAutoRange(xyPlot));
         }
+    }
+
+    public boolean isMaxZoomOut(final Range domainAxisRange) {
+        if (domainAxisRange.getLength() >= MAX_ZOOM_ITEM_COUNT) {
+            return true;
+        }
+
+        if (isFullDataRangeVisible(domainAxisRange)) {
+            final double userGapRateLeft = calcCurrenctUserGapRateLeft();
+            //We round this because there can always be a slight difference in a very late decimal place
+            if (Doubles.round(userGapRateLeft, 3) == Doubles.round(chartPanel.getUserGapRateRight(), 3)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private boolean isFullDataRangeVisible(final Range domainAxisRange) {
+        return domainAxisRange.getLowerBound() <= getMinLowerBound()
+                && domainAxisRange.getUpperBound() >= getMaxUpperBound();
+    }
+
+    /**
+     * Returns the limit-DomainRange for zooming-out. When zooming out while we have a userGap (on either side) and the
+     * whole dataset is visible: We only want to be able to zoom to a point where the UserGap on both sides are
+     * identical.
+     */
+    private Range getFullDatasetVisibleLimitRange(final Range currentDomainAxisRange, final int minLowerBound,
+            final int maxUpperBound) {
+        final double lowerBound = currentDomainAxisRange.getLowerBound();
+
+        final double gapLeft = lowerBound < minLowerBound ? minLowerBound - lowerBound : 0.0;
+        final double userGapRateRight = chartPanel.getUserGapRateRight();
+        final double gapRight = currentDomainAxisRange.getLength() * userGapRateRight;
+
+        if (gapLeft == 0.0 && gapRight == 0.0) {
+            return null;
+        }
+
+        if (gapLeft == gapRight) {
+            return currentDomainAxisRange;
+        }
+
+        final double limitLowerBound;
+        final double limitUpperBound;
+        final double limitDomainAxisLength;
+        final double newGap;
+
+        if (gapLeft > gapRight) {
+            limitDomainAxisLength = chartPanel.getMasterDataset().getData().size() + (2 * gapLeft);
+            final double userGapRateLeft = calcUserGapRateLeft(minLowerBound, limitDomainAxisLength);
+            newGap = limitDomainAxisLength * userGapRateLeft;
+        } else {
+            limitDomainAxisLength = chartPanel.getMasterDataset().getData().size() + (2 * gapRight);
+            newGap = limitDomainAxisLength * userGapRateRight;
+        }
+
+        limitLowerBound = minLowerBound - newGap;
+        limitUpperBound = maxUpperBound + newGap;
+
+        return new Range(limitLowerBound, limitUpperBound);
+    }
+
+    private double calcCurrenctUserGapRateLeft() {
+        return (getMinLowerBound() - chartPanel.getDomainAxis().getRange().getLowerBound())
+                / chartPanel.getDomainAxis().getRange().getLength();
+    }
+
+    private double calcUserGapRateLeft(final double minLowerBound, final double domainAxisLength) {
+        return (minLowerBound - chartPanel.getDomainAxis().getRange().getLowerBound()) / domainAxisLength;
     }
 
     public boolean isMouseDragZooming() {

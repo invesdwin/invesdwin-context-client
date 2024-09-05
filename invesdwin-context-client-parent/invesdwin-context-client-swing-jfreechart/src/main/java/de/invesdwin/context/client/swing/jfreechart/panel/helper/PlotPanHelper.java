@@ -42,7 +42,7 @@ public class PlotPanHelper {
         }
 
         chartPanel.getDomainAxis().setRange(newRange);
-        chartPanel.updateUserGapRate();
+        chartPanel.updateUserGapRateRight();
     }
 
     public double getPanLiveUpperBound() {
@@ -64,7 +64,7 @@ public class PlotPanHelper {
         }
 
         chartPanel.getDomainAxis().setRange(newRange);
-        chartPanel.updateUserGapRate();
+        chartPanel.updateUserGapRateRight();
     }
 
     /**
@@ -73,7 +73,7 @@ public class PlotPanHelper {
     public void panLive(final MouseEvent e) {
         final int length = (int) chartPanel.getDomainAxis().getRange().getLength();
         chartPanel.resetRange(length, chartPanel.getChartPanel().getDefaultTrailingRangeGapRate());
-        chartPanel.updateUserGapRate();
+        chartPanel.updateUserGapRateRight();
 
         //pan live button is removed, thus switch to crosshair
         if (e != null) {
@@ -139,7 +139,7 @@ public class PlotPanHelper {
             final Point2D point2D = chartPanel.getChartPanel().translateScreenToJava2D(e.getPoint());
             final AxisType axis = Axises.getAxisForMousePosition(chartPanel, point2D);
             if (axis != null && AxisType.DOMAIN_AXIS.equals(axis)) {
-                chartPanel.resetRange(chartPanel.getInitialVisibleItemCount(), chartPanel.getUserGapRate());
+                chartPanel.resetRange(chartPanel.getInitialVisibleItemCount(), chartPanel.getUserGapRateRight());
             }
         }
     }
