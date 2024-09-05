@@ -12,6 +12,7 @@ import de.invesdwin.context.client.swing.jfreechart.plot.annotation.XYIconAnnota
 public class StatefulXYIconAnnotation {
     private final InteractiveChartPanel chartPanel;
     private final XYIconAnnotation invisible;
+    private final XYIconAnnotation disabled;
     private final XYIconAnnotation visible;
     private final XYIconAnnotation highlighted;
     private final XYIconAnnotation[] array;
@@ -21,9 +22,10 @@ public class StatefulXYIconAnnotation {
     private XYIconAnnotation state;
 
     public StatefulXYIconAnnotation(final InteractiveChartPanel chartPanel, final XYIconAnnotation invisible,
-            final XYIconAnnotation visible, final XYIconAnnotation highlighted) {
+            final XYIconAnnotation disabled, final XYIconAnnotation visible, final XYIconAnnotation highlighted) {
         this.chartPanel = chartPanel;
         this.invisible = invisible;
+        this.disabled = disabled;
         this.visible = visible;
         this.highlighted = highlighted;
         this.array = new XYIconAnnotation[] { invisible, visible, highlighted };
@@ -38,25 +40,13 @@ public class StatefulXYIconAnnotation {
         return allowMasterDatasetEmpty;
     }
 
-    public StatefulXYIconAnnotation setDisabledCheck(final BooleanSupplier disabledCheck) {
-        this.disabledCheck = disabledCheck;
-        return this;
-    }
-
     public BooleanSupplier getDisabledCheck() {
         return disabledCheck;
     }
 
-    public XYIconAnnotation getInvisible() {
-        return invisible;
-    }
-
-    public XYIconAnnotation getVisible() {
-        return visible;
-    }
-
-    public XYIconAnnotation getHighlighted() {
-        return highlighted;
+    public StatefulXYIconAnnotation setDisabledCheck(final BooleanSupplier disabledCheck) {
+        this.disabledCheck = disabledCheck;
+        return this;
     }
 
     public XYIconAnnotation[] asArray() {
@@ -66,9 +56,9 @@ public class StatefulXYIconAnnotation {
     public boolean updateState(final boolean navigationVisible, final boolean hasDataset,
             final StatefulXYIconAnnotation highlightedAnnotation) {
         if (navigationVisible && shouldShowNavigationAnnotation(hasDataset)) {
-            final boolean disabled = disabledCheck.getAsBoolean();
-            if (disabled) {
-                state = invisible;
+            final boolean iconDisabled = disabledCheck.getAsBoolean();
+            if (iconDisabled) {
+                state = disabled;
             } else if (highlightedAnnotation == this) {
                 state = highlighted;
             } else {
@@ -109,5 +99,21 @@ public class StatefulXYIconAnnotation {
 
     public void reset() {
         renderedState = null;
+    }
+
+    public XYIconAnnotation getInvisible() {
+        return invisible;
+    }
+
+    public XYIconAnnotation getDisabled() {
+        return disabled;
+    }
+
+    public XYIconAnnotation getVisible() {
+        return visible;
+    }
+
+    public XYIconAnnotation getHighlighted() {
+        return highlighted;
     }
 }

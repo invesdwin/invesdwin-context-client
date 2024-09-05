@@ -49,6 +49,7 @@ public class PlotNavigationHelper {
             new Rectangle2D.Double(0, 0, 0, 0), -1, null, null);
     private static final int BUTTON_TIMER_DELAY = 50;
     private static final float INVISIBLE_ALPHA = 0.0f;
+    private static final float DISABLED_ALPHA = 0.2f;
     private static final float VISIBLE_ALPHA = 0.6f;
     private static final float HIGHLIGHTED_ALPHA = 1f;
 
@@ -146,9 +147,10 @@ public class PlotNavigationHelper {
     private StatefulXYIconAnnotation newIcons(final PlotIcons icon, final int xModification, final double x,
             final double y) {
         final XYIconAnnotation invisible = newIcon(icon, xModification, x, y, INVISIBLE_ALPHA);
+        final XYIconAnnotation disabled = newIcon(icon, xModification, x, y, DISABLED_ALPHA);
         final XYIconAnnotation visible = newIcon(icon, xModification, x, y, VISIBLE_ALPHA);
         final XYIconAnnotation highlighted = newIcon(icon, xModification, x, y, HIGHLIGHTED_ALPHA);
-        return new StatefulXYIconAnnotation(chartPanel, invisible, visible, highlighted);
+        return new StatefulXYIconAnnotation(chartPanel, invisible, disabled, visible, highlighted);
     }
 
     private XYIconAnnotation newIcon(final PlotIcons icon, final int xModification, final double x, final double y,
