@@ -23,6 +23,7 @@ import de.invesdwin.context.log.error.Err;
 import de.invesdwin.util.collections.Collections;
 import de.invesdwin.util.collections.iterable.ICloseableIterable;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
+import de.invesdwin.util.collections.list.Lists;
 import de.invesdwin.util.concurrent.WrappedExecutorService;
 import de.invesdwin.util.concurrent.priority.IPriorityRunnable;
 import de.invesdwin.util.lang.Objects;
@@ -42,10 +43,10 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
     private static final int MAX_STEP_ITEM_COUNT = PlotZoomHelper.MAX_ZOOM_ITEM_COUNT;
 
     private static final int MAX_ITEM_COUNT_TRAILING_MULTIPLIER = 5;
-    private static final int TRIM_ITEM_COUNT_TRAILING_MILTIPLIER = 7;
+    private static final int TRIM_ITEM_COUNT_TRAILING_MULTIPLIER = 7;
 
     private static final int MAX_ITEM_COUNT = MAX_STEP_ITEM_COUNT * MAX_ITEM_COUNT_TRAILING_MULTIPLIER;
-    private static final int TRIM_ITEM_COUNT = MAX_STEP_ITEM_COUNT * TRIM_ITEM_COUNT_TRAILING_MILTIPLIER;
+    private static final int TRIM_ITEM_COUNT = MAX_STEP_ITEM_COUNT * TRIM_ITEM_COUNT_TRAILING_MULTIPLIER;
 
     private final WrappedExecutorService executor;
     private final WrappedExecutorService loadSlaveItemsExecutor;
@@ -272,7 +273,7 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
                 trailingInitially = false;
             }
         }
-        return chartPanel.getUserGapRate() > 0 || isTrailingRange(range, getData().size());
+        return chartPanel.getUserGapRateRight() > 0 || isTrailingRange(range, getData().size());
     }
 
     public static boolean isTrailingRange(final Range domainAxisRange, final int dataSize) {
@@ -300,33 +301,34 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
     }
 
     private synchronized Range maybeTrimDataRange(final Range range, final MutableBoolean rangeChanged) {
-        Range updatedRange = range;
         final List<MasterOHLCDataItem> data = getData();
-        if (data.size() > TRIM_ITEM_COUNT) {
-            //trim both ends based on center
-            final int centralValueAdj = Integers.max(0, (int) range.getLowerBound())
-                    + Integers.min(data.size() - 1, (int) range.getUpperBound()) / 2;
-            int tooManyBefore = centralValueAdj - MAX_ITEM_COUNT / 2;
-            int tooManyAfter = data.size() - centralValueAdj - MAX_ITEM_COUNT / 2;
-            if (tooManyBefore < 0) {
-                tooManyAfter += tooManyBefore;
-            }
-            if (tooManyAfter < 0) {
-                tooManyBefore += tooManyAfter;
-            }
-            if (tooManyBefore > 0 || tooManyAfter > 0) {
-                chartPanel.incrementUpdatingCount(); //prevent flickering
-                try {
-                    if (tooManyBefore > 0) {
-                        updatedRange = removeTooManyBefore(range, rangeChanged, data, tooManyBefore);
-                    }
-                    if (tooManyAfter > 0) {
-                        removeTooManyAfter(data, tooManyAfter);
-                    }
-                    maxUpperBound = data.size() - 1;
-                } finally {
-                    chartPanel.decrementUpdatingCount();
+        if (data.size() < TRIM_ITEM_COUNT) {
+            return range;
+        }
+        //trim both ends based on center
+        final int centralValueAdj = Integers.max(0, (int) range.getLowerBound())
+                + Integers.min(data.size() - 1, (int) range.getUpperBound()) / 2;
+        int tooManyBefore = centralValueAdj - MAX_ITEM_COUNT / 2;
+        int tooManyAfter = data.size() - centralValueAdj - MAX_ITEM_COUNT / 2;
+        if (tooManyBefore < 0) {
+            tooManyAfter += tooManyBefore;
+        }
+        if (tooManyAfter < 0) {
+            tooManyBefore += tooManyAfter;
+        }
+        Range updatedRange = range;
+        if (tooManyBefore > 0 || tooManyAfter > 0) {
+            chartPanel.incrementUpdatingCount(); //prevent flickering
+            try {
+                if (tooManyBefore > 0) {
+                    updatedRange = removeTooManyBefore(range, rangeChanged, data, tooManyBefore);
                 }
+                if (tooManyAfter > 0) {
+                    removeTooManyAfter(data, tooManyAfter);
+                }
+                maxUpperBound = data.size() - 1;
+            } finally {
+                chartPanel.decrementUpdatingCount();
             }
         }
         return updatedRange;
@@ -335,9 +337,8 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
     private void removeTooManyAfter(final List<MasterOHLCDataItem> data, final int tooManyAfter) {
         chartPanel.incrementUpdatingCount();
         try {
-            for (int i = 0; i < tooManyAfter; i++) {
-                data.remove(data.size() - 1);
-            }
+            final int size = data.size();
+            Lists.removeRange(data, size - tooManyAfter, size);
             if (!slaveDatasetListeners.isEmpty()) {
                 for (final ISlaveLazyDatasetListener slave : slaveDatasetListeners) {
                     slave.removeEndItems(tooManyAfter);
@@ -352,9 +353,7 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
             final List<MasterOHLCDataItem> data, final int tooManyBefore) {
         chartPanel.incrementUpdatingCount();
         try {
-            for (int i = 0; i < tooManyBefore; i++) {
-                data.remove(0);
-            }
+            Lists.removeRange(data, 0, tooManyBefore);
             final Range updatedRange = new Range(range.getLowerBound() - tooManyBefore,
                     range.getUpperBound() - tooManyBefore);
             rangeChanged.setTrue();
@@ -400,9 +399,10 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
                 updatedRange = new Range(range.getLowerBound() + prependCount, range.getUpperBound() + prependCount);
                 rangeChanged.setTrue();
 
+                final int insertedIndex = 0;
                 final ICloseableIterable<? extends TimeRangedOHLCDataItem> masterPrependValues = provider
                         .getPreviousValues(firstLoadedItem.getEndTime().addMilliseconds(-1), prependCount);
-                loadItems(data, prependItems, masterPrependValues);
+                loadItems(data, insertedIndex, prependItems, masterPrependValues);
             }
         }
         //wait for update instead if trailing
@@ -424,6 +424,7 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
                     if (appendCount > 0) {
                         final List<MasterOHLCDataItem> appendItems;
                         chartPanel.incrementUpdatingCount(); //prevent flickering
+                        final int insertedIndex = data.size();
                         try {
                             appendItems = appendMaster(appendCount);
                             appendSlaves(appendCount);
@@ -433,7 +434,7 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
 
                         final ICloseableIterable<? extends TimeRangedOHLCDataItem> appendMasterValues = provider
                                 .getNextValues(appendItems.get(0).getEndTime(), appendItems.size());
-                        loadItems(data, appendItems, appendMasterValues);
+                        loadItems(data, insertedIndex, appendItems, appendMasterValues);
                     }
                 }
             }
@@ -468,15 +469,16 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
         return lastAvailableKeyToForTrailing.isBeforeOrEqualToNotNullSafe(lastLoadedKeyTo);
     }
 
-    private void loadItems(final List<MasterOHLCDataItem> data, final List<MasterOHLCDataItem> items,
+    private void loadItems(final List<MasterOHLCDataItem> data, final int insertedIndex,
+            final List<MasterOHLCDataItem> items,
             final ICloseableIterable<? extends TimeRangedOHLCDataItem> masterValues) {
         final double priority = items.get(0).getEndTime().millisValue();
         executor.execute(new IPriorityRunnable() {
             @Override
             public void run() {
                 try {
-                    int nextItemsIndex = 0;
                     final List<MasterOHLCDataItem> loadedItems = new ArrayList<>();
+                    int nextItemsIndex = 0;
                     try (ICloseableIterator<? extends TimeRangedOHLCDataItem> it = masterValues.iterator()) {
                         while (true) {
                             final TimeRangedOHLCDataItem next = it.next();
@@ -492,11 +494,9 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
                     try {
                         final int tooManyAfter = items.size() - nextItemsIndex;
                         if (tooManyAfter > 0) {
-                            final int removeMasterIndex = data.indexOf(items.get(nextItemsIndex));
-                            if (removeMasterIndex >= 0) {
-                                synchronized (MasterLazyDatasetList.this) {
-                                    removeTooManyAfter(data, tooManyAfter, removeMasterIndex);
-                                }
+                            final int removeMasterIndex = insertedIndex + nextItemsIndex;
+                            synchronized (MasterLazyDatasetList.this) {
+                                removeTooManyAfter(data, removeMasterIndex, tooManyAfter);
                             }
                         }
                         if (!slaveDatasetListeners.isEmpty()) {
@@ -516,16 +516,12 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
                 }
             }
 
-            private void removeTooManyAfter(final List<MasterOHLCDataItem> data, final int tooManyAfter,
-                    final int removeMasterIndex) {
-                int removed = 0;
-                while (removed < tooManyAfter && removeMasterIndex < data.size()) {
-                    data.remove(removeMasterIndex);
-                    removed++;
-                }
-                if (!slaveDatasetListeners.isEmpty() && removed > 0) {
+            private void removeTooManyAfter(final List<MasterOHLCDataItem> data, final int index, final int count) {
+                final int toIndexExclusive = Integers.min(data.size(), index + count);
+                Lists.removeRange(data, index, toIndexExclusive);
+                if (!slaveDatasetListeners.isEmpty()) {
                     for (final ISlaveLazyDatasetListener slave : slaveDatasetListeners) {
-                        slave.removeMiddleItems(removeMasterIndex, removed);
+                        slave.removeMiddleItems(index, count);
                     }
                 }
             }
@@ -788,23 +784,27 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
         }
 
         /*
-         * we don't have to trim the dataset since Datasets.iterateToFindRangeBounds is fast enough with large datasets,
-         * though DataSet implementations have to implement the XYRangeInfo interface and use Datasets to dermine the
-         * range faster than AbstractXYDataset.
+         * we don't have to trim the dataset aggressively since Datasets.iterateToFindRangeBounds is fast enough with
+         * large datasets, though DataSet implementations have to implement the XYRangeInfo interface and use Datasets
+         * to determine the range faster than AbstractXYDataset. Instead we trim only based on trailing when
+         * MAX_ITEM_COUNT is exceeded to preserve memory.
          */
-        //            maybeTrimDataRangeTrailing(appendCount);
+        maybeTrimDataRangeTrailing(appendCount);
     }
 
     private void maybeTrimDataRangeTrailing(final int appendCount) {
         if (appendCount <= 0) {
             return;
         }
+        final List<MasterOHLCDataItem> data = getData();
+        if (data.size() < MAX_ITEM_COUNT) {
+            return;
+        }
         final Range range = chartPanel.getDomainAxis().getRange();
         Range updatedRange = range;
-        final List<MasterOHLCDataItem> data = getData();
         //trim only before
         final int visibleRange = (int) range.getLength();
-        if (data.size() < visibleRange * TRIM_ITEM_COUNT_TRAILING_MILTIPLIER) {
+        if (data.size() < visibleRange * TRIM_ITEM_COUNT_TRAILING_MULTIPLIER) {
             return;
         }
         final MutableBoolean rangeChanged = new MutableBoolean();

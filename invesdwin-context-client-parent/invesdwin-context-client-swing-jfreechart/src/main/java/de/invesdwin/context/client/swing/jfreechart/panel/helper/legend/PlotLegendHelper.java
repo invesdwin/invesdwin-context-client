@@ -271,7 +271,7 @@ public class PlotLegendHelper {
             final int toSubplotIndex = chartPanel.getCombinedPlot().getSubplotIndex(mouseX, mouseY);
             if (!dragging) {
                 dragging = true;
-                visibleEmptyPlot = chartPanel.newPlot();
+                visibleEmptyPlot = chartPanel.getCombinedPlot().newPlot();
                 visibleEmptyPlot.addAnnotation(addAnnotation);
                 visibleEmptyPlot.setBackgroundPaint(ADD_BACKGROUND_COLOR);
                 chartPanel.getCombinedPlot().add(visibleEmptyPlot, EMPTY_PLOT_WEIGHT);

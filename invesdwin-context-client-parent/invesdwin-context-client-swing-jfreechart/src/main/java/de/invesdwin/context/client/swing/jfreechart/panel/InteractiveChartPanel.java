@@ -102,7 +102,7 @@ public class InteractiveChartPanel extends JPanel {
     private boolean initialized = false;
     private boolean dragging = false;
 
-    private double userGapRate = 0D;
+    private double userGapRateRight = 0D;
 
     public InteractiveChartPanel(final IndexedDateTimeOHLCDataset masterDataset) {
         this.masterDataset = masterDataset;
@@ -195,7 +195,7 @@ public class InteractiveChartPanel extends JPanel {
             @Override
             public void run() {
                 //prevent blocking component initialization
-                resetRange(getInitialVisibleItemCount(), getUserGapRate());
+                resetRange(getInitialVisibleItemCount(), getUserGapRateRight());
             }
         });
     }
@@ -278,6 +278,10 @@ public class InteractiveChartPanel extends JPanel {
 
     public double getDefaultTrailingRangeGapRate() {
         return chartPanel.getDefaultTrailingRangeGapRate();
+    }
+
+    public double getDefaultshowAllGapRate() {
+        return chartPanel.getDefaultShowAllGapRate();
     }
 
     public int getAllowedMaximumRangeGap(final double range) {
@@ -509,7 +513,7 @@ public class InteractiveChartPanel extends JPanel {
 
     @Override
     public void repaint() {
-        Components.triggerMouseMoved(InteractiveChartPanel.this, mouseMotionListener);
+        Components.triggerMouseMovedWithWindowActive(InteractiveChartPanel.this, mouseMotionListener);
     }
 
     public boolean isUpdating() {
@@ -567,7 +571,11 @@ public class InteractiveChartPanel extends JPanel {
                     }
                 }
                 configureRangeAxis();
-                plotPanHelper.maybeToggleVisibilityPanLiveIcon();
+                final boolean navigationUpdated = plotPanHelper.maybeToggleVisibilityPanLiveIcon();
+                if (!navigationUpdated) {
+                    //Update for Pan/Zoom-Icon's if not alreay called by panLiveVisibility-handling
+                    plotNavigationHelper.updateNavigation();
+                }
             }
         }
     }
@@ -698,7 +706,7 @@ public class InteractiveChartPanel extends JPanel {
                     plotNavigationHelper.mouseDragged(e);
                 }
 
-                updateUserGapRate();
+                updateUserGapRateRight();
                 update();
             } catch (final Throwable t) {
                 Err.process(new Exception("Ignoring", t));
@@ -798,7 +806,7 @@ public class InteractiveChartPanel extends JPanel {
             combinedPlot.add(masterDatasetPlot, CustomCombinedDomainXYPlot.MAIN_PLOT_WEIGHT);
             XYPlots.updateRangeAxes(getTheme(), masterDatasetPlot);
         } else {
-            final XYPlot emptyPlot = newPlot();
+            final XYPlot emptyPlot = combinedPlot.newPlot();
             combinedPlot.add(emptyPlot, CustomCombinedDomainXYPlot.MAIN_PLOT_WEIGHT);
         }
 
@@ -807,17 +815,6 @@ public class InteractiveChartPanel extends JPanel {
         if (masterDatasetRemovable) {
             plotConfigurationHelper.putIndicatorSeriesProvider(new MasterDatasetIndicatorSeriesProvider(this));
         }
-    }
-
-    public XYPlot newPlot() {
-        final NumberAxis rangeAxis = XYPlots.newRangeAxis(getTheme(), 0, false, true);
-        final XYPlot newPlot = new CustomXYPlot(combinedPlot, null, null, rangeAxis, null);
-
-        XYPlots.makeThreadSafe(newPlot);
-        newPlot.setRangeAxisLocation(AxisLocation.BOTTOM_OR_RIGHT);
-        plotLegendHelper.addLegendAnnotation(newPlot);
-        getTheme().processPlot(newPlot);
-        return newPlot;
     }
 
     @Override
@@ -868,26 +865,34 @@ public class InteractiveChartPanel extends JPanel {
         return dragging;
     }
 
-    public double getUserGapRate() {
-        return userGapRate;
+    public double getUserGapRateRight() {
+        return userGapRateRight;
     }
 
-    public void updateUserGapRate() {
+    public void setUserGapRateRight(final double userGapRateRight) {
+        this.userGapRateRight = userGapRateRight;
+    }
+
+    public void updateUserGapRateRight() {
         final int maxUpperBound = plotZoomHelper.getMaxUpperBound();
-        updateUserGapRate(maxUpperBound);
+        updateUserGapRateRight(maxUpperBound);
     }
 
-    public void updateUserGapRate(final int maxUpperBound) {
+    public void updateUserGapRateRight(final int maxUpperBound) {
         //Limit-User-Gap
-        final double length = domainAxis.getRange().getLength();
+        final double domainRangeLength = domainAxis.getRange().getLength();
 
-        double newUserGapRate = maxUpperBound < domainAxis.getRange().getUpperBound()
-                ? (domainAxis.getRange().getUpperBound() - maxUpperBound) / length
-                : 0;
+        double newUserGapRateRight = calculateUserGapRateRight(maxUpperBound, domainRangeLength);
 
-        if (newUserGapRate > chartPanel.getAllowedMaximumRangeGapRate()) {
-            newUserGapRate = chartPanel.getAllowedMaximumRangeGapRate();
+        if (newUserGapRateRight > chartPanel.getAllowedMaximumRangeGapRate()) {
+            newUserGapRateRight = chartPanel.getAllowedMaximumRangeGapRate();
         }
-        this.userGapRate = newUserGapRate;
+        this.userGapRateRight = newUserGapRateRight;
+    }
+
+    public double calculateUserGapRateRight(final int maxUpperBound, final double domainRangeLength) {
+        return maxUpperBound < domainAxis.getRange().getUpperBound()
+                ? (domainAxis.getRange().getUpperBound() - maxUpperBound) / domainRangeLength
+                : 0;
     }
 }

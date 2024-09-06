@@ -24,8 +24,11 @@ import de.invesdwin.context.client.swing.api.hook.IRichApplicationHook;
 import de.invesdwin.context.client.swing.api.task.EstimatedRemainingDurationTaskListener;
 import de.invesdwin.context.client.swing.api.view.AView;
 import de.invesdwin.context.client.swing.frame.app.DelegateRichApplication;
+import de.invesdwin.context.client.swing.frame.status.heap.HeapIndicator;
 import de.invesdwin.util.lang.string.Strings;
 import de.invesdwin.util.swing.Components;
+import de.invesdwin.util.swing.Fonts;
+import de.invesdwin.util.swing.HiDPI;
 import de.invesdwin.util.swing.MouseEnteredListener;
 import de.invesdwin.util.time.date.FTimeUnit;
 import de.invesdwin.util.time.duration.Duration;
@@ -33,8 +36,9 @@ import de.invesdwin.util.time.duration.Duration;
 @ThreadSafe
 public class StatusBarTaskView extends AView<StatusBarTaskView, JPanel> implements IRichApplicationHook {
 
-    private static final Border VISIBLE_BORDER = BorderFactory.createEmptyBorder(1, 0, 2, 0);
-    private static final Border INVISIBLE_BORDER = BorderFactory.createEmptyBorder(0, 0, 0, 0);
+    public static final int FONT_SIZE = HeapIndicator.FONT_SIZE;
+    public static final Border VISIBLE_BORDER = BorderFactory.createEmptyBorder(1, 0, 2, 0);
+    public static final Border INVISIBLE_BORDER = BorderFactory.createEmptyBorder(0, 0, 0, 0);
     private static final Duration ETA_THRESHOLD = new Duration(10, FTimeUnit.SECONDS);
     private TaskMonitor taskMonitor;
     private JLabel lblForegroundTask;
@@ -70,13 +74,13 @@ public class StatusBarTaskView extends AView<StatusBarTaskView, JPanel> implemen
         pnlProgress.add(pgbForegroundTask, BorderLayout.SOUTH);
         pgbForegroundTask.setMinimumSize(new Dimension(0, 0));
         pgbForegroundTask_mouseEnteredListener = MouseEnteredListener.get(pgbForegroundTask);
+        component.add(pgbForegroundTask, BorderLayout.CENTER);
 
         lblTasks = new JLabel("");
         lblTasks.setVerticalAlignment(SwingConstants.BOTTOM);
         component.add(lblTasks, BorderLayout.EAST);
         lblTasks_mouseEnteredListener = MouseEnteredListener.get(lblTasks);
 
-        calculateProgressbarPreferredSize();
         final List<Task<?, ?>> tasks = (List) taskMonitor.getTasks();
         setForegroundTaskText(taskMonitor.getForegroundTask(), tasks);
         setTasksText(tasks);
@@ -86,6 +90,10 @@ public class StatusBarTaskView extends AView<StatusBarTaskView, JPanel> implemen
         Components.showTooltipWithoutDelay(lblTasks);
 
         updateBorder(component);
+
+        Fonts.resizeFont(lblTasks, HiDPI.scale(FONT_SIZE));
+        Fonts.resizeFont(lblForegroundTask, HiDPI.scale(FONT_SIZE));
+        calculateProgressbarPreferredSize();
 
         return component;
     }
@@ -102,7 +110,7 @@ public class StatusBarTaskView extends AView<StatusBarTaskView, JPanel> implemen
 
     private void calculateProgressbarPreferredSize() {
         final Dimension pgbPreferredSize = new Dimension();
-        pgbPreferredSize.height = lblForegroundTask.getFont().getSize() + 2;
+        pgbPreferredSize.height = HiDPI.scale(FONT_SIZE) + 2;
         pgbPreferredSize.width = pgbPreferredSize.height * 3;
         pgbForegroundTask.setPreferredSize(pgbPreferredSize);
     }

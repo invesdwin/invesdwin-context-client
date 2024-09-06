@@ -31,18 +31,18 @@ public class PlotPanHelper {
     }
 
     public void panLeft() {
-        if (chartPanel.isLoading()) {
-            return;
-        }
         final Range range = chartPanel.getDomainAxis().getRange();
         final double length = range.getLength();
         final double newLowerBound = Doubles.max(range.getLowerBound() - length * scrollFactor,
                 0 - chartPanel.getAllowedMaximumRangeGap(length));
-        final Range newRange = new Range(newLowerBound, newLowerBound + length);
+        Range newRange = new Range(newLowerBound, newLowerBound + length);
+        final Range limitRange = chartPanel.getPlotZoomHelper().getLimitRange(newRange);
+        if (limitRange != null) {
+            newRange = limitRange;
+        }
 
         chartPanel.getDomainAxis().setRange(newRange);
-        chartPanel.updateUserGapRate();
-        chartPanel.update();
+        chartPanel.updateUserGapRateRight();
     }
 
     public double getPanLiveUpperBound() {
@@ -52,18 +52,19 @@ public class PlotPanHelper {
     }
 
     public void panRight() {
-        if (chartPanel.isLoading()) {
-            return;
-        }
         final Range range = chartPanel.getDomainAxis().getRange();
         final double length = range.getLength();
         final double newUpperBound = Doubles.min(range.getUpperBound() + length * scrollFactor,
                 range.getUpperBound() + chartPanel.getAllowedMaximumRangeGap(length));
 
-        final Range newRange = new Range(newUpperBound - length, newUpperBound);
+        Range newRange = new Range(newUpperBound - length, newUpperBound);
+        final Range limitRange = chartPanel.getPlotZoomHelper().getLimitRange(newRange);
+        if (limitRange != null) {
+            newRange = limitRange;
+        }
+
         chartPanel.getDomainAxis().setRange(newRange);
-        chartPanel.updateUserGapRate();
-        chartPanel.update();
+        chartPanel.updateUserGapRateRight();
     }
 
     /**
@@ -72,7 +73,7 @@ public class PlotPanHelper {
     public void panLive(final MouseEvent e) {
         final int length = (int) chartPanel.getDomainAxis().getRange().getLength();
         chartPanel.resetRange(length, chartPanel.getChartPanel().getDefaultTrailingRangeGapRate());
-        chartPanel.updateUserGapRate();
+        chartPanel.updateUserGapRateRight();
 
         //pan live button is removed, thus switch to crosshair
         if (e != null) {
@@ -81,21 +82,24 @@ public class PlotPanHelper {
         }
     }
 
-    public void maybeToggleVisibilityPanLiveIcon() {
+    /**
+     * Return's if Nav-Icons have been changed/updated.
+     */
+    public boolean maybeToggleVisibilityPanLiveIcon() {
         if (MasterLazyDatasetList.isTrailingRange(chartPanel.getDomainAxis().getRange(),
                 chartPanel.getMasterDataset().getItemCount(0))) {
             final double currUpperBound = chartPanel.getDomainAxis().getRange().getUpperBound();
             final double panLiveUpperBound = chartPanel.getPlotPanHelper().getPanLiveUpperBound();
             if (currUpperBound > panLiveUpperBound) {
                 //We scrolled beyond the PanLive-UpperBound and want to show the Scroll-Backwards-PanLive-Icon
-                chartPanel.getPlotNavigationHelper().showPanLiveIcon(true);
+                return chartPanel.getPlotNavigationHelper().showPanLiveIcon(true);
             } else {
                 //We actually scrolled somewhere before the trailing range and want to show the regular Pan-Live-Button
-                chartPanel.getPlotNavigationHelper().hidePanLiveIcon();
+                return chartPanel.getPlotNavigationHelper().hidePanLiveIcon();
             }
         } else {
             //We are trailing and don't need to show the PanLive-Button
-            chartPanel.getPlotNavigationHelper().showPanLiveIcon(false);
+            return chartPanel.getPlotNavigationHelper().showPanLiveIcon(false);
         }
     }
 
@@ -117,7 +121,7 @@ public class PlotPanHelper {
             // If we are hovering over a LegendItem we don't want to pan on the plot.
             return;
         }
-        panStartPlot = XYPlots.getSubplot(chartPanel, e);
+        panStartPlot = chartPanel.getCombinedPlot().getSubplot(e);
         XYPlots.disableRangePannables(chartPanel, panStartPlot);
         maybeHandleDomainAxisReset(e);
     }
@@ -135,7 +139,7 @@ public class PlotPanHelper {
             final Point2D point2D = chartPanel.getChartPanel().translateScreenToJava2D(e.getPoint());
             final AxisType axis = Axises.getAxisForMousePosition(chartPanel, point2D);
             if (axis != null && AxisType.DOMAIN_AXIS.equals(axis)) {
-                chartPanel.resetRange(chartPanel.getInitialVisibleItemCount(), chartPanel.getUserGapRate());
+                chartPanel.resetRange(chartPanel.getInitialVisibleItemCount(), chartPanel.getUserGapRateRight());
             }
         }
     }

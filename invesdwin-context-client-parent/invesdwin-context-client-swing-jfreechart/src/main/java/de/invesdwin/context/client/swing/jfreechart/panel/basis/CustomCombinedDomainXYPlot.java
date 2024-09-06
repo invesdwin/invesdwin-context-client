@@ -2,18 +2,22 @@ package de.invesdwin.context.client.swing.jfreechart.panel.basis;
 
 import java.awt.Color;
 import java.awt.Point;
+import java.awt.event.MouseEvent;
 import java.awt.geom.Point2D;
 import java.util.List;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
 import org.jfree.chart.ChartRenderingInfo;
+import org.jfree.chart.axis.AxisLocation;
+import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.plot.CombinedDomainXYPlot;
 import org.jfree.chart.plot.PlotRenderingInfo;
 import org.jfree.chart.plot.XYPlot;
 
 import de.invesdwin.context.client.swing.jfreechart.panel.InteractiveChartPanel;
+import de.invesdwin.context.client.swing.jfreechart.plot.CustomXYPlot;
 import de.invesdwin.context.client.swing.jfreechart.plot.XYPlots;
 import de.invesdwin.util.swing.EventDispatchThreadUtil;
 
@@ -32,7 +36,7 @@ public class CustomCombinedDomainXYPlot extends CombinedDomainXYPlot {
         super(chartPanel.getDomainAxis());
         XYPlots.makeThreadSafe(this);
         this.chartPanel = chartPanel;
-        trashPlot = chartPanel.newPlot();
+        trashPlot = newPlot();
         trashPlot.getRangeAxis().setVisible(false);
         trashPlot.setDomainGridlinesVisible(false);
         trashPlot.setRangeGridlinesVisible(false);
@@ -40,11 +44,25 @@ public class CustomCombinedDomainXYPlot extends CombinedDomainXYPlot {
         add(trashPlot, INVISIBLE_PLOT_WEIGHT);
     }
 
+    public XYPlot newPlot() {
+        final NumberAxis rangeAxis = XYPlots.newRangeAxis(chartPanel.getTheme(), 0, false, true);
+        final XYPlot newPlot = new CustomXYPlot(this, null, null, rangeAxis, null);
+
+        XYPlots.makeThreadSafe(newPlot);
+        newPlot.setRangeAxisLocation(AxisLocation.BOTTOM_OR_RIGHT);
+        chartPanel.getPlotLegendHelper().addLegendAnnotation(newPlot);
+        chartPanel.getTheme().processPlot(newPlot);
+        return newPlot;
+    }
+
     public XYPlot getTrashPlot() {
         return trashPlot;
     }
 
     public int getSubplotIndex(final int mouseX, final int mouseY) {
+        if (mouseX < 0 || mouseY < 0) {
+            return -1;
+        }
         return getSubplotIndex(chartPanel.getChartPanel().translateScreenToJava2D(new Point(mouseX, mouseY)));
     }
 
@@ -87,10 +105,27 @@ public class CustomCombinedDomainXYPlot extends CombinedDomainXYPlot {
         return chartInfo.getPlotInfo().getSubplotIndex(java2DPoint);
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public List<XYPlot> getSubplots() {
-        return super.getSubplots();
+        return XYPlots.getSubPlots(this);
+    }
+
+    public XYPlot getSubplot(final MouseEvent e) {
+        final int subplotIndex = getSubplotIndex(e.getX(), e.getY());
+        if (subplotIndex == -1) {
+            return null;
+        }
+        return getSubplots().get(subplotIndex);
+    }
+
+    public XYPlot getLastSubplot() {
+        final List<XYPlot> subplots = getSubplots();
+        final int lastSubPlotIndex = subplots.size() - 1;
+        if (lastSubPlotIndex < 0) {
+            return null;
+        }
+        final XYPlot lastSubPlot = subplots.get(lastSubPlotIndex);
+        return lastSubPlot;
     }
 
     public boolean isSubplotVisible(final XYPlot plot) {
