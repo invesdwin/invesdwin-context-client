@@ -415,7 +415,7 @@ public class PlotZoomHelper {
                 range = array[i].beforeLimitRange(range, rangeChanged);
             }
         }
-        final int length = (int) range.getLength();
+        final double length = range.getLength();
         final int gap = chartPanel.getAllowedMaximumRangeGap(length);
         final List<? extends TimeRangedOHLCDataItem> data = chartPanel.getMasterDataset().getData();
         final double minLowerBound = getMinLowerBoundWithGap(data, gap);
