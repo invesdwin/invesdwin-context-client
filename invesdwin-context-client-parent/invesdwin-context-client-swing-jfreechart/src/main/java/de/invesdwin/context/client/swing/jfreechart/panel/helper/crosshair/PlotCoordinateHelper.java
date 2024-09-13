@@ -37,7 +37,7 @@ public class PlotCoordinateHelper {
     private static final Stroke PIN_STROKE = new BasicStroke(2.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 0f);
 
     private final InteractiveChartPanel chartPanel;
-    private final List<ValueMarker> markers = new ArrayList<>();
+    private final List<ValueMarker> pinMarkers = new ArrayList<>();
     private final ValueMarker pinMarkerTopAndBottomTriangle = new TriangleLineValueMarker(-1D, PIN_LINE_COLOR,
             PIN_STROKE, 15D, 15D, PIN_TRIANGLE_COLOR, true, true);
     private final ValueMarker pinMarkerTopTriangle = new TriangleLineValueMarker(-1D, PIN_LINE_COLOR, PIN_STROKE, 15D,
@@ -178,19 +178,19 @@ public class PlotCoordinateHelper {
         if (plots.size() == 2) {
             final XYPlot plot = plots.get(1);
             plot.addDomainMarker(pinMarkerTopAndBottomTriangle);
-            markers.add(pinMarkerTopAndBottomTriangle);
+            pinMarkers.add(pinMarkerTopAndBottomTriangle);
         } else if (plots.size() > 2) {
             for (int i = 1; i < plots.size(); i++) {
                 final XYPlot plot = plots.get(i);
                 if (i == 1) {
                     plot.addDomainMarker(pinMarkerTopTriangle);
-                    markers.add(pinMarkerTopTriangle);
+                    pinMarkers.add(pinMarkerTopTriangle);
                 } else if (i == plots.size() - 1) {
                     plot.addDomainMarker(pinMarkerBottomTriangle);
-                    markers.add(pinMarkerBottomTriangle);
+                    pinMarkers.add(pinMarkerBottomTriangle);
                 } else {
                     plot.addDomainMarker(pinMarkerNoTriangle);
-                    markers.add(pinMarkerNoTriangle);
+                    pinMarkers.add(pinMarkerNoTriangle);
                 }
             }
         } else {
@@ -256,7 +256,7 @@ public class PlotCoordinateHelper {
         final List<XYPlot> plots = chartPanel.getCombinedPlot().getSubplots();
         for (int i = 1; i < plots.size(); i++) {
             final XYPlot plot = plots.get(i);
-            final Iterator<ValueMarker> it = markers.iterator();
+            final Iterator<ValueMarker> it = pinMarkers.iterator();
             while (it.hasNext()) {
                 final ValueMarker marker = it.next();
                 final boolean removedSomething = plot.removeDomainMarker(marker);
@@ -271,11 +271,11 @@ public class PlotCoordinateHelper {
          * the whole list just in case.
          */
 
-        markers.clear();
+        pinMarkers.clear();
     }
 
     public void removePinMarker(final XYPlot subplot) {
-        final Iterator<ValueMarker> it = markers.iterator();
+        final Iterator<ValueMarker> it = pinMarkers.iterator();
         while (it.hasNext()) {
             final ValueMarker marker = it.next();
             final boolean removedSomething = subplot.removeDomainMarker(marker);
