@@ -148,13 +148,13 @@ public class XYPriceLineAnnotation extends AbstractXYAnnotation implements IPric
 
                 final XYTextAnnotation priceAnnotation = new XYTextAnnotation(rangeAxisFormat.format(maxPrice), x2 - 1D,
                         y + 1D);
-                priceAnnotation.setPaint(paint);
+                priceAnnotation.setPaint(Colors.getContrastColor(paint));
+                priceAnnotation.setBackgroundPaint(paint);
                 priceAnnotation.setFont(FONT);
                 priceAnnotation.setTextAnchor(TextAnchor.TOP_RIGHT);
                 priceAnnotation.draw(g2, plot, dataArea, ABSOLUTE_AXIS, ABSOLUTE_AXIS, rendererIndex, info);
             }
         }
-
     }
 
     @Override
