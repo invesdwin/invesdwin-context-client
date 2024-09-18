@@ -20,11 +20,13 @@ import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.plot.CombinedDomainXYPlot;
 import org.jfree.chart.plot.Marker;
+import org.jfree.chart.plot.Plot;
 import org.jfree.chart.plot.ValueMarker;
 import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYItemRenderer;
 import org.jfree.chart.ui.Layer;
 import org.jfree.chart.ui.RectangleEdge;
+import org.jfree.chart.util.Args;
 import org.jfree.data.Range;
 import org.jfree.data.general.Dataset;
 import org.jfree.data.xy.XYDataset;
@@ -568,5 +570,33 @@ public final class XYPlots {
 
     public static List<XYPlot> getSubPlots(final CombinedDomainXYPlot combinedPlot) {
         return COMBINEDDOMAINXYPLOT_SUBPLOTS_FIELD.get(combinedPlot);
+    }
+
+    public static ValueAxis getRangeAxisForDatasetNullable(final XYPlot plot, final int index) {
+        Args.requireNonNegative(index, "index");
+        final ValueAxis valueAxis;
+        final Map<Integer, List<Integer>> datasetToRangeAxesMap = XYPLOT_DATASETTORANGEAXESMAP_FIELD.get(plot);
+        final List<Integer> axisIndices = datasetToRangeAxesMap.get(index);
+        if (axisIndices != null) {
+            // the first axis in the list is used for data <--> Java2D
+            final Integer axisIndex = axisIndices.get(0);
+            valueAxis = plot.getRangeAxis(axisIndex);
+        } else {
+            valueAxis = null;
+        }
+        return valueAxis;
+    }
+
+    public static InteractiveChartPanel getChartPanel(final XYPlot plot) {
+        if (plot instanceof CustomXYPlot) {
+            final CustomXYPlot cPlot = (CustomXYPlot) plot;
+            return cPlot.getCombinedPlot().getChartPanel();
+        }
+        final Plot parent = plot.getParent();
+        if (parent instanceof CustomCombinedDomainXYPlot) {
+            final CustomCombinedDomainXYPlot cParent = (CustomCombinedDomainXYPlot) parent;
+            return cParent.getChartPanel();
+        }
+        throw new IllegalArgumentException("Unknown hierarchy without " + InteractiveChartPanel.class.getSimpleName());
     }
 }

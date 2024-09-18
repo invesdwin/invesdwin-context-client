@@ -26,6 +26,7 @@ import org.jfree.chart.util.LineUtils;
 import org.jfree.data.xy.XYDataset;
 
 import de.invesdwin.context.client.swing.jfreechart.plot.XYPlots;
+import de.invesdwin.context.client.swing.jfreechart.plot.axis.CustomNumberAxis;
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.IPlotSourceDataset;
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.IndexedDateTimeOHLCDataset;
 import de.invesdwin.util.lang.color.Colors;
@@ -143,13 +144,17 @@ public class XYPriceLineAnnotation extends AbstractXYAnnotation implements IPric
             g2.draw(line);
 
             if (priceLabelVisible) {
+                final ValueAxis labelRangeAxis = XYPlots.getRangeAxisForDatasetNullable(plot, rendererIndex);
+                if (rangeAxis.isVisible() && rangeAxis instanceof CustomNumberAxis && labelRangeAxis == rangeAxis) {
+                    //If we already paint the price-label on a rangeAxis we don't need another label in the dataArea of the plot.
+                    return;
+                }
                 final NumberAxis cRangeAxis = (NumberAxis) rangeAxis;
                 final NumberFormat rangeAxisFormat = cRangeAxis.getNumberFormatOverride();
 
                 final XYTextAnnotation priceAnnotation = new XYTextAnnotation(rangeAxisFormat.format(maxPrice), x2 - 1D,
                         y + 1D);
-                priceAnnotation.setPaint(Colors.getContrastColor(paint));
-                priceAnnotation.setBackgroundPaint(paint);
+                priceAnnotation.setPaint(paint);
                 priceAnnotation.setFont(FONT);
                 priceAnnotation.setTextAnchor(TextAnchor.TOP_RIGHT);
                 priceAnnotation.draw(g2, plot, dataArea, ABSOLUTE_AXIS, ABSOLUTE_AXIS, rendererIndex, info);
