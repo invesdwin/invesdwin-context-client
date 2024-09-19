@@ -29,4 +29,9 @@ public class SlaveLazyDatasetListenerSupport implements ISlaveLazyDatasetListene
     @Override
     public void afterLoadItems(final boolean async) {}
 
+    @Override
+    public boolean isDrawIncompleteBar() {
+        return false;
+    }
+
 }

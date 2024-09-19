@@ -9,10 +9,11 @@ import java.util.ListIterator;
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
+import de.invesdwin.context.client.swing.jfreechart.plot.dataset.IDrawIncompleteBar;
 import de.invesdwin.util.lang.string.Strings;
 
 @ThreadSafe
-public abstract class ALazyDatasetList<E> implements List<E> {
+public abstract class ALazyDatasetList<E> implements List<E>, IDrawIncompleteBar {
 
     @GuardedBy("no synchronization for performance reasons, get handles exceptions")
     private List<E> data;

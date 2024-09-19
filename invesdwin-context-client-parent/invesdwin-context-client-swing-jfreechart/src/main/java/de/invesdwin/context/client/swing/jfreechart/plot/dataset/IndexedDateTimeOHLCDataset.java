@@ -21,6 +21,7 @@ import de.invesdwin.util.time.date.FDate;
 public class IndexedDateTimeOHLCDataset extends ListOHLCDataset
         implements IIndexedDateTimeXYDataset, IPlotSourceDataset {
 
+    private final boolean drawIncompleteBar;
     private XYPlot plot;
     private Integer precision;
     private String rangeAxisId;
@@ -35,6 +36,12 @@ public class IndexedDateTimeOHLCDataset extends ListOHLCDataset
         super(seriesKey, data);
         Assertions.checkNotNull(seriesKey);
         this.seriesTitle = seriesKey;
+        this.drawIncompleteBar = IDrawIncompleteBar.isDrawIncompleteBar(data);
+    }
+
+    @Override
+    public boolean isDrawIncompleteBar() {
+        return drawIncompleteBar;
     }
 
     @Override

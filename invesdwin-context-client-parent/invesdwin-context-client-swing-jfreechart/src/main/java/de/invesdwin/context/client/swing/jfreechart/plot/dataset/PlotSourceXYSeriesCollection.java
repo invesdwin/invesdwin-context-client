@@ -40,6 +40,11 @@ public class PlotSourceXYSeriesCollection extends XYSeriesCollection implements 
     }
 
     @Override
+    public boolean isDrawIncompleteBar() {
+        return masterDataset.isDrawIncompleteBar();
+    }
+
+    @Override
     public XYPlot getPlot() {
         return plot;
     }

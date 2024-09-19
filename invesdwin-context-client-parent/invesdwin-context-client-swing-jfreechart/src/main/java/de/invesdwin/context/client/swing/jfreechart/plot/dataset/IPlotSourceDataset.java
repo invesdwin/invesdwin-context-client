@@ -10,7 +10,7 @@ import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.series.e
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.series.indicator.IIndicatorSeriesProvider;
 import de.invesdwin.util.math.expression.IExpression;
 
-public interface IPlotSourceDataset extends XYDataset, OHLCDataset, Closeable {
+public interface IPlotSourceDataset extends XYDataset, OHLCDataset, Closeable, IDrawIncompleteBar {
 
     XYPlot getPlot();
 

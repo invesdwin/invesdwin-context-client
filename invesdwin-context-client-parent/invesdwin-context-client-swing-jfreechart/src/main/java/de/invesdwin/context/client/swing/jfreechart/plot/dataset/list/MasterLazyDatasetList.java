@@ -82,6 +82,11 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
     }
 
     @Override
+    public boolean isDrawIncompleteBar() {
+        return provider.isDrawIncompleteBar();
+    }
+
+    @Override
     protected MasterOHLCDataItem dummyValue() {
         return MasterOHLCDataItem.DUMMY_VALUE;
     }

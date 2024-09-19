@@ -29,6 +29,11 @@ public class SlaveLazyDatasetList extends ALazyDatasetList<SlaveXYDataItemOHLC> 
     }
 
     @Override
+    public boolean isDrawIncompleteBar() {
+        return provider.isDrawIncompleteBar();
+    }
+
+    @Override
     protected SlaveXYDataItemOHLC dummyValue() {
         return SlaveXYDataItemOHLC.DUMMY_VALUE;
     }

@@ -186,6 +186,10 @@ public class LazyCandlestickDemo extends JFrame {
                 return query.getValues(from, to);
             }
 
+            @Override
+            public boolean isDrawIncompleteBar() {
+                return false;
+            }
         };
         final WrappedExecutorService executor = Executors
                 .newDisabledExecutor(LazyCandlestickDemo.class.getSimpleName());
@@ -290,6 +294,11 @@ public class LazyCandlestickDemo extends JFrame {
                     final double value = expression.newEvaluateDoubleFDate().evaluateDouble(time);
                     return new TimeRangedOHLCDataItem(ohlc.getStartTime(), ohlc.getEndTime(), Double.NaN, Double.NaN,
                             Double.NaN, value, Double.NaN);
+                }
+
+                @Override
+                public boolean isDrawIncompleteBar() {
+                    return false;
                 }
 
             };
@@ -410,6 +419,11 @@ public class LazyCandlestickDemo extends JFrame {
                     final double value = ohlcValueType.getValue(ohlcItem) + finalAdditon;
                     return new TimeRangedOHLCDataItem(ohlcItem.getStartTime(), ohlcItem.getEndTime(), Double.NaN,
                             Double.NaN, Double.NaN, value, Double.NaN);
+                }
+
+                @Override
+                public boolean isDrawIncompleteBar() {
+                    return false;
                 }
             };
             final IndexedDateTimeXYSeries series = new IndexedDateTimeXYSeries(getExpressionName(),

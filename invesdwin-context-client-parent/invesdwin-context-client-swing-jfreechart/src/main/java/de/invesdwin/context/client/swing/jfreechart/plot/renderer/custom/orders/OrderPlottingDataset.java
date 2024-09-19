@@ -129,6 +129,11 @@ public class OrderPlottingDataset extends AbstractXYDataset
         }
     }
 
+    @Override
+    public boolean isDrawIncompleteBar() {
+        return masterDataset.isDrawIncompleteBar();
+    }
+
     public WrappedExecutorService getExecutor() {
         return executor;
     }

@@ -130,6 +130,11 @@ public class AnnotationPlottingDataset extends AbstractXYDataset implements IAnn
     }
 
     @Override
+    public boolean isDrawIncompleteBar() {
+        return masterDataset.isDrawIncompleteBar();
+    }
+
+    @Override
     public WrappedExecutorService getExecutor() {
         return executor;
     }
