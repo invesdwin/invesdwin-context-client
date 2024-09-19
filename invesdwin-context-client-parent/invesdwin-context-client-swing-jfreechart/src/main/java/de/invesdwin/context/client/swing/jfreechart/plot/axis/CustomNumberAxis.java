@@ -30,7 +30,9 @@ import de.invesdwin.context.client.swing.jfreechart.panel.basis.CustomCombinedDo
 import de.invesdwin.context.client.swing.jfreechart.plot.CustomXYPlot;
 import de.invesdwin.context.client.swing.jfreechart.plot.XYPlots;
 import de.invesdwin.context.client.swing.jfreechart.plot.annotation.priceline.IPriceLineRenderer;
+import de.invesdwin.context.client.swing.jfreechart.plot.dataset.IDrawIncompleteBar;
 import de.invesdwin.util.lang.color.Colors;
+import de.invesdwin.util.math.Doubles;
 
 @NotThreadSafe
 public class CustomNumberAxis extends NumberAxis {
@@ -134,8 +136,15 @@ public class CustomNumberAxis extends NumberAxis {
         return axisState;
     }
 
+    /**
+     * Draws Price LineLabels on the rangeAxises. Rectangle-Background in the color of the series (configurable).
+     */
     protected void drawPriceLineLabels(final Graphics2D g2, final double cursor, final Rectangle2D dataArea,
             final RectangleEdge edge, final PlotRenderingInfo plotState) {
+        if (!isVisible()) {
+            return;
+        }
+
         final XYPlot plot = (XYPlot) getPlot();
         final InteractiveChartPanel chartPanel = XYPlots.getChartPanel(plot);
         final Color panelBackgroundColor = (Color) chartPanel.getChart().getBackgroundPaint();
@@ -147,7 +156,10 @@ public class CustomNumberAxis extends NumberAxis {
                 if (this == rangeAxis) {
                     final XYDataset dataset = plot.getDataset(i);
                     final int lastItem = dataset.getItemCount(0) - 1;
-                    final double lastPrice = (double) dataset.getY(0, lastItem);
+                    final double lastPrice = IDrawIncompleteBar.getLastYValue(dataset);
+                    if (Doubles.isNaN(lastPrice)) {
+                        return;
+                    }
 
                     //RectangleCoords
                     final NumberTick tick = new NumberTick(lastPrice, String.valueOf(lastPrice), TextAnchor.CENTER_LEFT,

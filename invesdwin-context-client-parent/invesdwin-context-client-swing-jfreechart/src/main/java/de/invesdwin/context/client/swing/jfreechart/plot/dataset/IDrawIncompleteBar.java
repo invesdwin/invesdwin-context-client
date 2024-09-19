@@ -3,6 +3,9 @@ package de.invesdwin.context.client.swing.jfreechart.plot.dataset;
 import java.util.List;
 
 import org.jfree.data.general.Dataset;
+import org.jfree.data.xy.XYDataset;
+
+import de.invesdwin.util.math.Doubles;
 
 public interface IDrawIncompleteBar {
 
@@ -23,6 +26,23 @@ public interface IDrawIncompleteBar {
             return cObj.isDrawIncompleteBar();
         } else {
             return false;
+        }
+    }
+
+    /**
+     * Get's the last Non-NaN Y-Value in the Dataset. Only looking up the last 2 entrie's of the dataset depending on if
+     * the dataset draws an incomplete bar or not.
+     */
+    static double getLastYValue(final XYDataset dataset) {
+        final int lastItem = dataset.getItemCount(0) - 1;
+        if (lastItem < 0) {
+            return Double.NaN;
+        }
+        final double lastYValue = dataset.getYValue(0, lastItem);
+        if (Doubles.isNaN(lastYValue) && !isDrawIncompleteBar(dataset) && lastItem > 0) {
+            return dataset.getYValue(0, lastItem - 1);
+        } else {
+            return lastYValue;
         }
     }
 
