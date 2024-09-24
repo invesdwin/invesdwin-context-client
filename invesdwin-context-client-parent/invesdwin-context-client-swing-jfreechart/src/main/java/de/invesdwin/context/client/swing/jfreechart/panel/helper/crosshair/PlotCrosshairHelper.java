@@ -58,8 +58,8 @@ public class PlotCrosshairHelper {
         domainCrosshairMarker.setStroke(CROSSHAIR_STROKE);
         domainCrosshairMarker.setPaint(CROSSHAIR_COLOR);
         domainCrosshairMarker.setLabelFont(CROSSHAIR_FONT);
-        domainCrosshairMarker.setLabelPaint(Color.WHITE);
-        domainCrosshairMarker.setLabelBackgroundColor(Color.DARK_GRAY);
+        domainCrosshairMarker.setLabelPaint(CROSSHAIR_COLOR);
+        domainCrosshairMarker.setLabelBackgroundColor(Colors.INVISIBLE_COLOR);
         domainCrosshairMarker.setLabelAnchor(RectangleAnchor.BOTTOM);
         domainCrosshairMarker.setLabelTextAnchor(TextAnchor.BOTTOM_RIGHT);
         domainCrosshairMarker.setLabelOffset(new RectangleInsets(0, 4, 2, 0));
@@ -72,8 +72,8 @@ public class PlotCrosshairHelper {
         rangeCrosshairMarkerRight.setStroke(CROSSHAIR_STROKE);
         rangeCrosshairMarkerRight.setPaint(CROSSHAIR_COLOR);
         rangeCrosshairMarkerRight.setLabelFont(CROSSHAIR_FONT);
-        rangeCrosshairMarkerRight.setLabelPaint(Color.WHITE);
-        rangeCrosshairMarkerRight.setLabelBackgroundColor(Color.DARK_GRAY);
+        rangeCrosshairMarkerRight.setLabelPaint(CROSSHAIR_COLOR);
+        rangeCrosshairMarkerRight.setLabelBackgroundColor(Colors.INVISIBLE_COLOR);
         rangeCrosshairMarkerRight.setLabelAnchor(RectangleAnchor.RIGHT);
         rangeCrosshairMarkerRight.setLabelTextAnchor(TextAnchor.TOP_RIGHT);
         rangeCrosshairMarkerRight.setLabelOffset(new RectangleInsets(0, 0, 1, 1));
@@ -81,8 +81,8 @@ public class PlotCrosshairHelper {
         rangeCrosshairMarkerLeft.setStroke(CROSSHAIR_STROKE);
         rangeCrosshairMarkerLeft.setPaint(Colors.INVISIBLE_COLOR);
         rangeCrosshairMarkerLeft.setLabelFont(CROSSHAIR_FONT);
-        rangeCrosshairMarkerLeft.setLabelPaint(Color.WHITE);
-        rangeCrosshairMarkerLeft.setLabelBackgroundColor(Color.DARK_GRAY);
+        rangeCrosshairMarkerLeft.setLabelPaint(CROSSHAIR_COLOR);
+        rangeCrosshairMarkerLeft.setLabelBackgroundColor(Colors.INVISIBLE_COLOR);
         rangeCrosshairMarkerLeft.setLabelAnchor(RectangleAnchor.LEFT);
         rangeCrosshairMarkerLeft.setLabelTextAnchor(TextAnchor.TOP_LEFT);
         rangeCrosshairMarkerLeft.setLabelOffset(new RectangleInsets(0, 2, 1, 0));
