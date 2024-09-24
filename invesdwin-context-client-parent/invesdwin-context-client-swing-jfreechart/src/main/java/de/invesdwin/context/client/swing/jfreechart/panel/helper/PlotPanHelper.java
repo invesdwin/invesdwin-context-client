@@ -72,7 +72,8 @@ public class PlotPanHelper {
      */
     public void panLive(final MouseEvent e) {
         final int length = (int) chartPanel.getDomainAxis().getRange().getLength();
-        chartPanel.resetRange(length, chartPanel.getChartPanel().getDefaultTrailingRangeGapRate());
+        final double defaultTrailingRangeGapRate = chartPanel.getChartPanel().getDefaultTrailingRangeGapRate();
+        chartPanel.resetRange(length, defaultTrailingRangeGapRate);
         chartPanel.updateUserGapRateRight();
 
         //pan live button is removed, thus switch to crosshair

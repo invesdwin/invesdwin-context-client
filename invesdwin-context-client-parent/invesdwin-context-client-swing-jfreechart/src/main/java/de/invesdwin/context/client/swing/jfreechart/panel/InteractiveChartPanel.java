@@ -272,6 +272,10 @@ public class InteractiveChartPanel extends JPanel {
         return plotPanHelper;
     }
 
+    public int getDefaultTrailingRangeGapMinimum() {
+        return chartPanel.getDefaultTrailingRangeGapMinimum();
+    }
+
     public int getAllowedTrailingRangeGap(final double length) {
         return chartPanel.getAllowedTrailingRangeGap(length);
     }
@@ -359,7 +363,10 @@ public class InteractiveChartPanel extends JPanel {
     }
 
     protected void doResetRange(final int visibleItemCount, final double gapRateBefore) {
-        final int userGapAbsolute = (int) (visibleItemCount * gapRateBefore);
+        //Keep at least the defaultTralingRangeGapMinimum
+        final int defaultTrailingRangeGapMinimum = getDefaultTrailingRangeGapMinimum();
+        int userGapAbsolute = (int) (visibleItemCount * gapRateBefore);
+        userGapAbsolute = Math.max(defaultTrailingRangeGapMinimum, userGapAbsolute);
         final int lastItemIndex = masterDataset.getItemCount(0) - 1;
         final int upperBound = lastItemIndex + userGapAbsolute;
         final int lowerBound = upperBound - visibleItemCount;

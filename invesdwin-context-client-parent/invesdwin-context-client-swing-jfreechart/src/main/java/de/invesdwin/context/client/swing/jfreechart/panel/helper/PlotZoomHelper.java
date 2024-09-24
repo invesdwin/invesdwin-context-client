@@ -53,7 +53,8 @@ public class PlotZoomHelper {
     public static final Cursor VERTICAL_RESIZE_CURSOR = new Cursor(Cursor.N_RESIZE_CURSOR);
     public static final Cursor HORIZONTAL_RESIZE_CURSOR = new Cursor(Cursor.W_RESIZE_CURSOR);
 
-    public static final int MAX_ZOOM_ITEM_COUNT = 100_000;
+    //    public static final int MAX_ZOOM_ITEM_COUNT = 100_000;
+    public static final int MAX_ZOOM_ITEM_COUNT = 100_00;
     public static final int MIN_ZOOM_ITEM_COUNT = 10;
     private static final Duration ZOOM_ANNOTATION_TIMEOUT = new Duration(500, FTimeUnit.MILLISECONDS);
     private static final Font ZOOM_ANNOTATION_FONT = XYPriceLineAnnotation.FONT;
