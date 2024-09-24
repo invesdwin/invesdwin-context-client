@@ -678,6 +678,12 @@ public class PlotZoomHelper {
         }
     }
 
+    /**
+     * MaxZoomOut-Conditions: <br>
+     * - MAX_ZOOM_ITEM_COUNT is reached <br>
+     * - The full dataset is visible and a userGap on either side is > 0.5 <br>
+     * - The full dataset is visible and userGapLeft == userGapRight <br>
+     */
     public boolean isMaxZoomOut(final Range domainAxisRange) {
         if (domainAxisRange.getLength() >= MAX_ZOOM_ITEM_COUNT) {
             return true;
@@ -685,8 +691,10 @@ public class PlotZoomHelper {
 
         if (isFullDataRangeVisible(domainAxisRange)) {
             final double userGapRateLeft = calcCurrenctUserGapRateLeft();
+            final double userGapRateRight = chartPanel.getUserGapRateRight();
             //We round this because there can always be a slight difference in a very late decimal place
-            if (Doubles.round(userGapRateLeft, 3) == Doubles.round(chartPanel.getUserGapRateRight(), 3)) {
+            if (userGapRateLeft > 0.5D || userGapRateRight > 0.5D
+                    || Doubles.round(userGapRateLeft, 3) == Doubles.round(userGapRateRight, 3)) {
                 return true;
             }
         }
