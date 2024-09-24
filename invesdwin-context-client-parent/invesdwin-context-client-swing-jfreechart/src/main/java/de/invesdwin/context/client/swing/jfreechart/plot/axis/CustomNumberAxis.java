@@ -151,7 +151,12 @@ public class CustomNumberAxis extends NumberAxis {
 
         for (int i = 0; i < plot.getRendererCount(); i++) {
             final XYItemRenderer renderer = plot.getRenderer(i);
-            if (renderer instanceof IPriceLineRenderer && ((IPriceLineRenderer) renderer).isPriceLabelVisible()) {
+            /*
+             * We check for isPriceLineVisible as well because the isPriceLabelVisible will be inconsistent here if we
+             * unchecked the PriceLine-Checkbox while the PriceLabel-Checkbox was still checked.
+             */
+            if (renderer instanceof IPriceLineRenderer && ((IPriceLineRenderer) renderer).isPriceLineVisible()
+                    && ((IPriceLineRenderer) renderer).isPriceLabelVisible()) {
                 final ValueAxis rangeAxis = XYPlots.getRangeAxisForDatasetNullable(plot, i);
                 if (this == rangeAxis) {
                     final XYDataset dataset = plot.getDataset(i);
