@@ -291,12 +291,21 @@ public abstract class AView<M extends AModel, C extends JComponent> extends AMod
         }
     }
 
+    /**
+     * Gets called on initial opening.
+     */
     @Hidden(skip = true)
     protected void onOpen() {}
 
+    /**
+     * Gets called when view is removed.
+     */
     @Hidden(skip = true)
     protected void onClose() {}
 
+    /**
+     * Gets called on initial show and when focus is received.
+     */
     @Hidden(skip = true)
     protected void onShowing() {}
 
