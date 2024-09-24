@@ -132,7 +132,7 @@ public class CustomNumberAxis extends NumberAxis {
     public AxisState draw(final Graphics2D g2, final double cursor, final Rectangle2D plotArea,
             final Rectangle2D dataArea, final RectangleEdge edge, final PlotRenderingInfo plotState) {
         final AxisState axisState = super.draw(g2, cursor, plotArea, dataArea, edge, plotState);
-        drawPriceLineLabels(g2, cursor, dataArea, edge, plotState);
+        drawPriceLineLabels(g2, cursor, dataArea, edge);
         return axisState;
     }
 
@@ -140,7 +140,7 @@ public class CustomNumberAxis extends NumberAxis {
      * Draws Price LineLabels on the rangeAxises. Rectangle-Background in the color of the series (configurable).
      */
     protected void drawPriceLineLabels(final Graphics2D g2, final double cursor, final Rectangle2D dataArea,
-            final RectangleEdge edge, final PlotRenderingInfo plotState) {
+            final RectangleEdge edge) {
         if (!isVisible()) {
             return;
         }
@@ -170,6 +170,7 @@ public class CustomNumberAxis extends NumberAxis {
                     final Color seriesColor = (Color) renderer.getItemPaint(0, lastItem);
                     final int height = g2.getFontMetrics().getHeight() + BACKGROUND_RECTANGLE_ADDED_HEIGHT;
                     final int width;
+                    final Rectangle2D chartArea = chartPanel.getChartPanel().getChartRenderingInfo().getChartArea();
                     //Different TextAnchor depending on the edge necessary: see NumberAxis.refreshTicksVertical()
                     final TextAnchor textAnchor;
                     final int y = (int) anchorPoint[1] - (height / 2) + BACKGROUND_RECTANGLE_OFFSET;
@@ -177,8 +178,8 @@ public class CustomNumberAxis extends NumberAxis {
                     final int yOverpaint = y + BACKGROUND_RECTANGLE_OFFSET;
                     final int heightOverpaint = height - BACKGROUND_RECTANGLE_OFFSET - BACKGROUND_RECTANGLE_OFFSET;
                     if (RectangleEdge.LEFT.equals(edge)) {
-                        width = (int) (cursor - plotState.getOwner().getChartArea().getX());
-                        final int x = (int) plotState.getOwner().getChartArea().getX();
+                        width = (int) (cursor - chartArea.getX());
+                        final int x = (int) chartArea.getX();
                         //Paint a Rectangle to overpaint the axis-tick-label
                         g2.setColor(panelBackgroundColor);
                         g2.fillRect(x, yOverpaint, width, heightOverpaint);
@@ -188,7 +189,7 @@ public class CustomNumberAxis extends NumberAxis {
                         textAnchor = TextAnchor.CENTER_RIGHT;
                     } else if (RectangleEdge.RIGHT.equals(edge)) {
                         final int x = (int) cursor;
-                        width = (int) (plotState.getOwner().getChartArea().getWidth() - cursor);
+                        width = (int) (chartArea.getWidth() - cursor);
                         //Paint a Rectangle to overpaint the axis-tick-label
                         g2.setColor(panelBackgroundColor);
                         g2.fillRect(x, yOverpaint, width, heightOverpaint);
