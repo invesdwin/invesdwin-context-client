@@ -189,44 +189,43 @@ public class PlotZoomHelper {
             final boolean isGapLeft = chartPanel.getDomainAxis().getRange().getLowerBound() < minLowerBound;
             final boolean isGapRight = chartPanel.getUserGapRateRight() > 0;
 
-            if ((isGapLeft || isGapRight) && zoomFactor > 1) {
-                //ZoomOut when we have a UserGap in the past or future (or both)
-                /*
-                 * If we have a UserGap on one side and ZoomOut. We only zoom to the other side till we reached the the
-                 * same gapRate in that direction. If we have a UserGap on both sides we will keep the UserGap on the
-                 * side with the bigger Rate constant and only ZoomOut as far till the USerGapRate on the other side is
-                 * equal.
-                 */
-
+            if ((isGapLeft || isGapRight)) {
                 final double length = plot.getDomainAxis().getRange().getLength();
                 final double newLength = length * zoomFactor;
                 final double gapRateLeft = (minLowerBound - chartPanel.getDomainAxis().getRange().getLowerBound())
                         / length;
                 final double gapRateRight = chartPanel.getUserGapRateRight();
-
-                if (!isMaxZoomOut(currentRange)) {
-                    if (gapRateLeft < gapRateRight) {
+                if (zoomFactor > 1) {
+                    //ZoomOut when we have a UserGap on either side
+                    /*
+                     * If we have a UserGap on one side and ZoomOut. We only zoom to the other side till we reached the
+                     * the same gapRate in that direction. If we have a UserGap on both sides we will keep the UserGap
+                     * on the side with the bigger Rate constant and only ZoomOut as far till the USerGapRate on the
+                     * other side is equal.
+                     */
+                    if (!isMaxZoomOut(currentRange)) {
+                        /*
+                         * No need to round the gapRate's here because the isMaxZoomOut-check already does it and would
+                         * prevent's that we get here if gapRateLeft == gapRateRight (rounded)
+                         */
+                        if (gapRateLeft < gapRateRight) {
+                            zoomKeepUserGapRight(currentRange, minLowerBound, maxUpperBound, newLength);
+                        } else if (gapRateLeft > gapRateRight) {
+                            zoomKeepUserGapLeft(currentRange, minLowerBound, maxUpperBound, newLength, gapRateLeft);
+                        }
+                    }
+                } else {
+                    //ZoomIn when we have a UserGap on either side
+                    /*
+                     * We ZoomIn while keeping the UserGap on whichever side has the bigger userGap. If gapRateLeft ==
+                     * gapRateRight we let the right-side win.
+                     */
+                    if (Doubles.round(gapRateLeft, 3) <= Doubles.round(gapRateRight, 3)) {
                         zoomKeepUserGapRight(currentRange, minLowerBound, maxUpperBound, newLength);
-                    } else if (gapRateLeft > gapRateRight) {
+                    } else {
                         zoomKeepUserGapLeft(currentRange, minLowerBound, maxUpperBound, newLength, gapRateLeft);
                     }
                 }
-            } else if (((isGapLeft && !isGapRight) || (!isGapLeft && isGapRight)) && zoomFactor < 1) {
-                //ZoomIn with UserGap on only one side
-                /*
-                 * We keep the UserGap on whichever side it is constant and ZoomIn on the other side.
-                 */
-                final double length = plot.getDomainAxis().getRange().getLength();
-                final double newLength = length * zoomFactor;
-
-                if (isGapLeft) {
-                    final double gapRateLeft = (minLowerBound - chartPanel.getDomainAxis().getRange().getLowerBound())
-                            / length;
-                    zoomKeepUserGapLeft(currentRange, minLowerBound, maxUpperBound, newLength, gapRateLeft);
-                } else {
-                    zoomKeepUserGapRight(currentRange, minLowerBound, maxUpperBound, newLength);
-                }
-
             } else {
                 //Regular zoom depending on the mouse position
                 plot.zoomDomainAxes(zoomFactor, plotInfo, point, true);
