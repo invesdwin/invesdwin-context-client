@@ -50,7 +50,6 @@ public class PlotCoordinateHelper {
     private volatile FDate domainMarkerFDate;
     private final Set<XYPlot> prevMarkerPlots = ILockCollectionFactory.getInstance(true).newIdentitySet();
     private boolean domainMarkerSetOnce = false;
-    private FDate previousStartTime = FDates.MIN_DATE;
 
     public PlotCoordinateHelper(final InteractiveChartPanel chartPanel) {
         this.chartPanel = chartPanel;
@@ -229,20 +228,8 @@ public class PlotCoordinateHelper {
     }
 
     public void datasetChanged() {
-        if (coordinateListener == null) {
-            return;
-        }
-        final IndexedDateTimeOHLCDataset masterDataset = chartPanel.getMasterDataset();
-        final FDate currentBarStartTime = masterDataset.getData()
-                .get(masterDataset.getData().size() - 1)
-                .getStartTime();
-        if (previousStartTime.isBefore(currentBarStartTime)) {
-            //Start of a new bar
-            final FDate previousBarEndTime = masterDataset.getData()
-                    .get(masterDataset.getData().size() - 2)
-                    .getEndTime();
-            coordinateListener.maybeUpdateIncompleteBar(previousStartTime, previousBarEndTime);
-            previousStartTime = currentBarStartTime;
+        if (coordinateListener != null) {
+            coordinateListener.maybeUpdateIncompleteBar();
         }
     }
 
