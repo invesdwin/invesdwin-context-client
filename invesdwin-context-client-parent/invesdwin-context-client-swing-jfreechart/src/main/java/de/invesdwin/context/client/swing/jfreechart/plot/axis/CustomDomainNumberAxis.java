@@ -1,5 +1,6 @@
 package de.invesdwin.context.client.swing.jfreechart.plot.axis;
 
+import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.geom.Rectangle2D;
 import java.util.Set;
@@ -8,7 +9,6 @@ import javax.annotation.concurrent.NotThreadSafe;
 
 import org.jfree.chart.axis.AxisState;
 import org.jfree.chart.plot.PlotRenderingInfo;
-import org.jfree.chart.text.TextUtils;
 import org.jfree.chart.ui.RectangleEdge;
 import org.jfree.chart.ui.TextAnchor;
 import org.jfree.data.Range;
@@ -16,7 +16,6 @@ import org.jfree.data.Range;
 import de.invesdwin.context.client.swing.jfreechart.panel.InteractiveChartPanel;
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.crosshair.PlotCrosshairHelper;
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.listener.IRangeListener;
-import de.invesdwin.util.lang.color.Colors;
 
 @NotThreadSafe
 public class CustomDomainNumberAxis extends ACustomNumberAxis {
@@ -65,6 +64,7 @@ public class CustomDomainNumberAxis extends ACustomNumberAxis {
         if (markerValue == -1D || labelText == null) {
             return;
         }
+        final Color panelBackgroundColor = (Color) chartPanel.getChart().getBackgroundPaint();
 
         //RectangleCoords
         final float[] anchorPoint = calculateAnchorPoint(cursor, dataArea, edge, TextAnchor.BOTTOM_CENTER, markerValue);
@@ -78,9 +78,15 @@ public class CustomDomainNumberAxis extends ACustomNumberAxis {
         final TextAnchor textAnchor;
         final int x = (int) anchorPoint[0] - width / 2 - BACKGROUND_RECTANGLE_ADDED_WIDTH / 2;
 
+        //make overpaint 1 pixel smaller so that tick labels are cut off smoother
+        final int xOverpaint = x + BACKGROUND_RECTANGLE_OFFSET;
+        final int widthOverpaint = width - BACKGROUND_RECTANGLE_OFFSET - BACKGROUND_RECTANGLE_OFFSET;
         if (RectangleEdge.BOTTOM.equals(edge)) {
             final int height = (int) (chartArea.getHeight() - cursor);
             final int y = (int) cursor;
+            //Paint a Rectangle to overpaint the axis-tick-label
+            g2.setColor(panelBackgroundColor);
+            g2.fillRect(xOverpaint, y, widthOverpaint, height);
             //Background-Rectangle
             g2.setColor(PlotCrosshairHelper.CROSSHAIR_COLOR);
             g2.fillRect(x, y, width + BACKGROUND_RECTANGLE_ADDED_WIDTH, height);
@@ -89,8 +95,6 @@ public class CustomDomainNumberAxis extends ACustomNumberAxis {
             throw new UnsupportedOperationException("Label rendering not supported for: " + edge);
         }
 
-        //Draw the text
-        g2.setColor(Colors.getContrastColor(PlotCrosshairHelper.CROSSHAIR_COLOR));
-        TextUtils.drawAlignedString(labelText, g2, anchorPoint[0], anchorPoint[1], textAnchor);
+        drawLabelText(g2, labelText, anchorPoint, textAnchor);
     }
 }

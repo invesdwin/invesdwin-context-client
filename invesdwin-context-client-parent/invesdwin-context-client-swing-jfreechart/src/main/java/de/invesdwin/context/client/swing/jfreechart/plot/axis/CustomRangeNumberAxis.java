@@ -25,6 +25,7 @@ import org.jfree.data.xy.XYDataset;
 
 import de.invesdwin.context.client.swing.jfreechart.panel.InteractiveChartPanel;
 import de.invesdwin.context.client.swing.jfreechart.panel.basis.CustomCombinedDomainXYPlot;
+import de.invesdwin.context.client.swing.jfreechart.panel.helper.crosshair.PlotCrosshairHelper;
 import de.invesdwin.context.client.swing.jfreechart.plot.CustomXYPlot;
 import de.invesdwin.context.client.swing.jfreechart.plot.XYPlots;
 import de.invesdwin.context.client.swing.jfreechart.plot.annotation.priceline.IPriceLineRenderer;
@@ -41,7 +42,6 @@ public class CustomRangeNumberAxis extends ACustomNumberAxis {
      */
     public static final double MIN_TICK_LABEL_VERTICAL_EDGE_DISTANCE_MULTIPLIER = 0.03;
     public static final int BACKGROUND_RECTANGLE_ADDED_HEIGHT = 2;
-    public static final int BACKGROUND_RECTANGLE_OFFSET = 1;
 
     private final NumberFormat limitedNumberFormatOverride = new NumberFormat() {
 
@@ -212,4 +212,87 @@ public class CustomRangeNumberAxis extends ACustomNumberAxis {
             }
         }
     }
+
+    /**
+     * Draw Range-Crosshair-Label's on the range-axis'es.The crosshair-lines get drawn in the PlotCrosshairHelper.
+     *
+     */
+
+    protected void drawRangeCrosshairLabels(final Graphics2D g2, final double cursor, final Rectangle2D dataArea,
+            final RectangleEdge edge) {
+        final XYPlot plot = (XYPlot) getPlot();
+        final InteractiveChartPanel chartPanel = XYPlots.getChartPanel(plot);
+        final PlotCrosshairHelper plotCrosshairHelper = chartPanel.getPlotCrosshairHelper();
+
+        if (RectangleEdge.LEFT.equals(edge)) {
+            final double rangeCrosshairMarkerLeftValue = plotCrosshairHelper.getRangeCrosshairMarkerLeft()
+                    .getAxisValue();
+            final String rangeCrosshairMarkerLeftLabel = plotCrosshairHelper.getRangeCrosshairMarkerLeft()
+                    .getAxisLabel();
+            final XYPlot markerPlot = plotCrosshairHelper.getRangeCrosshairMarkerLeft().getCurrentPlot();
+
+            drawLabel(g2, cursor, dataArea, edge, chartPanel, rangeCrosshairMarkerLeftValue,
+                    rangeCrosshairMarkerLeftLabel, plot, markerPlot);
+        } else if (RectangleEdge.RIGHT.equals(edge)) {
+            final double rangeCrosshairMarkerRightValue = plotCrosshairHelper.getRangeCrosshairMarkerRight()
+                    .getAxisValue();
+            final String rangeCrosshairMarkerRightLabel = plotCrosshairHelper.getRangeCrosshairMarkerRight()
+                    .getAxisLabel();
+            final XYPlot markerPlot = plotCrosshairHelper.getRangeCrosshairMarkerRight().getCurrentPlot();
+
+            drawLabel(g2, cursor, dataArea, edge, chartPanel, rangeCrosshairMarkerRightValue,
+                    rangeCrosshairMarkerRightLabel, plot, markerPlot);
+        } else {
+            throw new UnsupportedOperationException("LabelRendering not supported for: " + edge);
+        }
+    }
+
+    protected void drawLabel(final Graphics2D g2, final double cursor, final Rectangle2D dataArea,
+            final RectangleEdge edge, final InteractiveChartPanel chartPanel, final double rangeValue,
+            final String labelText, final XYPlot plot, final XYPlot markerPlot) {
+        if (rangeValue == -1D || labelText == null || !plot.equals(markerPlot)) {
+            return;
+        }
+        final Color panelBackgroundColor = (Color) chartPanel.getChart().getBackgroundPaint();
+
+        //RectangleCoords
+        final float[] anchorPoint = calculateAnchorPoint(cursor, dataArea, edge, TextAnchor.CENTER_LEFT, rangeValue);
+
+        //Draw the background
+        final int height = g2.getFontMetrics().getHeight() + BACKGROUND_RECTANGLE_ADDED_HEIGHT;
+        final int width;
+        final Rectangle2D chartArea = chartPanel.getChartPanel().getChartRenderingInfo().getChartArea();
+        //Different TextAnchor depending on the edge necessary: see NumberAxis.refreshTicksVertical()
+        final TextAnchor textAnchor;
+        final int y = (int) anchorPoint[1] - (height / 2) + BACKGROUND_RECTANGLE_OFFSET;
+        //make overpaint 1 pixel smaller so that tick labels are cut off smoother
+        final int yOverpaint = y + BACKGROUND_RECTANGLE_OFFSET;
+        final int heightOverpaint = height - BACKGROUND_RECTANGLE_OFFSET - BACKGROUND_RECTANGLE_OFFSET;
+        if (RectangleEdge.LEFT.equals(edge)) {
+            width = (int) (cursor - chartArea.getX());
+            final int x = (int) chartArea.getX();
+            //Paint a Rectangle to overpaint the axis-tick-label
+            g2.setColor(panelBackgroundColor);
+            g2.fillRect(x, yOverpaint, width, heightOverpaint);
+            //Background-Rectangle
+            g2.setColor(PlotCrosshairHelper.CROSSHAIR_COLOR);
+            g2.fillRect(x, y, width, height);
+            textAnchor = TextAnchor.CENTER_RIGHT;
+        } else if (RectangleEdge.RIGHT.equals(edge)) {
+            final int x = (int) cursor;
+            width = (int) (chartArea.getWidth() - cursor);
+            //Paint a Rectangle to overpaint the axis-tick-label
+            g2.setColor(panelBackgroundColor);
+            g2.fillRect(x, yOverpaint, width, heightOverpaint);
+            //Background-Rectangle
+            g2.setColor(PlotCrosshairHelper.CROSSHAIR_COLOR);
+            g2.fillRect(x, y, width, height);
+            textAnchor = TextAnchor.CENTER_LEFT;
+        } else {
+            throw new UnsupportedOperationException("Label rendering not supported for: " + edge);
+        }
+
+        drawLabelText(g2, labelText, anchorPoint, textAnchor);
+    }
+
 }
