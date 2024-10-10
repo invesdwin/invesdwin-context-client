@@ -275,7 +275,7 @@ public class CustomRangeNumberAxis extends ACustomNumberAxis {
             g2.setColor(panelBackgroundColor);
             g2.fillRect(x, yOverpaint, width, heightOverpaint);
             //Background-Rectangle
-            g2.setColor(PlotCrosshairHelper.CROSSHAIR_COLOR);
+            g2.setColor(BACKGROUND_RECTANGLE_COLOR);
             g2.fillRect(x, y, width, height);
             textAnchor = TextAnchor.CENTER_RIGHT;
         } else if (RectangleEdge.RIGHT.equals(edge)) {
@@ -285,7 +285,7 @@ public class CustomRangeNumberAxis extends ACustomNumberAxis {
             g2.setColor(panelBackgroundColor);
             g2.fillRect(x, yOverpaint, width, heightOverpaint);
             //Background-Rectangle
-            g2.setColor(PlotCrosshairHelper.CROSSHAIR_COLOR);
+            g2.setColor(BACKGROUND_RECTANGLE_COLOR);
             g2.fillRect(x, y, width, height);
             textAnchor = TextAnchor.CENTER_LEFT;
         } else {

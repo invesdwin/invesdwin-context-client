@@ -1,5 +1,6 @@
 package de.invesdwin.context.client.swing.jfreechart.plot.axis;
 
+import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.geom.Rectangle2D;
 
@@ -18,6 +19,7 @@ import de.invesdwin.util.lang.color.Colors;
 public abstract class ACustomNumberAxis extends NumberAxis {
 
     public static final int BACKGROUND_RECTANGLE_OFFSET = 1;
+    public static final Color BACKGROUND_RECTANGLE_COLOR = Color.DARK_GRAY;
 
     protected float[] calculateAnchorPoint(final double cursor, final Rectangle2D dataArea, final RectangleEdge edge,
             final TextAnchor textAnchor, final double rangeValue) {

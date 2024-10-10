@@ -14,7 +14,6 @@ import org.jfree.chart.ui.TextAnchor;
 import org.jfree.data.Range;
 
 import de.invesdwin.context.client.swing.jfreechart.panel.InteractiveChartPanel;
-import de.invesdwin.context.client.swing.jfreechart.panel.helper.crosshair.PlotCrosshairHelper;
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.listener.IRangeListener;
 
 @NotThreadSafe
@@ -88,7 +87,7 @@ public class CustomDomainNumberAxis extends ACustomNumberAxis {
             g2.setColor(panelBackgroundColor);
             g2.fillRect(xOverpaint, y, widthOverpaint, height);
             //Background-Rectangle
-            g2.setColor(PlotCrosshairHelper.CROSSHAIR_COLOR);
+            g2.setColor(BACKGROUND_RECTANGLE_COLOR);
             g2.fillRect(x, y, width + BACKGROUND_RECTANGLE_ADDED_WIDTH, height);
             textAnchor = TextAnchor.TOP_CENTER;
         } else {
