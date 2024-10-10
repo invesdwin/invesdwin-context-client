@@ -26,7 +26,7 @@ import org.jfree.chart.util.LineUtils;
 import org.jfree.data.xy.XYDataset;
 
 import de.invesdwin.context.client.swing.jfreechart.plot.XYPlots;
-import de.invesdwin.context.client.swing.jfreechart.plot.axis.CustomNumberAxis;
+import de.invesdwin.context.client.swing.jfreechart.plot.axis.CustomRangeNumberAxis;
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.IDrawIncompleteBar;
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.IPlotSourceDataset;
 import de.invesdwin.util.lang.color.Colors;
@@ -134,7 +134,7 @@ public class XYPriceLineAnnotation extends AbstractXYAnnotation implements IPric
 
             if (priceLabelVisible) {
                 final ValueAxis labelRangeAxis = XYPlots.getRangeAxisForDatasetNullable(plot, rendererIndex);
-                if (rangeAxis.isVisible() && rangeAxis instanceof CustomNumberAxis && labelRangeAxis == rangeAxis) {
+                if (rangeAxis.isVisible() && rangeAxis instanceof CustomRangeNumberAxis && labelRangeAxis == rangeAxis) {
                     //If we already paint the price-label on a rangeAxis we don't need another label in the dataArea of the plot.
                     return;
                 }

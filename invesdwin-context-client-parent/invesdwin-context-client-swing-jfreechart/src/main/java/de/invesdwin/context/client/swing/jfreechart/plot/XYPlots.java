@@ -33,7 +33,7 @@ import org.jfree.data.xy.XYDataset;
 
 import de.invesdwin.context.client.swing.jfreechart.panel.InteractiveChartPanel;
 import de.invesdwin.context.client.swing.jfreechart.panel.basis.CustomCombinedDomainXYPlot;
-import de.invesdwin.context.client.swing.jfreechart.plot.axis.CustomNumberAxis;
+import de.invesdwin.context.client.swing.jfreechart.plot.axis.CustomRangeNumberAxis;
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.DisabledXYDataset;
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.IPlotSourceDataset;
 import de.invesdwin.context.jfreechart.FiniteTickUnitSource;
@@ -291,7 +291,7 @@ public final class XYPlots {
     }
 
     private static NumberAxis newRangeAxis(final AJFreeChartVisitor theme, final int precision, final boolean visible) {
-        final NumberAxis rangeAxis = new CustomNumberAxis();
+        final NumberAxis rangeAxis = new CustomRangeNumberAxis();
         rangeAxis.setAutoRangeIncludesZero(false);
         rangeAxis.setAutoRangeStickyZero(false);
         rangeAxis.setNumberFormatOverride(Decimal

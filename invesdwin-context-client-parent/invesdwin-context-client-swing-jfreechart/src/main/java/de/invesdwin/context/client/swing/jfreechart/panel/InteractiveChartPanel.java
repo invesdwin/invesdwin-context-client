@@ -9,7 +9,6 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.annotation.concurrent.NotThreadSafe;
@@ -37,11 +36,11 @@ import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.series.i
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.crosshair.PlotCoordinateHelper;
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.crosshair.PlotCrosshairHelper;
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.legend.PlotLegendHelper;
-import de.invesdwin.context.client.swing.jfreechart.panel.helper.listener.IRangeListener;
 import de.invesdwin.context.client.swing.jfreechart.plot.CustomXYPlot;
 import de.invesdwin.context.client.swing.jfreechart.plot.IndexedDateTimeNumberFormat;
 import de.invesdwin.context.client.swing.jfreechart.plot.XYPlots;
 import de.invesdwin.context.client.swing.jfreechart.plot.annotation.XYNoteIconAnnotation;
+import de.invesdwin.context.client.swing.jfreechart.plot.axis.CustomDomainNumberAxis;
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.IndexedDateTimeOHLCDataset;
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.list.IChartPanelAwareDatasetList;
 import de.invesdwin.context.jfreechart.FiniteTickUnitSource;
@@ -123,7 +122,7 @@ public class InteractiveChartPanel extends JPanel {
         this.plotPanHelper = new PlotPanHelper(this);
         this.mouseMotionListener = new MouseMotionListenerImpl();
 
-        domainAxis = new RangeListenerNumberAxis();
+        domainAxis = new CustomDomainNumberAxis(this);
         domainAxis.setAutoRange(false);
         domainAxis.setLabelFont(XYPlots.DEFAULT_FONT);
         domainAxis.setTickLabelFont(XYPlots.DEFAULT_FONT);
@@ -556,34 +555,12 @@ public class InteractiveChartPanel extends JPanel {
         }
     }
 
-    private void configureRangeAxis() {
+    public void configureRangeAxis() {
         final List<XYPlot> plots = combinedPlot.getSubplots();
         for (int i = 0; i < plots.size(); i++) {
             final XYPlot plot = plots.get(i);
             //explicitly don't apply theme here to not cause unnecessary object allocations
             XYPlots.configureRangeAxes(plot);
-        }
-    }
-
-    private final class RangeListenerNumberAxis extends NumberAxis {
-        @Override
-        public void setRange(final Range range, final boolean turnOffAutoRange, final boolean notify) {
-            final boolean changed = !range.equals(getRange());
-            super.setRange(range, turnOffAutoRange, notify);
-            if (changed) {
-                final Set<IRangeListener> rangeListeners = plotZoomHelper.getRangeListeners();
-                if (!rangeListeners.isEmpty()) {
-                    for (final IRangeListener l : rangeListeners) {
-                        l.onRangeChanged(range);
-                    }
-                }
-                configureRangeAxis();
-                final boolean navigationUpdated = plotPanHelper.maybeToggleVisibilityPanLiveIcon();
-                if (!navigationUpdated) {
-                    //Update for Pan/Zoom-Icon's if not alreay called by panLiveVisibility-handling
-                    plotNavigationHelper.updateNavigation();
-                }
-            }
         }
     }
 

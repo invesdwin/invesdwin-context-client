@@ -12,8 +12,6 @@ import java.util.List;
 import javax.annotation.concurrent.NotThreadSafe;
 
 import org.jfree.chart.axis.AxisState;
-import org.jfree.chart.axis.NumberAxis;
-import org.jfree.chart.axis.NumberTick;
 import org.jfree.chart.axis.ValueAxis;
 import org.jfree.chart.plot.Plot;
 import org.jfree.chart.plot.PlotRenderingInfo;
@@ -35,15 +33,15 @@ import de.invesdwin.util.lang.color.Colors;
 import de.invesdwin.util.math.Doubles;
 
 @NotThreadSafe
-public class CustomNumberAxis extends NumberAxis {
+public class CustomRangeNumberAxis extends ACustomNumberAxis {
 
     public static final Font FONT = XYPlots.DEFAULT_FONT;
     /**
      * 3% minimum edge distance seems to work fine to avoid overlapping vertical tick labels
      */
-    private static final double MIN_TICK_LABEL_VERTICAL_EDGE_DISTANCE_MULTIPLIER = 0.03;
-    private static final int BACKGROUND_RECTANGLE_ADDED_HEIGHT = 3;
-    private static final int BACKGROUND_RECTANGLE_OFFSET = 1;
+    public static final double MIN_TICK_LABEL_VERTICAL_EDGE_DISTANCE_MULTIPLIER = 0.03;
+    public static final int BACKGROUND_RECTANGLE_ADDED_HEIGHT = 2;
+    public static final int BACKGROUND_RECTANGLE_OFFSET = 1;
 
     private final NumberFormat limitedNumberFormatOverride = new NumberFormat() {
 
@@ -132,7 +130,11 @@ public class CustomNumberAxis extends NumberAxis {
     public AxisState draw(final Graphics2D g2, final double cursor, final Rectangle2D plotArea,
             final Rectangle2D dataArea, final RectangleEdge edge, final PlotRenderingInfo plotState) {
         final AxisState axisState = super.draw(g2, cursor, plotArea, dataArea, edge, plotState);
-        drawPriceLineLabels(g2, cursor, dataArea, edge);
+        if (isVisible()) {
+            drawPriceLineLabels(g2, cursor, dataArea, edge);
+            drawRangeCrosshairLabels(g2, cursor, dataArea, edge);
+        }
+
         return axisState;
     }
 
@@ -141,10 +143,6 @@ public class CustomNumberAxis extends NumberAxis {
      */
     protected void drawPriceLineLabels(final Graphics2D g2, final double cursor, final Rectangle2D dataArea,
             final RectangleEdge edge) {
-        if (!isVisible()) {
-            return;
-        }
-
         final XYPlot plot = (XYPlot) getPlot();
         final InteractiveChartPanel chartPanel = XYPlots.getChartPanel(plot);
         final Color panelBackgroundColor = (Color) chartPanel.getChart().getBackgroundPaint();
@@ -167,9 +165,8 @@ public class CustomNumberAxis extends NumberAxis {
                     }
 
                     //RectangleCoords
-                    final NumberTick tick = new NumberTick(lastPrice, String.valueOf(lastPrice), TextAnchor.CENTER_LEFT,
-                            TextAnchor.CENTER_LEFT, 0.0);
-                    final float[] anchorPoint = calculateAnchorPoint(tick, cursor, dataArea, edge);
+                    final float[] anchorPoint = calculateAnchorPoint(cursor, dataArea, edge, TextAnchor.CENTER_LEFT,
+                            lastPrice);
 
                     //Draw the background
                     final Color seriesColor = (Color) renderer.getItemPaint(0, lastItem);

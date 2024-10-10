@@ -18,11 +18,7 @@ import org.jfree.chart.ChartRenderingInfo;
 import org.jfree.chart.axis.NumberAxis;
 import org.jfree.chart.event.PlotChangeEvent;
 import org.jfree.chart.plot.PlotRenderingInfo;
-import org.jfree.chart.plot.ValueMarker;
 import org.jfree.chart.plot.XYPlot;
-import org.jfree.chart.ui.RectangleAnchor;
-import org.jfree.chart.ui.RectangleInsets;
-import org.jfree.chart.ui.TextAnchor;
 
 import de.invesdwin.aspects.annotation.EventDispatchThread;
 import de.invesdwin.aspects.annotation.EventDispatchThread.InvocationType;
@@ -31,6 +27,7 @@ import de.invesdwin.context.client.swing.jfreechart.plot.Markers;
 import de.invesdwin.context.client.swing.jfreechart.plot.XYPlots;
 import de.invesdwin.context.client.swing.jfreechart.plot.annotation.XYNoteIconAnnotation;
 import de.invesdwin.context.client.swing.jfreechart.plot.annotation.priceline.XYPriceLineAnnotation;
+import de.invesdwin.context.client.swing.jfreechart.plot.renderer.custom.marker.CustomValueMarker;
 import de.invesdwin.util.lang.color.Colors;
 import de.invesdwin.util.math.Doubles;
 
@@ -38,57 +35,41 @@ import de.invesdwin.util.math.Doubles;
 public class PlotCrosshairHelper {
     public static final Cursor CROSSHAIR_CURSOR = new Cursor(Cursor.CROSSHAIR_CURSOR);
 
-    private static final Font CROSSHAIR_FONT = XYPriceLineAnnotation.FONT;
-    private static final Color CROSSHAIR_COLOR = Color.BLACK;
+    public static final Font CROSSHAIR_FONT = XYPriceLineAnnotation.FONT;
+    public static final Color CROSSHAIR_COLOR = Color.BLACK;
     private static final Stroke CROSSHAIR_STROKE = new BasicStroke(0.5f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL,
             0, new float[] { 5, 6 }, 0);
 
     private final InteractiveChartPanel chartPanel;
-    private final ValueMarker domainCrosshairMarker;
-    private final ValueMarker lastDomainCrosshairMarker;
-    private final ValueMarker rangeCrosshairMarkerRight;
-    private final ValueMarker rangeCrosshairMarkerLeft;
+    private final CustomValueMarker domainCrosshairMarker;
+    private final CustomValueMarker lastDomainCrosshairMarker;
+    private final CustomValueMarker rangeCrosshairMarkerRight;
+    private final CustomValueMarker rangeCrosshairMarkerLeft;
     private int crosshairLastMouseX;
     private int crosshairLastMouseY;
 
     public PlotCrosshairHelper(final InteractiveChartPanel chartPanel) {
         this.chartPanel = chartPanel;
 
-        domainCrosshairMarker = new ValueMarker(-1D);
+        domainCrosshairMarker = new CustomValueMarker(-1D);
         domainCrosshairMarker.setStroke(CROSSHAIR_STROKE);
         domainCrosshairMarker.setPaint(CROSSHAIR_COLOR);
-        domainCrosshairMarker.setLabelFont(CROSSHAIR_FONT);
-        domainCrosshairMarker.setLabelPaint(CROSSHAIR_COLOR);
-        domainCrosshairMarker.setLabelBackgroundColor(Colors.INVISIBLE_COLOR);
-        domainCrosshairMarker.setLabelAnchor(RectangleAnchor.BOTTOM);
-        domainCrosshairMarker.setLabelTextAnchor(TextAnchor.BOTTOM_RIGHT);
-        domainCrosshairMarker.setLabelOffset(new RectangleInsets(0, 4, 2, 0));
         try {
-            lastDomainCrosshairMarker = (ValueMarker) domainCrosshairMarker.clone();
+            lastDomainCrosshairMarker = (CustomValueMarker) domainCrosshairMarker.clone();
         } catch (final CloneNotSupportedException e) {
             throw new RuntimeException(e);
         }
-        rangeCrosshairMarkerRight = new ValueMarker(-1D);
+        rangeCrosshairMarkerRight = new CustomValueMarker(-1D);
         rangeCrosshairMarkerRight.setStroke(CROSSHAIR_STROKE);
         rangeCrosshairMarkerRight.setPaint(CROSSHAIR_COLOR);
-        rangeCrosshairMarkerRight.setLabelFont(CROSSHAIR_FONT);
-        rangeCrosshairMarkerRight.setLabelPaint(CROSSHAIR_COLOR);
-        rangeCrosshairMarkerRight.setLabelBackgroundColor(Colors.INVISIBLE_COLOR);
-        rangeCrosshairMarkerRight.setLabelAnchor(RectangleAnchor.RIGHT);
-        rangeCrosshairMarkerRight.setLabelTextAnchor(TextAnchor.TOP_RIGHT);
-        rangeCrosshairMarkerRight.setLabelOffset(new RectangleInsets(0, 0, 1, 1));
-        rangeCrosshairMarkerLeft = new ValueMarker(0D);
+
+        rangeCrosshairMarkerLeft = new CustomValueMarker(0D);
         rangeCrosshairMarkerLeft.setStroke(CROSSHAIR_STROKE);
         rangeCrosshairMarkerLeft.setPaint(Colors.INVISIBLE_COLOR);
-        rangeCrosshairMarkerLeft.setLabelFont(CROSSHAIR_FONT);
-        rangeCrosshairMarkerLeft.setLabelPaint(CROSSHAIR_COLOR);
-        rangeCrosshairMarkerLeft.setLabelBackgroundColor(Colors.INVISIBLE_COLOR);
-        rangeCrosshairMarkerLeft.setLabelAnchor(RectangleAnchor.LEFT);
-        rangeCrosshairMarkerLeft.setLabelTextAnchor(TextAnchor.TOP_LEFT);
-        rangeCrosshairMarkerLeft.setLabelOffset(new RectangleInsets(0, 2, 1, 0));
     }
 
     public double getDomainCrosshairMarkerValue() {
+
         return domainCrosshairMarker.getValue();
     }
 
@@ -157,7 +138,8 @@ public class PlotCrosshairHelper {
             domainMarkerChanged = lastDomainCrosshairMarker.getValue() != xx;
             domainCrosshairMarker.setValue(xx);
             lastDomainCrosshairMarker.setValue(xx);
-            lastDomainCrosshairMarker.setLabel(chartPanel.getDomainAxis().getNumberFormatOverride().format(xx));
+            lastDomainCrosshairMarker.setAxisValue(xx);
+            lastDomainCrosshairMarker.setAxisLabel(chartPanel.getDomainAxis().getNumberFormatOverride().format(xx));
             final List<XYPlot> plots = chartPanel.getCombinedPlot().getSubplots();
             for (int i = 0; i < plots.size(); i++) {
                 final XYPlot plot = plots.get(i);
@@ -176,32 +158,42 @@ public class PlotCrosshairHelper {
                     final double yyRight = rangeAxisRight.java2DToValue(mousePoint.getY(), panelArea,
                             plot.getRangeAxisEdge());
                     rangeCrosshairMarkerRight.setValue(yyRight);
+                    rangeCrosshairMarkerRight.setAxisValue(yyRight);
                     if (rangeAxisRight.isVisible()) {
-                        rangeCrosshairMarkerRight.setLabel(rangeAxisRight.getNumberFormatOverride().format(yyRight));
+                        rangeCrosshairMarkerRight
+                                .setAxisLabel(rangeAxisRight.getNumberFormatOverride().format(yyRight));
                         final NumberAxis rangeAxisLeft = (NumberAxis) plot.getRangeAxis(1);
                         if (rangeAxisLeft != null && rangeAxisLeft.isVisible()) {
                             rangeCrosshairMarkerLeft.setValue(yyRight);
                             final double yyLeft = rangeAxisLeft.java2DToValue(mousePoint.getY(), panelArea,
                                     plot.getRangeAxisEdge(1));
-                            rangeCrosshairMarkerLeft.setLabel(rangeAxisLeft.getNumberFormatOverride().format(yyLeft));
+                            rangeCrosshairMarkerLeft.setAxisValue(yyLeft);
+                            rangeCrosshairMarkerLeft
+                                    .setAxisLabel(rangeAxisLeft.getNumberFormatOverride().format(yyLeft));
                         } else {
                             rangeCrosshairMarkerLeft.setValue(-1);
-                            rangeCrosshairMarkerLeft.setLabel(null);
+                            rangeCrosshairMarkerLeft.setAxisValue(-1);
+                            rangeCrosshairMarkerLeft.setAxisLabel(null);
                         }
                     } else {
-                        rangeCrosshairMarkerRight.setLabel(null);
+                        rangeCrosshairMarkerRight.setAxisLabel(null);
                         rangeCrosshairMarkerRight.setValue(-1D);
-                        rangeCrosshairMarkerLeft.setLabel(null);
+                        rangeCrosshairMarkerRight.setAxisValue(-1D);
+                        rangeCrosshairMarkerLeft.setAxisLabel(null);
                         rangeCrosshairMarkerLeft.setValue(-1D);
+                        rangeCrosshairMarkerLeft.setAxisValue(-1D);
                     }
                     if (!plot.isRangeCrosshairLockedOnData()) {
                         plot.addRangeMarker(rangeCrosshairMarkerRight);
-                        if (rangeCrosshairMarkerLeft.getLabel() != null) {
+                        if (rangeCrosshairMarkerLeft.getAxisLabel() != null) {
                             plot.addRangeMarker(rangeCrosshairMarkerLeft);
                         }
                         plot.setRangeCrosshairLockedOnData(true); //our marker for enabled crosshair
                     }
                     chartPanel.setCursor(CROSSHAIR_CURSOR);
+
+                    rangeCrosshairMarkerLeft.setCurrentPlot(plot);
+                    rangeCrosshairMarkerRight.setCurrentPlot(plot);
                 } else {
                     // this subplot does not have the range
                     // crosshair, make sure its off
@@ -235,10 +227,14 @@ public class PlotCrosshairHelper {
         Markers.setValue(domainCrosshairMarker, -1D);
         Markers.setValue(lastDomainCrosshairMarker, -1D);
 
+        rangeCrosshairMarkerRight.setAxisValue(-1D);
+        rangeCrosshairMarkerLeft.setAxisValue(-1D);
+        domainCrosshairMarker.setAxisValue(-1D);
+        lastDomainCrosshairMarker.setAxisValue(-1D);
+
         if (notify) {
             chartPanel.getCombinedPlot().notifyListeners(new PlotChangeEvent(chartPanel.getCombinedPlot()));
         }
-
     }
 
     public Point2D getCrosshairLastMousePoint() {
@@ -272,5 +268,21 @@ public class PlotCrosshairHelper {
         final int mouseX = e.getX();
         final int mouseY = e.getY();
         updateCrosshair(mouseX, mouseY);
+    }
+
+    public CustomValueMarker getDomainCrosshairMarker() {
+        return domainCrosshairMarker;
+    }
+
+    public CustomValueMarker getLastDomainCrosshairMarker() {
+        return lastDomainCrosshairMarker;
+    }
+
+    public CustomValueMarker getRangeCrosshairMarkerRight() {
+        return rangeCrosshairMarkerRight;
+    }
+
+    public CustomValueMarker getRangeCrosshairMarkerLeft() {
+        return rangeCrosshairMarkerLeft;
     }
 }
