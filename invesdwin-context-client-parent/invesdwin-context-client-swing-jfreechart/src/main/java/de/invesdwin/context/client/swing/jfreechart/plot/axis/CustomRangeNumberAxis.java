@@ -218,7 +218,7 @@ public class CustomRangeNumberAxis extends ACustomNumberAxis {
      *
      */
 
-    protected void drawRangeCrosshairLabels(final Graphics2D g2, final double cursor, final Rectangle2D dataArea,
+    private void drawRangeCrosshairLabels(final Graphics2D g2, final double cursor, final Rectangle2D dataArea,
             final RectangleEdge edge) {
         final XYPlot plot = (XYPlot) getPlot();
         final InteractiveChartPanel chartPanel = XYPlots.getChartPanel(plot);
@@ -247,7 +247,7 @@ public class CustomRangeNumberAxis extends ACustomNumberAxis {
         }
     }
 
-    protected void drawLabel(final Graphics2D g2, final double cursor, final Rectangle2D dataArea,
+    private void drawLabel(final Graphics2D g2, final double cursor, final Rectangle2D dataArea,
             final RectangleEdge edge, final InteractiveChartPanel chartPanel, final double rangeValue,
             final String labelText, final XYPlot plot, final XYPlot markerPlot) {
         if (rangeValue == -1D || labelText == null || !plot.equals(markerPlot)) {
