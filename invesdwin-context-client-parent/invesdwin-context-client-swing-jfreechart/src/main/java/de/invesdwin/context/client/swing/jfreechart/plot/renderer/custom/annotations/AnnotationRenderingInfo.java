@@ -41,7 +41,7 @@ public class AnnotationRenderingInfo {
     private double heightMultiplierCached = Double.NaN;
 
     public void beforePlotDraw() {
-        if (!drawnBoundsMinYBottom.isEmpty() || !drawnBoundsMinYBottom.isEmpty()) {
+        if (!drawnBoundsMinYBottom.isEmpty() || !drawnBoundsMaxYTop.isEmpty()) {
             drawnBoundsMinYBottom.clear();
             drawnBoundsMaxYTop.clear();
             heightMultiplierCached = Double.NaN;
