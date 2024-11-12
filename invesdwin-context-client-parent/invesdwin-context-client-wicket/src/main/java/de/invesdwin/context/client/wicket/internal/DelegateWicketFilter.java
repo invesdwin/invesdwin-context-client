@@ -27,7 +27,7 @@ public class DelegateWicketFilter extends AWicketFilter {
     protected boolean processRequestCycle(final RequestCycle requestCycle, final WebResponse webResponse,
             final HttpServletRequest httpServletRequest, final HttpServletResponse httpServletResponse,
             final FilterChain chain) throws IOException, ServletException {
-        final boolean registerThreadRetryDisabled = Threads.registerThreadRetryDisabled();
+        final Boolean registerThreadRetryDisabled = Threads.registerThreadRetryDisabled();
         try {
             return super.processRequestCycle(requestCycle, webResponse, httpServletRequest, httpServletResponse, chain);
         } finally {
