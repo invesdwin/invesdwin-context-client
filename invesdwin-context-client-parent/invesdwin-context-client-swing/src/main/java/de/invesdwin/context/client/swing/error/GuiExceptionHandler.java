@@ -3,8 +3,6 @@ package de.invesdwin.context.client.swing.error;
 import java.awt.Dimension;
 import java.awt.Window;
 import java.awt.event.WindowEvent;
-import java.util.LinkedHashSet;
-import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -20,12 +18,14 @@ import org.jdesktop.swingx.error.ErrorInfo;
 import de.invesdwin.context.client.swing.api.guiservice.GuiService;
 import de.invesdwin.context.client.swing.frame.app.DelegateRichApplication;
 import de.invesdwin.context.log.error.Err;
+import de.invesdwin.context.log.error.IGuiHiddenException;
 import de.invesdwin.context.log.error.LoggedRuntimeException;
 import de.invesdwin.context.log.error.hook.ErrHookManager;
 import de.invesdwin.context.log.error.hook.IErrHook;
 import de.invesdwin.util.assertions.Assertions;
-import de.invesdwin.util.collections.Collections;
-import de.invesdwin.util.concurrent.future.ImmutableFuture;
+import de.invesdwin.util.collections.factory.ILockCollectionFactory;
+import de.invesdwin.util.collections.fast.IFastIterableSet;
+import de.invesdwin.util.concurrent.future.NullFuture;
 import de.invesdwin.util.error.Throwables;
 import de.invesdwin.util.lang.string.description.HtmlToPlainText;
 import de.invesdwin.util.shutdown.ShutdownHookManager;
@@ -41,8 +41,8 @@ public final class GuiExceptionHandler implements IErrHook {
     private static final int MAX_PREVIEW_MESSAGE_LENGTH = 1500;
     private static final int MAX_EXCEPTIONS_SHOWING = 1;
     private static final AtomicInteger ALREADY_SHOWING_COUNT = new AtomicInteger(0);
-    private final Set<IGuiExceptionHandlerHook> hooks = Collections
-            .synchronizedSet(new LinkedHashSet<IGuiExceptionHandlerHook>());
+    private final IFastIterableSet<IGuiExceptionHandlerHook> hooks = ILockCollectionFactory.getInstance(true)
+            .newFastIterableLinkedSet();
     private volatile Throwable shutdownAfterShowing;
 
     private GuiExceptionHandler() {
@@ -55,7 +55,7 @@ public final class GuiExceptionHandler implements IErrHook {
     }
 
     public static void registerHook(final IGuiExceptionHandlerHook hook) {
-        Assertions.assertThat(INSTANCE.hooks.add(hook)).isTrue();
+        Assertions.checkTrue(INSTANCE.hooks.add(hook));
     }
 
     @Override
@@ -67,13 +67,11 @@ public final class GuiExceptionHandler implements IErrHook {
 
     public Future<Void> handleException(final LoggedRuntimeException exc, final boolean forced) {
         if (exc == null) {
-            return ImmutableFuture.of(null);
+            return NullFuture.getInstance();
         }
         if (!forced) {
-            for (final IGuiExceptionHandlerHook hook : hooks) {
-                if (hook.shouldHideException(exc)) {
-                    return ImmutableFuture.of(null);
-                }
+            if (shouldHideException(exc)) {
+                return NullFuture.getInstance();
             }
         }
         final ResourceMap resourceMap = getResourceMap();
@@ -115,12 +113,25 @@ public final class GuiExceptionHandler implements IErrHook {
                     dialog.setVisible(true);
                     return null;
                 }
-
             });
         } else {
             ALREADY_SHOWING_COUNT.decrementAndGet();
         }
-        return ImmutableFuture.of(null);
+        return NullFuture.getInstance();
+    }
+
+    public boolean shouldHideException(final LoggedRuntimeException exc) {
+        if (Throwables.isCausedByType(exc, IGuiHiddenException.class)) {
+            return true;
+        }
+        final IGuiExceptionHandlerHook[] hooksArray = hooks.asArray(IGuiExceptionHandlerHook.EMPTY_ARRAY);
+        for (int i = 0; i < hooksArray.length; i++) {
+            final IGuiExceptionHandlerHook hook = hooksArray[i];
+            if (hook.shouldHideException(exc)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private String shortenMessage(final String message) {
