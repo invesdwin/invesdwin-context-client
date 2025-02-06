@@ -18,7 +18,7 @@ import org.jdesktop.swingx.error.ErrorInfo;
 import de.invesdwin.context.client.swing.api.guiservice.GuiService;
 import de.invesdwin.context.client.swing.frame.app.DelegateRichApplication;
 import de.invesdwin.context.log.error.Err;
-import de.invesdwin.context.log.error.IGuiHiddenException;
+import de.invesdwin.context.log.error.IHiddenException;
 import de.invesdwin.context.log.error.LoggedRuntimeException;
 import de.invesdwin.context.log.error.hook.ErrHookManager;
 import de.invesdwin.context.log.error.hook.IErrHook;
@@ -121,7 +121,7 @@ public final class GuiExceptionHandler implements IErrHook {
     }
 
     public boolean shouldHideException(final LoggedRuntimeException exc) {
-        if (Throwables.isCausedByType(exc, IGuiHiddenException.class)) {
+        if (Throwables.isCausedByType(exc, IHiddenException.class)) {
             return true;
         }
         final IGuiExceptionHandlerHook[] hooksArray = hooks.asArray(IGuiExceptionHandlerHook.EMPTY_ARRAY);
