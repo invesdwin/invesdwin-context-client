@@ -480,7 +480,7 @@ public class InteractiveChartPanel extends JPanel {
                     try {
                         plotZoomHelper.limitRange(); //do this expensive task outside of EDT
                     } catch (final Throwable t) {
-                        Err.process(new RuntimeException("Ignoring, chart might have been closed", t));
+                        handleException("Ignoring, chart might have been closed", t);
                         return;
                     } finally {
                         decrementUpdatingCount();
@@ -499,7 +499,7 @@ public class InteractiveChartPanel extends JPanel {
                                     plotLegendHelper.update();
                                     plotCoordinateHelper.updatePinMarker();
                                 } catch (final Throwable t) {
-                                    Err.process(new RuntimeException("Ignoring", t));
+                                    handleException(t);
                                     return;
                                 } finally {
                                     decrementUpdatingCount();
@@ -583,7 +583,7 @@ public class InteractiveChartPanel extends JPanel {
                 plotCoordinateHelper.mouseExited();
                 InteractiveChartPanel.this.mouseExited();
             } catch (final Throwable t) {
-                Err.process(new Exception("Ignoring", t));
+                handleException(t);
             }
         }
 
@@ -615,7 +615,7 @@ public class InteractiveChartPanel extends JPanel {
                     }
                 }
             } catch (final Throwable t) {
-                Err.process(new Exception("Ignoring", t));
+                handleException(t);
             }
         }
 
@@ -634,7 +634,7 @@ public class InteractiveChartPanel extends JPanel {
 
                 dragging = false;
             } catch (final Throwable t) {
-                Err.process(new Exception("Ignoring", t));
+                handleException(t);
             }
         }
     }
@@ -656,7 +656,7 @@ public class InteractiveChartPanel extends JPanel {
                     plotPanHelper.panLeft();
                 }
             } catch (final Throwable t) {
-                Err.process(new Exception("Ignoring", t));
+                handleException(t);
             }
         }
 
@@ -665,7 +665,7 @@ public class InteractiveChartPanel extends JPanel {
             try {
                 plotPanHelper.keyReleased(e);
             } catch (final Throwable t) {
-                Err.process(new Exception("Ignoring", t));
+                handleException(t);
             }
         }
 
@@ -693,7 +693,7 @@ public class InteractiveChartPanel extends JPanel {
                 updateUserGapRateRight();
                 update();
             } catch (final Throwable t) {
-                Err.process(new Exception("Ignoring", t));
+                handleException(t);
             }
         }
 
@@ -719,7 +719,7 @@ public class InteractiveChartPanel extends JPanel {
                 plotResizeHelper.mouseMoved(e);
                 plotNavigationHelper.mouseMoved(e);
             } catch (final Throwable t) {
-                Err.process(new Exception("Ignoring", t));
+                handleException(t);
             }
         }
 
@@ -745,7 +745,7 @@ public class InteractiveChartPanel extends JPanel {
                 }
                 chartPanel.requestFocusInWindow();
             } catch (final Throwable t) {
-                Err.process(new Exception("Ignoring", t));
+                handleException(t);
             }
         }
     }
@@ -773,7 +773,7 @@ public class InteractiveChartPanel extends JPanel {
             plotLegendHelper.disableHighlighting();
             plotNavigationHelper.mouseExited();
         } catch (final Throwable t) {
-            Err.process(new Exception("Ignoring", t));
+            handleException(t);
         }
     }
 
@@ -878,5 +878,13 @@ public class InteractiveChartPanel extends JPanel {
         return maxUpperBound < domainAxis.getRange().getUpperBound()
                 ? (domainAxis.getRange().getUpperBound() - maxUpperBound) / domainRangeLength
                 : 0;
+    }
+
+    private void handleException(final Throwable t) {
+        handleException("Ignoring", t);
+    }
+
+    protected void handleException(final String message, final Throwable t) {
+        Err.process(new Exception(message, t));
     }
 }
