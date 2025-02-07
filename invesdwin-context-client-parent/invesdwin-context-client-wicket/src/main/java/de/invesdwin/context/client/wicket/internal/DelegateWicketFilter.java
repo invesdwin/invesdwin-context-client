@@ -10,7 +10,7 @@ import org.apache.wicket.request.http.WebResponse;
 import de.invesdwin.context.integration.DatabaseThreads;
 import de.invesdwin.nowicket.application.IWebApplicationConfig;
 import de.invesdwin.nowicket.application.filter.AWicketFilter;
-import de.invesdwin.util.concurrent.Threads;
+import de.invesdwin.util.concurrent.RetryThreads;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -30,11 +30,11 @@ public class DelegateWicketFilter extends AWicketFilter {
             final FilterChain chain) throws IOException, ServletException {
         final Boolean registerThreadBlockingUpdateDatabaseDisabled = DatabaseThreads
                 .registerThreadBlockingUpdateDatabaseDisabled(false);
-        final Boolean registerThreadRetryDisabled = Threads.registerThreadRetryDisabled(false);
+        final Boolean registerThreadRetryDisabled = RetryThreads.registerThreadRetryDisabled(false);
         try {
             return super.processRequestCycle(requestCycle, webResponse, httpServletRequest, httpServletResponse, chain);
         } finally {
-            Threads.unregisterThreadRetryDisabled(registerThreadRetryDisabled);
+            RetryThreads.unregisterThreadRetryDisabled(registerThreadRetryDisabled);
             DatabaseThreads.unregisterThreadBlockingUpdateDisabled(registerThreadBlockingUpdateDatabaseDisabled);
         }
     }
