@@ -1,6 +1,8 @@
 package de.invesdwin.context.client.swing.jfreechart.plot.dataset.list;
 
-public interface ISlaveLazyDatasetListener {
+import de.invesdwin.context.client.swing.jfreechart.plot.dataset.IDrawIncompleteBar;
+
+public interface ISlaveLazyDatasetListener extends IDrawIncompleteBar {
 
     void appendItems(int appendCount);
 

@@ -40,6 +40,16 @@ public class PlotSourceXYSeriesCollection extends XYSeriesCollection implements 
     }
 
     @Override
+    public boolean isDrawIncompleteBar() {
+        final List<ListXYSeriesOHLC> series = getSeries();
+        if (series.isEmpty()) {
+            return false;
+        }
+        final ListXYSeriesOHLC firstSeries = series.get(0);
+        return IDrawIncompleteBar.isDrawIncompleteBar(firstSeries);
+    }
+
+    @Override
     public XYPlot getPlot() {
         return plot;
     }

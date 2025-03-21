@@ -231,4 +231,9 @@ public class DisabledXYDataset extends AbstractXYDataset implements IPlotSourceD
         return null;
     }
 
+    @Override
+    public boolean isDrawIncompleteBar() {
+        return enabledDataset.isDrawIncompleteBar();
+    }
+
 }

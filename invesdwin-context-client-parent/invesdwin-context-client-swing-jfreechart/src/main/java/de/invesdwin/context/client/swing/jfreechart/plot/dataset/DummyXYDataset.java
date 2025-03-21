@@ -17,8 +17,7 @@ public class DummyXYDataset implements IPlotSourceDataset {
 
     public static final DummyXYDataset INSTANCE = new DummyXYDataset();
 
-    protected DummyXYDataset() {
-    }
+    protected DummyXYDataset() {}
 
     @Override
     public DomainOrder getDomainOrder() {
@@ -61,12 +60,10 @@ public class DummyXYDataset implements IPlotSourceDataset {
     }
 
     @Override
-    public void addChangeListener(final DatasetChangeListener listener) {
-    }
+    public void addChangeListener(final DatasetChangeListener listener) {}
 
     @Override
-    public void removeChangeListener(final DatasetChangeListener listener) {
-    }
+    public void removeChangeListener(final DatasetChangeListener listener) {}
 
     @Override
     public DatasetGroup getGroup() {
@@ -74,8 +71,7 @@ public class DummyXYDataset implements IPlotSourceDataset {
     }
 
     @Override
-    public void setGroup(final DatasetGroup group) {
-    }
+    public void setGroup(final DatasetGroup group) {}
 
     @Override
     public Number getHigh(final int series, final int item) {
@@ -133,8 +129,7 @@ public class DummyXYDataset implements IPlotSourceDataset {
     }
 
     @Override
-    public void setPlot(final XYPlot plot) {
-    }
+    public void setPlot(final XYPlot plot) {}
 
     @Override
     public Integer getPrecision() {
@@ -142,8 +137,7 @@ public class DummyXYDataset implements IPlotSourceDataset {
     }
 
     @Override
-    public void setPrecision(final Integer precision) {
-    }
+    public void setPrecision(final Integer precision) {}
 
     @Override
     public String getInitialPlotPaneId() {
@@ -151,8 +145,7 @@ public class DummyXYDataset implements IPlotSourceDataset {
     }
 
     @Override
-    public void setInitialPlotPaneId(final String initialPlotPaneId) {
-    }
+    public void setInitialPlotPaneId(final String initialPlotPaneId) {}
 
     @Override
     public String getRangeAxisId() {
@@ -160,8 +153,7 @@ public class DummyXYDataset implements IPlotSourceDataset {
     }
 
     @Override
-    public void setRangeAxisId(final String rangeAxisId) {
-    }
+    public void setRangeAxisId(final String rangeAxisId) {}
 
     @Override
     public boolean isLegendValueVisible(final int series, final int item) {
@@ -179,8 +171,7 @@ public class DummyXYDataset implements IPlotSourceDataset {
     }
 
     @Override
-    public void setSeriesTitle(final String seriesTitle) {
-    }
+    public void setSeriesTitle(final String seriesTitle) {}
 
     @Override
     public IIndicatorSeriesProvider getIndicatorSeriesProvider() {
@@ -188,12 +179,10 @@ public class DummyXYDataset implements IPlotSourceDataset {
     }
 
     @Override
-    public void setIndicatorSeriesProvider(final IIndicatorSeriesProvider indicatorSeriesProvider) {
-    }
+    public void setIndicatorSeriesProvider(final IIndicatorSeriesProvider indicatorSeriesProvider) {}
 
     @Override
-    public void setIndicatorSeriesArguments(final IExpression[] indicatorSeriesArguments) {
-    }
+    public void setIndicatorSeriesArguments(final IExpression[] indicatorSeriesArguments) {}
 
     @Override
     public IExpression[] getIndicatorSeriesArguments() {
@@ -206,8 +195,7 @@ public class DummyXYDataset implements IPlotSourceDataset {
     }
 
     @Override
-    public void setExpressionSeriesProvider(final IExpressionSeriesProvider expressionSeriesProvider) {
-    }
+    public void setExpressionSeriesProvider(final IExpressionSeriesProvider expressionSeriesProvider) {}
 
     @Override
     public String getExpressionSeriesArguments() {
@@ -215,12 +203,16 @@ public class DummyXYDataset implements IPlotSourceDataset {
     }
 
     @Override
-    public void setExpressionSeriesArguments(final String expressionSeriesArguments) {
-    }
+    public void setExpressionSeriesArguments(final String expressionSeriesArguments) {}
 
     @Override
     public IndexedDateTimeOHLCDataset getMasterDataset() {
         return null;
+    }
+
+    @Override
+    public boolean isDrawIncompleteBar() {
+        return false;
     }
 
 }

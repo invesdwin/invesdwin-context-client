@@ -9,7 +9,6 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.annotation.concurrent.NotThreadSafe;
@@ -37,11 +36,11 @@ import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.series.i
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.crosshair.PlotCoordinateHelper;
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.crosshair.PlotCrosshairHelper;
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.legend.PlotLegendHelper;
-import de.invesdwin.context.client.swing.jfreechart.panel.helper.listener.IRangeListener;
 import de.invesdwin.context.client.swing.jfreechart.plot.CustomXYPlot;
 import de.invesdwin.context.client.swing.jfreechart.plot.IndexedDateTimeNumberFormat;
 import de.invesdwin.context.client.swing.jfreechart.plot.XYPlots;
 import de.invesdwin.context.client.swing.jfreechart.plot.annotation.XYNoteIconAnnotation;
+import de.invesdwin.context.client.swing.jfreechart.plot.axis.CustomDomainNumberAxis;
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.IndexedDateTimeOHLCDataset;
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.list.IChartPanelAwareDatasetList;
 import de.invesdwin.context.jfreechart.FiniteTickUnitSource;
@@ -123,7 +122,7 @@ public class InteractiveChartPanel extends JPanel {
         this.plotPanHelper = new PlotPanHelper(this);
         this.mouseMotionListener = new MouseMotionListenerImpl();
 
-        domainAxis = new RangeListenerNumberAxis();
+        domainAxis = new CustomDomainNumberAxis(this);
         domainAxis.setAutoRange(false);
         domainAxis.setLabelFont(XYPlots.DEFAULT_FONT);
         domainAxis.setTickLabelFont(XYPlots.DEFAULT_FONT);
@@ -272,6 +271,10 @@ public class InteractiveChartPanel extends JPanel {
         return plotPanHelper;
     }
 
+    public int getDefaultTrailingRangeGapMinimum() {
+        return chartPanel.getDefaultTrailingRangeGapMinimum();
+    }
+
     public int getAllowedTrailingRangeGap(final double length) {
         return chartPanel.getAllowedTrailingRangeGap(length);
     }
@@ -359,7 +362,10 @@ public class InteractiveChartPanel extends JPanel {
     }
 
     protected void doResetRange(final int visibleItemCount, final double gapRateBefore) {
-        final int userGapAbsolute = (int) (visibleItemCount * gapRateBefore);
+        //Keep at least the defaultTralingRangeGapMinimum
+        final int defaultTrailingRangeGapMinimum = getDefaultTrailingRangeGapMinimum();
+        int userGapAbsolute = (int) (visibleItemCount * gapRateBefore);
+        userGapAbsolute = Math.max(defaultTrailingRangeGapMinimum, userGapAbsolute);
         final int lastItemIndex = masterDataset.getItemCount(0) - 1;
         final int upperBound = lastItemIndex + userGapAbsolute;
         final int lowerBound = upperBound - visibleItemCount;
@@ -474,7 +480,7 @@ public class InteractiveChartPanel extends JPanel {
                     try {
                         plotZoomHelper.limitRange(); //do this expensive task outside of EDT
                     } catch (final Throwable t) {
-                        Err.process(new RuntimeException("Ignoring, chart might have been closed", t));
+                        handleException("Ignoring, chart might have been closed", t);
                         return;
                     } finally {
                         decrementUpdatingCount();
@@ -493,7 +499,7 @@ public class InteractiveChartPanel extends JPanel {
                                     plotLegendHelper.update();
                                     plotCoordinateHelper.updatePinMarker();
                                 } catch (final Throwable t) {
-                                    Err.process(new RuntimeException("Ignoring", t));
+                                    handleException(t);
                                     return;
                                 } finally {
                                     decrementUpdatingCount();
@@ -549,34 +555,12 @@ public class InteractiveChartPanel extends JPanel {
         }
     }
 
-    private void configureRangeAxis() {
+    public void configureRangeAxis() {
         final List<XYPlot> plots = combinedPlot.getSubplots();
         for (int i = 0; i < plots.size(); i++) {
             final XYPlot plot = plots.get(i);
             //explicitly don't apply theme here to not cause unnecessary object allocations
             XYPlots.configureRangeAxes(plot);
-        }
-    }
-
-    private final class RangeListenerNumberAxis extends NumberAxis {
-        @Override
-        public void setRange(final Range range, final boolean turnOffAutoRange, final boolean notify) {
-            final boolean changed = !range.equals(getRange());
-            super.setRange(range, turnOffAutoRange, notify);
-            if (changed) {
-                final Set<IRangeListener> rangeListeners = plotZoomHelper.getRangeListeners();
-                if (!rangeListeners.isEmpty()) {
-                    for (final IRangeListener l : rangeListeners) {
-                        l.onRangeChanged(range);
-                    }
-                }
-                configureRangeAxis();
-                final boolean navigationUpdated = plotPanHelper.maybeToggleVisibilityPanLiveIcon();
-                if (!navigationUpdated) {
-                    //Update for Pan/Zoom-Icon's if not alreay called by panLiveVisibility-handling
-                    plotNavigationHelper.updateNavigation();
-                }
-            }
         }
     }
 
@@ -599,7 +583,7 @@ public class InteractiveChartPanel extends JPanel {
                 plotCoordinateHelper.mouseExited();
                 InteractiveChartPanel.this.mouseExited();
             } catch (final Throwable t) {
-                Err.process(new Exception("Ignoring", t));
+                handleException(t);
             }
         }
 
@@ -631,7 +615,7 @@ public class InteractiveChartPanel extends JPanel {
                     }
                 }
             } catch (final Throwable t) {
-                Err.process(new Exception("Ignoring", t));
+                handleException(t);
             }
         }
 
@@ -650,7 +634,7 @@ public class InteractiveChartPanel extends JPanel {
 
                 dragging = false;
             } catch (final Throwable t) {
-                Err.process(new Exception("Ignoring", t));
+                handleException(t);
             }
         }
     }
@@ -672,7 +656,7 @@ public class InteractiveChartPanel extends JPanel {
                     plotPanHelper.panLeft();
                 }
             } catch (final Throwable t) {
-                Err.process(new Exception("Ignoring", t));
+                handleException(t);
             }
         }
 
@@ -681,7 +665,7 @@ public class InteractiveChartPanel extends JPanel {
             try {
                 plotPanHelper.keyReleased(e);
             } catch (final Throwable t) {
-                Err.process(new Exception("Ignoring", t));
+                handleException(t);
             }
         }
 
@@ -709,7 +693,7 @@ public class InteractiveChartPanel extends JPanel {
                 updateUserGapRateRight();
                 update();
             } catch (final Throwable t) {
-                Err.process(new Exception("Ignoring", t));
+                handleException(t);
             }
         }
 
@@ -735,7 +719,7 @@ public class InteractiveChartPanel extends JPanel {
                 plotResizeHelper.mouseMoved(e);
                 plotNavigationHelper.mouseMoved(e);
             } catch (final Throwable t) {
-                Err.process(new Exception("Ignoring", t));
+                handleException(t);
             }
         }
 
@@ -761,7 +745,7 @@ public class InteractiveChartPanel extends JPanel {
                 }
                 chartPanel.requestFocusInWindow();
             } catch (final Throwable t) {
-                Err.process(new Exception("Ignoring", t));
+                handleException(t);
             }
         }
     }
@@ -789,7 +773,7 @@ public class InteractiveChartPanel extends JPanel {
             plotLegendHelper.disableHighlighting();
             plotNavigationHelper.mouseExited();
         } catch (final Throwable t) {
-            Err.process(new Exception("Ignoring", t));
+            handleException(t);
         }
     }
 
@@ -894,5 +878,13 @@ public class InteractiveChartPanel extends JPanel {
         return maxUpperBound < domainAxis.getRange().getUpperBound()
                 ? (domainAxis.getRange().getUpperBound() - maxUpperBound) / domainRangeLength
                 : 0;
+    }
+
+    private void handleException(final Throwable t) {
+        handleException("Ignoring", t);
+    }
+
+    protected void handleException(final String message, final Throwable t) {
+        Err.process(new Exception(message, t));
     }
 }

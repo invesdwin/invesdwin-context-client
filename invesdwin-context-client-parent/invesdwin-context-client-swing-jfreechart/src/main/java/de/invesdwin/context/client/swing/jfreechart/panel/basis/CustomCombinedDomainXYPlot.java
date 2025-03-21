@@ -30,6 +30,7 @@ public class CustomCombinedDomainXYPlot extends CombinedDomainXYPlot {
     public static final int MAIN_PLOT_WEIGHT = INITIAL_PLOT_WEIGHT * 2;
     public static final int EMPTY_PLOT_WEIGHT = INITIAL_PLOT_WEIGHT / 5;
     private final InteractiveChartPanel chartPanel;
+
     private final XYPlot trashPlot;
 
     public CustomCombinedDomainXYPlot(final InteractiveChartPanel chartPanel) {
@@ -192,4 +193,7 @@ public class CustomCombinedDomainXYPlot extends CombinedDomainXYPlot {
         }
     }
 
+    public InteractiveChartPanel getChartPanel() {
+        return chartPanel;
+    }
 }

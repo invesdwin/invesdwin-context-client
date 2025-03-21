@@ -82,6 +82,11 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
     }
 
     @Override
+    public boolean isDrawIncompleteBar() {
+        return provider.isDrawIncompleteBar();
+    }
+
+    @Override
     protected MasterOHLCDataItem dummyValue() {
         return MasterOHLCDataItem.DUMMY_VALUE;
     }
@@ -402,7 +407,9 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
                 final int insertedIndex = 0;
                 final ICloseableIterable<? extends TimeRangedOHLCDataItem> masterPrependValues = provider
                         .getPreviousValues(firstLoadedItem.getEndTime().addMilliseconds(-1), prependCount);
-                loadItems(data, insertedIndex, prependItems, masterPrependValues);
+                final boolean added = false;
+                final int replacedCount = 0;
+                loadItems(data, insertedIndex, prependItems, masterPrependValues, added, replacedCount, prependCount);
             }
         }
         //wait for update instead if trailing
@@ -422,11 +429,12 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
                     final int appendCount = Integers.min(MAX_STEP_ITEM_COUNT,
                             (preloadUpperBound - data.size()) * STEP_ITEM_COUNT_MULTIPLIER);
                     if (appendCount > 0) {
-                        final List<MasterOHLCDataItem> appendItems;
+                        final List<MasterOHLCDataItem> appendItems = new ArrayList<>(appendCount);
+                        final int replacedCount;
                         chartPanel.incrementUpdatingCount(); //prevent flickering
                         final int insertedIndex = data.size();
                         try {
-                            appendItems = appendMaster(appendCount);
+                            replacedCount = appendMaster(appendCount, appendItems);
                             appendSlaves(appendCount);
                         } finally {
                             chartPanel.decrementUpdatingCount();
@@ -434,7 +442,9 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
 
                         final ICloseableIterable<? extends TimeRangedOHLCDataItem> appendMasterValues = provider
                                 .getNextValues(appendItems.get(0).getEndTime(), appendItems.size());
-                        loadItems(data, insertedIndex, appendItems, appendMasterValues);
+                        final boolean added = true;
+                        loadItems(data, insertedIndex, appendItems, appendMasterValues, added, replacedCount,
+                                appendCount);
                     }
                 }
             }
@@ -471,7 +481,8 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
 
     private void loadItems(final List<MasterOHLCDataItem> data, final int insertedIndex,
             final List<MasterOHLCDataItem> items,
-            final ICloseableIterable<? extends TimeRangedOHLCDataItem> masterValues) {
+            final ICloseableIterable<? extends TimeRangedOHLCDataItem> masterValues, final boolean append,
+            final int replacedCount, final int addedCount) {
         final double priority = items.get(0).getEndTime().millisValue();
         executor.execute(new IPriorityRunnable() {
             @Override
@@ -494,9 +505,11 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
                     try {
                         final int tooManyAfter = items.size() - nextItemsIndex;
                         if (tooManyAfter > 0) {
-                            final int removeMasterIndex = insertedIndex + nextItemsIndex;
-                            synchronized (MasterLazyDatasetList.this) {
-                                removeTooManyAfter(data, removeMasterIndex, tooManyAfter);
+                            final int removeMasterIndex = insertedIndex + nextItemsIndex - replacedCount;
+                            if (removeMasterIndex >= 0) {
+                                synchronized (MasterLazyDatasetList.this) {
+                                    removeTooManyAfter(data, removeMasterIndex, tooManyAfter);
+                                }
                             }
                         }
                         if (!slaveDatasetListeners.isEmpty()) {
@@ -517,11 +530,10 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
             }
 
             private void removeTooManyAfter(final List<MasterOHLCDataItem> data, final int index, final int count) {
-                final int toIndexExclusive = Integers.min(data.size(), index + count);
-                Lists.removeRange(data, index, toIndexExclusive);
-                if (!slaveDatasetListeners.isEmpty()) {
+                final int removed = Lists.removeRange(data, index, index + count);
+                if (!slaveDatasetListeners.isEmpty() && removed > 0) {
                     for (final ISlaveLazyDatasetListener slave : slaveDatasetListeners) {
-                        slave.removeMiddleItems(index, count);
+                        slave.removeMiddleItems(index, removed);
                     }
                 }
             }
@@ -557,13 +569,14 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
         }
     }
 
-    private List<MasterOHLCDataItem> appendMaster(final int appendCount) {
+    private int appendMaster(final int appendCount, final List<MasterOHLCDataItem> appendItems) {
         //invalidate two elements to reload them
-        final List<MasterOHLCDataItem> appendItems = new ArrayList<>(appendCount);
         final List<MasterOHLCDataItem> data = getData();
+        int replacedCount = 0;
         for (int i = Math.max(0, data.size() - 2); i <= data.size() - 1; i++) {
             final MasterOHLCDataItem existingItem = data.get(i);
             appendItems.add(existingItem);
+            replacedCount++;
         }
         final MasterOHLCDataItem lastLoadedItem = data.get(data.size() - 1);
         for (int i = 0; i < appendCount; i++) {
@@ -572,7 +585,7 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
             appendItems.add(appendItem);
             data.add(appendItem);
         }
-        return appendItems;
+        return replacedCount;
     }
 
     private void appendSlaves(final int appendCount) {

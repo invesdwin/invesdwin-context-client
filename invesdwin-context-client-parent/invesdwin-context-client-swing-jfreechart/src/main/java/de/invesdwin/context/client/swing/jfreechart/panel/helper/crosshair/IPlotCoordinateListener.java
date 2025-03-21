@@ -24,5 +24,5 @@ public interface IPlotCoordinateListener {
 
     boolean isPinned();
 
-    void maybeUpdateIncompleteBar(FDate currentBarStartTime, FDate currentBarEndTime);
+    void maybeUpdateIncompleteBar();
 }

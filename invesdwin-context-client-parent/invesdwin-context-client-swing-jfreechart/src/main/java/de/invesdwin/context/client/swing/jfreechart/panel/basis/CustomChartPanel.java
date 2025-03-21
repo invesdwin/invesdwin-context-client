@@ -520,6 +520,10 @@ public class CustomChartPanel extends JPanel implements ChartChangeListener, Cha
         this.verticalTraceLine = line;
     }
 
+    public int getDefaultTrailingRangeGapMinimum() {
+        return this.defaultTrailingRangeGapMinimum;
+    }
+
     public int getAllowedTrailingRangeGap(final double length) {
         final int defaultRangeGap = (int) (defaultTrailingRangeGapRate * length);
         return Integers.max(defaultTrailingRangeGapMinimum, defaultRangeGap);
