@@ -59,7 +59,11 @@ import de.invesdwin.util.time.date.FDate;
 public class CandlestickDemo extends JFrame {
 
     static {
-        Reflections.disableJavaModuleSystemRestrictions();
+        try {
+            Reflections.disableJavaModuleSystemRestrictions();
+        } catch (final Throwable t) {
+            //ignore
+        }
     }
 
     private static final UniqueNameGenerator SERIES_ID_GENERATOR = new UniqueNameGenerator();
