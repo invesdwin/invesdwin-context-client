@@ -4,8 +4,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Stroke;
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
+import java.io.InputStreamReader;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -47,7 +46,6 @@ import de.invesdwin.context.client.swing.rsyntaxtextarea.expression.ExpressionCo
 import de.invesdwin.context.client.swing.rsyntaxtextarea.expression.completion.IAliasedCompletion;
 import de.invesdwin.context.jfreechart.dataset.TimeRangedOHLCDataItem;
 import de.invesdwin.context.log.error.Err;
-import de.invesdwin.context.system.properties.SystemProperties;
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.collections.iterable.ICloseableIterable;
 import de.invesdwin.util.collections.loadingcache.historical.AHistoricalCache;
@@ -68,6 +66,10 @@ import de.invesdwin.util.time.date.FDate;
 
 @NotThreadSafe
 public class LazyCandlestickDemo extends JFrame {
+
+    static {
+        Reflections.disableJavaModuleSystemRestrictions();
+    }
 
     private static final UniqueNameGenerator SERIES_ID_GENERATOR = new UniqueNameGenerator();
     private final List<TimeRangedOHLCDataItem> dataItems;
@@ -110,9 +112,8 @@ public class LazyCandlestickDemo extends JFrame {
              * String strUrl=
              * "https://query1.finance.yahoo.com/v7/finance/download/MSFT?period1=1493801037&period2=1496479437&interval=1d&events=history&crumb=y/oR8szwo.9";
              */
-            final File f = new File("src/test/java/"
-                    + LazyCandlestickDemo.class.getPackage().getName().replace(".", "/") + "/MSFTlong.csv");
-            final BufferedReader in = new BufferedReader(new FileReader(f));
+            final BufferedReader in = new BufferedReader(
+                    new InputStreamReader(CandlestickDemo.class.getResourceAsStream("MSFTlong.csv")));
 
             final DateFormat df = new java.text.SimpleDateFormat("y-M-d");
 
@@ -199,7 +200,7 @@ public class LazyCandlestickDemo extends JFrame {
     //CHECKSTYLE:OFF
     public static void main(final String[] args) throws InterruptedException {
         if (Reflections.JAVA_VERSION < 12) {
-            new SystemProperties().setInteger("jdk.gtk.version", 2);
+            System.setProperty("jdk.gtk.version", "2");
         }
         if (Reflections.JAVA_DEBUG_MODE) {
             System.setProperty("sun.awt.disablegrab", "true");
