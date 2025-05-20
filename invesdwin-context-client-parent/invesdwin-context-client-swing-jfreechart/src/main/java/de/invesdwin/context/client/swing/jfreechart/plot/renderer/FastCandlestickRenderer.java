@@ -353,7 +353,7 @@ public class FastCandlestickRenderer extends ACustomXYItemRenderer
         // draw the body
         final Rectangle2D body;
         double height = yyMaxOpenClose - yyMinOpenClose;
-        if (height == 0) {
+        if (height <= 1) {
             height = MIN_BAR_HEIGHT;
         }
         if (horiz) {
