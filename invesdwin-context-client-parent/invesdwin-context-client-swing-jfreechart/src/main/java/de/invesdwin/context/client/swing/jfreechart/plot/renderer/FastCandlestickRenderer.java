@@ -353,7 +353,7 @@ public class FastCandlestickRenderer extends ACustomXYItemRenderer
         // draw the body
         final Rectangle2D body;
         double height = yyMaxOpenClose - yyMinOpenClose;
-        if (height <= 1) {
+        if (height < 1) {
             height = MIN_BAR_HEIGHT;
         }
         if (horiz) {
@@ -527,9 +527,4 @@ public class FastCandlestickRenderer extends ACustomXYItemRenderer
             final ValueAxis rangeAxis, final Layer layer, final PlotRenderingInfo info) {
         super.drawAnnotations(g2, dataArea, domainAxis, rangeAxis, layer, info);
     }
-
-    //    public static int calcDisplayableItemCount(final XYDataset dataset, final int series, final ValueAxis axis) {
-    //        //TODO: brauche ich da ne eigene methode für ?
-    //        return (int) axis.getRange().getLength();
-    //    }
 }
