@@ -56,7 +56,7 @@ public class FastCandlestickRenderer extends ACustomXYItemRenderer
     private static final float STROKE_SCALING_MIN_ITEMS = 200;
     private static final float STROKE_SCALING_MAX_ITEMS = 2500;
 
-    private static final double MIN_BAR_HEIGHT = 1;
+    private static final double MIN_BAR_HEIGHT_PIXEL = 1;
 
     /** For serialization. */
     private static final long serialVersionUID = 50390395841817121L;
@@ -353,8 +353,8 @@ public class FastCandlestickRenderer extends ACustomXYItemRenderer
         // draw the body
         final Rectangle2D body;
         double height = yyMaxOpenClose - yyMinOpenClose;
-        if (height < 1) {
-            height = MIN_BAR_HEIGHT;
+        if (height < MIN_BAR_HEIGHT_PIXEL) {
+            height = MIN_BAR_HEIGHT_PIXEL;
         }
         if (horiz) {
             body = new Rectangle2D.Double(yyMinOpenClose, xx - stickWidth / 2, height, stickWidth);
