@@ -56,6 +56,8 @@ public class FastCandlestickRenderer extends ACustomXYItemRenderer
     private static final float STROKE_SCALING_MIN_ITEMS = 200;
     private static final float STROKE_SCALING_MAX_ITEMS = 2500;
 
+    private static final double MIN_BAR_HEIGHT_PIXEL = 1;
+
     /** For serialization. */
     private static final long serialVersionUID = 50390395841817121L;
 
@@ -350,12 +352,14 @@ public class FastCandlestickRenderer extends ACustomXYItemRenderer
 
         // draw the body
         final Rectangle2D body;
+        double height = yyMaxOpenClose - yyMinOpenClose;
+        if (height < MIN_BAR_HEIGHT_PIXEL) {
+            height = MIN_BAR_HEIGHT_PIXEL;
+        }
         if (horiz) {
-            body = new Rectangle2D.Double(yyMinOpenClose, xx - stickWidth / 2, yyMaxOpenClose - yyMinOpenClose,
-                    stickWidth);
+            body = new Rectangle2D.Double(yyMinOpenClose, xx - stickWidth / 2, height, stickWidth);
         } else {
-            body = new Rectangle2D.Double(xx - stickWidth / 2, yyMinOpenClose, stickWidth,
-                    yyMaxOpenClose - yyMinOpenClose);
+            body = new Rectangle2D.Double(xx - stickWidth / 2, yyMinOpenClose, stickWidth, height);
         }
         if (yClose > yOpen) {
             if (this.upColor != null) {
@@ -523,9 +527,4 @@ public class FastCandlestickRenderer extends ACustomXYItemRenderer
             final ValueAxis rangeAxis, final Layer layer, final PlotRenderingInfo info) {
         super.drawAnnotations(g2, dataArea, domainAxis, rangeAxis, layer, info);
     }
-
-    //    public static int calcDisplayableItemCount(final XYDataset dataset, final int series, final ValueAxis axis) {
-    //        //TODO: brauche ich da ne eigene methode für ?
-    //        return (int) axis.getRange().getLength();
-    //    }
 }
