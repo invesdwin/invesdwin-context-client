@@ -80,7 +80,7 @@ public class FrameFixtureStub extends StubSupport {
         initFrameFixture();
     }
 
-    private void initFrameFixture() {
+    private synchronized void initFrameFixture() {
         if (frameFixture == null) {
             RichApplicationStub.maybeLaunch();
             try {
@@ -98,7 +98,10 @@ public class FrameFixtureStub extends StubSupport {
     }
 
     @Override
-    public void tearDown(final ATest test, final TestContext ctx) {
+    public synchronized void tearDown(final ATest test, final TestContext ctx) {
+        if (!ctx.isFinished()) {
+            return;
+        }
         if (frameFixture != null) {
             frameFixture.cleanUp();
             frameFixture = null;
