@@ -217,13 +217,14 @@ public abstract class AView<M extends AModel, C extends JComponent> extends AMod
     public void replaceView(final AView<?, ?> existingView) {
         synchronized (dockableLock) {
             synchronized (existingView.dockableLock) {
-                Assertions.assertThat(existingView.dockable).isNotNull();
                 //move dockable
                 this.dockable = existingView.dockable;
                 existingView.dockable = null;
                 //replace dockable content
-                this.dockable.setView(this);
-                this.dockable.setComponent(getComponent());
+                if (this.dockable != null) {
+                    this.dockable.setView(this);
+                    this.dockable.setComponent(getComponent());
+                }
                 //close existing view
                 new AViewVisitor() {
                     @Override
