@@ -3,7 +3,8 @@ package de.invesdwin.context.client.swing.test;
 import java.io.Closeable;
 import java.util.List;
 
-import javax.annotation.concurrent.NotThreadSafe;
+import javax.annotation.concurrent.GuardedBy;
+import javax.annotation.concurrent.ThreadSafe;
 
 import de.invesdwin.context.beans.init.locations.PositionedResource;
 import de.invesdwin.context.test.ATest;
@@ -16,10 +17,11 @@ import de.invesdwin.util.swing.EventDispatchThreadUtil;
 import jakarta.inject.Named;
 
 @Named
-@NotThreadSafe
+@ThreadSafe
 public class SwingExplorerStub extends StubSupport implements Closeable {
 
-    private static volatile org.swingexplorer.internal.SwingExplorerApplication lastInstance;
+    @GuardedBy("this.class")
+    private static org.swingexplorer.internal.SwingExplorerApplication lastInstance;
 
     static {
         ShutdownHookManager.register(new IShutdownHook() {
@@ -31,7 +33,13 @@ public class SwingExplorerStub extends StubSupport implements Closeable {
     }
 
     @Override
-    public void setUpContextLocations(final ATest test, final List<PositionedResource> locations) throws Exception {
+    public void setUpContextLocations(final ATest test, final List<PositionedResource> locations) throws Exception {}
+
+    @Override
+    public void setUpContext(final ATest test, final TestContext ctx) throws Exception {
+        if (ctx.isPreMergedContext()) {
+            return;
+        }
         //if for some reason the tearDownOnce was not executed on the last test (maybe maven killed it?), then try to stop here aswell
         close();
     }
@@ -45,6 +53,10 @@ public class SwingExplorerStub extends StubSupport implements Closeable {
     }
 
     public void open() throws InterruptedException {
+        openStatic();
+    }
+
+    private static synchronized void openStatic() throws InterruptedException {
         if (lastInstance == null) {
             lastInstance = new org.swingexplorer.internal.SwingExplorerApplication();
             EventDispatchThreadUtil.invokeAndWait(new Runnable() {
@@ -69,7 +81,7 @@ public class SwingExplorerStub extends StubSupport implements Closeable {
         closeStatic();
     }
 
-    private static void closeStatic() {
+    private static synchronized void closeStatic() {
         if (lastInstance != null) {
             lastInstance.close();
             lastInstance = null;

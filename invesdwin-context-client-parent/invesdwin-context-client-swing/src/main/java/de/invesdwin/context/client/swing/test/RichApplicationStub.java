@@ -37,20 +37,25 @@ public class RichApplicationStub extends StubSupport {
 
     @Override
     public void tearDown(final ATest test, final TestContext ctx) {
-        RichApplicationStub.launched = false;
-        if (Application.getInstance() instanceof SingleFrameApplication) {
-            final SingleFrameApplication application = (SingleFrameApplication) Application.getInstance();
-            application.getMainFrame().setVisible(false);
+        if (!ctx.isFinished()) {
+            return;
         }
-        statusBar.reset();
-        contentPane.reset();
-        for (final Task<?, ?> task : GuiService.get().getTaskService().getTasks()) {
-            task.cancel(true);
+        synchronized (RichApplicationStub.class) {
+            RichApplicationStub.launched = false;
+            if (Application.getInstance() instanceof SingleFrameApplication) {
+                final SingleFrameApplication application = (SingleFrameApplication) Application.getInstance();
+                application.getMainFrame().setVisible(false);
+            }
+            statusBar.reset();
+            contentPane.reset();
+            for (final Task<?, ?> task : GuiService.get().getTaskService().getTasks()) {
+                task.cancel(true);
+            }
+            RichApplicationProperties.reset();
         }
-        RichApplicationProperties.reset();
     }
 
-    public static void maybeLaunch() {
+    public static synchronized void maybeLaunch() {
         if (!launched) {
             DelegateRichApplication.launch();
             launched = true;
