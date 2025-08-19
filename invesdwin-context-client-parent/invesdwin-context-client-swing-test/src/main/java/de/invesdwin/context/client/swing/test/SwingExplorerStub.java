@@ -70,7 +70,7 @@ public class SwingExplorerStub extends StubSupport implements Closeable {
 
     @Override
     public void tearDownOnce(final ATest test, final TestContext ctx) {
-        if (!ctx.isFinished()) {
+        if (!ctx.isFinishedGlobal()) {
             return;
         }
         close();

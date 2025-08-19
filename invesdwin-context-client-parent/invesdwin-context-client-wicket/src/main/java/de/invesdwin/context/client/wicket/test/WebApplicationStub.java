@@ -86,7 +86,7 @@ public class WebApplicationStub extends StubSupport {
 
     @Override
     public void tearDownOnce(final ATest test, final TestContext ctx) {
-        if (!ctx.isFinished()) {
+        if (!ctx.isFinishedGlobal()) {
             return;
         }
         //need to clear security context anyway, even if not enabled
