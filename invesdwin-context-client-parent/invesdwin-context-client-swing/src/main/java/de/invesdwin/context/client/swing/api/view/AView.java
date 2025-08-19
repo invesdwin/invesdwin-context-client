@@ -232,13 +232,15 @@ public abstract class AView<M extends AModel, C extends JComponent> extends AMod
                         view.triggerOnClose();
                     }
                 }.visitAll(Views.getRootComponentInDockable(existingView.getComponent()));
-                //open new view
-                new AViewVisitor() {
-                    @Override
-                    protected void visit(final AView<?, ?> view) {
-                        view.triggerOnOpen();
-                    }
-                }.visitAll(Views.getRootComponentInDockable(getComponent()));
+                if (this.dockable != null) {
+                    //open new view
+                    new AViewVisitor() {
+                        @Override
+                        protected void visit(final AView<?, ?> view) {
+                            view.triggerOnOpen();
+                        }
+                    }.visitAll(Views.getRootComponentInDockable(getComponent()));
+                }
             }
         }
     }
