@@ -44,6 +44,8 @@ public abstract class AView<M extends AModel, C extends JComponent> extends AMod
     private IDockable dockable;
     @GuardedBy("dockableLock")
     private BroadcastingViewListener broadcastingViewListener;
+    @GuardedBy("this")
+    private boolean open;
 
     @SuppressWarnings("unchecked")
     public AView() {
@@ -276,22 +278,33 @@ public abstract class AView<M extends AModel, C extends JComponent> extends AMod
         return broadcastingViewListener.getListeners();
     }
 
-    private void triggerOnOpen() {
+    private synchronized void triggerOnOpen() {
+        if (open) {
+            return;
+        }
         onOpen();
         if (broadcastingViewListener != null) {
             broadcastingViewListener.onOpen();
         }
+        open = true;
     }
 
-    private void triggerOnClose() {
+    private synchronized void triggerOnClose() {
+        if (!open) {
+            return;
+        }
+        Assertions.checkNull(getDockable(), "dockable should be null when closing a view");
         onClose();
         if (broadcastingViewListener != null) {
             broadcastingViewListener.onClose();
         }
+        open = false;
     }
 
     @Hidden(skip = true)
     public final void triggerOnShowing() {
+        //open if it was closed somehow or did not open without error yet
+        triggerOnOpen();
         onShowing();
         if (broadcastingViewListener != null) {
             broadcastingViewListener.onShowing();
