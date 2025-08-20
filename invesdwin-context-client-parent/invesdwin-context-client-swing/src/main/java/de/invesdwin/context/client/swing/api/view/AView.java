@@ -14,7 +14,6 @@ import de.invesdwin.context.client.swing.api.view.listener.BroadcastingViewListe
 import de.invesdwin.context.client.swing.api.view.listener.IViewListener;
 import de.invesdwin.context.client.swing.util.AViewVisitor;
 import de.invesdwin.context.client.swing.util.ComponentStandardizer;
-import de.invesdwin.context.client.swing.util.Views;
 import de.invesdwin.norva.beanpath.annotation.Hidden;
 import de.invesdwin.norva.beanpath.impl.clazz.BeanClassContext;
 import de.invesdwin.norva.beanpath.spi.element.IBeanPathElement;
@@ -197,7 +196,7 @@ public abstract class AView<M extends AModel, C extends JComponent> extends AMod
                     protected void visit(final AView<?, ?> view) {
                         view.triggerOnOpen();
                     }
-                }.visitAll(Views.getRootComponentInDockable(getComponent()));
+                }.visitAll(getComponent());
             } else {
                 Assertions.assertThat(dockable).as("A View instance can only be made visible once.").isNull();
                 this.dockable.setView(null);
@@ -209,7 +208,7 @@ public abstract class AView<M extends AModel, C extends JComponent> extends AMod
                         view.triggerOnClose();
                     }
 
-                }.visitAll(Views.getRootComponentInDockable(getComponent()));
+                }.visitAll(getComponent());
             }
         }
     }
@@ -237,14 +236,14 @@ public abstract class AView<M extends AModel, C extends JComponent> extends AMod
                     protected void visit(final AView<?, ?> view) {
                         view.triggerOnClose();
                     }
-                }.visitAll(Views.getRootComponentInDockable(existingView.getComponent()));
+                }.visitAll(existingView.getComponent());
                 //open new view
                 new AViewVisitor() {
                     @Override
                     protected void visit(final AView<?, ?> view) {
                         view.triggerOnOpen();
                     }
-                }.visitAll(Views.getRootComponentInDockable(getComponent()));
+                }.visitAll(getComponent());
                 return true;
             }
         }
