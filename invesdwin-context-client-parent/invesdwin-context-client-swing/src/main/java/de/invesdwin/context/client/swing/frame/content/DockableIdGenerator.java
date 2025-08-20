@@ -24,6 +24,10 @@ public final class DockableIdGenerator {
      * Generates IDs in the schema of [ClassFQN]_[SequenceNumber].
      */
     public static String newId(final AView<?, ?> view) {
+        final String id = view.getId();
+        if (id != null) {
+            return view.getId();
+        }
         final AtomicInteger sequenceNumber = CLASS_SEQUENCENUMBER.get(view.getClass());
         return view.getClass().getName() + "_" + sequenceNumber.incrementAndGet();
     }
