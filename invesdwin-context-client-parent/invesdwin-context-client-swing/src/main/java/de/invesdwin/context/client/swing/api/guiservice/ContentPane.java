@@ -128,18 +128,24 @@ public class ContentPane {
             AView<?, ?> existingView = findViewWithEqualModel(view);
             if (existingView == null) {
                 //Find Placeholder-View
-                existingView = id_visibleView.get(view.getId());
+                final String id = view.getId();
+                if (id != null) {
+                    existingView = id_visibleView.get(id);
+                }
             }
 
             if (existingView != null) {
-                view.replaceView(existingView);
-                if (existingView.getClass() != view.getClass()) {
-                    //Classes will differ when we for example replace a PlaceholderView with the 'real' one.
-                    class_id_visibleView.get(existingView.getClass()).remove(existingView.getDockableUniqueId());
-                    class_id_visibleView.get(view.getClass()).put(view.getDockableUniqueId(), view);
+                if (view.replaceView(existingView)) {
+                    if (existingView.getClass() != view.getClass()) {
+                        //Classes will differ when we for example replace a PlaceholderView with the 'real' one.
+                        class_id_visibleView.get(existingView.getClass()).remove(existingView.getDockableUniqueId());
+                        class_id_visibleView.get(view.getClass()).put(view.getDockableUniqueId(), view);
+                    }
+                    final IDockable dockable = view.getDockable();
+                    dockable.requestFocus();
+                } else {
+                    addView(view, location);
                 }
-                final IDockable dockable = view.getDockable();
-                dockable.requestFocus();
             } else {
                 addView(view, location);
             }
@@ -166,6 +172,9 @@ public class ContentPane {
     }
 
     private AView<?, ?> findViewWithEqualModel(final AView<?, ?> view) {
+        if (!view.isReplaceViewWithEqualModel()) {
+            return null;
+        }
         for (final AView<?, ?> visibleView : class_id_visibleView.get(view.getClass()).values()) {
             if (Objects.equals(visibleView.getModel(), view.getModel())) {
                 return visibleView;

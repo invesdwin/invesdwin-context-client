@@ -214,10 +214,12 @@ public abstract class AView<M extends AModel, C extends JComponent> extends AMod
         }
     }
 
-    public void replaceView(final AView<?, ?> existingView) {
+    public boolean replaceView(final AView<?, ?> existingView) {
         synchronized (dockableLock) {
             synchronized (existingView.dockableLock) {
-                Assertions.assertThat(existingView.dockable).isNotNull();
+                if (existingView.dockable == null) {
+                    return false;
+                }
                 //move dockable
                 this.dockable = existingView.dockable;
                 existingView.dockable = null;
@@ -238,6 +240,7 @@ public abstract class AView<M extends AModel, C extends JComponent> extends AMod
                         view.triggerOnOpen();
                     }
                 }.visitAll(Views.getRootComponentInDockable(getComponent()));
+                return true;
             }
         }
     }
@@ -308,5 +311,9 @@ public abstract class AView<M extends AModel, C extends JComponent> extends AMod
      */
     @Hidden(skip = true)
     protected void onShowing() {}
+
+    public boolean isReplaceViewWithEqualModel() {
+        return true;
+    }
 
 }
