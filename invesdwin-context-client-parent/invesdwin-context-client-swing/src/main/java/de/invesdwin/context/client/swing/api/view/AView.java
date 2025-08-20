@@ -312,6 +312,11 @@ public abstract class AView<M extends AModel, C extends JComponent> extends AMod
     @Hidden(skip = true)
     protected void onShowing() {}
 
+    /**
+     * If this is false, when adding this view to the content pane, the content pane will not search for models that are
+     * equal to the current one in order to search for an existing view that should be replaced. Instead only the id
+     * will be checked if available. Otherwise no replacement will occur.
+     */
     public boolean isReplaceViewWithEqualModel() {
         return true;
     }
