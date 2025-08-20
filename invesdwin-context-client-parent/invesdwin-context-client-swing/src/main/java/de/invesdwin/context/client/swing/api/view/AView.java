@@ -214,6 +214,11 @@ public abstract class AView<M extends AModel, C extends JComponent> extends AMod
         }
     }
 
+    /**
+     * Returns true if the existing view can be replaced by this view. If this view should instead be added as another
+     * instance, just return false here. The default implementation just verifies if the existing dockable can be reused
+     * and atomically swaps it. If the dockable can not be reused, the default implementation returns false as well.
+     */
     public boolean replaceView(final AView<?, ?> existingView) {
         synchronized (dockableLock) {
             synchronized (existingView.dockableLock) {
