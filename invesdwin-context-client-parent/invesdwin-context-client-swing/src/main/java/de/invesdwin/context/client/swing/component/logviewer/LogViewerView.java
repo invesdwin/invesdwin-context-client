@@ -188,35 +188,41 @@ public class LogViewerView extends AView<LogViewerView, JPanel> {
 
     @Override
     protected void onOpen() {
-        ACTIVE_LOGS.incrementAndGet();
-        initUpdateFuture();
+        synchronized (LogViewerView.class) {
+            ACTIVE_LOGS.incrementAndGet();
+            initUpdateFuture();
+        }
     }
 
     private void initUpdateFuture() {
-        Assertions.checkNull(updateFuture);
+        synchronized (LogViewerView.class) {
+            Assertions.checkNull(updateFuture);
 
-        final Duration refreshInterval = getRefreshInterval();
-        updateFuture = getScheduledExecutor().scheduleAtFixedRate(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    update();
-                } catch (final InterruptedException e) {
-                    //noop
+            final Duration refreshInterval = getRefreshInterval();
+            updateFuture = getScheduledExecutor().scheduleAtFixedRate(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        update();
+                    } catch (final InterruptedException e) {
+                        //noop
+                    }
                 }
-            }
-        }, 0, refreshInterval.longValue(), refreshInterval.getTimeUnit().timeUnitValue());
+            }, 0, refreshInterval.longValue(), refreshInterval.getTimeUnit().timeUnitValue());
+        }
     }
 
     @Override
     protected void onClose() {
-        final Future<?> updateFutureCopy = updateFuture;
-        if (updateFutureCopy != null) {
-            updateFutureCopy.cancel(true);
-            updateFuture = null;
+        synchronized (LogViewerView.class) {
+            final Future<?> updateFutureCopy = updateFuture;
+            if (updateFutureCopy != null) {
+                updateFutureCopy.cancel(true);
+                updateFuture = null;
+            }
+            ACTIVE_LOGS.decrementAndGet();
+            maybeCloseScheduledExecutor();
         }
-        ACTIVE_LOGS.decrementAndGet();
-        maybeCloseScheduledExecutor();
     }
 
     private synchronized void update() throws InterruptedException {
