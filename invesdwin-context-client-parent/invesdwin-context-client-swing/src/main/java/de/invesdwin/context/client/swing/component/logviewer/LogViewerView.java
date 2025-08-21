@@ -188,41 +188,35 @@ public class LogViewerView extends AView<LogViewerView, JPanel> {
 
     @Override
     protected void onOpen() {
-        synchronized (LogViewerView.class) {
-            ACTIVE_LOGS.incrementAndGet();
-            initUpdateFuture();
-        }
+        ACTIVE_LOGS.incrementAndGet();
+        initUpdateFuture();
     }
 
     private void initUpdateFuture() {
-        synchronized (LogViewerView.class) {
-            Assertions.checkNull(updateFuture);
+        Assertions.checkNull(updateFuture);
 
-            final Duration refreshInterval = getRefreshInterval();
-            updateFuture = getScheduledExecutor().scheduleAtFixedRate(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        update();
-                    } catch (final InterruptedException e) {
-                        //noop
-                    }
+        final Duration refreshInterval = getRefreshInterval();
+        updateFuture = getScheduledExecutor().scheduleAtFixedRate(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    update();
+                } catch (final InterruptedException e) {
+                    //noop
                 }
-            }, 0, refreshInterval.longValue(), refreshInterval.getTimeUnit().timeUnitValue());
-        }
+            }
+        }, 0, refreshInterval.longValue(), refreshInterval.getTimeUnit().timeUnitValue());
     }
 
     @Override
     protected void onClose() {
-        synchronized (LogViewerView.class) {
-            final Future<?> updateFutureCopy = updateFuture;
-            if (updateFutureCopy != null) {
-                updateFutureCopy.cancel(true);
-                updateFuture = null;
-            }
-            ACTIVE_LOGS.decrementAndGet();
-            maybeCloseScheduledExecutor();
+        final Future<?> updateFutureCopy = updateFuture;
+        if (updateFutureCopy != null) {
+            updateFutureCopy.cancel(true);
+            updateFuture = null;
         }
+        ACTIVE_LOGS.decrementAndGet();
+        maybeCloseScheduledExecutor();
     }
 
     private synchronized void update() throws InterruptedException {
