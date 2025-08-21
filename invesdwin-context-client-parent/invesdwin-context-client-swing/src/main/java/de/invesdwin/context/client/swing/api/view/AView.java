@@ -303,8 +303,6 @@ public abstract class AView<M extends AModel, C extends JComponent> extends AMod
 
     @Hidden(skip = true)
     public final void triggerOnShowing() {
-        //open if it was closed somehow or did not open without error yet
-        triggerOnOpen();
         onShowing();
         if (broadcastingViewListener != null) {
             broadcastingViewListener.onShowing();
