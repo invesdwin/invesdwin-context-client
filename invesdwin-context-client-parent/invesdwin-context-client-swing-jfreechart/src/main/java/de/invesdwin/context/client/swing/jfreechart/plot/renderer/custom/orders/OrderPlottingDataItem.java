@@ -130,7 +130,6 @@ public class OrderPlottingDataItem {
         if (nextBarIndex > lastIndex) {
             return;
         }
-        this.closeTimeLoadedIndex = nextBarIndex;
         if (closeTime.millisValue() > endTimeMillis) {
             this.closeTimeLoadedIndex = nextBarIndex;
         } else {
