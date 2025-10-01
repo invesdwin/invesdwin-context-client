@@ -75,6 +75,7 @@ public class CustomOrderPlottingRenderer extends AbstractXYItemRenderer
     private final OrderPlottingDataset dataset;
     private Color upColor;
     private Color downColor;
+    private Color triggerColor;
     private ImageIcon noteUpIcon;
     private ImageIcon noteDownIcon;
     private ImageIcon noteBothIcon;
@@ -95,6 +96,7 @@ public class CustomOrderPlottingRenderer extends AbstractXYItemRenderer
         final PriceInitialSettings config = plotConfigurationHelper.getPriceInitialSettings();
         setUpColor(UP_COLOR);
         setDownColor(DOWN_COLOR);
+        setTriggerColor(TRIGGER_COLOR);
         setDefaultPaint(BOTH_COLOR);
         if (lineWidth == null) {
             setDefaultStroke(config.getSeriesStroke());
@@ -176,6 +178,11 @@ public class CustomOrderPlottingRenderer extends AbstractXYItemRenderer
     @Override
     public Color getDownColor() {
         return downColor;
+    }
+
+    public void setTriggerColor(final Color triggerColor) {
+        this.triggerColor = triggerColor;
+        fireChangeEvent();
     }
 
     @Override
@@ -310,21 +317,24 @@ public class CustomOrderPlottingRenderer extends AbstractXYItemRenderer
     private void drawLine(final Graphics2D g2, final Rectangle2D dataArea, final XYPlot plot,
             final ValueAxis domainAxis, final ValueAxis rangeAxis, final int rendererIndex,
             final NumberFormat rangeAxisFormat, final RectangleEdge domainEdge, final RectangleEdge rangeEdge,
-            final LineWidthType lineWidth, final OrderPlottingDataItem next) {
-        final double executionPrice = next.getExecutionPrice();
+            final LineWidthType lineWidth, final OrderPlottingDataItem item) {
+        final double executionPrice = item.getExecutionPrice();
         if (Doubles.isNaN(executionPrice)) {
             return;
         }
+        final double triggerPrice = item.getTriggerPrice();
 
         final Color color;
-        if (next.isProfit()) {
+        if (!Doubles.isNaN(triggerPrice)) {
+            color = triggerColor;
+        } else if (item.isProfit()) {
             color = upColor;
         } else {
             color = downColor;
         }
 
         final LineStyleType lineStyle;
-        if (next.isPending()) {
+        if (item.isPending()) {
             lineStyle = LINE_STYLE_PENDING;
         } else {
             lineStyle = LINE_STYLE_DEFAULT;
@@ -332,62 +342,47 @@ public class CustomOrderPlottingRenderer extends AbstractXYItemRenderer
 
         final Stroke stroke = lineStyle.getStroke(lineWidth);
 
-        final boolean closed = next.isClosed();
-        final double x1 = domainAxis.valueToJava2D(next.getOpenTimeLoadedIndex(), dataArea, domainEdge);
+        final boolean closed = item.isClosed();
+        final double x1 = domainAxis.valueToJava2D(item.getOpenTimeLoadedIndex(), dataArea, domainEdge);
         final double x2;
         if (closed) {
-            x2 = domainAxis.valueToJava2D(next.getCloseTimeLoadedIndex(), dataArea, domainEdge);
+            x2 = domainAxis.valueToJava2D(item.getCloseTimeLoadedIndex(), dataArea, domainEdge);
         } else {
             x2 = dataArea.getMaxX();
         }
 
-        final double triggerPrice = next.getTriggerPrice();
-        if (!Double.isNaN(triggerPrice) && executionPrice != triggerPrice) {
+        final double openPrice;
+        final double closePrice;
+        if (!Doubles.isNaN(triggerPrice)) {
             /*
              * If there is a triggerPrice it has not been reached yet and therefore we only want to draw the
              * triggerPriceLine and not the execution-/close-PriceLine.
              */
-            final double y1Trigger = rangeAxis.valueToJava2D(triggerPrice, dataArea, rangeEdge);
-            final double y2Trigger = y1Trigger;
-            final XYLineAnnotation lineAnnotationTrigger = new XYLineAnnotation(x1, y1Trigger, x2, y2Trigger, stroke,
-                    TRIGGER_COLOR);
-            lineAnnotationTrigger.draw(g2, plot, dataArea, ABSOLUTE_AXIS, ABSOLUTE_AXIS, rendererIndex, null);
-            final String label = next.getLabel().get();
+            openPrice = triggerPrice;
+            closePrice = triggerPrice;
+        } else {
+            openPrice = executionPrice;
+            closePrice = item.getClosePrice();
+        }
+        final double y1 = rangeAxis.valueToJava2D(openPrice, dataArea, rangeEdge);
+        final double y2 = rangeAxis.valueToJava2D(closePrice, dataArea, rangeEdge);
+        final XYLineAnnotation lineAnnotation = new XYLineAnnotation(x1, y1, x2, y2, stroke, color);
+        lineAnnotation.draw(g2, plot, dataArea, ABSOLUTE_AXIS, ABSOLUTE_AXIS, rendererIndex, null);
+
+        if (!closed) {
+            final String label = item.getLabel().get();
             if (Strings.isNotBlank(label)) {
-                final XYTextAnnotation labelAnnotation = new XYTextAnnotation(label, x2 - 1D, y2Trigger - 1D);
-                labelAnnotation.setPaint(TRIGGER_COLOR);
+                final XYTextAnnotation labelAnnotation = new XYTextAnnotation(label, x2 - 1D, y2 - 1D);
+                labelAnnotation.setPaint(color);
                 labelAnnotation.setFont(FONT);
                 labelAnnotation.setTextAnchor(TextAnchor.BOTTOM_RIGHT);
                 labelAnnotation.draw(g2, plot, dataArea, ABSOLUTE_AXIS, ABSOLUTE_AXIS, rendererIndex, null);
-                final XYTextAnnotation priceAnnotation = new XYTextAnnotation(rangeAxisFormat.format(triggerPrice),
-                        x2 - 1D, y2Trigger + 1D);
-                priceAnnotation.setPaint(TRIGGER_COLOR);
+                final XYTextAnnotation priceAnnotation = new XYTextAnnotation(rangeAxisFormat.format(closePrice),
+                        x2 - 1D, y2 + 1D);
+                priceAnnotation.setPaint(color);
                 priceAnnotation.setFont(FONT);
                 priceAnnotation.setTextAnchor(TextAnchor.TOP_RIGHT);
                 priceAnnotation.draw(g2, plot, dataArea, ABSOLUTE_AXIS, ABSOLUTE_AXIS, rendererIndex, null);
-            }
-        } else {
-            final double closePrice = next.getClosePrice();
-            final double y1 = rangeAxis.valueToJava2D(executionPrice, dataArea, rangeEdge);
-            final double y2 = rangeAxis.valueToJava2D(closePrice, dataArea, rangeEdge);
-            final XYLineAnnotation lineAnnotation = new XYLineAnnotation(x1, y1, x2, y2, stroke, color);
-            lineAnnotation.draw(g2, plot, dataArea, ABSOLUTE_AXIS, ABSOLUTE_AXIS, rendererIndex, null);
-
-            if (!closed) {
-                final String label = next.getLabel().get();
-                if (Strings.isNotBlank(label)) {
-                    final XYTextAnnotation labelAnnotation = new XYTextAnnotation(label, x2 - 1D, y2 - 1D);
-                    labelAnnotation.setPaint(color);
-                    labelAnnotation.setFont(FONT);
-                    labelAnnotation.setTextAnchor(TextAnchor.BOTTOM_RIGHT);
-                    labelAnnotation.draw(g2, plot, dataArea, ABSOLUTE_AXIS, ABSOLUTE_AXIS, rendererIndex, null);
-                    final XYTextAnnotation priceAnnotation = new XYTextAnnotation(rangeAxisFormat.format(closePrice),
-                            x2 - 1D, y2 + 1D);
-                    priceAnnotation.setPaint(color);
-                    priceAnnotation.setFont(FONT);
-                    priceAnnotation.setTextAnchor(TextAnchor.TOP_RIGHT);
-                    priceAnnotation.draw(g2, plot, dataArea, ABSOLUTE_AXIS, ABSOLUTE_AXIS, rendererIndex, null);
-                }
             }
         }
     }
