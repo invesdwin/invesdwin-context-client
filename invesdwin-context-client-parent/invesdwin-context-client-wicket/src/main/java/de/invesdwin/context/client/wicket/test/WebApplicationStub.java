@@ -1,6 +1,6 @@
 package de.invesdwin.context.client.wicket.test;
 
-import javax.annotation.concurrent.NotThreadSafe;
+import javax.annotation.concurrent.ThreadSafe;
 
 import org.apache.wicket.util.tester.WicketTester;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -12,22 +12,30 @@ import de.invesdwin.context.test.stub.StubSupport;
 import de.invesdwin.nowicket.generated.guiservice.GuiService;
 import de.invesdwin.nowicket.generated.guiservice.test.GuiServiceTester;
 import de.invesdwin.util.assertions.Assertions;
+import io.netty.util.concurrent.FastThreadLocal;
 import jakarta.inject.Named;
 
-@NotThreadSafe
+@ThreadSafe
 @Named
 public class WebApplicationStub extends StubSupport {
 
-    private WicketTester wicketTester;
-    private GuiServiceTester guiServiceTester;
+    private static final FastThreadLocal<WicketTester> WICKET_TESTER_HOLDER = new FastThreadLocal<>();
+    private static final FastThreadLocal<GuiServiceTester> GUI_SERVICE_TESTER_HOLDER = new FastThreadLocal<>();
 
     @Override
-    public void setUpOnce(final ATest test, final TestContext ctx) throws Exception {
+    public void setUp(final ATest test, final TestContext ctx) throws Exception {
         if (isEnabled()) {
-            Assertions.assertThat(wicketTester).isNull();
-            this.wicketTester = new WicketTester(
+            initWicketTester();
+        }
+    }
+
+    private static synchronized void initWicketTester() {
+        if (WICKET_TESTER_HOLDER.get() == null) {
+            final WicketTester wicketTester = new WicketTester(
                     new de.invesdwin.context.client.wicket.internal.DelegateWebApplication());
-            this.guiServiceTester = new GuiServiceTester();
+            WICKET_TESTER_HOLDER.set(wicketTester);
+            final GuiServiceTester guiServiceTester = new GuiServiceTester();
+            GUI_SERVICE_TESTER_HOLDER.set(guiServiceTester);
             GuiService.setGuiServiceOverride(guiServiceTester);
         }
     }
@@ -40,36 +48,62 @@ public class WebApplicationStub extends StubSupport {
     @Deprecated
     public WicketTester getWicketTester() {
         assertEnabled();
-        return wicketTester;
+        return WICKET_TESTER_HOLDER.get();
     }
 
     public GuiServiceTester getGuiServiceTester() {
-        Assertions.assertThat(isEnabled()).isTrue();
-        return guiServiceTester;
+        assertEnabled();
+        return GUI_SERVICE_TESTER_HOLDER.get();
     }
 
-    @Override
-    public void setUp(final ATest test, final TestContext ctx) throws Exception {
-        if (isEnabled()) {
-            if (wicketTester.getLastRenderedPage() != null) {
-                wicketTester.clearFeedbackMessages();
-            }
-            guiServiceTester.reset();
+    public void reset() {
+        resetWicketTester();
+        resetGuiServiceTester();
+    }
+
+    public void resetWicketTester() {
+        final WicketTester wicketTester = WICKET_TESTER_HOLDER.get();
+        if (wicketTester == null) {
+            return;
+        }
+        if (wicketTester.getLastRenderedPage() != null) {
+            wicketTester.clearFeedbackMessages();
         }
     }
 
+    public void resetGuiServiceTester() {
+        final GuiServiceTester guiServiceTester = GUI_SERVICE_TESTER_HOLDER.get();
+        guiServiceTester.reset();
+    }
+
     @Override
-    public void tearDownOnce(final ATest test) throws Exception {
-        if (isEnabled()) {
-            Assertions.assertThat(wicketTester).isNotNull();
-            wicketTester.destroy();
-            wicketTester = null;
-            GuiService.setGuiServiceOverride(null);
-            this.guiServiceTester = null;
+    public void tearDown(final ATest test, final TestContext ctx) throws Exception {
+        if (!ctx.isFinished()) {
+            return;
+        }
+        cleanUpWicketTester();
+    }
+
+    @Override
+    public void tearDownOnce(final ATest test, final TestContext ctx) {
+        if (!ctx.isFinishedGlobal()) {
+            return;
         }
         //need to clear security context anyway, even if not enabled
         SecurityContextHolder.clearContext();
         Assertions.assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
+    }
+
+    private static void cleanUpWicketTester() {
+        WicketTester wicketTester = WICKET_TESTER_HOLDER.get();
+        if (wicketTester == null) {
+            return;
+        }
+        WICKET_TESTER_HOLDER.remove();
+        wicketTester.destroy();
+        wicketTester = null;
+        GuiService.setGuiServiceOverride(null);
+        GUI_SERVICE_TESTER_HOLDER.remove();
     }
 
     public boolean isEnabled() {

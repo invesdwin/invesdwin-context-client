@@ -5,8 +5,10 @@ import java.awt.EventQueue;
 import java.awt.Toolkit;
 import java.util.TimerTask;
 
+import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
+import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.time.date.FTimeUnit;
 import de.invesdwin.util.time.duration.Duration;
 
@@ -43,6 +45,8 @@ import de.invesdwin.util.time.duration.Duration;
 //https://www.javaspecialists.eu/archive/Issue104.html
 @ThreadSafe
 public final class TimeoutEventQueue extends EventQueue {
+    @GuardedBy("this.class")
+    private static EventQueue previousEventQueue;
     // Main timer
     private final java.util.Timer timer = new java.util.Timer(true);
 
@@ -62,11 +66,30 @@ public final class TimeoutEventQueue extends EventQueue {
      *
      * @return instance of queue installed.
      */
-    public static TimeoutEventQueue install() {
+    public static synchronized TimeoutEventQueue install() {
+        final EventQueue cur = Toolkit.getDefaultToolkit().getSystemEventQueue();
+        if (cur instanceof TimeoutEventQueue) {
+            return (TimeoutEventQueue) cur;
+        } else {
+            return installNow();
+        }
+    }
+
+    private static TimeoutEventQueue installNow() {
+        Assertions.checkNull(previousEventQueue);
         final EventQueue eventQueue = Toolkit.getDefaultToolkit().getSystemEventQueue();
+        previousEventQueue = eventQueue;
         final TimeoutEventQueue newEventQueue = new TimeoutEventQueue();
         eventQueue.push(newEventQueue);
         return newEventQueue;
+    }
+
+    public static synchronized void uninstall() {
+        if (previousEventQueue != null) {
+            final EventQueue eventQueue = Toolkit.getDefaultToolkit().getSystemEventQueue();
+            eventQueue.push(previousEventQueue);
+            previousEventQueue = null;
+        }
     }
 
     /**

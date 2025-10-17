@@ -4,6 +4,7 @@ import java.awt.AWTEvent;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeoutException;
 
+import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
 import org.assertj.swing.edt.FailOnThreadViolationRepaintManager;
@@ -25,18 +26,30 @@ import jakarta.inject.Named;
 @Named
 public class FrameFixtureStub extends StubSupport {
 
+    @GuardedBy("this.class")
     private static volatile FrameFixture frameFixture;
     private static volatile boolean installFailOnThreadViolationRepaintManager = true;
     private static volatile Duration installEventDispatchThreadBlockingTimeout = null;
 
+    @GuardedBy("this.class")
+    private static boolean addedFailOnThreadViolationRepaintManager;
+    @GuardedBy("this.class")
+    private static boolean addedEventDispatchThreadBlockingTimeout;
+
     @Override
     public void setUpContext(final ATest test, final TestContext ctx) {
-        if (installFailOnThreadViolationRepaintManager) {
-            FailOnThreadViolationRepaintManager.install();
+        if (ctx.isPreMergedContext()) {
+            return;
         }
+        updateFailOnThreadViolationRepaintManager();
+        updateEventDispatchThreadBlockingTimeout();
+    }
+
+    private static synchronized void updateEventDispatchThreadBlockingTimeout() {
         final Duration timeout = installEventDispatchThreadBlockingTimeout;
         if (timeout != null) {
             final TimeoutEventQueue timeoutEventQueue = TimeoutEventQueue.install();
+            addedEventDispatchThreadBlockingTimeout = true;
             final Duration checkInterval = Duration.ONE_SECOND.orLower(timeout.divide(2))
                     .orHigher(Duration.ONE_MILLISECOND);
             timeoutEventQueue.addTimeoutListener(timeout, checkInterval, new ITimeoutEventQueueListener() {
@@ -49,6 +62,19 @@ public class FrameFixtureStub extends StubSupport {
                     Err.process(exception);
                 }
             }, false);
+        } else if (addedEventDispatchThreadBlockingTimeout) {
+            TimeoutEventQueue.uninstall();
+            addedEventDispatchThreadBlockingTimeout = false;
+        }
+    }
+
+    private static synchronized void updateFailOnThreadViolationRepaintManager() {
+        if (installFailOnThreadViolationRepaintManager) {
+            FailOnThreadViolationRepaintManager.install();
+            addedFailOnThreadViolationRepaintManager = true;
+        } else if (addedFailOnThreadViolationRepaintManager) {
+            FailOnThreadViolationRepaintManager.uninstall();
+            addedFailOnThreadViolationRepaintManager = false;
         }
     }
 
@@ -80,7 +106,7 @@ public class FrameFixtureStub extends StubSupport {
         initFrameFixture();
     }
 
-    private void initFrameFixture() {
+    private static synchronized void initFrameFixture() {
         if (frameFixture == null) {
             RichApplicationStub.maybeLaunch();
             try {
@@ -99,6 +125,13 @@ public class FrameFixtureStub extends StubSupport {
 
     @Override
     public void tearDown(final ATest test, final TestContext ctx) {
+        if (!ctx.isFinishedGlobal()) {
+            return;
+        }
+        cleanUpFrameFixture();
+    }
+
+    private static synchronized void cleanUpFrameFixture() {
         if (frameFixture != null) {
             frameFixture.cleanUp();
             frameFixture = null;
@@ -106,7 +139,9 @@ public class FrameFixtureStub extends StubSupport {
     }
 
     public FrameFixture getFrameFixture() {
-        return frameFixture;
+        synchronized (FrameFixtureStub.class) {
+            return frameFixture;
+        }
     }
 
 }

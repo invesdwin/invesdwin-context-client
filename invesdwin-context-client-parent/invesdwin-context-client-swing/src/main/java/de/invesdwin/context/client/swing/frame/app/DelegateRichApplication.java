@@ -261,11 +261,13 @@ public class DelegateRichApplication extends SingleFrameApplication {
 
     public static synchronized void launchInternal(final String[] args) {
         try {
-            final DelegateRichApplication application = (DelegateRichApplication) Reflections.method("create")
-                    .withReturnType(Application.class)
-                    .withParameterTypes(Class.class)
-                    .in(Application.class)
-                    .invoke(DelegateRichApplication.class);
+            final DelegateRichApplication application = EventDispatchThreadUtil.invokeAndWait(() -> {
+                return (DelegateRichApplication) Reflections.method("create")
+                        .withReturnType(Application.class)
+                        .withParameterTypes(Class.class)
+                        .in(Application.class)
+                        .invoke(DelegateRichApplication.class);
+            });
             Reflections.field("application").ofType(Application.class).in(Application.class).set(application);
             application.initialize(args);
             application.startup();

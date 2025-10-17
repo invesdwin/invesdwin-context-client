@@ -5,6 +5,7 @@ import java.util.function.Supplier;
 import javax.annotation.concurrent.NotThreadSafe;
 
 import de.invesdwin.util.lang.comparator.ACriteriaComparator;
+import de.invesdwin.util.math.Doubles;
 import de.invesdwin.util.time.date.FDate;
 
 @NotThreadSafe
@@ -18,6 +19,7 @@ public class OrderPlottingDataItem {
     };
 
     private final double openPrice;
+    private final double conditionalOpenPrice;
     private final FDate openTime;
     private final FDate closeTime;
     private final double closePrice;
@@ -31,10 +33,11 @@ public class OrderPlottingDataItem {
     private int openTimeLoadedIndex = Integer.MIN_VALUE;
     private int closeTimeLoadedIndex = Integer.MIN_VALUE;
 
-    public OrderPlottingDataItem(final double openPrice, final FDate openTime, final FDate closeTime,
-            final double closePrice, final boolean closed, final boolean profit, final boolean pending,
-            final String orderId, final Supplier<String> label, final Supplier<String> note) {
+    public OrderPlottingDataItem(final double openPrice, final double conditionalOpenPrice, final FDate openTime,
+            final FDate closeTime, final double closePrice, final boolean closed, final boolean profit,
+            final boolean pending, final String orderId, final Supplier<String> label, final Supplier<String> note) {
         this.openPrice = openPrice;
+        this.conditionalOpenPrice = conditionalOpenPrice;
         this.openTime = openTime;
         this.closeTime = closeTime;
         this.closePrice = closePrice;
@@ -46,8 +49,47 @@ public class OrderPlottingDataItem {
         this.note = note;
     }
 
+    /**
+     * WARNING: use getExecutionPrice instead to get the actual price on which the order would be filled.
+     * 
+     * If conditionalOpenPrice is not NaN, this is the triggerPrice that should be drawn in e.g. purple.
+     */
+    @Deprecated
     public double getOpenPrice() {
         return openPrice;
+    }
+
+    /**
+     * WARNING: use getTriggerPrice instead to know when to draw the trigger line.
+     * 
+     * If this conditionalOpenPrice is not NaN, we have a two-step order and this is the actual openPrice that becomes
+     * active after the triggerPrice=getOpenPrice is reached
+     */
+    @Deprecated
+    public double getConditionalOpenPrice() {
+        return conditionalOpenPrice;
+    }
+
+    /**
+     * This line is optional, if it exists it is drawn (e.g. purple)
+     */
+    public double getTriggerPrice() {
+        if (!Doubles.isNaN(conditionalOpenPrice)) {
+            return openPrice;
+        } else {
+            return Double.NaN;
+        }
+    }
+
+    /**
+     * This is the normal line we draw for the order, might only not exist for market orders
+     */
+    public double getExecutionPrice() {
+        if (!Doubles.isNaN(conditionalOpenPrice)) {
+            return conditionalOpenPrice;
+        } else {
+            return openPrice;
+        }
     }
 
     public FDate getOpenTime() {
@@ -130,7 +172,6 @@ public class OrderPlottingDataItem {
         if (nextBarIndex > lastIndex) {
             return;
         }
-        this.closeTimeLoadedIndex = nextBarIndex;
         if (closeTime.millisValue() > endTimeMillis) {
             this.closeTimeLoadedIndex = nextBarIndex;
         } else {

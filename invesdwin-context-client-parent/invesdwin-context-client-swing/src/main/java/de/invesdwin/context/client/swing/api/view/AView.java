@@ -14,7 +14,6 @@ import de.invesdwin.context.client.swing.api.view.listener.BroadcastingViewListe
 import de.invesdwin.context.client.swing.api.view.listener.IViewListener;
 import de.invesdwin.context.client.swing.util.AViewVisitor;
 import de.invesdwin.context.client.swing.util.ComponentStandardizer;
-import de.invesdwin.context.client.swing.util.Views;
 import de.invesdwin.norva.beanpath.annotation.Hidden;
 import de.invesdwin.norva.beanpath.impl.clazz.BeanClassContext;
 import de.invesdwin.norva.beanpath.spi.element.IBeanPathElement;
@@ -45,6 +44,8 @@ public abstract class AView<M extends AModel, C extends JComponent> extends AMod
     private IDockable dockable;
     @GuardedBy("dockableLock")
     private BroadcastingViewListener broadcastingViewListener;
+    @GuardedBy("this")
+    private boolean open;
 
     @SuppressWarnings("unchecked")
     public AView() {
@@ -197,7 +198,7 @@ public abstract class AView<M extends AModel, C extends JComponent> extends AMod
                     protected void visit(final AView<?, ?> view) {
                         view.triggerOnOpen();
                     }
-                }.visitAll(Views.getRootComponentInDockable(getComponent()));
+                }.visitAll(getComponent());
             } else {
                 Assertions.assertThat(dockable).as("A View instance can only be made visible once.").isNull();
                 this.dockable.setView(null);
@@ -209,15 +210,22 @@ public abstract class AView<M extends AModel, C extends JComponent> extends AMod
                         view.triggerOnClose();
                     }
 
-                }.visitAll(Views.getRootComponentInDockable(getComponent()));
+                }.visitAll(getComponent());
             }
         }
     }
 
-    public void replaceView(final AView<?, ?> existingView) {
+    /**
+     * Returns true if the existing view can be replaced by this view. If this view should instead be added as another
+     * instance, just return false here. The default implementation just verifies if the existing dockable can be reused
+     * and atomically swaps it. If the dockable can not be reused, the default implementation returns false as well.
+     */
+    public boolean replaceView(final AView<?, ?> existingView) {
         synchronized (dockableLock) {
             synchronized (existingView.dockableLock) {
-                Assertions.assertThat(existingView.dockable).isNotNull();
+                if (existingView.dockable == null) {
+                    return false;
+                }
                 //move dockable
                 this.dockable = existingView.dockable;
                 existingView.dockable = null;
@@ -230,14 +238,15 @@ public abstract class AView<M extends AModel, C extends JComponent> extends AMod
                     protected void visit(final AView<?, ?> view) {
                         view.triggerOnClose();
                     }
-                }.visitAll(Views.getRootComponentInDockable(existingView.getComponent()));
+                }.visitAll(existingView.getComponent());
                 //open new view
                 new AViewVisitor() {
                     @Override
                     protected void visit(final AView<?, ?> view) {
                         view.triggerOnOpen();
                     }
-                }.visitAll(Views.getRootComponentInDockable(getComponent()));
+                }.visitAll(getComponent());
+                return true;
             }
         }
     }
@@ -269,18 +278,27 @@ public abstract class AView<M extends AModel, C extends JComponent> extends AMod
         return broadcastingViewListener.getListeners();
     }
 
-    private void triggerOnOpen() {
+    private synchronized void triggerOnOpen() {
+        if (open) {
+            return;
+        }
         onOpen();
         if (broadcastingViewListener != null) {
             broadcastingViewListener.onOpen();
         }
+        open = true;
     }
 
-    private void triggerOnClose() {
+    private synchronized void triggerOnClose() {
+        if (!open) {
+            return;
+        }
+        Assertions.checkNull(getDockable(), "dockable should be null when closing a view");
         onClose();
         if (broadcastingViewListener != null) {
             broadcastingViewListener.onClose();
         }
+        open = false;
     }
 
     @Hidden(skip = true)
@@ -308,5 +326,14 @@ public abstract class AView<M extends AModel, C extends JComponent> extends AMod
      */
     @Hidden(skip = true)
     protected void onShowing() {}
+
+    /**
+     * If this is false, when adding this view to the content pane, the content pane will not search for models that are
+     * equal to the current one in order to search for an existing view that should be replaced. Instead only the id
+     * will be checked if available. Otherwise no replacement will occur.
+     */
+    public boolean isReplaceViewWithEqualModel() {
+        return true;
+    }
 
 }
