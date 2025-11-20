@@ -3,9 +3,12 @@ package de.invesdwin.context.client.swing.frame.app;
 import java.io.File;
 
 import javax.annotation.concurrent.NotThreadSafe;
+import javax.swing.JMenuBar;
+import javax.swing.JPanel;
 
 import org.jdesktop.application.Application.ExitListener;
 import org.jdesktop.application.FrameView;
+import org.jdesktop.swingx.JXStatusBar;
 
 import de.invesdwin.context.beans.hook.IStartupHook;
 import de.invesdwin.context.beans.init.MergedContext;
@@ -16,6 +19,7 @@ import de.invesdwin.context.client.swing.api.hook.RichApplicationHookManager;
 import de.invesdwin.context.client.swing.api.hook.RichApplicationHookSupport;
 import de.invesdwin.context.client.swing.frame.RichApplicationProperties;
 import de.invesdwin.context.client.swing.frame.content.ContentPaneView;
+import de.invesdwin.context.client.swing.frame.content.StandaloneDockable;
 import de.invesdwin.context.client.swing.frame.menu.MenuBarView;
 import de.invesdwin.context.client.swing.frame.splash.ConfiguredSplashScreen;
 import de.invesdwin.context.client.swing.frame.status.StatusBarView;
@@ -121,10 +125,25 @@ public class RichApplicationStartupHook implements IStartupHook {
     private void setupFrame(final DelegateRichApplication application) {
         final FrameView frameView = application.getMainView();
         Dialogs.setRootFrame(frameView.getFrame());
-        frameView.setComponent(contentPaneView.getComponent());
+
+        final JPanel contentPaneComponent = contentPaneView.getComponent();
+        frameView.setComponent(contentPaneComponent);
+        final StandaloneDockable contentPaneDockable = new StandaloneDockable("contentPaneDockable");
+        contentPaneDockable.setComponent(contentPaneComponent);
+        contentPaneView.setDockable(contentPaneDockable);
         delegate.showInitialViews(contentPane);
-        frameView.setMenuBar(menuBarView.getComponent());
-        frameView.setStatusBar(statusBarView.getComponent());
+
+        final JMenuBar menuBarComponent = menuBarView.getComponent();
+        frameView.setMenuBar(menuBarComponent);
+        final StandaloneDockable menuBarDockable = new StandaloneDockable("menuBarDockable");
+        menuBarDockable.setComponent(menuBarComponent);
+        menuBarView.setDockable(menuBarDockable);
+
+        final JXStatusBar statusBarComponent = statusBarView.getComponent();
+        frameView.setStatusBar(statusBarComponent);
+        final StandaloneDockable statusBarDockable = new StandaloneDockable("statusBarDockable");
+        statusBarDockable.setComponent(statusBarComponent);
+        statusBarView.setDockable(statusBarDockable);
 
         frameView.getFrame().pack();
         Frames.setInitialFrameSize(frameView.getFrame(), delegate.getInitialFrameSize());
