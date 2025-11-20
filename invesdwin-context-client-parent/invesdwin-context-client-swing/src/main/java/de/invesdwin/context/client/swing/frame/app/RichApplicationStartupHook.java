@@ -128,22 +128,28 @@ public class RichApplicationStartupHook implements IStartupHook {
 
         final JPanel contentPaneComponent = contentPaneView.getComponent();
         frameView.setComponent(contentPaneComponent);
-        final StandaloneDockable contentPaneDockable = new StandaloneDockable("contentPaneDockable");
-        contentPaneDockable.setComponent(contentPaneComponent);
-        contentPaneView.setDockable(contentPaneDockable);
+        if (contentPaneView.getDockable() == null) {
+            final StandaloneDockable contentPaneDockable = new StandaloneDockable("contentPaneDockable");
+            contentPaneDockable.setComponent(contentPaneComponent);
+            contentPaneView.setDockable(contentPaneDockable);
+        }
         delegate.showInitialViews(contentPane);
 
         final JMenuBar menuBarComponent = menuBarView.getComponent();
         frameView.setMenuBar(menuBarComponent);
-        final StandaloneDockable menuBarDockable = new StandaloneDockable("menuBarDockable");
-        menuBarDockable.setComponent(menuBarComponent);
-        menuBarView.setDockable(menuBarDockable);
+        if (menuBarView.getDockable() == null) {
+            final StandaloneDockable menuBarDockable = new StandaloneDockable("menuBarDockable");
+            menuBarDockable.setComponent(menuBarComponent);
+            menuBarView.setDockable(menuBarDockable);
+        }
 
         final JXStatusBar statusBarComponent = statusBarView.getComponent();
         frameView.setStatusBar(statusBarComponent);
-        final StandaloneDockable statusBarDockable = new StandaloneDockable("statusBarDockable");
-        statusBarDockable.setComponent(statusBarComponent);
-        statusBarView.setDockable(statusBarDockable);
+        if (statusBarView.getDockable() == null) {
+            final StandaloneDockable statusBarDockable = new StandaloneDockable("statusBarDockable");
+            statusBarDockable.setComponent(statusBarComponent);
+            statusBarView.setDockable(statusBarDockable);
+        }
 
         frameView.getFrame().pack();
         Frames.setInitialFrameSize(frameView.getFrame(), delegate.getInitialFrameSize());
