@@ -37,8 +37,10 @@ import de.invesdwin.util.concurrent.Executors;
 import de.invesdwin.util.concurrent.Threads;
 import de.invesdwin.util.concurrent.WrappedExecutorService;
 import de.invesdwin.util.concurrent.WrappedScheduledExecutorService;
+import de.invesdwin.util.concurrent.future.Futures;
 import de.invesdwin.util.concurrent.reference.MutableReference;
 import de.invesdwin.util.concurrent.taskinfo.provider.TaskInfoRunnable;
+import de.invesdwin.util.error.Throwables;
 import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.swing.Components;
 import de.invesdwin.util.swing.Dialogs;
@@ -260,8 +262,7 @@ public class LogViewerView extends AView<LogViewerView, JPanel> {
         final MutableReference<TrailingState> trailingStateRef = new MutableReference<>();
 
         final WrappedExecutorService updateExecutor = getUpdateExecutor();
-        try (IBufferingIterator<Future<?>> futures = new BufferingIterator<>();
-                IBufferingIterator<TaskInfoRunnable> tasks = new BufferingIterator<>()) {
+        try (IBufferingIterator<Future<?>> futures = new BufferingIterator<>()) {
             try {
                 try (ICloseableIterator<LogViewerEntry> iterator = entries.iterator()) {
                     while (true) {
@@ -281,7 +282,6 @@ public class LogViewerView extends AView<LogViewerView, JPanel> {
                             if (count >= 100) {
                                 Threads.throwIfInterrupted();
                                 final TaskInfoRunnable task = appendMessagesToDocumentAsync(append, trailingStateRef);
-                                tasks.add(task);
                                 futures.add(updateExecutor.submit(task));
                                 append = new StringBuilder();
                                 count = 0;
@@ -293,16 +293,22 @@ public class LogViewerView extends AView<LogViewerView, JPanel> {
                 }
                 if (count > 0) {
                     Threads.throwIfInterrupted();
-                    final TaskInfoRunnable task = appendMessagesToDocumentAsync(append, trailingStateRef);
-                    tasks.add(task);
-                    futures.add(updateExecutor.submit(task));
+                    if (futures.isEmpty()) {
+                        //skip task info for short updates
+                        appendMessagesToDocument(append, trailingStateRef);
+                    } else {
+                        final TaskInfoRunnable task = appendMessagesToDocumentAsync(append, trailingStateRef);
+                        futures.add(updateExecutor.submit(task));
+                    }
                 }
-            } catch (final InterruptedException e) {
-                while (!tasks.isEmpty()) {
+                Futures.wait(futures);
+            } catch (final Throwable t) {
+                while (!futures.isEmpty()) {
                     final Future<?> future = futures.next();
                     future.cancel(true);
-                    final TaskInfoRunnable task = tasks.next();
-                    task.maybeCancelled();
+                }
+                if (!Throwables.isCausedByInterrupt(t)) {
+                    throw Throwables.propagate(t);
                 }
             }
         }
