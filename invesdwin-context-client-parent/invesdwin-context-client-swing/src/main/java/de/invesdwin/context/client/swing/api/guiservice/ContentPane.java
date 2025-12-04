@@ -192,7 +192,7 @@ public class ContentPane {
                 if (isPreserveExistingView(existingView, view)) {
                     final AView<AModel, ?> cExistingView = (AView<AModel, ?>) existingView;
                     if (!isPreserveExistingModel(existingView, view, true)) {
-                        cExistingView.setModel(view.getModel());
+                        cExistingView.replaceModel(view.getModel());
                     }
                     final IDockable dockable = cExistingView.getDockable();
                     dockable.requestFocus();
@@ -200,7 +200,7 @@ public class ContentPane {
                 } else if (view.replaceView(existingView)) {
                     if (isPreserveExistingModel(existingView, view, false)) {
                         final AView<AModel, ?> cView = (AView<AModel, ?>) view;
-                        cView.setModel(existingView.getModel());
+                        cView.replaceModel(existingView.getModel());
                     }
                     /*
                      * Classes will differ when we for example replace a PlaceholderView with the 'real' one. Though we
