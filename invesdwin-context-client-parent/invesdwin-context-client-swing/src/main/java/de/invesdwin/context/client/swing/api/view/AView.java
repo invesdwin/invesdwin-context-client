@@ -344,11 +344,12 @@ public abstract class AView<M extends AModel, C extends JComponent> extends AMod
     }
 
     /**
-     * If this is true, then an existing model will be preserved instead of replacing it with a new instance. . See
-     * ContentPane.isPreserveExistingModel(...) for the full rules that might override this decision.
+     * If this is true, then an existing model will be preserved instead of replacing it with a new instance (even if
+     * the view got replaced by a new one). See ContentPane.isPreserveExistingModel(...) for the full rules that might
+     * override this decision.
      */
-    public boolean isPreserveExistingModel(final AView<?, ?> existingView) {
-        return true;
+    public boolean isPreserveExistingModel(final AView<?, ?> existingView, final boolean existingViewPreserved) {
+        return existingViewPreserved;
     }
 
 }

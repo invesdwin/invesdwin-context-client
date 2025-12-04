@@ -191,14 +191,14 @@ public class ContentPane {
             if (existingView != null) {
                 if (isPreserveExistingView(existingView, view)) {
                     final AView<AModel, ?> cExistingView = (AView<AModel, ?>) existingView;
-                    if (!isPreserveExistingModel(existingView, view)) {
+                    if (!isPreserveExistingModel(existingView, view, true)) {
                         cExistingView.setModel(view.getModel());
                     }
                     final IDockable dockable = cExistingView.getDockable();
                     dockable.requestFocus();
                     returnView = (V) existingView;
                 } else if (view.replaceView(existingView)) {
-                    if (isPreserveExistingModel(existingView, view)) {
+                    if (isPreserveExistingModel(existingView, view, false)) {
                         final AView<AModel, ?> cView = (AView<AModel, ?>) view;
                         cView.setModel(existingView.getModel());
                     }
@@ -259,7 +259,8 @@ public class ContentPane {
         return false;
     }
 
-    public boolean isPreserveExistingModel(final AView<?, ?> existingView, final AView<?, ?> view) {
+    public boolean isPreserveExistingModel(final AView<?, ?> existingView, final AView<?, ?> view,
+            final boolean existingViewPreserved) {
         if (existingView == null) {
             return false;
         }
@@ -283,7 +284,7 @@ public class ContentPane {
             //placeholder view model always needs to be replaced
             return false;
         }
-        if (!view.isPreserveExistingModel(existingView)) {
+        if (!view.isPreserveExistingModel(existingView, existingViewPreserved)) {
             return false;
         }
         if (existingModel == existingView) {
