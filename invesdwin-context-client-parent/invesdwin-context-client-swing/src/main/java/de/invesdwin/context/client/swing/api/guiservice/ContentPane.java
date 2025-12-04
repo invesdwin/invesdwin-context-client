@@ -14,6 +14,7 @@ import bibliothek.gui.dock.common.SingleCDockable;
 import bibliothek.gui.dock.common.intern.CDockable;
 import de.invesdwin.aspects.annotation.EventDispatchThread;
 import de.invesdwin.aspects.annotation.EventDispatchThread.InvocationType;
+import de.invesdwin.context.client.swing.api.view.AModel;
 import de.invesdwin.context.client.swing.api.view.AView;
 import de.invesdwin.context.client.swing.api.view.IDockable;
 import de.invesdwin.context.client.swing.frame.content.IWorkingAreaLocation;
@@ -109,45 +110,115 @@ public class ContentPane {
         application.hideMainFrame();
     }
 
-    public void showView(final AView<?, ?> view, final IWorkingAreaLocation location) {
-        showView(view, location, true);
+    @SuppressWarnings("unchecked")
+    public <V extends AView<?, ?>> V findView(final V view) {
+        if (containsView(view)) {
+            return view;
+        } else {
+            AView<?, ?> existingView = findViewWithEqualModel(view);
+            if (existingView == null) {
+                //Find Placeholder-View
+                final String id = view.getId();
+                existingView = findView(id);
+            }
+
+            if (existingView != null) {
+                if (!view.getClass().isAssignableFrom(existingView.getClass())) {
+                    //placeholder view always needs to be replaced
+                    return null;
+                }
+                return (V) existingView;
+            } else {
+                return null;
+            }
+        }
     }
 
+    /**
+     * ID can either be a dockableUniqueId or a viewId (since dockableUniqueId will inherit viewId if that is
+     * specified).
+     */
+    public AView<?, ?> findView(final String id) {
+        if (id == null) {
+            return null;
+        }
+        return id_visibleView.get(id);
+    }
+
+    public <M extends AModel> AView<M, ?> findView(final M model) {
+        for (final AView<?, ?> visibleView : id_visibleView.values()) {
+            if (!model.getClass().isAssignableFrom(visibleView.getModel().getClass())) {
+                continue;
+            }
+            if (!visibleView.isFindViewWithEqualModel()) {
+                continue;
+            }
+            if (!Objects.equals(visibleView.getModel(), model)) {
+                continue;
+            }
+            return null;
+        }
+        return null;
+    }
+
+    public <V extends AView<?, ?>> V showView(final V view, final IWorkingAreaLocation location) {
+        return showView(view, location, true);
+    }
+
+    @SuppressWarnings("unchecked")
     @EventDispatchThread(InvocationType.INVOKE_AND_WAIT)
-    public void showView(final AView<?, ?> view, final IWorkingAreaLocation location, final boolean requestFocus) {
+    public <V extends AView<?, ?>> V showView(final V view, final IWorkingAreaLocation location,
+            final boolean requestFocus) {
         final AView<?, ?> restoreFocusedView;
         if (!requestFocus) {
             restoreFocusedView = getFocusedView();
         } else {
             restoreFocusedView = null;
         }
+        final V returnView;
         if (containsView(view)) {
             final IDockable dockable = view.getDockable();
             dockable.requestFocus();
+            returnView = view;
         } else {
             AView<?, ?> existingView = findViewWithEqualModel(view);
             if (existingView == null) {
                 //Find Placeholder-View
                 final String id = view.getId();
-                if (id != null) {
-                    existingView = id_visibleView.get(id);
-                }
+                existingView = findView(id);
             }
 
             if (existingView != null) {
-                if (view.replaceView(existingView)) {
-                    if (existingView.getClass() != view.getClass()) {
-                        //Classes will differ when we for example replace a PlaceholderView with the 'real' one.
-                        class_id_visibleView.get(existingView.getClass()).remove(existingView.getDockableUniqueId());
-                        class_id_visibleView.get(view.getClass()).put(view.getDockableUniqueId(), view);
+                if (isPreserveExistingView(existingView, view)) {
+                    final AView<AModel, ?> cExistingView = (AView<AModel, ?>) existingView;
+                    if (!isPreserveExistingModel(existingView, view)) {
+                        cExistingView.setModel(view.getModel());
                     }
+                    final IDockable dockable = cExistingView.getDockable();
+                    dockable.requestFocus();
+                    returnView = (V) existingView;
+                } else if (view.replaceView(existingView)) {
+                    if (isPreserveExistingModel(existingView, view)) {
+                        final AView<AModel, ?> cView = (AView<AModel, ?>) view;
+                        cView.setModel(existingView.getModel());
+                    }
+                    /*
+                     * Classes will differ when we for example replace a PlaceholderView with the 'real' one. Though we
+                     * always have to replace the cached view instance with the new one.
+                     */
+                    class_id_visibleView.get(existingView.getClass()).remove(existingView.getDockableUniqueId());
+                    class_id_visibleView.get(view.getClass()).put(view.getDockableUniqueId(), view);
+                    id_visibleView.put(view.getDockableUniqueId(), view);
                     final IDockable dockable = view.getDockable();
                     dockable.requestFocus();
+                    returnView = view;
                 } else {
                     addView(view, location);
+                    returnView = view;
                 }
             } else {
                 addView(view, location);
+                returnView = view;
             }
         }
         if (restoreFocusedView != null && restoreFocusedView.getDockable() != null) {
@@ -158,6 +229,76 @@ public class ContentPane {
                 }
             });
         }
+        return returnView;
+    }
+
+    public boolean isPreserveExistingView(final AView<?, ?> existingView, final AView<?, ?> view) {
+        if (existingView == null) {
+            return false;
+        }
+        if (view == null) {
+            return true;
+        }
+        if (!view.getClass().isAssignableFrom(existingView.getClass())) {
+            //placeholder view always needs to be replaced
+            return false;
+        }
+        if (!view.isPreserveExistingView(existingView)) {
+            return false;
+        }
+        if (view.isFindViewWithEqualModel()) {
+            final AModel existingModel = existingView.getModel();
+            final AModel model = view.getModel();
+            if (Objects.equals(existingModel, model)) {
+                return true;
+            }
+        }
+        if (Objects.equals(existingView.getId(), view.getId())) {
+            return true;
+        }
+        return false;
+    }
+
+    public boolean isPreserveExistingModel(final AView<?, ?> existingView, final AView<?, ?> view) {
+        if (existingView == null) {
+            return false;
+        }
+        if (view == null) {
+            return true;
+        }
+        if (existingView.getModel() == null) {
+            //placeholder view model always needs to be replaced
+            return false;
+        }
+        if (view.getModel() == null) {
+            return true;
+        }
+        if (!view.getClass().isAssignableFrom(existingView.getClass())) {
+            //placeholder view model always needs to be replaced
+            return false;
+        }
+        final AModel existingModel = existingView.getModel();
+        final AModel model = view.getModel();
+        if (!model.getClass().isAssignableFrom(existingModel.getClass())) {
+            //placeholder view model always needs to be replaced
+            return false;
+        }
+        if (!view.isPreserveExistingModel(existingView)) {
+            return false;
+        }
+        if (existingModel == existingView) {
+            //views that have themselves as the model can not get the model replaced
+            return false;
+        }
+        if (view.isFindViewWithEqualModel()) {
+            if (Objects.equals(existingModel, model)) {
+                return true;
+            }
+        }
+        if (Objects.equals(existingView.getId(), view.getId())) {
+            return true;
+        }
+        return false;
     }
 
     public AView<?, ?> getFocusedView() {
@@ -172,7 +313,7 @@ public class ContentPane {
     }
 
     private AView<?, ?> findViewWithEqualModel(final AView<?, ?> view) {
-        if (!view.isReplaceViewWithEqualModel()) {
+        if (!view.isFindViewWithEqualModel()) {
             return null;
         }
         for (final AView<?, ?> visibleView : class_id_visibleView.get(view.getClass()).values()) {

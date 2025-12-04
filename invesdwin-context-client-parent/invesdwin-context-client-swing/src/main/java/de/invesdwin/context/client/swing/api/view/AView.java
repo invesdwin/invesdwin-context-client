@@ -329,10 +329,25 @@ public abstract class AView<M extends AModel, C extends JComponent> extends AMod
 
     /**
      * If this is false, when adding this view to the content pane, the content pane will not search for models that are
-     * equal to the current one in order to search for an existing view that should be replaced. Instead only the id
-     * will be checked if available. Otherwise no replacement will occur.
+     * equal to the current one. Instead only the id will be checked if available. Otherwise no replacement will occur.
      */
-    public boolean isReplaceViewWithEqualModel() {
+    public boolean isFindViewWithEqualModel() {
+        return true;
+    }
+
+    /**
+     * If this is true, then an existing view will be preserved instead of replacing it with a new instance. See
+     * ContentPane.isPreserveExistingView(...) for the full rules that might override this decision.
+     */
+    public boolean isPreserveExistingView(final AView<?, ?> existingView) {
+        return true;
+    }
+
+    /**
+     * If this is true, then an existing model will be preserved instead of replacing it with a new instance. . See
+     * ContentPane.isPreserveExistingModel(...) for the full rules that might override this decision.
+     */
+    public boolean isPreserveExistingModel(final AView<?, ?> existingView) {
         return true;
     }
 

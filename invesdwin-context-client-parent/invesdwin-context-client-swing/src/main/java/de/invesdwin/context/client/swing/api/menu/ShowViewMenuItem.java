@@ -77,7 +77,7 @@ public class ShowViewMenuItem extends JMenuItem {
                         if (cachedViewInstance == null) {
                             cachedViewInstance = createView();
                         }
-                        contentPane.showView(cachedViewInstance, location);
+                        cachedViewInstance = contentPane.showView(cachedViewInstance, location);
                     } else {
                         contentPane.showView(createView(), location);
                     }
