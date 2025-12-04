@@ -1,15 +1,17 @@
 package de.invesdwin.context.client.swing.component.logviewer;
 
 import java.awt.BorderLayout;
-import java.awt.Graphics;
 import java.awt.event.AdjustmentEvent;
 import java.awt.event.AdjustmentListener;
 import java.awt.event.ComponentEvent;
 import java.awt.event.KeyEvent;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 import javax.annotation.concurrent.GuardedBy;
@@ -29,10 +31,16 @@ import de.invesdwin.context.client.swing.api.view.AView;
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.collections.iterable.ICloseableIterable;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
+import de.invesdwin.util.collections.iterable.buffer.BufferingIterator;
+import de.invesdwin.util.collections.iterable.buffer.IBufferingIterator;
 import de.invesdwin.util.concurrent.Executors;
+import de.invesdwin.util.concurrent.Threads;
+import de.invesdwin.util.concurrent.WrappedExecutorService;
 import de.invesdwin.util.concurrent.WrappedScheduledExecutorService;
 import de.invesdwin.util.concurrent.reference.MutableReference;
+import de.invesdwin.util.concurrent.taskinfo.provider.TaskInfoRunnable;
 import de.invesdwin.util.lang.Objects;
+import de.invesdwin.util.swing.Components;
 import de.invesdwin.util.swing.Dialogs;
 import de.invesdwin.util.swing.EventDispatchThreadUtil;
 import de.invesdwin.util.swing.listener.ComponentListenerSupport;
@@ -49,6 +57,7 @@ public class LogViewerView extends AView<LogViewerView, JPanel> {
     private static final AtomicLong ACTIVE_LOGS = new AtomicLong();
     @GuardedBy("this.class")
     private static WrappedScheduledExecutorService scheduledExecutor;
+    private static WrappedExecutorService updateExecutor;
     @GuardedBy("this")
     private volatile ILogViewerSource source;
     @GuardedBy("this")
@@ -59,9 +68,11 @@ public class LogViewerView extends AView<LogViewerView, JPanel> {
     private boolean background;
     private JEditorPane editor;
     private volatile Future<?> updateFuture;
+    @GuardedBy("self")
+    private final List<Future<?>> updateFutures = new ArrayList<>();
     private volatile boolean initRequired = true;
     private JScrollPane scrollPane;
-    private final Object updatingLock = new Object();
+    private final AtomicInteger appendingMessagesCount = new AtomicInteger();
     private boolean prevTrailing = true;
     private boolean prevPrevTrailing = true;
 
@@ -78,11 +89,24 @@ public class LogViewerView extends AView<LogViewerView, JPanel> {
         return scheduledExecutor;
     }
 
+    private static synchronized WrappedExecutorService getUpdateExecutor() {
+        if (updateExecutor == null) {
+            //reduce cpu load by using max 1 thread
+            updateExecutor = Executors.newFixedThreadPool(LogViewerView.class.getSimpleName() + "_UPDATER", 1)
+                    .setDynamicThreadName(false);
+        }
+        return updateExecutor;
+    }
+
     private static synchronized void maybeCloseScheduledExecutor() {
         if (ACTIVE_LOGS.get() == 0L) {
             if (scheduledExecutor != null) {
                 scheduledExecutor.shutdownNow();
                 scheduledExecutor = null;
+            }
+            if (updateExecutor != null) {
+                updateExecutor.shutdownNow();
+                updateExecutor = null;
             }
         }
     }
@@ -132,14 +156,7 @@ public class LogViewerView extends AView<LogViewerView, JPanel> {
      */
     @Override
     protected JPanel initComponent() {
-        final JPanel panel = new JPanel() {
-            @Override
-            public void paint(final Graphics g) {
-                synchronized (updatingLock) {
-                    super.paint(g);
-                }
-            }
-        };
+        final JPanel panel = new JPanel();
         panel.setDoubleBuffered(true);
         panel.setLayout(new BorderLayout(0, 0));
 
@@ -148,6 +165,7 @@ public class LogViewerView extends AView<LogViewerView, JPanel> {
         this.editor = Dialogs.newHtmlMessagePane();
         scrollPane.setViewportView(editor);
         scrollPane.getVerticalScrollBar().addAdjustmentListener(new AdjustmentListener() {
+
             @Override
             public void adjustmentValueChanged(final AdjustmentEvent e) {
                 prevPrevTrailing = prevTrailing;
@@ -159,16 +177,18 @@ public class LogViewerView extends AView<LogViewerView, JPanel> {
         caret.setUpdatePolicy(DefaultCaret.NEVER_UPDATE);
 
         this.editor.addKeyListener(new KeyListenerSupport() {
-
             @Override
             public void keyReleased(final KeyEvent e) {
                 if (e.getKeyChar() == KeyEvent.CHAR_UNDEFINED || GuiService.get().isModifierDown()) {
                     return;
                 }
-                //any character key restores trailing
-                editor.setCaretPosition(editor.getDocument().getLength());
+                final int selectionStart = editor.getSelectionStart();
+                final int selectionEnd = editor.getSelectionEnd();
+                if (selectionStart == selectionEnd) {
+                    //any character key restores trailing
+                    editor.setCaretPosition(editor.getDocument().getLength());
+                }
             }
-
         });
 
         panel.addComponentListener(new ComponentListenerSupport() {
@@ -227,83 +247,116 @@ public class LogViewerView extends AView<LogViewerView, JPanel> {
         if (source == null) {
             return;
         }
+        if (initRequired) {
+            init();
+        }
         tailLog(logTo);
     }
 
     private void tailLog(final FDate from) throws InterruptedException {
-        if (initRequired) {
-            init();
-        }
         final ICloseableIterable<LogViewerEntry> entries = source.getLogViewerEntries(from, getMaxTrailingMessages());
         StringBuilder append = new StringBuilder();
         int count = 0;
         final MutableReference<TrailingState> trailingStateRef = new MutableReference<>();
-        try (ICloseableIterator<LogViewerEntry> iterator = entries.iterator()) {
-            while (true) {
-                final LogViewerEntry entry = iterator.next();
-                if (!Objects.equals(logTo, entry.getTime()) && (logTo == null || logTo.isBefore(entry.getTime()))) {
-                    lastLogToMessages.clear();
-                    logTo = entry.getTime();
+
+        final WrappedExecutorService updateExecutor = getUpdateExecutor();
+        try (IBufferingIterator<Future<?>> futures = new BufferingIterator<>();
+                IBufferingIterator<TaskInfoRunnable> tasks = new BufferingIterator<>()) {
+            try {
+                try (ICloseableIterator<LogViewerEntry> iterator = entries.iterator()) {
+                    while (true) {
+                        final LogViewerEntry entry = iterator.next();
+                        if (!Objects.equals(logTo, entry.getTime())
+                                && (logTo == null || logTo.isBefore(entry.getTime()))) {
+                            lastLogToMessages.clear();
+                            logTo = entry.getTime();
+                        }
+                        if (lastLogToMessages.add(entry.getMessage())) {
+                            final String divStr = entryToDiv(entry);
+                            if (append.length() > 0) {
+                                append.append("\n");
+                            }
+                            append.append(divStr);
+                            count++;
+                            if (count >= 100) {
+                                Threads.throwIfInterrupted();
+                                final TaskInfoRunnable task = appendMessagesToDocumentAsync(append, trailingStateRef);
+                                tasks.add(task);
+                                futures.add(updateExecutor.submit(task));
+                                append = new StringBuilder();
+                                count = 0;
+                            }
+                        }
+                    }
+                } catch (final NoSuchElementException e) {
+                    //end reached
                 }
-                if (lastLogToMessages.add(entry.getMessage())) {
-                    final String divStr = entryToDiv(entry);
-                    if (append.length() > 0) {
-                        append.append("\n");
-                    }
-                    append.append(divStr);
-                    count++;
-                    if (count >= 100) {
-                        appendMessagesToDocument(append, trailingStateRef);
-                        append = new StringBuilder();
-                        count = 0;
-                    }
+                if (count > 0) {
+                    Threads.throwIfInterrupted();
+                    final TaskInfoRunnable task = appendMessagesToDocumentAsync(append, trailingStateRef);
+                    tasks.add(task);
+                    futures.add(updateExecutor.submit(task));
+                }
+            } catch (final InterruptedException e) {
+                while (!tasks.isEmpty()) {
+                    final Future<?> future = futures.next();
+                    future.cancel(true);
+                    final TaskInfoRunnable task = tasks.next();
+                    task.maybeCancelled();
                 }
             }
-        } catch (final NoSuchElementException e) {
-            //end reached
-        }
-        if (count > 0) {
-            appendMessagesToDocument(append, trailingStateRef);
         }
     }
 
+    private TaskInfoRunnable appendMessagesToDocumentAsync(final StringBuilder append,
+            final MutableReference<TrailingState> trailingStateRef) {
+        final StringBuilder messages = append;
+        final TaskInfoRunnable task = TaskInfoRunnable.of("Loading logs",
+                () -> appendMessagesToDocument(messages, trailingStateRef));
+        return task;
+    }
+
     protected Integer getMaxTrailingMessages() {
-        return 10000;
+        return 10_000;
     }
 
     protected void onUpdate() throws InterruptedException {}
 
     private void appendMessagesToDocument(final StringBuilder message,
-            final MutableReference<TrailingState> trailingStateRef) throws InterruptedException {
-        EventDispatchThreadUtil.invokeAndWait(() -> {
-            if (message.length() > 0) {
+            final MutableReference<TrailingState> trailingStateRef) {
+        if (message.length() == 0) {
+            return;
+        }
+        while (appendingMessagesCount.get() > 1) {
+            FTimeUnit.MILLISECONDS.sleepNoInterrupt(1);
+        }
+        appendingMessagesCount.incrementAndGet();
+        EventDispatchThreadUtil.invokeLater(() -> {
+            try {
+                final int selectionStartBefore = editor.getSelectionStart();
+                final int selectionEndBefore = editor.getSelectionEnd();
                 if (editor.getDocument().getLength() > 0) {
                     message.insert(0, "\n");
                 }
-                try {
-                    TrailingState trailingState = trailingStateRef.get();
-                    if (trailingState == null) {
-                        trailingState = new TrailingState();
-                        trailingStateRef.set(trailingState);
-                    }
-                    synchronized (updatingLock) {
-                        getComponent().setIgnoreRepaint(true);
-                    }
-                    //https://stackoverflow.com/questions/12916192/how-to-know-if-a-jscrollbar-has-reached-the-bottom-of-the-jscrollpane
-                    final EditorKit kit = editor.getEditorKit();
-                    final int position = editor.getDocument().getLength();
-                    kit.read(new CharSequenceReader(message), editor.getDocument(), position);
-                    trail(trailingState);
-
-                } catch (final Exception e) {
-                    throw new RuntimeException(e);
+                TrailingState trailingState = trailingStateRef.get();
+                if (trailingState == null) {
+                    trailingState = new TrailingState();
+                    trailingStateRef.set(trailingState);
                 }
+                getComponent().setIgnoreRepaint(true);
+                //https://stackoverflow.com/questions/12916192/how-to-know-if-a-jscrollbar-has-reached-the-bottom-of-the-jscrollpane
+                final EditorKit kit = editor.getEditorKit();
+                final int position = editor.getDocument().getLength();
+                kit.read(new CharSequenceReader(message), editor.getDocument(), position);
+                trail(trailingState, selectionStartBefore, selectionEndBefore);
+            } catch (final Exception e) {
+                throw new RuntimeException(e);
+            } finally {
+                appendingMessagesCount.decrementAndGet();
+                getComponent().setIgnoreRepaint(false);
+                getComponent().repaint();
             }
         });
-    }
-
-    private void trail(final TrailingState trailingState) {
-        updateScrollBarLater(trailingState);
     }
 
     private boolean determineTrailing() {
@@ -342,19 +395,17 @@ public class LogViewerView extends AView<LogViewerView, JPanel> {
         return messageStr;
     }
 
-    private void updateScrollBarLater(final TrailingState trailingState) {
-        EventDispatchThreadUtil.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                synchronized (updatingLock) {
-                    getComponent().validate();
-                    updateScrollBar(trailingState);
-                    getComponent().setIgnoreRepaint(false);
-                    getComponent().repaint();
-                }
-            }
-
-        });
+    private void trail(final TrailingState trailingState, final int selectionStartBefore,
+            final int selectionEndBefore) {
+        getComponent().validate();
+        if (selectionStartBefore != selectionEndBefore) {
+            //keep selection
+            Components.setSelectionStart(editor, selectionStartBefore);
+            Components.setSelectionEnd(editor, selectionEndBefore);
+        } else {
+            //trail
+            updateScrollBar(trailingState);
+        }
     }
 
     private void updateScrollBar(final TrailingState trailingState) {
@@ -367,7 +418,14 @@ public class LogViewerView extends AView<LogViewerView, JPanel> {
     }
 
     private final class TrailingState {
-        private final boolean trailing = determineTrailing();
-        private final int scrollBarValueBefore = scrollPane.getVerticalScrollBar().getValue();
+
+        private final boolean trailing;
+        private final int scrollBarValueBefore;
+
+        private TrailingState() {
+            this.trailing = determineTrailing();
+            this.scrollBarValueBefore = scrollPane.getVerticalScrollBar().getValue();
+        }
+
     }
 }
