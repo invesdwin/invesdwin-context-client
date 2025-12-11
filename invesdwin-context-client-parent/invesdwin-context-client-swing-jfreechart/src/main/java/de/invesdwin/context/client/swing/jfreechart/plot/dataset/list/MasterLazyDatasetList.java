@@ -387,7 +387,8 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
         final int preloadLowerBound = (int) (range.getLowerBound() - range.getLength());
         if (preloadLowerBound < 0) {
             final TimeRangedOHLCDataItem firstLoadedItem = getFirstLoadedItem();
-            if (getFirstAvailableBarEndTime().isBefore(firstLoadedItem.getEndTime())) {
+            final FDate firstAvailableBarEndTime = getFirstAvailableBarEndTime();
+            if (firstAvailableBarEndTime != null && firstAvailableBarEndTime.isBefore(firstLoadedItem.getEndTime())) {
                 //prepend a whole screen additional to the requested items
                 final int prependCount = Integers.min(MAX_STEP_ITEM_COUNT,
                         Integers.abs(preloadLowerBound) * STEP_ITEM_COUNT_MULTIPLIER);
