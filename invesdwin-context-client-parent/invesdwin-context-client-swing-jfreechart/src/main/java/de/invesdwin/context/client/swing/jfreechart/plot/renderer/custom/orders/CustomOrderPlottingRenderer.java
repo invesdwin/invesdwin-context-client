@@ -325,7 +325,7 @@ public class CustomOrderPlottingRenderer extends AbstractXYItemRenderer
         final double triggerPrice = item.getTriggerPrice();
 
         final Color color;
-        if (!Doubles.isNaN(triggerPrice)) {
+        if (item.isPending() && !Doubles.isNaN(triggerPrice)) {
             color = triggerColor;
         } else if (item.isProfit()) {
             color = upColor;
@@ -353,7 +353,7 @@ public class CustomOrderPlottingRenderer extends AbstractXYItemRenderer
 
         final double openPrice;
         final double closePrice;
-        if (!Doubles.isNaN(triggerPrice)) {
+        if (item.isPending() && !Doubles.isNaN(triggerPrice)) {
             /*
              * If there is a triggerPrice it has not been reached yet and therefore we only want to draw the
              * triggerPriceLine and not the execution-/close-PriceLine.
