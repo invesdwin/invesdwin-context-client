@@ -13,7 +13,7 @@ import de.invesdwin.context.client.swing.api.guiservice.StatusBar;
 import de.invesdwin.context.client.swing.frame.RichApplicationProperties;
 import de.invesdwin.context.client.swing.frame.app.DelegateRichApplication;
 import de.invesdwin.context.test.ATest;
-import de.invesdwin.context.test.TestContext;
+import de.invesdwin.context.test.ITestContext;
 import de.invesdwin.context.test.stub.StubSupport;
 import jakarta.inject.Named;
 
@@ -27,15 +27,12 @@ public class RichApplicationStub extends StubSupport {
     private static ContentPane contentPane;
 
     @Override
-    public void setUpContext(final ATest test, final TestContext ctx) throws Exception {}
-
-    @Override
-    public void setUpOnce(final ATest test, final TestContext ctx) throws Exception {
+    public void setUpOnce(final ATest test, final ITestContext ctx) throws Exception {
         maybeLaunch();
     }
 
     @Override
-    public void tearDown(final ATest test, final TestContext ctx) {
+    public void tearDown(final ATest test, final ITestContext ctx) {
         if (!ctx.isFinishedGlobal()) {
             return;
         }

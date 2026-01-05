@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test;
 
 import de.invesdwin.context.client.wicket.test.WebApplicationStub;
 import de.invesdwin.context.test.ATest;
-import de.invesdwin.context.test.TestContext;
+import de.invesdwin.context.test.ITestContextSetup;
 import de.invesdwin.context.webserver.test.WebserverTest;
 import de.invesdwin.util.assertions.Assertions;
 import jakarta.inject.Inject;
@@ -21,7 +21,7 @@ public class InteractiveTestAnotherSampleModelPage extends ATest {
     private WebApplicationStub webApplicationStub;
 
     @Override
-    public void setUpContext(final TestContext ctx) throws Exception {
+    public void setUpContext(final ITestContextSetup ctx) throws Exception {
         super.setUpContext(ctx);
         ctx.activateBean(AnotherSampleModelPageTestApplication.class);
     }

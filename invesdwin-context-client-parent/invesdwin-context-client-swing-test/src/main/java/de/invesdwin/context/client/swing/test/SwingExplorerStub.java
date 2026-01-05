@@ -8,7 +8,8 @@ import javax.annotation.concurrent.ThreadSafe;
 
 import de.invesdwin.context.beans.init.locations.PositionedResource;
 import de.invesdwin.context.test.ATest;
-import de.invesdwin.context.test.TestContext;
+import de.invesdwin.context.test.ITestContext;
+import de.invesdwin.context.test.ITestContextSetup;
 import de.invesdwin.context.test.stub.StubSupport;
 import de.invesdwin.util.lang.reflection.Reflections;
 import de.invesdwin.util.shutdown.IShutdownHook;
@@ -36,7 +37,7 @@ public class SwingExplorerStub extends StubSupport implements Closeable {
     public void setUpContextLocations(final ATest test, final List<PositionedResource> locations) throws Exception {}
 
     @Override
-    public void setUpContext(final ATest test, final TestContext ctx) throws Exception {
+    public void setUpContext(final ATest test, final ITestContextSetup ctx) throws Exception {
         if (ctx.isPreMergedContext()) {
             return;
         }
@@ -45,7 +46,7 @@ public class SwingExplorerStub extends StubSupport implements Closeable {
     }
 
     @Override
-    public void setUpOnce(final ATest test, final TestContext ctx) throws Exception {
+    public void setUpOnce(final ATest test, final ITestContext ctx) throws Exception {
         final SwingExplorerTest annotation = Reflections.getAnnotation(test, SwingExplorerTest.class);
         if (annotation != null && annotation.value()) {
             open();
@@ -69,7 +70,7 @@ public class SwingExplorerStub extends StubSupport implements Closeable {
     }
 
     @Override
-    public void tearDownOnce(final ATest test, final TestContext ctx) {
+    public void tearDownOnce(final ATest test, final ITestContext ctx) {
         if (!ctx.isFinishedGlobal()) {
             return;
         }

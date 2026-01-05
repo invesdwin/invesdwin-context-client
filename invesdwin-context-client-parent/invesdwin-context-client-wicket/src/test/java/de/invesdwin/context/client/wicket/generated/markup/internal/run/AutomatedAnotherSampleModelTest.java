@@ -10,7 +10,7 @@ import de.invesdwin.context.client.wicket.generated.markup.internal.AnotherSampl
 import de.invesdwin.context.client.wicket.generated.markup.internal.CustomModalModel;
 import de.invesdwin.context.client.wicket.test.WebApplicationStub;
 import de.invesdwin.context.test.ATest;
-import de.invesdwin.context.test.TestContext;
+import de.invesdwin.context.test.ITestContextSetup;
 import de.invesdwin.nowicket.application.auth.Roles;
 import de.invesdwin.nowicket.generated.guiservice.GuiService;
 import de.invesdwin.nowicket.generated.guiservice.test.GuiServiceMethod;
@@ -27,7 +27,7 @@ public class AutomatedAnotherSampleModelTest extends ATest {
     private WebApplicationStub webApplicationStub;
 
     @Override
-    public void setUpContext(final TestContext ctx) throws Exception {
+    public void setUpContext(final ITestContextSetup ctx) throws Exception {
         super.setUpContext(ctx);
         ctx.activateBean(AnotherSampleModelPageTestApplication.class);
     }

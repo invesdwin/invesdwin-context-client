@@ -10,7 +10,7 @@ import de.invesdwin.context.client.swing.api.guiservice.GuiService;
 import de.invesdwin.context.client.swing.frame.content.WorkingAreaLocation;
 import de.invesdwin.context.client.swing.test.FrameFixtureStub;
 import de.invesdwin.context.test.ATest;
-import de.invesdwin.context.test.TestContext;
+import de.invesdwin.context.test.ITestContextSetup;
 import de.invesdwin.util.assertions.Assertions;
 import jakarta.inject.Inject;
 
@@ -24,7 +24,7 @@ public class TestModelViewTest extends ATest {
     private FrameFixtureStub frameFixtureTestStub;
 
     @Override
-    public void setUpContext(final TestContext ctx) throws Exception {
+    public void setUpContext(final ITestContextSetup ctx) throws Exception {
         super.setUpContext(ctx);
         ctx.activateBean(TestRichApplication.class);
     }

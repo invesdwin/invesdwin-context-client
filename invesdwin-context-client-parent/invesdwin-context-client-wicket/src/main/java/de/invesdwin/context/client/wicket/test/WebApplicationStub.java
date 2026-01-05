@@ -7,7 +7,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 
 import de.invesdwin.context.integration.IntegrationProperties;
 import de.invesdwin.context.test.ATest;
-import de.invesdwin.context.test.TestContext;
+import de.invesdwin.context.test.ITestContext;
 import de.invesdwin.context.test.stub.StubSupport;
 import de.invesdwin.nowicket.generated.guiservice.GuiService;
 import de.invesdwin.nowicket.generated.guiservice.test.GuiServiceTester;
@@ -23,7 +23,7 @@ public class WebApplicationStub extends StubSupport {
     private static final FastThreadLocal<GuiServiceTester> GUI_SERVICE_TESTER_HOLDER = new FastThreadLocal<>();
 
     @Override
-    public void setUp(final ATest test, final TestContext ctx) throws Exception {
+    public void setUp(final ATest test, final ITestContext ctx) throws Exception {
         if (isEnabled()) {
             initWicketTester();
         }
@@ -77,7 +77,7 @@ public class WebApplicationStub extends StubSupport {
     }
 
     @Override
-    public void tearDown(final ATest test, final TestContext ctx) throws Exception {
+    public void tearDown(final ATest test, final ITestContext ctx) throws Exception {
         if (!ctx.isFinished()) {
             return;
         }
@@ -85,7 +85,7 @@ public class WebApplicationStub extends StubSupport {
     }
 
     @Override
-    public void tearDownOnce(final ATest test, final TestContext ctx) {
+    public void tearDownOnce(final ATest test, final ITestContext ctx) {
         if (!ctx.isFinishedGlobal()) {
             return;
         }

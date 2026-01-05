@@ -7,14 +7,14 @@ import org.junit.jupiter.api.Test;
 
 import de.invesdwin.context.client.wicket.test.WebApplicationStub;
 import de.invesdwin.context.test.ATest;
-import de.invesdwin.context.test.TestContext;
+import de.invesdwin.context.test.ITestContextSetup;
 
 @NotThreadSafe
 public class SimpleHomePageTest extends ATest {
     private WicketTester tester;
 
     @Override
-    public void setUpContext(final TestContext ctx) throws Exception {
+    public void setUpContext(final ITestContextSetup ctx) throws Exception {
         super.setUpContext(ctx);
         ctx.deactivateBean(WebApplicationStub.class);
     }
