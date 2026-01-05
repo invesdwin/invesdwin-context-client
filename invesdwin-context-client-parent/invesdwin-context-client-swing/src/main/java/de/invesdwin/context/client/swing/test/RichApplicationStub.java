@@ -21,7 +21,8 @@ import jakarta.inject.Named;
 @Named
 public class RichApplicationStub extends StubSupport {
 
-    private static Application launched = null;
+    private static Application lastApplication = null;
+    private static boolean launched;
     private static StatusBar statusBar;
     private static ContentPane contentPane;
 
@@ -43,10 +44,16 @@ public class RichApplicationStub extends StubSupport {
 
     public static synchronized void maybeReset() {
         final Application existingApplication = Application.getInstance();
-        if (launched != null || launched != existingApplication) {
+        if (!launched && lastApplication == existingApplication
+                && !RichApplicationProperties.isMainFrameVisible(existingApplication)) {
             return;
         }
-        launched = null;
+        lastApplication = existingApplication;
+        launched = false;
+        reset(existingApplication);
+    }
+
+    public static void reset(final Application existingApplication) {
         if (existingApplication instanceof SingleFrameApplication) {
             final SingleFrameApplication application = (SingleFrameApplication) existingApplication;
             application.getMainFrame().setVisible(false);
@@ -62,10 +69,11 @@ public class RichApplicationStub extends StubSupport {
     }
 
     public static synchronized void maybeLaunch() {
-        if (launched == null) {
+        if (lastApplication == null) {
             statusBar = MergedContext.getInstance().getBean(StatusBar.class);
             contentPane = MergedContext.getInstance().getBean(ContentPane.class);
-            launched = DelegateRichApplication.launch();
+            lastApplication = DelegateRichApplication.launch();
+            launched = true;
         }
     }
 

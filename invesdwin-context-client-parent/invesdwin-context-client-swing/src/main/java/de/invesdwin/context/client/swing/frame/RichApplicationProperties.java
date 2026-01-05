@@ -15,6 +15,7 @@ import org.jdesktop.application.Application;
 import org.jdesktop.application.ApplicationContext;
 import org.jdesktop.application.ResourceManager;
 import org.jdesktop.application.ResourceMap;
+import org.jdesktop.application.SingleFrameApplication;
 import org.jdesktop.application.utils.PlatformType;
 import org.springframework.beans.factory.config.BeanDefinition;
 
@@ -228,6 +229,14 @@ public final class RichApplicationProperties {
             windowBuilder = s.contains("org.eclipse.wb.");
         }
         return windowBuilder;
+    }
+
+    public static boolean isMainFrameVisible(final Application application) {
+        if (application instanceof SingleFrameApplication) {
+            final SingleFrameApplication cApplication = (SingleFrameApplication) application;
+            return cApplication.getMainFrame().isVisible();
+        }
+        return false;
     }
 
 }
