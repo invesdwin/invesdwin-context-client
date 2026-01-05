@@ -28,7 +28,6 @@ public class InteractiveTestSaveRestoreLayoutRichApplication extends ATest {
     public void setUpContext(final TestContext ctx) throws Exception {
         super.setUpContext(ctx);
         ctx.activateBean(TestSaveRestoreLayoutRichApplication.class);
-
         final File storageDirectory = RichApplicationProperties.getStorageDirectory();
         Files.forceMkdir(storageDirectory);
         IOUtils.copy(getClass().getResource(PersistentLayoutManager.LAYOUT_FILE_NAME),

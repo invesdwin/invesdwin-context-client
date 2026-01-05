@@ -46,8 +46,9 @@ public class RichApplicationStub extends StubSupport {
             return;
         }
         launched = false;
-        if (Application.getInstance() instanceof SingleFrameApplication) {
-            final SingleFrameApplication application = (SingleFrameApplication) Application.getInstance();
+        final Application existingApplication = Application.getInstance();
+        if (existingApplication instanceof SingleFrameApplication) {
+            final SingleFrameApplication application = (SingleFrameApplication) existingApplication;
             application.getMainFrame().setVisible(false);
         }
         statusBar.reset();

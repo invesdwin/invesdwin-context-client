@@ -178,7 +178,9 @@ public class ContentPane {
         final V returnView;
         if (containsView(view)) {
             final IDockable dockable = view.getDockable();
-            dockable.requestFocus();
+            if (dockable != null) {
+                dockable.requestFocus();
+            }
             returnView = view;
         } else {
             AView<?, ?> existingView = findViewWithEqualModel(view);

@@ -19,7 +19,9 @@ import org.jdesktop.application.utils.PlatformType;
 import org.springframework.beans.factory.config.BeanDefinition;
 
 import de.invesdwin.context.ContextProperties;
+import de.invesdwin.context.beans.init.ADelegateContext;
 import de.invesdwin.context.beans.init.MergedContext;
+import de.invesdwin.context.beans.init.PreMergedContext;
 import de.invesdwin.context.client.swing.api.IRichApplication;
 import de.invesdwin.context.client.swing.api.guiservice.GuiService;
 import de.invesdwin.context.client.swing.frame.app.DelegateRichApplication;
@@ -54,7 +56,7 @@ public final class RichApplicationProperties {
             try {
                 //maybe initialize DesignTimeApplication to grant access to resourcemap and other stuff when application itself is not needed actually here
                 designTimeApplication = DelegateRichApplication.getInstance();
-                initApplicatonBundleNames(designTimeApplication, false);
+                initApplicatonBundleNames(designTimeApplication);
             } finally {
                 Beans.setDesignTime(prevDesignTime);
             }
@@ -70,33 +72,30 @@ public final class RichApplicationProperties {
         RichApplicationProperties.hideSplashOnStartup = hideSplashOnStartup;
     }
 
-    public static Class<? extends IRichApplication> getDelegateClass(final boolean force) {
+    public static Class<? extends IRichApplication> getDelegateClass() {
         if (delegateClass == null) {
             delegateClass = getDelegateClassFromServiceLoader();
             if (delegateClass == null) {
-                delegateClass = getDelegateClassFromMergedContext(force);
+                delegateClass = getDelegateClassFromMergedContext();
             }
             if (designTimeApplication != null) {
-                initApplicatonBundleNames(designTimeApplication, true);
+                initApplicatonBundleNames(designTimeApplication);
             }
         }
         return delegateClass;
     }
 
-    private static Class<? extends IRichApplication> getDelegateClassFromMergedContext(final boolean force) {
-        if (MergedContext.getInstance() == null) {
-            if (force) {
-                MergedContext.autowire(null);
-            } else {
-                return null;
-            }
+    private static Class<? extends IRichApplication> getDelegateClassFromMergedContext() {
+        ADelegateContext context = MergedContext.getInstance();
+        if (context == null) {
+            context = PreMergedContext.getInstance();
         }
-        final String[] beanNames = MergedContext.getInstance().getBeanNamesForType(IRichApplication.class);
+        final String[] beanNames = context.getBeanNamesForType(IRichApplication.class);
         Assertions.assertThat(beanNames.length)
                 .as("Exactly one bean of type [%s] must exist: %s", IRichApplication.class.getSimpleName(),
                         Arrays.toString(beanNames))
                 .isEqualTo(1);
-        final BeanDefinition beanDefinition = MergedContext.getInstance().getBeanDefinition(beanNames[0]);
+        final BeanDefinition beanDefinition = context.getBeanDefinition(beanNames[0]);
         return Reflections.classForName(beanDefinition.getBeanClassName());
     }
 
@@ -120,7 +119,7 @@ public final class RichApplicationProperties {
 
     public static boolean hasDelegateClass() {
         try {
-            return getDelegateClass(true) != null;
+            return getDelegateClass() != null;
         } catch (final Throwable t) {
             return false;
         }
@@ -130,13 +129,13 @@ public final class RichApplicationProperties {
         if (MergedContext.getInstance() == null) {
             MergedContext.autowire(null);
         }
-        return MergedContext.getInstance().getBean(RichApplicationProperties.getDelegateClass(true));
+        return MergedContext.getInstance().getBean(RichApplicationProperties.getDelegateClass());
     }
 
     public static void setDelegateClass(final Class<? extends IRichApplication> delegateClass) {
         RichApplicationProperties.delegateClass = delegateClass;
         if (designTimeApplication != null) {
-            initApplicatonBundleNames(designTimeApplication, false);
+            initApplicatonBundleNames(designTimeApplication);
         }
     }
 
@@ -155,7 +154,7 @@ public final class RichApplicationProperties {
         designTimeApplication = null;
     }
 
-    public static void initApplicatonBundleNames(final Application application, final boolean forceDelegateClass) {
+    public static void initApplicatonBundleNames(final Application application) {
         final ResourceManager resourceManager = application.getContext().getResourceManager();
         final List<String> applicationBundleNames = new ArrayList<String>(resourceManager.getApplicationBundleNames());
 
@@ -165,7 +164,7 @@ public final class RichApplicationProperties {
         }
 
         //Use the interface implementation properties first in chain
-        final String delegateClassName = getDelegateClass(forceDelegateClass).getName();
+        final String delegateClassName = getDelegateClass().getName();
         if (!applicationBundleNames.contains(delegateClassName)) {
             applicationBundleNames.add(0, delegateClassName);
         }
