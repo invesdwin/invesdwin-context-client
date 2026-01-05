@@ -53,7 +53,7 @@ public class RichApplicationStub extends StubSupport {
         reset(existingApplication);
     }
 
-    public static void reset(final Application existingApplication) {
+    public static synchronized void reset(final Application existingApplication) {
         if (existingApplication instanceof SingleFrameApplication) {
             final SingleFrameApplication application = (SingleFrameApplication) existingApplication;
             application.getMainFrame().setVisible(false);
