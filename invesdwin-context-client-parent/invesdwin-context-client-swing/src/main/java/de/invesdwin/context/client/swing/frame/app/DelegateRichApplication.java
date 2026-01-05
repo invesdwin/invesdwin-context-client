@@ -246,12 +246,12 @@ public class DelegateRichApplication extends SingleFrameApplication {
         lookAndFeelConfigured = true;
     }
 
-    public static synchronized void launch() {
-        launchInternal(new String[0]);
+    public static synchronized DelegateRichApplication launch() {
+        return launchInternal(new String[0]);
     }
 
-    public static synchronized void launch(final String[] args) {
-        launchInternal(args);
+    public static synchronized DelegateRichApplication launch(final String[] args) {
+        return launchInternal(args);
     }
 
     @Deprecated
@@ -260,7 +260,7 @@ public class DelegateRichApplication extends SingleFrameApplication {
         launchInternal(args);
     }
 
-    public static synchronized void launchInternal(final String[] args) {
+    public static synchronized DelegateRichApplication launchInternal(final String[] args) {
         try {
             final DelegateRichApplication application = EventDispatchThreadUtil.invokeAndWait(() -> {
                 disposeExistingApplication();
@@ -275,6 +275,7 @@ public class DelegateRichApplication extends SingleFrameApplication {
                     Reflections.method("waitForReady").in(application).invoke();
                 }
             });
+            return application;
         } catch (final Exception e) {
             throw new RuntimeException(e);
         }
