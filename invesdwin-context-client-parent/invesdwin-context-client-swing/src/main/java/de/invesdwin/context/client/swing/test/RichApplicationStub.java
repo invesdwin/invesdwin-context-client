@@ -58,8 +58,14 @@ public class RichApplicationStub extends StubSupport {
             final SingleFrameApplication application = (SingleFrameApplication) existingApplication;
             application.getMainFrame().setVisible(false);
         }
+        if (statusBar == null) {
+            statusBar = MergedContext.getInstance().getBean(StatusBar.class);
+        }
         statusBar.reset();
         statusBar = null;
+        if (contentPane == null) {
+            contentPane = MergedContext.getInstance().getBean(ContentPane.class);
+        }
         contentPane.reset();
         contentPane = null;
         for (final Task<?, ?> task : GuiService.get().getTaskService().getTasks()) {
