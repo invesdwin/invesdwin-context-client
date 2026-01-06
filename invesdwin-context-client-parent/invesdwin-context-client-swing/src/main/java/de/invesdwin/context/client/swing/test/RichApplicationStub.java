@@ -72,7 +72,7 @@ public class RichApplicationStub extends StubSupport {
     }
 
     public static synchronized void maybeLaunch() {
-        if (lastApplication == null) {
+        if (!launched) {
             statusBar = MergedContext.getInstance().getBean(StatusBar.class);
             contentPane = MergedContext.getInstance().getBean(ContentPane.class);
             lastApplication = DelegateRichApplication.launch();
