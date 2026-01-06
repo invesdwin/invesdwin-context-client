@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 import de.invesdwin.context.client.swing.api.guiservice.ContentPane;
 import de.invesdwin.context.client.swing.frame.content.WorkingAreaLocation;
 import de.invesdwin.context.test.ATest;
-import de.invesdwin.context.test.TestContext;
+import de.invesdwin.context.test.ITestContextSetup;
 import jakarta.inject.Inject;
 
 @ThreadSafe
@@ -19,7 +19,7 @@ public class InteractiveTestRichApplication extends ATest {
     private ContentPane contentPane;
 
     @Override
-    public void setUpContext(final TestContext ctx) throws Exception {
+    public void setUpContext(final ITestContextSetup ctx) throws Exception {
         super.setUpContext(ctx);
         ctx.activateBean(TestRichApplication.class);
     }

@@ -8,7 +8,7 @@ import de.invesdwin.context.client.swing.TestModelView;
 import de.invesdwin.context.client.swing.TestRichApplication;
 import de.invesdwin.context.log.error.Err;
 import de.invesdwin.context.test.ATest;
-import de.invesdwin.context.test.TestContext;
+import de.invesdwin.context.test.ITestContextSetup;
 import de.invesdwin.util.swing.EventDispatchThreadUtil;
 import de.invesdwin.util.time.date.FTimeUnit;
 
@@ -16,7 +16,7 @@ import de.invesdwin.util.time.date.FTimeUnit;
 public class GuiExceptionHandlerTest extends ATest {
 
     @Override
-    public void setUpContext(final TestContext ctx) throws Exception {
+    public void setUpContext(final ITestContextSetup ctx) throws Exception {
         super.setUpContext(ctx);
         ctx.activateBean(TestModelView.class);
         ctx.activateBean(TestRichApplication.class);

@@ -6,7 +6,7 @@ import org.junit.jupiter.api.Test;
 
 import de.invesdwin.context.integration.IntegrationProperties;
 import de.invesdwin.context.test.ATest;
-import de.invesdwin.context.test.TestContext;
+import de.invesdwin.context.test.ITestContextSetup;
 import de.invesdwin.context.webserver.test.WebserverTest;
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.lang.uri.URIs;
@@ -16,7 +16,7 @@ import de.invesdwin.util.lang.uri.URIs;
 public class SimpleHomePageWebServerTest extends ATest {
 
     @Override
-    public void setUpContext(final TestContext ctx) throws Exception {
+    public void setUpContext(final ITestContextSetup ctx) throws Exception {
         super.setUpContext(ctx);
         ctx.activateBean(SimpleHomePageTestApplication.class);
     }
