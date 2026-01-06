@@ -16,7 +16,7 @@ public class CasPageMounterHook implements IWebApplicationInitializerHook {
 
     @Override
     public void onInit(final ABaseWebApplication webApplication) {
-        if (webApplication.getDelegate().getAuthenticationService() != null) {
+        if (webApplication.getConfig().getAuthenticationService() != null) {
             webApplication.mountPage(CasLoginPage.MOUNT_PATH, CasLoginPage.class);
             webApplication.mountPage(CasLoginSuccessPage.MOUNT_PATH, CasLoginSuccessPage.class);
             webApplication.mountPage(CasLogoutPage.MOUNT_PATH, CasLogoutPage.class);

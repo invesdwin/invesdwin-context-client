@@ -16,7 +16,7 @@ public class SamlPageMounterHook implements IWebApplicationInitializerHook {
 
     @Override
     public void onInit(final ABaseWebApplication webApplication) {
-        if (webApplication.getDelegate().getAuthenticationService() != null) {
+        if (webApplication.getConfig().getAuthenticationService() != null) {
             webApplication.mountPage(SamlLoginPage.MOUNT_PATH, SamlLoginPage.class);
             webApplication.mountPage(SamlLoginSuccessPage.MOUNT_PATH, SamlLoginSuccessPage.class);
             webApplication.mountPage(SamlLogoutPage.MOUNT_PATH, SamlLogoutPage.class);

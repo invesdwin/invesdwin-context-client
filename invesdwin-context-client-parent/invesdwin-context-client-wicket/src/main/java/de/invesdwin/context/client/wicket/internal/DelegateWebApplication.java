@@ -42,7 +42,7 @@ public class DelegateWebApplication extends AWebApplication {
     }
 
     @Override
-    protected IWebApplicationConfig newDelegate() {
+    protected IWebApplicationConfig newConfig() {
         return staticResolveDelegate();
     }
 
