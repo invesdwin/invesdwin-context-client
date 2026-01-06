@@ -40,7 +40,7 @@ public class NumberToStringConverter implements IConverter<Object, String> {
     @Override
     public Object fromComponentToModel(final String value) {
         if (Strings.isBlank(value)) {
-            return null;
+            return NumberToNumberConverter.convertNull(type);
         }
         final String str = value;
         try {

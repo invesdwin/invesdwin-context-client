@@ -7,6 +7,10 @@ import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.norva.beanpath.spi.element.IPropertyBeanPathElement;
 import de.invesdwin.util.error.UnknownArgumentException;
+import de.invesdwin.util.math.Bytes;
+import de.invesdwin.util.math.Integers;
+import de.invesdwin.util.math.Longs;
+import de.invesdwin.util.math.Shorts;
 import de.invesdwin.util.math.decimal.Decimal;
 
 @Immutable
@@ -30,7 +34,7 @@ public class NumberToNumberConverter implements IConverter<Object, Number> {
     @Override
     public Object fromComponentToModel(final Number value) {
         if (value == null) {
-            return null;
+            return convertNull(type);
         }
         final Number number = value;
         if (type == byte.class || type == Byte.class) {
@@ -55,6 +59,28 @@ public class NumberToNumberConverter implements IConverter<Object, Number> {
             return number;
         } else {
             throw UnknownArgumentException.newInstance(Class.class, type);
+        }
+    }
+
+    public static Object convertNull(final Class<?> type) {
+        if (type.isPrimitive()) {
+            if (type == byte.class || type == Byte.class) {
+                return Bytes.DEFAULT_MISSING_VALUE;
+            } else if (type == short.class || type == Short.class) {
+                return Shorts.DEFAULT_MISSING_VALUE;
+            } else if (type == int.class || type == Integer.class) {
+                return Integers.DEFAULT_MISSING_VALUE;
+            } else if (type == long.class || type == Long.class) {
+                return Longs.DEFAULT_MISSING_VALUE;
+            } else if (type == float.class || type == Float.class) {
+                return Float.NaN;
+            } else if (type == double.class || type == Double.class) {
+                return Double.NaN;
+            } else {
+                throw UnknownArgumentException.newInstance(Class.class, type);
+            }
+        } else {
+            return null;
         }
     }
 
