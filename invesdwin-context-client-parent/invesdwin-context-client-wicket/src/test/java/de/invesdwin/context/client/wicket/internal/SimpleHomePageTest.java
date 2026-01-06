@@ -19,7 +19,6 @@ public class SimpleHomePageTest extends ATest {
         ctx.deactivateBean(WebApplicationStub.class);
     }
 
-    @SuppressWarnings("JUnit4SetUpNotRun")
     @Override
     public void setUp() throws Exception {
         super.setUp();

@@ -78,20 +78,16 @@ public class WebApplicationStub extends StubSupport {
 
     @Override
     public void tearDown(final ATest test, final ITestContext ctx) throws Exception {
-        if (!ctx.isFinished()) {
-            return;
-        }
         cleanUpWicketTester();
     }
 
     @Override
     public void tearDownOnce(final ATest test, final ITestContext ctx) {
-        if (!ctx.isFinishedGlobal()) {
-            return;
+        if (ctx.isFinishedGlobal()) {
+            //need to clear security context anyway, even if not enabled
+            SecurityContextHolder.clearContext();
+            Assertions.assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
         }
-        //need to clear security context anyway, even if not enabled
-        SecurityContextHolder.clearContext();
-        Assertions.assertThat(SecurityContextHolder.getContext().getAuthentication()).isNull();
     }
 
     private static void cleanUpWicketTester() {
