@@ -12,7 +12,6 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicLong;
 
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
@@ -38,6 +37,8 @@ import de.invesdwin.util.concurrent.Threads;
 import de.invesdwin.util.concurrent.WrappedExecutorService;
 import de.invesdwin.util.concurrent.WrappedScheduledExecutorService;
 import de.invesdwin.util.concurrent.future.Futures;
+import de.invesdwin.util.concurrent.pool.AReferenceCountedObjectPool;
+import de.invesdwin.util.concurrent.pool.IObjectPool;
 import de.invesdwin.util.concurrent.reference.MutableReference;
 import de.invesdwin.util.concurrent.taskinfo.provider.TaskInfoRunnable;
 import de.invesdwin.util.error.Throwables;
@@ -55,11 +56,35 @@ import de.invesdwin.util.time.duration.Duration;
 @ThreadSafe
 public class LogViewerView extends AView<LogViewerView, JPanel> {
 
+    public static final IObjectPool<WrappedScheduledExecutorService> SCHEDULED_EXECUTOR_POOL = new AReferenceCountedObjectPool<WrappedScheduledExecutorService>() {
+
+        @Override
+        public void invalidateObject(final WrappedScheduledExecutorService element) {
+            element.shutdownNow();
+        }
+
+        @Override
+        protected WrappedScheduledExecutorService newObject() {
+            //reduce cpu load by using max 1 thread
+            return Executors.newScheduledThreadPool(LogViewerView.class.getSimpleName() + "_SCHEDULED", 1)
+                    .setDynamicThreadName(false);
+        }
+    };
+    public static final IObjectPool<WrappedExecutorService> LIMITED_EXECUTOR_POOL = new AReferenceCountedObjectPool<WrappedExecutorService>() {
+
+        @Override
+        public void invalidateObject(final WrappedExecutorService element) {
+            element.shutdownNow();
+        }
+
+        @Override
+        protected WrappedExecutorService newObject() {
+            //reduce cpu load by using max 1 thread
+            return Executors.newFixedThreadPool(LogViewerView.class.getSimpleName() + "_LIMITED", 1)
+                    .setDynamicThreadName(false);
+        }
+    };
     private static final double DETECT_TRAILING_TOLERANCE_FACTOR = 1.05;
-    private static final AtomicLong ACTIVE_LOGS = new AtomicLong();
-    @GuardedBy("this.class")
-    private static WrappedScheduledExecutorService scheduledExecutor;
-    private static WrappedExecutorService updateExecutor;
     @GuardedBy("this")
     private volatile ILogViewerSource source;
     @GuardedBy("this")
@@ -77,40 +102,11 @@ public class LogViewerView extends AView<LogViewerView, JPanel> {
     private final AtomicInteger appendingMessagesCount = new AtomicInteger();
     private boolean prevTrailing = true;
     private boolean prevPrevTrailing = true;
+    private WrappedScheduledExecutorService scheduledExecutor;
+    private WrappedExecutorService limitedExecutor;
 
     public LogViewerView(final ILogViewerSource source) {
         this.source = source;
-    }
-
-    public static synchronized WrappedScheduledExecutorService getScheduledExecutor() {
-        if (scheduledExecutor == null) {
-            //reduce cpu load by using max 1 thread
-            scheduledExecutor = Executors.newScheduledThreadPool(LogViewerView.class.getSimpleName() + "_SCHEDULER", 1)
-                    .setDynamicThreadName(false);
-        }
-        return scheduledExecutor;
-    }
-
-    private static synchronized WrappedExecutorService getUpdateExecutor() {
-        if (updateExecutor == null) {
-            //reduce cpu load by using max 1 thread
-            updateExecutor = Executors.newFixedThreadPool(LogViewerView.class.getSimpleName() + "_UPDATER", 1)
-                    .setDynamicThreadName(false);
-        }
-        return updateExecutor;
-    }
-
-    private static synchronized void maybeCloseScheduledExecutor() {
-        if (ACTIVE_LOGS.get() == 0L) {
-            if (scheduledExecutor != null) {
-                scheduledExecutor.shutdownNow();
-                scheduledExecutor = null;
-            }
-            if (updateExecutor != null) {
-                updateExecutor.shutdownNow();
-                updateExecutor = null;
-            }
-        }
     }
 
     private void init() throws InterruptedException {
@@ -140,13 +136,10 @@ public class LogViewerView extends AView<LogViewerView, JPanel> {
     }
 
     public void setSource(final ILogViewerSource source) {
-        if (updateFuture != null) {
-            updateFuture.cancel(true);
-            updateFuture = null;
-        }
+        onClose();
         LogViewerView.this.source = source;
         initRequired = true;
-        initUpdateFuture();
+        onOpen();
     }
 
     protected Duration getRefreshInterval() {
@@ -209,16 +202,15 @@ public class LogViewerView extends AView<LogViewerView, JPanel> {
     }
 
     @Override
-    protected void onOpen() {
-        ACTIVE_LOGS.incrementAndGet();
-        initUpdateFuture();
-    }
-
-    private void initUpdateFuture() {
+    protected synchronized void onOpen() {
         Assertions.checkNull(updateFuture);
+        Assertions.checkNull(scheduledExecutor);
+        Assertions.checkNull(limitedExecutor);
 
         final Duration refreshInterval = getRefreshInterval();
-        updateFuture = getScheduledExecutor().scheduleAtFixedRate(new Runnable() {
+        scheduledExecutor = SCHEDULED_EXECUTOR_POOL.borrowObject();
+        limitedExecutor = LIMITED_EXECUTOR_POOL.borrowObject();
+        updateFuture = scheduledExecutor.scheduleAtFixedRate(new Runnable() {
             @Override
             public void run() {
                 try {
@@ -231,14 +223,22 @@ public class LogViewerView extends AView<LogViewerView, JPanel> {
     }
 
     @Override
-    protected void onClose() {
+    protected synchronized void onClose() {
         final Future<?> updateFutureCopy = updateFuture;
         if (updateFutureCopy != null) {
             updateFutureCopy.cancel(true);
             updateFuture = null;
         }
-        ACTIVE_LOGS.decrementAndGet();
-        maybeCloseScheduledExecutor();
+        final WrappedScheduledExecutorService scheduledExecutorCopy = scheduledExecutor;
+        if (scheduledExecutorCopy != null) {
+            SCHEDULED_EXECUTOR_POOL.returnObject(scheduledExecutorCopy);
+            scheduledExecutor = null;
+        }
+        final WrappedExecutorService updateExecutorCopy = limitedExecutor;
+        if (updateExecutorCopy != null) {
+            LIMITED_EXECUTOR_POOL.returnObject(updateExecutorCopy);
+            limitedExecutor = null;
+        }
     }
 
     private synchronized void update() throws InterruptedException {
@@ -261,7 +261,10 @@ public class LogViewerView extends AView<LogViewerView, JPanel> {
         int count = 0;
         final MutableReference<TrailingState> trailingStateRef = new MutableReference<>();
 
-        final WrappedExecutorService updateExecutor = getUpdateExecutor();
+        final WrappedExecutorService limitedExecutorCopy = limitedExecutor;
+        if (limitedExecutorCopy == null) {
+            return;
+        }
         try (IBufferingIterator<Future<?>> futures = new BufferingIterator<>()) {
             try {
                 try (ICloseableIterator<LogViewerEntry> iterator = entries.iterator()) {
@@ -282,7 +285,7 @@ public class LogViewerView extends AView<LogViewerView, JPanel> {
                             if (count >= 100) {
                                 Threads.throwIfInterrupted();
                                 final TaskInfoRunnable task = appendMessagesToDocumentAsync(append, trailingStateRef);
-                                futures.add(updateExecutor.submit(task));
+                                futures.add(limitedExecutorCopy.submit(task));
                                 append = new StringBuilder();
                                 count = 0;
                             }
@@ -298,7 +301,7 @@ public class LogViewerView extends AView<LogViewerView, JPanel> {
                         appendMessagesToDocument(append, trailingStateRef);
                     } else {
                         final TaskInfoRunnable task = appendMessagesToDocumentAsync(append, trailingStateRef);
-                        futures.add(updateExecutor.submit(task));
+                        futures.add(limitedExecutorCopy.submit(task));
                     }
                 }
                 Futures.wait(futures);
