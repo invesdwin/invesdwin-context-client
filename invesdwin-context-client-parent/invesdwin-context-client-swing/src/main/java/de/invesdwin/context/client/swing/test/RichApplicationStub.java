@@ -7,6 +7,7 @@ import org.jdesktop.application.SingleFrameApplication;
 import org.jdesktop.application.Task;
 
 import de.invesdwin.context.beans.init.MergedContext;
+import de.invesdwin.context.client.swing.api.IRichApplication;
 import de.invesdwin.context.client.swing.api.guiservice.ContentPane;
 import de.invesdwin.context.client.swing.api.guiservice.GuiService;
 import de.invesdwin.context.client.swing.api.guiservice.StatusBar;
@@ -53,7 +54,13 @@ public class RichApplicationStub extends StubSupport {
     public static synchronized void reset(final Application existingApplication) {
         if (existingApplication instanceof SingleFrameApplication) {
             final SingleFrameApplication application = (SingleFrameApplication) existingApplication;
-            application.getMainFrame().setVisible(false);
+            if (application.getMainFrame().isVisible()) {
+                application.getMainFrame().setVisible(false);
+                final IRichApplication delegate = RichApplicationProperties.getDelegate();
+                if (delegate != null) {
+                    delegate.hideMainFrameDone();
+                }
+            }
         }
         if (statusBar == null) {
             statusBar = MergedContext.getInstance().getBean(StatusBar.class);

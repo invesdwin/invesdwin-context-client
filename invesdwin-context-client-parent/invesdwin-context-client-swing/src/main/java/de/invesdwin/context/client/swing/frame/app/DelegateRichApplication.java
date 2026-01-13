@@ -286,7 +286,13 @@ public class DelegateRichApplication extends SingleFrameApplication {
         if (Application.getInstance() instanceof SingleFrameApplication) {
             final SingleFrameApplication cExistingApplication = (SingleFrameApplication) existingApplication;
             final JFrame mainFrame = cExistingApplication.getMainFrame();
-            mainFrame.setVisible(false);
+            if (mainFrame.isVisible()) {
+                mainFrame.setVisible(false);
+                final IRichApplication delegate = RichApplicationProperties.getDelegate();
+                if (delegate != null) {
+                    delegate.hideMainFrameDone();
+                }
+            }
             mainFrame.dispose();
         }
     }
