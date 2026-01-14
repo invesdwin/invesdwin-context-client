@@ -14,7 +14,7 @@ import de.invesdwin.context.client.swing.api.guiservice.PersistentLayoutManager;
 import de.invesdwin.context.client.swing.frame.RichApplicationProperties;
 import de.invesdwin.context.client.swing.frame.content.WorkingAreaLocation;
 import de.invesdwin.context.test.ATest;
-import de.invesdwin.context.test.TestContext;
+import de.invesdwin.context.test.ITestContextSetup;
 import de.invesdwin.util.lang.Files;
 import jakarta.inject.Inject;
 
@@ -25,10 +25,9 @@ public class InteractiveTestSaveRestoreLayoutRichApplication extends ATest {
     private ContentPane contentPane;
 
     @Override
-    public void setUpContext(final TestContext ctx) throws Exception {
+    public void setUpContext(final ITestContextSetup ctx) throws Exception {
         super.setUpContext(ctx);
         ctx.activateBean(TestSaveRestoreLayoutRichApplication.class);
-
         final File storageDirectory = RichApplicationProperties.getStorageDirectory();
         Files.forceMkdir(storageDirectory);
         IOUtils.copy(getClass().getResource(PersistentLayoutManager.LAYOUT_FILE_NAME),

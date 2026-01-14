@@ -60,10 +60,12 @@ public abstract class AView<M extends AModel, C extends JComponent> extends AMod
      * When this id is defined, the dockable will use it as DockableUniqueId to allow saving and restoring the layout
      * for this view. Otherwise a unique id is generated which does not allow this feature to be used.
      */
+    @Hidden(skip = true)
     public String getId() {
         return null;
     }
 
+    @Hidden(skip = true)
     public String getDockableUniqueId() {
         synchronized (dockableLock) {
             if (dockable != null) {
@@ -81,6 +83,10 @@ public abstract class AView<M extends AModel, C extends JComponent> extends AMod
         }
     }
 
+    /**
+     * WARNING: consider using replaceModel instead as a safer way to replace the model.
+     */
+    @Deprecated
     @Hidden(skip = true)
     public void setModel(final M model) {
         synchronized (modelLock) {
@@ -165,6 +171,7 @@ public abstract class AView<M extends AModel, C extends JComponent> extends AMod
         }
     }
 
+    @Hidden(skip = true)
     public Icon getIcon() {
         return getResourceMap().getIcon(KEY_VIEW_ICON);
     }
@@ -187,6 +194,7 @@ public abstract class AView<M extends AModel, C extends JComponent> extends AMod
     /**
      * This method may only be called by the ContentPane class.
      */
+    @Hidden(skip = true)
     public void setDockable(final IDockable dockable) {
         synchronized (dockableLock) {
             if (this.dockable == null) {
@@ -220,6 +228,7 @@ public abstract class AView<M extends AModel, C extends JComponent> extends AMod
      * instance, just return false here. The default implementation just verifies if the existing dockable can be reused
      * and atomically swaps it. If the dockable can not be reused, the default implementation returns false as well.
      */
+    @Hidden(skip = true)
     public boolean replaceView(final AView<?, ?> existingView) {
         synchronized (dockableLock) {
             synchronized (existingView.dockableLock) {
@@ -251,6 +260,35 @@ public abstract class AView<M extends AModel, C extends JComponent> extends AMod
         }
     }
 
+    /**
+     * Replaces the model and makes sure view unregisters propertyChangeListeners on old model and register new ones on
+     * the new model by closing and reopening this view.
+     */
+    @Hidden(skip = true)
+    public void replaceModel(final M model) {
+        synchronized (dockableLock) {
+            if (dockable != null) {
+                //maybe remove existing model propertyChangeListeners
+                new AViewVisitor() {
+                    @Override
+                    protected void visit(final AView<?, ?> view) {
+                        view.triggerOnClose();
+                    }
+                }.visitAll(getComponent());
+            }
+            setModel(model);
+            if (dockable != null) {
+                //maybe register again new model propertyChangeListeners
+                new AViewVisitor() {
+                    @Override
+                    protected void visit(final AView<?, ?> view) {
+                        view.triggerOnOpen();
+                    }
+                }.visitAll(getComponent());
+            }
+        }
+    }
+
     private BroadcastingViewListener getBroadcastingViewListener() {
         synchronized (dockableLock) {
             if (broadcastingViewListener == null) {
@@ -260,10 +298,12 @@ public abstract class AView<M extends AModel, C extends JComponent> extends AMod
         }
     }
 
+    @Hidden(skip = true)
     public boolean registerViewListener(final IViewListener l) {
         return getBroadcastingViewListener().registerListener(l);
     }
 
+    @Hidden(skip = true)
     public boolean unregisterViewListener(final IViewListener l) {
         synchronized (dockableLock) {
             if (broadcastingViewListener == null) {
@@ -274,6 +314,7 @@ public abstract class AView<M extends AModel, C extends JComponent> extends AMod
         }
     }
 
+    @Hidden(skip = true)
     public IFastIterable<IViewListener> getViewListeners() {
         return broadcastingViewListener.getListeners();
     }
@@ -329,11 +370,30 @@ public abstract class AView<M extends AModel, C extends JComponent> extends AMod
 
     /**
      * If this is false, when adding this view to the content pane, the content pane will not search for models that are
-     * equal to the current one in order to search for an existing view that should be replaced. Instead only the id
-     * will be checked if available. Otherwise no replacement will occur.
+     * equal to the current one. Instead only the id will be checked if available. Otherwise no replacement will occur.
      */
-    public boolean isReplaceViewWithEqualModel() {
+    @Hidden(skip = true)
+    public boolean isFindViewWithEqualModel() {
         return true;
+    }
+
+    /**
+     * If this is true, then an existing view will be preserved instead of replacing it with a new instance. See
+     * ContentPane.isPreserveExistingView(...) for the full rules that might override this decision.
+     */
+    @Hidden(skip = true)
+    public boolean isPreserveExistingView(final AView<?, ?> existingView) {
+        return true;
+    }
+
+    /**
+     * If this is true, then an existing model will be preserved instead of replacing it with a new instance (even if
+     * the view got replaced by a new one). See ContentPane.isPreserveExistingModel(...) for the full rules that might
+     * override this decision.
+     */
+    @Hidden(skip = true)
+    public boolean isPreserveExistingModel(final AView<?, ?> existingView, final boolean existingViewPreserved) {
+        return existingViewPreserved;
     }
 
 }

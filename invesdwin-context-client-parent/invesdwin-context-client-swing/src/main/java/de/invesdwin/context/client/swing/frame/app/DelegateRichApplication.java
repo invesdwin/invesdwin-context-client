@@ -14,6 +14,7 @@ import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
 import org.jdesktop.application.Application;
+import org.jdesktop.application.ApplicationAccessor;
 import org.jdesktop.application.ApplicationContext;
 import org.jdesktop.application.ApplicationContextAccessor;
 import org.jdesktop.application.FrameView;
@@ -91,7 +92,7 @@ public class DelegateRichApplication extends SingleFrameApplication {
     @Override
     protected void initialize(final String[] args) {
         super.initialize(args);
-        RichApplicationProperties.initApplicatonBundleNames(this, true);
+        RichApplicationProperties.initApplicatonBundleNames(this);
         RichApplicationProperties.setInitializationArgs(args);
 
         //Do Lazy-Init earlier so that UndoRedoActions work correctly
@@ -151,7 +152,7 @@ public class DelegateRichApplication extends SingleFrameApplication {
         }
         frame.setMinimumSize(new Dimension(100, 100));
         final IRichApplication application = MergedContext.getInstance()
-                .getBean(RichApplicationProperties.getDelegateClass(true));
+                .getBean(RichApplicationProperties.getDelegateClass());
         show(frameView);
         //set initial size again (show overrides this from storage, often wrong)
         Frames.setInitialFrameSize(frame, application.getInitialFrameSize());
@@ -245,12 +246,12 @@ public class DelegateRichApplication extends SingleFrameApplication {
         lookAndFeelConfigured = true;
     }
 
-    public static synchronized void launch() {
-        launchInternal(new String[0]);
+    public static synchronized DelegateRichApplication launch() {
+        return launchInternal(new String[0]);
     }
 
-    public static synchronized void launch(final String[] args) {
-        launchInternal(args);
+    public static synchronized DelegateRichApplication launch(final String[] args) {
+        return launchInternal(args);
     }
 
     @Deprecated
@@ -259,14 +260,11 @@ public class DelegateRichApplication extends SingleFrameApplication {
         launchInternal(args);
     }
 
-    public static synchronized void launchInternal(final String[] args) {
+    public static synchronized DelegateRichApplication launchInternal(final String[] args) {
         try {
             final DelegateRichApplication application = EventDispatchThreadUtil.invokeAndWait(() -> {
-                return (DelegateRichApplication) Reflections.method("create")
-                        .withReturnType(Application.class)
-                        .withParameterTypes(Class.class)
-                        .in(Application.class)
-                        .invoke(DelegateRichApplication.class);
+                disposeExistingApplication();
+                return ApplicationAccessor.create(DelegateRichApplication.class);
             });
             Reflections.field("application").ofType(Application.class).in(Application.class).set(application);
             application.initialize(args);
@@ -277,8 +275,25 @@ public class DelegateRichApplication extends SingleFrameApplication {
                     Reflections.method("waitForReady").in(application).invoke();
                 }
             });
+            return application;
         } catch (final Exception e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    private static void disposeExistingApplication() {
+        final Application existingApplication = Application.getInstance();
+        if (Application.getInstance() instanceof SingleFrameApplication) {
+            final SingleFrameApplication cExistingApplication = (SingleFrameApplication) existingApplication;
+            final JFrame mainFrame = cExistingApplication.getMainFrame();
+            if (mainFrame.isVisible()) {
+                mainFrame.setVisible(false);
+                final IRichApplication delegate = RichApplicationProperties.getDelegate();
+                if (delegate != null) {
+                    delegate.hideMainFrameDone();
+                }
+            }
+            mainFrame.dispose();
         }
     }
 

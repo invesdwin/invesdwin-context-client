@@ -7,13 +7,14 @@ import org.jdesktop.application.SingleFrameApplication;
 import org.jdesktop.application.Task;
 
 import de.invesdwin.context.beans.init.MergedContext;
+import de.invesdwin.context.client.swing.api.IRichApplication;
 import de.invesdwin.context.client.swing.api.guiservice.ContentPane;
 import de.invesdwin.context.client.swing.api.guiservice.GuiService;
 import de.invesdwin.context.client.swing.api.guiservice.StatusBar;
 import de.invesdwin.context.client.swing.frame.RichApplicationProperties;
 import de.invesdwin.context.client.swing.frame.app.DelegateRichApplication;
 import de.invesdwin.context.test.ATest;
-import de.invesdwin.context.test.TestContext;
+import de.invesdwin.context.test.ITestContext;
 import de.invesdwin.context.test.stub.StubSupport;
 import jakarta.inject.Named;
 
@@ -21,20 +22,18 @@ import jakarta.inject.Named;
 @Named
 public class RichApplicationStub extends StubSupport {
 
-    private static boolean launched = false;
+    private static Application lastApplication = null;
+    private static boolean launched;
     private static StatusBar statusBar;
     private static ContentPane contentPane;
 
     @Override
-    public void setUpContext(final ATest test, final TestContext ctx) throws Exception {}
-
-    @Override
-    public void setUpOnce(final ATest test, final TestContext ctx) throws Exception {
+    public void setUpOnce(final ATest test, final ITestContext ctx) throws Exception {
         maybeLaunch();
     }
 
     @Override
-    public void tearDown(final ATest test, final TestContext ctx) {
+    public void tearDown(final ATest test, final ITestContext ctx) {
         if (!ctx.isFinishedGlobal()) {
             return;
         }
@@ -42,16 +41,35 @@ public class RichApplicationStub extends StubSupport {
     }
 
     public static synchronized void maybeReset() {
-        if (!launched) {
+        final Application existingApplication = Application.getInstance();
+        if (!launched && lastApplication == existingApplication
+                && !RichApplicationProperties.isMainFrameVisible(existingApplication)) {
             return;
         }
+        lastApplication = existingApplication;
         launched = false;
-        if (Application.getInstance() instanceof SingleFrameApplication) {
-            final SingleFrameApplication application = (SingleFrameApplication) Application.getInstance();
-            application.getMainFrame().setVisible(false);
+        reset(existingApplication);
+    }
+
+    public static synchronized void reset(final Application existingApplication) {
+        if (existingApplication instanceof SingleFrameApplication) {
+            final SingleFrameApplication application = (SingleFrameApplication) existingApplication;
+            if (application.getMainFrame().isVisible()) {
+                application.getMainFrame().setVisible(false);
+                final IRichApplication delegate = RichApplicationProperties.getDelegate();
+                if (delegate != null) {
+                    delegate.hideMainFrameDone();
+                }
+            }
+        }
+        if (statusBar == null) {
+            statusBar = MergedContext.getInstance().getBean(StatusBar.class);
         }
         statusBar.reset();
         statusBar = null;
+        if (contentPane == null) {
+            contentPane = MergedContext.getInstance().getBean(ContentPane.class);
+        }
         contentPane.reset();
         contentPane = null;
         for (final Task<?, ?> task : GuiService.get().getTaskService().getTasks()) {
@@ -64,7 +82,7 @@ public class RichApplicationStub extends StubSupport {
         if (!launched) {
             statusBar = MergedContext.getInstance().getBean(StatusBar.class);
             contentPane = MergedContext.getInstance().getBean(ContentPane.class);
-            DelegateRichApplication.launch();
+            lastApplication = DelegateRichApplication.launch();
             launched = true;
         }
     }

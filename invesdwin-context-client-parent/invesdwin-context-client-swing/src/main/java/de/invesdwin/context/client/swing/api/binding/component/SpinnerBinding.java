@@ -233,7 +233,13 @@ public class SpinnerBinding extends AComponentBinding<JSpinner, Object> {
              */
             final JFormattedTextField textField = editor.getTextField();
             final AbstractFormatter formatter = textField.getFormatter();
-            componentValue = (Number) formatter.stringToValue(textField.getText());
+
+            final String text = textField.getText();
+            if (text.isBlank()) { //TODO: Edwin. check this here or handle it somehwere in the formatter ?
+                componentValue = null;
+            } else {
+                componentValue = (Number) formatter.stringToValue(textField.getText());
+            }
         }
         final Object newModelValue = converter.fromComponentToModel(componentValue);
         return newModelValue;

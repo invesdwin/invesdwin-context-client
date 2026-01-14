@@ -9,6 +9,7 @@ import org.jfree.chart.ui.TextAnchor;
 import de.invesdwin.context.client.swing.jfreechart.plot.renderer.custom.annotations.AnnotationPlottingDataset;
 import de.invesdwin.context.client.swing.jfreechart.plot.renderer.custom.annotations.LabelHorizontalAlignType;
 import de.invesdwin.context.client.swing.jfreechart.plot.renderer.custom.annotations.LabelVerticalAlignType;
+import de.invesdwin.context.jfreechart.dataset.TimeRangedOHLCDataItem;
 import de.invesdwin.util.time.date.FDate;
 import de.invesdwin.util.time.date.FDates;
 
@@ -91,7 +92,18 @@ public class LineAnnotationPlottingDataItem extends AAnnotationPlottingDataItem 
         } else {
             this.startTimeLoadedIndex = dataset.getDateTimeEndAsItemIndex(0, startTime);
             if (endTime != null) {
-                this.endTimeLoadedIndex = dataset.getDateTimeEndAsItemIndex(0, endTime);
+                this.endTimeLoadedIndex = dataset.getDateTimeStartAsItemIndex(0, endTime);
+                if (endTimeLoadedIndex > 0) {
+                    final TimeRangedOHLCDataItem endItem = dataset.getMasterDataset().getData().get(endTimeLoadedIndex);
+                    final int prevEndTimeLoadedIndex = endTimeLoadedIndex - 1;
+                    final TimeRangedOHLCDataItem prevEndItem = dataset.getMasterDataset()
+                            .getData()
+                            .get(prevEndTimeLoadedIndex);
+                    if (endItem.getStartTime().equalsNotNullSafe(endTime)
+                            && endItem.getStartTime().equalsNotNullSafe(prevEndItem.getEndTime())) {
+                        endTimeLoadedIndex = prevEndTimeLoadedIndex;
+                    }
+                }
             } else {
                 this.endTimeLoadedIndex = dataset.getItemCount(0) - 1;
             }

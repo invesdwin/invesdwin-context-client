@@ -16,7 +16,8 @@ import de.invesdwin.context.client.swing.test.edt.ITimeoutEventQueueListener;
 import de.invesdwin.context.client.swing.test.edt.TimeoutEventQueue;
 import de.invesdwin.context.log.error.Err;
 import de.invesdwin.context.test.ATest;
-import de.invesdwin.context.test.TestContext;
+import de.invesdwin.context.test.ITestContext;
+import de.invesdwin.context.test.ITestContextSetup;
 import de.invesdwin.context.test.stub.StubSupport;
 import de.invesdwin.util.swing.EventDispatchThreadUtil;
 import de.invesdwin.util.time.duration.Duration;
@@ -37,7 +38,7 @@ public class FrameFixtureStub extends StubSupport {
     private static boolean addedEventDispatchThreadBlockingTimeout;
 
     @Override
-    public void setUpContext(final ATest test, final TestContext ctx) {
+    public void setUpContext(final ATest test, final ITestContextSetup ctx) {
         if (ctx.isPreMergedContext()) {
             return;
         }
@@ -97,12 +98,12 @@ public class FrameFixtureStub extends StubSupport {
     }
 
     @Override
-    public void setUpOnce(final ATest test, final TestContext ctx) throws Exception {
+    public void setUpOnce(final ATest test, final ITestContext ctx) throws Exception {
         initFrameFixture(); //so that views can be added in setupOnce already without there being problems with ProxyActions
     }
 
     @Override
-    public void setUp(final ATest test, final TestContext ctx) {
+    public void setUp(final ATest test, final ITestContext ctx) {
         initFrameFixture();
     }
 
@@ -124,7 +125,7 @@ public class FrameFixtureStub extends StubSupport {
     }
 
     @Override
-    public void tearDown(final ATest test, final TestContext ctx) {
+    public void tearDown(final ATest test, final ITestContext ctx) {
         if (!ctx.isFinishedGlobal()) {
             return;
         }

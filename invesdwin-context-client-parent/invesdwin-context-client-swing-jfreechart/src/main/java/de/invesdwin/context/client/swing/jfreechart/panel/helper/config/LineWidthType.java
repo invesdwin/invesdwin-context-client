@@ -10,18 +10,18 @@ import de.invesdwin.util.swing.HiDPI;
 
 @Immutable
 public enum LineWidthType {
-    _1(1),
-    _2(2),
-    _3(3),
-    _4(4);
+    _1(1f),
+    _2(2f),
+    _3(3f),
+    _4(4f);
 
-    private int width;
+    private final float width;
 
-    LineWidthType(final int width) {
+    LineWidthType(final float width) {
         this.width = width;
     }
 
-    public int getWidth() {
+    public float getWidth() {
         return width;
     }
 

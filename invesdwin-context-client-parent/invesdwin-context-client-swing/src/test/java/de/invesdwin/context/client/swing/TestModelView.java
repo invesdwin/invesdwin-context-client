@@ -43,6 +43,10 @@ public class TestModelView extends AView<TestModel, JPanel> {
         super(model);
     }
 
+    public TestModelView() {
+        super(new TestModel("default"));
+    }
+
     /**
      * @wbp.parser.entryPoint
      */
