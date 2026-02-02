@@ -27,6 +27,7 @@ import de.invesdwin.context.client.swing.jfreechart.plot.dataset.IPlotSourceData
 import de.invesdwin.util.collections.loadingcache.ALoadingCache;
 import de.invesdwin.util.concurrent.reference.MutableReference;
 import de.invesdwin.util.error.Throwables;
+import de.invesdwin.util.lang.string.Patterns;
 import de.invesdwin.util.lang.string.Strings;
 import de.invesdwin.util.math.expression.ExpressionVisitorSupport;
 import de.invesdwin.util.math.expression.IExpression;
@@ -342,7 +343,7 @@ public class AddSeriesPanel extends JPanel {
             }
         } else {
             final String searchString = search.trim();
-            final Pattern searchPattern = Pattern.compile(searchString);
+            final Pattern searchPattern = Patterns.tryCompile(searchString);
             final ALoadingCache<Integer, List<IIndicatorSeriesProvider>> rank_seriesProviders = new ALoadingCache<Integer, List<IIndicatorSeriesProvider>>() {
                 @Override
                 protected List<IIndicatorSeriesProvider> loadValue(final Integer key) {
