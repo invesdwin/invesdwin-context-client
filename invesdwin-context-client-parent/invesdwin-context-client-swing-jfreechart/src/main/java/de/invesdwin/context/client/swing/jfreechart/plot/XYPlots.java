@@ -8,7 +8,6 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentSkipListMap;
 
 import javax.annotation.concurrent.Immutable;
@@ -42,6 +41,7 @@ import de.invesdwin.context.jfreechart.axis.attached.AttachedRangeValueAxis;
 import de.invesdwin.context.jfreechart.plot.WrappedXYPlot;
 import de.invesdwin.context.jfreechart.visitor.AJFreeChartVisitor;
 import de.invesdwin.util.collections.delegate.NullSafeDelegateMap;
+import de.invesdwin.util.collections.factory.ILockCollectionFactory;
 import de.invesdwin.util.collections.fast.concurrent.SynchronizedFastIterableDelegateList;
 import de.invesdwin.util.lang.reflection.field.UnsafeField;
 import de.invesdwin.util.math.Doubles;
@@ -551,7 +551,8 @@ public final class XYPlots {
     }
 
     private static <K, V> Map<K, V> newConcurrentMap(final Map<K, V> map) {
-        final Map<K, V> newMap = new NullSafeDelegateMap<K, V>(new ConcurrentHashMap<K, V>(map.size()));
+        final Map<K, V> newMap = new NullSafeDelegateMap<K, V>(
+                ILockCollectionFactory.getInstance(true).newConcurrentMap(map.size()));
         newMap.putAll(map);
         return newMap;
     }
