@@ -5,7 +5,6 @@ import java.awt.Paint;
 import java.awt.geom.Rectangle2D;
 import java.lang.reflect.Field;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentSkipListMap;
@@ -160,7 +159,7 @@ public final class XYPlots {
     }
 
     public static void updateRangeAxes(final AJFreeChartVisitor theme, final XYPlot plot) {
-        final Map<String, RangeAxisData> rangeAxisId_data = new LinkedHashMap<>();
+        final Map<String, RangeAxisData> rangeAxisId_data = ILockCollectionFactory.getInstance(false).newLinkedMap();
         int rangeAxisIndex = -1;
         for (int datasetIndex = 0; datasetIndex < plot.getDatasetCount(); datasetIndex++) {
             final IPlotSourceDataset dataset = (IPlotSourceDataset) plot.getDataset(datasetIndex);
@@ -495,53 +494,53 @@ public final class XYPlots {
             return;
         }
         //          private final Map<Integer, ValueAxis> domainAxes;
-        //        this.domainAxes = new HashMap<Integer, ValueAxis>();
+        //        this.domainAxes = newHashMap<Integer, ValueAxis>();
         final Map<Integer, ValueAxis> domainAxes = newConcurrentMap(XYPLOT_DOMAINAXES_FIELD.get(xyPlot));
         XYPLOT_DOMAINAXES_FIELD.put(xyPlot, domainAxes);
         //          private final Map<Integer, AxisLocation> domainAxisLocations;
-        //        this.domainAxisLocations = new HashMap<Integer, AxisLocation>();
+        //        this.domainAxisLocations = newHashMap<Integer, AxisLocation>();
         final Map<Integer, AxisLocation> domainAxisLocations = newConcurrentMap(
                 XYPLOT_DOMAINAXISLOCATIONS_FIELD.get(xyPlot));
         XYPLOT_DOMAINAXISLOCATIONS_FIELD.put(xyPlot, domainAxisLocations);
         //          private final Map<Integer, ValueAxis> rangeAxes;
-        //        this.rangeAxes = new HashMap<Integer, ValueAxis>();
+        //        this.rangeAxes = newHashMap<Integer, ValueAxis>();
         final Map<Integer, ValueAxis> rangeAxes = newConcurrentMap(XYPLOT_RANGEAXES_FIELD.get(xyPlot));
         XYPLOT_RANGEAXES_FIELD.put(xyPlot, rangeAxes);
         //          private final Map<Integer, AxisLocation> rangeAxisLocations;
-        //        this.rangeAxisLocations = new HashMap<Integer, AxisLocation>();
+        //        this.rangeAxisLocations = newHashMap<Integer, AxisLocation>();
         final Map<Integer, AxisLocation> rangeAxisLocations = newConcurrentMap(
                 XYPLOT_RANGEAXISLOCATIONS_FIELD.get(xyPlot));
         XYPLOT_RANGEAXISLOCATIONS_FIELD.put(xyPlot, rangeAxisLocations);
         //          private final Map<Integer, XYDataset> datasets;
-        //        this.datasets = new HashMap<Integer, XYDataset>();
+        //        this.datasets = newHashMap<Integer, XYDataset>();
         final Map<Integer, XYDataset> datasets = newConcurrentMap(XYPLOT_DATASETS_FIELD.get(xyPlot));
         XYPLOT_DATASETS_FIELD.put(xyPlot, datasets);
         //          private final Map<Integer, XYItemRenderer> renderers;
-        //        this.renderers = new HashMap<Integer, XYItemRenderer>();
+        //        this.renderers = newHashMap<Integer, XYItemRenderer>();
         final Map<Integer, XYItemRenderer> renderers = newConcurrentMap(XYPLOT_RENDERERS_FIELD.get(xyPlot));
         XYPLOT_RENDERERS_FIELD.put(xyPlot, renderers);
         //          private final Map<Integer, List<Integer>> datasetToDomainAxesMap;
-        //        this.datasetToDomainAxesMap = new TreeMap();
+        //        this.datasetToDomainAxesMap = newTreeMap();
         final Map datasetToDomainAxesMap = newConcurrentNavigableMap(XYPLOT_DATASETTODOMAINAXESMAP_FIELD.get(xyPlot));
         XYPLOT_DATASETTODOMAINAXESMAP_FIELD.put(xyPlot, datasetToDomainAxesMap);
         //          private final Map<Integer, List<Integer>> datasetToRangeAxesMap;
-        //        this.datasetToRangeAxesMap = new TreeMap();
+        //        this.datasetToRangeAxesMap = newTreeMap();
         final Map datasetToRangeAxesMap = newConcurrentNavigableMap(XYPLOT_DATASETTORANGEAXESMAP_FIELD.get(xyPlot));
         XYPLOT_DATASETTORANGEAXESMAP_FIELD.put(xyPlot, datasetToRangeAxesMap);
         //          private final Map foregroundDomainMarkers;
-        //        this.foregroundDomainMarkers = new HashMap();
+        //        this.foregroundDomainMarkers = newHashMap();
         final Map foregroundDomainMarkers = newConcurrentMap(XYPLOT_FOREGROUNDDOMAINMARKERS_FIELD.get(xyPlot));
         XYPLOT_FOREGROUNDDOMAINMARKERS_FIELD.put(xyPlot, foregroundDomainMarkers);
         //          private final Map backgroundDomainMarkers;
-        //        this.backgroundDomainMarkers = new HashMap();
+        //        this.backgroundDomainMarkers = newHashMap();
         final Map backgroundDomainMarkers = newConcurrentMap(XYPLOT_BACKGROUNDDOMAINMARKERS_FIELD.get(xyPlot));
         XYPLOT_BACKGROUNDDOMAINMARKERS_FIELD.put(xyPlot, backgroundDomainMarkers);
         //          private final Map foregroundRangeMarkers;
-        //        this.foregroundRangeMarkers = new HashMap();
+        //        this.foregroundRangeMarkers = newHashMap();
         final Map foregroundRangeMarkers = newConcurrentMap(XYPLOT_FOREGROUNDRANGEMARKERS_FIELD.get(xyPlot));
         XYPLOT_FOREGROUNDRANGEMARKERS_FIELD.put(xyPlot, foregroundRangeMarkers);
         //          private final Map backgroundRangeMarkers;
-        //        this.backgroundRangeMarkers = new HashMap();
+        //        this.backgroundRangeMarkers = newHashMap();
         final Map backgroundRangeMarkers = newConcurrentMap(XYPLOT_BACKGROUNDRANGEMARKERS_FIELD.get(xyPlot));
         XYPLOT_BACKGROUNDRANGEMARKERS_FIELD.put(xyPlot, backgroundRangeMarkers);
         //        private static final UnsafeField<List<XYAnnotation>> XYPLOT_ANNOTATIONS_FIELD;

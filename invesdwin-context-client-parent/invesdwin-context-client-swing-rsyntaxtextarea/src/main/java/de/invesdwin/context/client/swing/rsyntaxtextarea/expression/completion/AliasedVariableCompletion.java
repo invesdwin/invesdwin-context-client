@@ -1,17 +1,18 @@
 package de.invesdwin.context.client.swing.rsyntaxtextarea.expression.completion;
 
 import java.util.Map;
-import java.util.TreeMap;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
 import org.fife.ui.autocomplete.CompletionProvider;
 import org.fife.ui.autocomplete.VariableCompletion;
 
+import de.invesdwin.util.collections.factory.ILockCollectionFactory;
+
 @NotThreadSafe
 public class AliasedVariableCompletion extends VariableCompletion implements IAliasedCompletion {
 
-    private final Map<String, String> aliases = new TreeMap<>();
+    private final Map<String, String> aliases = ILockCollectionFactory.getInstance(false).newTreeMap();
     private final String aliasedReference;
 
     public AliasedVariableCompletion(final CompletionProvider provider, final String name, final String type,

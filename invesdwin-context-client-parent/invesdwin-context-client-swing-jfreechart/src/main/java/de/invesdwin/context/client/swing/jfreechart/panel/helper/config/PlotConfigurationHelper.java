@@ -12,12 +12,9 @@ import java.awt.geom.Point2D;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
-import java.util.TreeSet;
 
 import javax.annotation.concurrent.NotThreadSafe;
 import javax.swing.JCheckBoxMenuItem;
@@ -50,6 +47,7 @@ import de.invesdwin.context.client.swing.jfreechart.panel.helper.legend.CustomLe
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.legend.HighlightedLegendInfo;
 import de.invesdwin.context.client.swing.jfreechart.plot.axis.Axises;
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.IPlotSourceDataset;
+import de.invesdwin.util.collections.factory.ILockCollectionFactory;
 import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.lang.string.Strings;
 import de.invesdwin.util.swing.Dialogs;
@@ -68,7 +66,9 @@ public class PlotConfigurationHelper {
     private final InteractiveChartPanel chartPanel;
 
     private final PriceInitialSettings priceInitialSettings;
-    private final Map<String, SeriesInitialSettings> seriesId_initialSettings = new HashMap<>();
+    private final Map<String, SeriesInitialSettings> seriesId_initialSettings = ILockCollectionFactory
+            .getInstance(false)
+            .newMap();
 
     private JPopupMenu popupMenu;
     private JMenuItem titleItem;
@@ -93,7 +93,9 @@ public class PlotConfigurationHelper {
     private JMenuItem rangeAxisIdItem;
     private JCheckBoxMenuItem autoRangeItem;
 
-    private final Map<String, IIndicatorSeriesProvider> indicatorSeriesProviders = new TreeMap<>();
+    private final Map<String, IIndicatorSeriesProvider> indicatorSeriesProviders = ILockCollectionFactory
+            .getInstance(false)
+            .newTreeMap();
     private IExpressionSeriesProvider expressionSeriesProvider;
     private IPlotPopupMenuConfig plotPopupMenuConfig;
     private Point2D mousePositionOnPopupMenu;
@@ -665,7 +667,7 @@ public class PlotConfigurationHelper {
     }
 
     public Set<String> getRangeAxisIds() {
-        final Set<String> rangeAxisIds = new TreeSet<>();
+        final Set<String> rangeAxisIds = ILockCollectionFactory.getInstance(false).newTreeSet();
         addRangeAxisId(rangeAxisIds, getPriceInitialSettings().getRangeAxisId());
         for (final SeriesInitialSettings series : seriesId_initialSettings.values()) {
             addRangeAxisId(rangeAxisIds, series.getRangeAxisId());

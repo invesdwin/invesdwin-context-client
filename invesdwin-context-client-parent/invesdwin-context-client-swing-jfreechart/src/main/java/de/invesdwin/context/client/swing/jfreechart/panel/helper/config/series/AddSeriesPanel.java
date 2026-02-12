@@ -7,7 +7,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
@@ -24,6 +23,7 @@ import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.dialog.e
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.series.expression.IExpressionSeriesProvider;
 import de.invesdwin.context.client.swing.jfreechart.panel.helper.config.series.indicator.IIndicatorSeriesProvider;
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.IPlotSourceDataset;
+import de.invesdwin.util.collections.factory.ILockCollectionFactory;
 import de.invesdwin.util.collections.loadingcache.ALoadingCache;
 import de.invesdwin.util.concurrent.reference.MutableReference;
 import de.invesdwin.util.error.Throwables;
@@ -150,7 +150,7 @@ public class AddSeriesPanel extends JPanel {
                 final ALoadingCache<String, Set<String>> duplicateExpressionFilter = new ALoadingCache<String, Set<String>>() {
                     @Override
                     protected Set<String> loadValue(final String key) {
-                        return new HashSet<>();
+                        return ILockCollectionFactory.getInstance(false).newSet();
                     }
                 };
                 final MutableReference<SeriesRendererType> originalRendererType = new MutableReference<SeriesRendererType>(

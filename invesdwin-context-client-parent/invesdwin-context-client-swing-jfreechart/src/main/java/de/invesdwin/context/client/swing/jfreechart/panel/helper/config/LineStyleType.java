@@ -2,11 +2,11 @@ package de.invesdwin.context.client.swing.jfreechart.panel.helper.config;
 
 import java.awt.BasicStroke;
 import java.awt.Stroke;
-import java.util.HashMap;
 import java.util.Map;
 
 import javax.annotation.concurrent.Immutable;
 
+import de.invesdwin.util.collections.factory.ILockCollectionFactory;
 import de.invesdwin.util.error.UnknownArgumentException;
 import de.invesdwin.util.swing.HiDPI;
 
@@ -40,8 +40,8 @@ public enum LineStyleType {
         }
     };
 
-    private String text;
-    private final Map<LineWidthType, Stroke> width_stroke = new HashMap<>();
+    private final String text;
+    private final Map<LineWidthType, Stroke> width_stroke = ILockCollectionFactory.getInstance(false).newMap();
 
     LineStyleType(final String text) {
         this.text = text;

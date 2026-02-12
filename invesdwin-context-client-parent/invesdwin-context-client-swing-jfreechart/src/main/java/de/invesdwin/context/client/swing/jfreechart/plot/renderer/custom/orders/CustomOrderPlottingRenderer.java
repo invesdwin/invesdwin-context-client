@@ -9,13 +9,12 @@ import java.awt.geom.Rectangle2D;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.NoSuchElementException;
-import java.util.TreeMap;
 
+import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.NotThreadSafe;
 import javax.swing.ImageIcon;
 
@@ -48,6 +47,7 @@ import de.invesdwin.context.client.swing.jfreechart.plot.renderer.IUpDownColorRe
 import de.invesdwin.context.client.swing.jfreechart.plot.renderer.Renderers;
 import de.invesdwin.context.client.swing.jfreechart.plot.renderer.custom.CustomProfitLossRenderer;
 import de.invesdwin.context.client.swing.jfreechart.plot.renderer.custom.ICustomRendererType;
+import de.invesdwin.util.collections.factory.ILockCollectionFactory;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
 import de.invesdwin.util.lang.string.Strings;
 import de.invesdwin.util.math.Doubles;
@@ -72,6 +72,8 @@ public class CustomOrderPlottingRenderer extends AbstractXYItemRenderer
     private static final LineStyleType LINE_STYLE_DEFAULT = LineStyleType.Solid;
     private static final LineStyleType LINE_STYLE_PENDING = LineStyleType.Dashed;
 
+    private static final int MAX_NOTES_POOL_SIZE = 100;
+
     private final OrderPlottingDataset dataset;
     private Color upColor;
     private Color downColor;
@@ -80,8 +82,15 @@ public class CustomOrderPlottingRenderer extends AbstractXYItemRenderer
     private ImageIcon noteDownIcon;
     private ImageIcon noteBothIcon;
 
-    private Map<Integer, XYNoteIconAnnotation> noteIndex_noteAnnotation = new TreeMap<>(
-            Integers.COMPARATOR.asDescending().asNotNullSafe());
+    @GuardedBy("only accessed from the event dispatch thread")
+    private Map<Integer, XYNoteIconAnnotation> noteIndex_noteAnnotation = ILockCollectionFactory.getInstance(false)
+            .newTreeMap(Integers.COMPARATOR.asDescending().asNotNullSafe());
+    private Map<Integer, XYNoteIconAnnotation> noteIndex_noteAnnotation_new = ILockCollectionFactory.getInstance(false)
+            .newTreeMap(Integers.COMPARATOR.asDescending().asNotNullSafe());
+
+    private final List<List<OrderPlottingDataItem>> notesPool = new ArrayList<>(MAX_NOTES_POOL_SIZE);
+    private final Map<Integer, List<OrderPlottingDataItem>> index_notes = ILockCollectionFactory.getInstance(false)
+            .newLinkedMap();
 
     public CustomOrderPlottingRenderer(final PlotConfigurationHelper plotConfigurationHelper,
             final OrderPlottingDataset dataset) {
@@ -221,18 +230,18 @@ public class CustomOrderPlottingRenderer extends AbstractXYItemRenderer
             final RectangleEdge domainEdge = Plot.resolveDomainAxisLocation(plot.getDomainAxisLocation(), orientation);
             final RectangleEdge rangeEdge = Plot.resolveRangeAxisLocation(plot.getRangeAxisLocation(), orientation);
             final LineWidthType lineWidth = LineWidthType.valueOf(lookupSeriesStroke(series));
-            final Map<Integer, List<OrderPlottingDataItem>> index_notes = drawLines(g2, dataArea, plot, domainAxis,
-                    rangeAxis, lastItem, cDataset, firstItem, rendererIndex, rangeAxisFormat, domainEdge, rangeEdge,
-                    lineWidth);
-            drawNotes(g2, dataArea, info, plot, domainAxis, cDataset, rendererIndex, cRangeAxis, index_notes);
+            drawLines(g2, dataArea, plot, domainAxis, rangeAxis, lastItem, cDataset, firstItem, rendererIndex,
+                    rangeAxisFormat, domainEdge, rangeEdge, lineWidth);
+            drawNotes(g2, dataArea, info, plot, domainAxis, cDataset, rendererIndex, cRangeAxis);
         }
     }
 
     private void drawNotes(final Graphics2D g2, final Rectangle2D dataArea, final PlotRenderingInfo info,
             final XYPlot plot, final ValueAxis domainAxis, final OrderPlottingDataset cDataset, final int rendererIndex,
-            final NumberAxis cRangeAxis, final Map<Integer, List<OrderPlottingDataItem>> index_notes) {
-        final Map<Integer, XYNoteIconAnnotation> newMap = new TreeMap<>(
-                Integers.COMPARATOR.asDescending().asNotNullSafe());
+            final NumberAxis cRangeAxis) {
+        if (!noteIndex_noteAnnotation_new.isEmpty()) {
+            noteIndex_noteAnnotation_new.clear();
+        }
         for (final Entry<Integer, List<OrderPlottingDataItem>> entry : index_notes.entrySet()) {
             final int noteIndex = entry.getKey();
             final List<OrderPlottingDataItem> notes = entry.getValue();
@@ -279,17 +288,31 @@ public class CustomOrderPlottingRenderer extends AbstractXYItemRenderer
             noteAnnotation.setNote(note.toString());
             noteAnnotation.setCoordinateType(XYCoordinateType.DATA);
             noteAnnotation.draw(g2, plot, dataArea, domainAxis, cRangeAxis, rendererIndex, info);
-            newMap.put(noteIndex, noteAnnotation);
+            noteIndex_noteAnnotation_new.put(noteIndex, noteAnnotation);
         }
-        noteIndex_noteAnnotation = newMap;
+        final Map<Integer, XYNoteIconAnnotation> noteIndex_noteAnnotation_old = noteIndex_noteAnnotation;
+        noteIndex_noteAnnotation = noteIndex_noteAnnotation_new;
+        noteIndex_noteAnnotation_new = noteIndex_noteAnnotation_old;
     }
 
-    private Map<Integer, List<OrderPlottingDataItem>> drawLines(final Graphics2D g2, final Rectangle2D dataArea,
-            final XYPlot plot, final ValueAxis domainAxis, final ValueAxis rangeAxis, final int lastItem,
+    private void drawLines(final Graphics2D g2, final Rectangle2D dataArea, final XYPlot plot,
+            final ValueAxis domainAxis, final ValueAxis rangeAxis, final int lastItem,
             final OrderPlottingDataset cDataset, final int firstItem, final int rendererIndex,
             final NumberFormat rangeAxisFormat, final RectangleEdge domainEdge, final RectangleEdge rangeEdge,
             final LineWidthType lineWidth) {
-        final Map<Integer, List<OrderPlottingDataItem>> index_notes = new LinkedHashMap<Integer, List<OrderPlottingDataItem>>();
+        if (!index_notes.isEmpty()) {
+            for (final List<OrderPlottingDataItem> notes : index_notes.values()) {
+                if (notes.size() > MAX_NOTES_POOL_SIZE) {
+                    break;
+                }
+                if (notes.isEmpty()) {
+                    notes.clear();
+                }
+                notesPool.add(notes);
+            }
+            index_notes.clear();
+        }
+
         final ICloseableIterator<OrderPlottingDataItem> visibleItems = cDataset.getVisibleItems(firstItem, lastItem)
                 .iterator();
         try {
@@ -302,7 +325,11 @@ public class CustomOrderPlottingRenderer extends AbstractXYItemRenderer
                     final int noteIndex = next.getOpenTimeLoadedIndex();
                     List<OrderPlottingDataItem> notes = index_notes.get(noteIndex);
                     if (notes == null) {
-                        notes = new ArrayList<OrderPlottingDataItem>();
+                        if (notesPool.isEmpty()) {
+                            notes = new ArrayList<OrderPlottingDataItem>();
+                        } else {
+                            notes = notesPool.remove(notesPool.size() - 1);
+                        }
                         index_notes.put(noteIndex, notes);
                     }
                     notes.add(next);
@@ -311,7 +338,6 @@ public class CustomOrderPlottingRenderer extends AbstractXYItemRenderer
         } catch (final NoSuchElementException e) {
             //end reached
         }
-        return index_notes;
     }
 
     private void drawLine(final Graphics2D g2, final Rectangle2D dataArea, final XYPlot plot,

@@ -1,13 +1,11 @@
 package de.invesdwin.context.client.swing.jfreechart.plot.renderer.custom.orders;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.NavigableSet;
 import java.util.SortedSet;
-import java.util.TreeSet;
 
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.NotThreadSafe;
@@ -63,9 +61,9 @@ public class OrderPlottingDataset extends AbstractXYDataset
     private final ILock itemsLock = ILockCollectionFactory.getInstance(true)
             .newLock(AnnotationPlottingDataset.class.getSimpleName() + "_itemsLock");
     @GuardedBy("itemsLock")
-    private final NavigableSet<OrderItem> items = new TreeSet<>();
+    private final NavigableSet<OrderItem> items = ILockCollectionFactory.getInstance(false).newTreeSet();
     @GuardedBy("itemsLock")
-    private final Map<String, OrderItem> orderId_item = new HashMap<>();
+    private final Map<String, OrderItem> orderId_item = ILockCollectionFactory.getInstance(false).newMap();
     private final boolean lastTradeProfit = true;
     private IIndicatorSeriesProvider indicatorSeriesProvider;
     private IExpression[] indicatorSeriesArguments;

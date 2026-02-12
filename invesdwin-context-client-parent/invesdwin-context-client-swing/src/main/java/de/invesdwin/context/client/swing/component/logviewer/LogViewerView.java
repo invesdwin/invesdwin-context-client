@@ -6,7 +6,6 @@ import java.awt.event.AdjustmentListener;
 import java.awt.event.ComponentEvent;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Set;
@@ -28,6 +27,7 @@ import org.apache.commons.io.input.CharSequenceReader;
 import de.invesdwin.context.client.swing.api.guiservice.GuiService;
 import de.invesdwin.context.client.swing.api.view.AView;
 import de.invesdwin.util.assertions.Assertions;
+import de.invesdwin.util.collections.factory.ILockCollectionFactory;
 import de.invesdwin.util.collections.iterable.ICloseableIterable;
 import de.invesdwin.util.collections.iterable.ICloseableIterator;
 import de.invesdwin.util.collections.iterable.buffer.BufferingIterator;
@@ -90,7 +90,7 @@ public class LogViewerView extends AView<LogViewerView, JPanel> {
     @GuardedBy("this")
     private FDate logTo;
     @GuardedBy("this")
-    private final Set<String> lastLogToMessages = new HashSet<>();
+    private final Set<String> lastLogToMessages = ILockCollectionFactory.getInstance(false).newSet();
     @GuardedBy("this")
     private boolean background;
     private JEditorPane editor;

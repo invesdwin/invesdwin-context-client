@@ -6,11 +6,9 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.security.Principal;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.Set;
 
 import javax.annotation.concurrent.NotThreadSafe;
-import jakarta.inject.Inject;
 import javax.security.auth.Subject;
 import javax.security.auth.kerberos.KerberosPrincipal;
 import javax.security.auth.login.LoginContext;
@@ -44,7 +42,9 @@ import de.invesdwin.context.security.ldap.directory.server.test.DirectoryServerT
 import de.invesdwin.context.test.ATest;
 import de.invesdwin.context.webserver.test.WebserverTest;
 import de.invesdwin.util.assertions.Assertions;
+import de.invesdwin.util.collections.factory.ILockCollectionFactory;
 import de.invesdwin.util.lang.Files;
+import jakarta.inject.Inject;
 
 @WebserverTest
 @NotThreadSafe
@@ -66,11 +66,12 @@ public class KerberosLoginTest extends ATest {
 
     @Test
     public void testKerberosLogin() throws Exception {
-        final Set<Principal> principals = new HashSet<Principal>();
+        final Set<Principal> principals = ILockCollectionFactory.getInstance(false).newSet();
         principals.add(new KerberosPrincipal(PRINCIPAL));
 
         // client login
-        Subject subject = new Subject(false, principals, new HashSet<Object>(), new HashSet<Object>());
+        Subject subject = new Subject(false, principals, ILockCollectionFactory.getInstance(false).newSet(),
+                ILockCollectionFactory.getInstance(false).newSet());
         final LoginContext loginContext = new LoginContext("", subject, null, createClientConfig(PRINCIPAL, keytab));
         loginContext.login();
         subject = loginContext.getSubject();
