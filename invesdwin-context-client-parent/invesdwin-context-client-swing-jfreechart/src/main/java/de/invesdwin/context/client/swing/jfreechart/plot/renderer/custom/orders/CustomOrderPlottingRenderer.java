@@ -305,7 +305,7 @@ public class CustomOrderPlottingRenderer extends AbstractXYItemRenderer
                 if (notes.size() > MAX_NOTES_POOL_SIZE) {
                     break;
                 }
-                if (notes.isEmpty()) {
+                if (!notes.isEmpty()) {
                     notes.clear();
                 }
                 notesPool.add(notes);
