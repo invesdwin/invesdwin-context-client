@@ -4,17 +4,18 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
 import org.fife.ui.autocomplete.CompletionProvider;
 import org.fife.ui.autocomplete.FunctionCompletion;
 
+import de.invesdwin.util.collections.factory.ILockCollectionFactory;
+
 @NotThreadSafe
 public class AliasedFunctionCompletion extends FunctionCompletion implements IAliasedCompletion {
 
-    private final Map<String, String> aliases = new TreeMap<>();
+    private final Map<String, String> aliases = ILockCollectionFactory.getInstance(false).newTreeMap();
     private final String aliasedReference;
 
     public AliasedFunctionCompletion(final CompletionProvider provider, final String name, final String returnType,

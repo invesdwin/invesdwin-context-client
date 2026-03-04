@@ -1,7 +1,6 @@
 package de.invesdwin.context.client.swing.api.guiservice;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -19,6 +18,7 @@ import de.invesdwin.context.client.swing.api.view.AView;
 import de.invesdwin.context.client.swing.api.view.IDockable;
 import de.invesdwin.context.client.swing.frame.content.IWorkingAreaLocation;
 import de.invesdwin.util.assertions.Assertions;
+import de.invesdwin.util.collections.factory.ILockCollectionFactory;
 import de.invesdwin.util.collections.loadingcache.ALoadingCache;
 import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.swing.EventDispatchThreadUtil;
@@ -30,13 +30,13 @@ import jakarta.inject.Inject;
 public class ContentPane {
 
     @GuardedBy("@EventDispatchThread")
-    private final Map<String, AView<?, ?>> id_visibleView = new HashMap<String, AView<?, ?>>();
+    private final Map<String, AView<?, ?>> id_visibleView = ILockCollectionFactory.getInstance(false).newMap();
     @GuardedBy("@EventDispatchThread")
     private final ALoadingCache<Class<?>, Map<String, AView<?, ?>>> class_id_visibleView = new ALoadingCache<Class<?>, Map<String, AView<?, ?>>>() {
 
         @Override
         protected Map<String, AView<?, ?>> loadValue(final Class<?> key) {
-            return new HashMap<>();
+            return ILockCollectionFactory.getInstance(false).newMap();
         }
     };
 

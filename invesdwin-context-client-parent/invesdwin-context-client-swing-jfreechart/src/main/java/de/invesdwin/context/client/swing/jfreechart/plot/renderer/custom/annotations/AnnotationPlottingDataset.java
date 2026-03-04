@@ -1,14 +1,12 @@
 package de.invesdwin.context.client.swing.jfreechart.plot.renderer.custom.annotations;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.NavigableSet;
 import java.util.Set;
 import java.util.SortedSet;
-import java.util.TreeSet;
 
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.NotThreadSafe;
@@ -61,9 +59,9 @@ public class AnnotationPlottingDataset extends AbstractXYDataset implements IAnn
     private final ILock itemsLock = ILockCollectionFactory.getInstance(true)
             .newLock(AnnotationPlottingDataset.class.getSimpleName() + "_itemsLock");
     @GuardedBy("itemsLock")
-    private final NavigableSet<AnnotationItem> items = new TreeSet<>();
+    private final NavigableSet<AnnotationItem> items = ILockCollectionFactory.getInstance(false).newTreeSet();
     @GuardedBy("itemsLock")
-    private final Map<String, AnnotationItem> annotationId_item = new HashMap<>();
+    private final Map<String, AnnotationItem> annotationId_item = ILockCollectionFactory.getInstance(false).newMap();
     private final Set<String> removedAnnotationIds = ILockCollectionFactory.getInstance(true).newSet();
     private IIndicatorSeriesProvider indicatorSeriesProvider;
     private IExpression[] indicatorSeriesArguments;

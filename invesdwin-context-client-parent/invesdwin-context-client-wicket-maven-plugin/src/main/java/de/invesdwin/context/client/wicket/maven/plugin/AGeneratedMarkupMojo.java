@@ -76,7 +76,9 @@ public abstract class AGeneratedMarkupMojo extends AbstractMojo {
      */
     private ClassLoader createContextClassloader() {
         try {
+            //CHECKSTYLE:OFF
             final Set<String> urls = new HashSet<String>();
+            //CHECKSTYLE:ON
             final Set<String> elements = getClasspathElements();
             for (final String element : elements) {
                 urls.add(new File(element).toURI().toString());
@@ -100,7 +102,9 @@ public abstract class AGeneratedMarkupMojo extends AbstractMojo {
     }
 
     private Set<String> getClasspathElements() throws DependencyResolutionRequiredException {
+        //CHECKSTYLE:OFF
         final Set<String> classpathElements = new LinkedHashSet<String>();
+        //CHECKSTYLE:ON
         classpathElements.addAll(project.getCompileClasspathElements());
         classpathElements.addAll(project.getRuntimeClasspathElements());
         classpathElements.addAll(project.getTestClasspathElements());

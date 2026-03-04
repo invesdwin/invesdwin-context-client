@@ -1,11 +1,12 @@
 package de.invesdwin.context.client.swing.jfreechart.plot;
 
-import java.util.LinkedHashSet;
 import java.util.Set;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
 import org.jfree.data.Range;
+
+import de.invesdwin.util.collections.factory.ILockCollectionFactory;
 
 @NotThreadSafe
 public class RangeAxisData {
@@ -15,7 +16,7 @@ public class RangeAxisData {
     private boolean visible = false;
     private boolean autoRange;
     private Range range;
-    private final Set<Integer> datasetIndexes = new LinkedHashSet<>();
+    private final Set<Integer> datasetIndexes = ILockCollectionFactory.getInstance(false).newLinkedSet();
 
     public RangeAxisData(final String rangeAxisId, final int rangeAxisIndex) {
         this.rangeAxisId = rangeAxisId;

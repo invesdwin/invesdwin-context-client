@@ -1,15 +1,17 @@
 package de.invesdwin.context.client.swing.util;
 
 import java.awt.Component;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import javax.annotation.concurrent.Immutable;
 
 import de.invesdwin.context.client.swing.api.binding.BindingGroup;
 import de.invesdwin.context.client.swing.api.guiservice.GuiService;
 import de.invesdwin.context.client.swing.api.view.AView;
+import de.invesdwin.util.collections.factory.pool.list.ICloseableList;
+import de.invesdwin.util.collections.factory.pool.list.PooledArrayList;
+import de.invesdwin.util.collections.factory.pool.set.ICloseableSet;
+import de.invesdwin.util.collections.factory.pool.set.PooledSet;
 import de.invesdwin.util.lang.string.Strings;
 
 @Immutable
@@ -19,16 +21,18 @@ public class SubmitAllViewsHelper extends UpdateAllViewsHelper {
 
     @Override
     public void process(final AView<?, ?> view, final Component component) {
-        final List<AView<?, ?>> views = getViews(view, component);
-        submit(views);
-        final String invalidMessage = validate(views);
-        if (invalidMessage == null) {
-            commit(views);
-        } else {
-            showInvalidMessage(invalidMessage);
-            rollback(views);
+        try (ICloseableList<AView<?, ?>> views = PooledArrayList.getInstance()) {
+            getViews(view, component, views);
+            submit(views);
+            final String invalidMessage = validate(views);
+            if (invalidMessage == null) {
+                commit(views);
+            } else {
+                showInvalidMessage(invalidMessage);
+                rollback(views);
+            }
+            update(views);
         }
-        update(views);
     }
 
     protected void showInvalidMessage(final String invalidMessage) {
@@ -48,21 +52,22 @@ public class SubmitAllViewsHelper extends UpdateAllViewsHelper {
     }
 
     protected String validate(final List<AView<?, ?>> views) {
-        String combinedInvalidMessage = null;
-        final Set<String> duplicateMessageFilter = new HashSet<>();
-        for (int i = 0; i < views.size(); i++) {
-            final BindingGroup bindingGroup = views.get(i).getBindingGroup();
-            final String invalidMessage = bindingGroup.validate();
-            if (Strings.isNotBlank(invalidMessage) && duplicateMessageFilter.add(invalidMessage)) {
-                if (combinedInvalidMessage != null) {
-                    combinedInvalidMessage += "\n";
-                    combinedInvalidMessage += invalidMessage;
-                } else {
-                    combinedInvalidMessage = invalidMessage;
+        try (ICloseableSet<String> duplicateMessageFilter = PooledSet.getInstance()) {
+            String combinedInvalidMessage = null;
+            for (int i = 0; i < views.size(); i++) {
+                final BindingGroup bindingGroup = views.get(i).getBindingGroup();
+                final String invalidMessage = bindingGroup.validate();
+                if (Strings.isNotBlank(invalidMessage) && duplicateMessageFilter.add(invalidMessage)) {
+                    if (combinedInvalidMessage != null) {
+                        combinedInvalidMessage += "\n";
+                        combinedInvalidMessage += invalidMessage;
+                    } else {
+                        combinedInvalidMessage = invalidMessage;
+                    }
                 }
             }
+            return combinedInvalidMessage;
         }
-        return combinedInvalidMessage;
     }
 
     protected void commit(final List<AView<?, ?>> views) {

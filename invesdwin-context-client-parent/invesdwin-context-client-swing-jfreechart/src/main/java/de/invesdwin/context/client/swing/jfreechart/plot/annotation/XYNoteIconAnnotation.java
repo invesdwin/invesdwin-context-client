@@ -11,6 +11,7 @@ import org.jfree.chart.ui.RectangleAnchor;
 @NotThreadSafe
 public class XYNoteIconAnnotation extends XYIconAnnotation {
 
+    public static final XYNoteIconAnnotation[] EMPTY_ARRAY = new XYNoteIconAnnotation[0];
     private final XYNoteAnnotation noteAnnotation;
 
     public XYNoteIconAnnotation(final double x, final double y, final Icon icon) {

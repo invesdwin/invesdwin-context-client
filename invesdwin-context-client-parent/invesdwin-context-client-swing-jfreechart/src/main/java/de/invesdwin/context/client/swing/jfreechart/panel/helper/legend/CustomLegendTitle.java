@@ -9,7 +9,6 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
-import java.util.HashSet;
 import java.util.Set;
 
 import javax.annotation.concurrent.NotThreadSafe;
@@ -45,6 +44,7 @@ import org.jfree.chart.util.PublicCloneable;
 import org.jfree.chart.util.SerialUtils;
 import org.jfree.chart.util.SortOrder;
 
+import de.invesdwin.util.collections.factory.ILockCollectionFactory;
 import de.invesdwin.util.swing.HiDPI;
 
 @NotThreadSafe
@@ -112,7 +112,7 @@ public class CustomLegendTitle extends Title implements Cloneable, PublicCloneab
 
     private boolean hideLegendTitles = false;
 
-    private final Set<String> neverHideSeriesKeys = new HashSet<>();
+    private final Set<String> neverHideSeriesKeys = ILockCollectionFactory.getInstance(false).newSet();
 
     /**
      * Constructs a new (empty) legend for the specified source.

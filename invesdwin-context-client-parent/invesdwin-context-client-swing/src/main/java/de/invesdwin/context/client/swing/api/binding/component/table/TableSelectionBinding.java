@@ -31,6 +31,7 @@ public class TableSelectionBinding extends AComponentBinding<JTable, List<?>> {
     private final GeneratedTableSelectionModel selectionModel;
     private int[] prevSelectedIndexesInModel = Integers.EMPTY_ARRAY;
     private int[] prevSelectedIndexesInTable = Integers.EMPTY_ARRAY;
+    private List<?> prevRows = Collections.emptyList();
     private boolean selectionUpdating = false;
     private boolean valueIsAdjusting = false;
     private boolean mouse1Down = false;
@@ -101,9 +102,10 @@ public class TableSelectionBinding extends AComponentBinding<JTable, List<?>> {
                         }
                         if (eagerSubmitRunnable != null) {
                             final int[] selectedIndexesInTableNew = getSelectedIndexesInTable();
-                            if (!Objects.equals(prevSelectedIndexesInTable, selectedIndexesInTableNew)) {
+                            if (shouldEagerSubmit(selectedIndexesInTableNew)) {
                                 eagerSubmitRunnable.run();
                                 prevSelectedIndexesInTable = selectedIndexesInTableNew;
+                                prevRows = tableModel.getRows();
                                 valueIsAdjusting = false;
                             }
                         }
@@ -114,6 +116,24 @@ public class TableSelectionBinding extends AComponentBinding<JTable, List<?>> {
 
             });
         }
+    }
+
+    protected boolean shouldEagerSubmit(final int[] selectedIndexesInTableNew) {
+        if (!Objects.equals(prevSelectedIndexesInTable, selectedIndexesInTableNew)) {
+            return true;
+        }
+
+        final List<?> newRows = tableModel.getRows();
+        for (int i = 0; i < selectedIndexesInTableNew.length; i++) {
+            final int selectedIndexInView = selectedIndexesInTableNew[i];
+            final int selectedIndexInModel = component.convertRowIndexToModel(selectedIndexInView);
+            final Object prevRow = prevRows.get(selectedIndexInModel);
+            final Object newRow = newRows.get(selectedIndexInModel);
+            if (!Objects.equals(prevRow, newRow)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public Runnable getEagerSubmitRunnable() {

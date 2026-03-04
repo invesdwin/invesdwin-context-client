@@ -3,7 +3,6 @@ package de.invesdwin.context.client.swing.jfreechart.panel.helper.legend;
 import java.awt.Color;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
-import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Set;
 
@@ -32,7 +31,7 @@ import de.invesdwin.context.client.swing.jfreechart.plot.dataset.DisabledXYDatas
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.IPlotSourceDataset;
 import de.invesdwin.context.client.swing.jfreechart.plot.renderer.DisabledXYItemRenderer;
 import de.invesdwin.context.client.swing.jfreechart.plot.renderer.IDatasetSourceXYItemRenderer;
-import de.invesdwin.util.collections.Collections;
+import de.invesdwin.util.collections.factory.ILockCollectionFactory;
 import de.invesdwin.util.lang.color.Colors;
 import de.invesdwin.util.swing.EventDispatchThreadUtil;
 import de.invesdwin.util.swing.HiDPI;
@@ -62,8 +61,7 @@ public class PlotLegendHelper {
     private final XYIconAnnotation removeAnnotation;
     private final XYIconAnnotation trashAnnotation;
 
-    private final Set<Dataset> nonRemovableDatasets = Collections
-            .newSetFromMap(new IdentityHashMap<Dataset, Boolean>());
+    private final Set<Dataset> nonRemovableDatasets = ILockCollectionFactory.getInstance(false).newIdentitySet();
 
     private RangeAxisData draggedRangeAxisData = null;
 

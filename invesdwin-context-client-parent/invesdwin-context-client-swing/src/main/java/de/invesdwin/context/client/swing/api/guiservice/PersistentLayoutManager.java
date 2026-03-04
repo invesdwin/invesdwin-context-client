@@ -2,7 +2,6 @@ package de.invesdwin.context.client.swing.api.guiservice;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.LinkedHashSet;
 import java.util.Set;
 
 import javax.annotation.concurrent.ThreadSafe;
@@ -17,6 +16,7 @@ import bibliothek.util.Path;
 import de.invesdwin.context.client.swing.api.view.PlaceholderView;
 import de.invesdwin.context.client.swing.frame.content.ContentPaneView;
 import de.invesdwin.context.client.swing.frame.content.WorkingAreaLocation;
+import de.invesdwin.util.collections.factory.ILockCollectionFactory;
 import de.invesdwin.util.lang.string.Strings;
 import jakarta.inject.Inject;
 
@@ -50,7 +50,7 @@ public class PersistentLayoutManager {
     }
 
     private Set<String> extractPlaceholders(final File layoutFile) {
-        final Set<String> result = new LinkedHashSet<>();
+        final Set<String> result = ILockCollectionFactory.getInstance(false).newLinkedSet();
 
         try {
             final DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();

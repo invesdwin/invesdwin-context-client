@@ -2,9 +2,7 @@ package de.invesdwin.context.client.swing.api.binding;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Set;
 
 import javax.annotation.concurrent.NotThreadSafe;
 import javax.swing.JButton;
@@ -23,6 +21,8 @@ import de.invesdwin.norva.beanpath.impl.clazz.BeanClassContext;
 import de.invesdwin.norva.beanpath.spi.element.AActionBeanPathElement;
 import de.invesdwin.norva.beanpath.spi.element.IBeanPathElement;
 import de.invesdwin.norva.beanpath.spi.element.RootBeanPathElement;
+import de.invesdwin.util.collections.factory.pool.set.ICloseableSet;
+import de.invesdwin.util.collections.factory.pool.set.linked.PooledLinkedSet;
 import de.invesdwin.util.collections.fast.AFastIterableDelegateList;
 import de.invesdwin.util.collections.loadingcache.ALoadingCache;
 import de.invesdwin.util.lang.Objects;
@@ -121,41 +121,42 @@ public class BindingGroup implements IComponentBinding {
 
     @Override
     public String validate() {
-        final Set<String> invalidMessages = new LinkedHashSet<>();
-        final ConstraintViolationException exception = BeanValidator.getInstance().validate(getModel());
-        if (exception != null) {
-            for (final ConstraintViolation<?> violation : exception.getConstraintViolations()) {
-                final String beanPath = violation.getPropertyPath().toString();
-                final String invalidMessage = violation.getMessage();
-                if (Strings.isNotBlank(invalidMessage)) {
-                    if (beanPath_binding.containsKey(beanPath)) {
-                        final List<IComponentBinding> bindings = beanPath_binding.get(beanPath);
-                        for (int i = 0; i < bindings.size(); i++) {
-                            bindings.get(i).setInvalidMessage(invalidMessage);
+        try (ICloseableSet<String> invalidMessages = PooledLinkedSet.getInstance()) {
+            final ConstraintViolationException exception = BeanValidator.getInstance().validate(getModel());
+            if (exception != null) {
+                for (final ConstraintViolation<?> violation : exception.getConstraintViolations()) {
+                    final String beanPath = violation.getPropertyPath().toString();
+                    final String invalidMessage = violation.getMessage();
+                    if (Strings.isNotBlank(invalidMessage)) {
+                        if (beanPath_binding.containsKey(beanPath)) {
+                            final List<IComponentBinding> bindings = beanPath_binding.get(beanPath);
+                            for (int i = 0; i < bindings.size(); i++) {
+                                bindings.get(i).setInvalidMessage(invalidMessage);
+                            }
+                        } else {
+                            invalidMessages.add(AComponentBinding.surroundTitle(beanPath) + " " + invalidMessage);
                         }
-                    } else {
-                        invalidMessages.add(AComponentBinding.surroundTitle(beanPath) + " " + invalidMessage);
                     }
                 }
             }
-        }
-        final IComponentBinding[] array = bindings.asArray(IComponentBinding.EMPTY_ARRAY);
-        for (int i = 0; i < array.length; i++) {
-            final String invalidMessage = array[i].validate();
-            if (Strings.isNotBlank(invalidMessage)) {
-                invalidMessages.add(invalidMessage);
+            final IComponentBinding[] array = bindings.asArray(IComponentBinding.EMPTY_ARRAY);
+            for (int i = 0; i < array.length; i++) {
+                final String invalidMessage = array[i].validate();
+                if (Strings.isNotBlank(invalidMessage)) {
+                    invalidMessages.add(invalidMessage);
+                }
             }
-        }
-        String combinedInvalidMessage = null;
-        for (final String invalidMessage : invalidMessages) {
-            if (combinedInvalidMessage == null) {
-                combinedInvalidMessage = invalidMessage;
-            } else {
-                combinedInvalidMessage += "\n" + invalidMessage;
+            String combinedInvalidMessage = null;
+            for (final String invalidMessage : invalidMessages) {
+                if (combinedInvalidMessage == null) {
+                    combinedInvalidMessage = invalidMessage;
+                } else {
+                    combinedInvalidMessage += "\n" + invalidMessage;
+                }
             }
+            this.invalidMessage = combinedInvalidMessage;
+            return combinedInvalidMessage;
         }
-        this.invalidMessage = combinedInvalidMessage;
-        return combinedInvalidMessage;
     }
 
     @Override

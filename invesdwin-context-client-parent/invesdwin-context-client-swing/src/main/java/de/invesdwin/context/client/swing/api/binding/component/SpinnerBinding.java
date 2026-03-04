@@ -235,7 +235,7 @@ public class SpinnerBinding extends AComponentBinding<JSpinner, Object> {
             final AbstractFormatter formatter = textField.getFormatter();
 
             final String text = textField.getText();
-            if (text.isBlank()) { //TODO: Edwin. check this here or handle it somehwere in the formatter ?
+            if (Strings.isBlank(text)) {
                 componentValue = null;
             } else {
                 componentValue = (Number) formatter.stringToValue(textField.getText());

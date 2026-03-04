@@ -1,6 +1,5 @@
 package de.invesdwin.context.client.swing.api.hook;
 
-import java.util.HashSet;
 import java.util.Set;
 
 import javax.annotation.concurrent.GuardedBy;
@@ -12,6 +11,7 @@ import org.springframework.context.ApplicationContextAware;
 
 import de.invesdwin.context.beans.hook.ReinitializationHookManager;
 import de.invesdwin.context.beans.hook.ReinitializationHookSupport;
+import de.invesdwin.util.collections.factory.ILockCollectionFactory;
 import jakarta.inject.Named;
 
 /**
@@ -31,7 +31,8 @@ public final class RichApplicationHookManager
 
     public static final RichApplicationHookManager INSTANCE = new RichApplicationHookManager();
     @GuardedBy("INSTANCE")
-    private static final Set<IRichApplicationHook> REGISTERED_HOOKS = new HashSet<IRichApplicationHook>();
+    private static final Set<IRichApplicationHook> REGISTERED_HOOKS = ILockCollectionFactory.getInstance(false)
+            .newLinkedSet();
 
     static {
         ReinitializationHookManager.register(new ReinitializationHookSupport() {

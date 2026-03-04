@@ -2,8 +2,6 @@ package de.invesdwin.context.client.swing.rsyntaxtextarea.expression;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -20,6 +18,9 @@ import de.invesdwin.context.client.swing.rsyntaxtextarea.expression.completion.A
 import de.invesdwin.context.client.swing.rsyntaxtextarea.expression.completion.AliasedVariableCompletion;
 import de.invesdwin.context.client.swing.rsyntaxtextarea.expression.completion.IAliasedCompletion;
 import de.invesdwin.util.collections.Collections;
+import de.invesdwin.util.collections.factory.ILockCollectionFactory;
+import de.invesdwin.util.collections.factory.pool.set.ICloseableSet;
+import de.invesdwin.util.collections.factory.pool.set.PooledSet;
 import de.invesdwin.util.lang.string.Strings;
 import de.invesdwin.util.math.expression.ExpressionParser;
 import de.invesdwin.util.math.expression.IFunctionParameterInfo;
@@ -33,7 +34,7 @@ import de.invesdwin.util.swing.Components;
 @NotThreadSafe
 public class ExpressionCompletionProvider extends DefaultCompletionProvider {
 
-    private final Map<String, IAliasedCompletion> alias_completion = new HashMap<>();
+    private final Map<String, IAliasedCompletion> alias_completion = ILockCollectionFactory.getInstance(false).newMap();
     private final List<String> aliases = new ArrayList<>();
 
     public ExpressionCompletionProvider() {
@@ -205,35 +206,36 @@ public class ExpressionCompletionProvider extends DefaultCompletionProvider {
 
     @SuppressWarnings("unchecked")
     protected List<Completion> getAliasCompletionByInputText(final String inputText) {
-        final Set<String> duplicateReferenceFilter = new HashSet<>();
-        final List<Completion> list = new ArrayList<>();
+        try (ICloseableSet<String> duplicateReferenceFilter = PooledSet.getInstance()) {
+            final List<Completion> list = new ArrayList<>();
 
-        int index = Collections.binarySearch(aliases, inputText, comparator);
-        if (index < 0) { // No exact match
-            index = -index - 1;
-        } else {
-            // If there are several overloads for the function being
-            // completed, Collections.binarySearch() will return the index
-            // of one of those overloads, but we must return all of them,
-            // so search backward until we find the first one.
-            int pos = index - 1;
-            while (pos > 0 && comparator.compare(aliases.get(pos), inputText) == 0) {
-                addAliasedReference(aliases.get(pos), list, duplicateReferenceFilter);
-                pos--;
-            }
-        }
-
-        while (index < aliases.size()) {
-            final String alias = aliases.get(index);
-            if (Util.startsWithIgnoreCase(alias, inputText)) {
-                addAliasedReference(alias, list, duplicateReferenceFilter);
-                index++;
+            int index = Collections.binarySearch(aliases, inputText, comparator);
+            if (index < 0) { // No exact match
+                index = -index - 1;
             } else {
-                break;
+                // If there are several overloads for the function being
+                // completed, Collections.binarySearch() will return the index
+                // of one of those overloads, but we must return all of them,
+                // so search backward until we find the first one.
+                int pos = index - 1;
+                while (pos > 0 && comparator.compare(aliases.get(pos), inputText) == 0) {
+                    addAliasedReference(aliases.get(pos), list, duplicateReferenceFilter);
+                    pos--;
+                }
             }
-        }
 
-        return list;
+            while (index < aliases.size()) {
+                final String alias = aliases.get(index);
+                if (Util.startsWithIgnoreCase(alias, inputText)) {
+                    addAliasedReference(alias, list, duplicateReferenceFilter);
+                    index++;
+                } else {
+                    break;
+                }
+            }
+
+            return list;
+        }
     }
 
     private void addAliasedReference(final String alias, final List<Completion> list,

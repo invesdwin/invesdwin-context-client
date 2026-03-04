@@ -7,8 +7,6 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.text.DateFormat;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -44,6 +42,7 @@ import de.invesdwin.context.jfreechart.dataset.MutableXYDataItemOHLC;
 import de.invesdwin.context.jfreechart.dataset.TimeRangedOHLCDataItem;
 import de.invesdwin.context.log.error.Err;
 import de.invesdwin.util.assertions.Assertions;
+import de.invesdwin.util.collections.factory.ILockCollectionFactory;
 import de.invesdwin.util.error.UnknownArgumentException;
 import de.invesdwin.util.lang.reflection.Reflections;
 import de.invesdwin.util.lang.string.UniqueNameGenerator;
@@ -246,9 +245,9 @@ public class CandlestickDemo extends JFrame {
 
         @Override
         public CompletionProvider newCompletionProvider() {
-            final Set<String> duplicateExpressionFilter = new HashSet<>();
-            final Map<String, IAliasedCompletion> name_completion = new HashMap<>();
-            final Map<String, IAliasedCompletion> alias_completion = new HashMap<>();
+            final Set<String> duplicateExpressionFilter = ILockCollectionFactory.getInstance(false).newSet();
+            final Map<String, IAliasedCompletion> name_completion = ILockCollectionFactory.getInstance(false).newMap();
+            final Map<String, IAliasedCompletion> alias_completion = ILockCollectionFactory.getInstance(false).newMap();
             final ExpressionCompletionProvider provider = new ExpressionCompletionProvider();
             provider.addDefaultCompletions(duplicateExpressionFilter, name_completion, alias_completion, true);
             return provider;
