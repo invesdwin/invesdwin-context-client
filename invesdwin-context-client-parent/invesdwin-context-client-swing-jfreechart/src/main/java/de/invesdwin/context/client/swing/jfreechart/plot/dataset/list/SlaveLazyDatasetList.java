@@ -47,7 +47,7 @@ public class SlaveLazyDatasetList extends ALazyDatasetList<SlaveXYDataItemOHLC> 
     public synchronized void appendItems(final int appendCount) {
         //invalidate two elements to reload them
         final List<SlaveXYDataItemOHLC> data = getData();
-        for (int i = Math.max(0, data.size() - 2); i <= data.size() - 1; i++) {
+        for (int i = Integers.max(0, data.size() - 2); i <= data.size() - 1; i++) {
             final SlaveXYDataItemOHLC prevItem = data.get(i);
             final SlaveXYDataItemOHLC replaced = new SlaveXYDataItemOHLC(provider, prevItem.getOHLC());
             data.set(i, replaced);

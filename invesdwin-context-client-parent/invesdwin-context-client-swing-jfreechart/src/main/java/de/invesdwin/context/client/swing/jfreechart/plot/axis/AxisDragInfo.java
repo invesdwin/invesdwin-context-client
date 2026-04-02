@@ -13,6 +13,7 @@ import org.jfree.data.Range;
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.IPlotSourceDataset;
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.IndexedDateTimeOHLCDataset;
 import de.invesdwin.context.jfreechart.axis.AxisType;
+import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.time.date.FDate;
 
 @NotThreadSafe
@@ -43,16 +44,16 @@ public class AxisDragInfo {
         this.initialDragPoint = initialDragPoint;
         this.initialAxisRange = valueAxis.getRange();
         this.initialAxisLowerBoundFDate = masterDataset.getXDate(0,
-                Double.valueOf(Math.round(valueAxis.getRange().getLowerBound())).intValue());
+                Integers.round(valueAxis.getRange().getLowerBound()));
         this.initialAxisUpperBoundFDate = masterDataset.getXDate(0,
-                Double.valueOf(Math.round(valueAxis.getRange().getUpperBound())).intValue());
+                Integers.round(valueAxis.getRange().getUpperBound()));
 
         this.valueAxis = valueAxis;
         this.plotWidth = plotWidth;
         this.axis = axis;
 
         //We get the StartTime here.. the EndTime would be more intuitive but the difference is very un-noticable (especially when zoomed out).
-        this.domainAnchorFDate = masterDataset.getXDate(0, Double.valueOf(Math.round(domainAnchor)).intValue());
+        this.domainAnchorFDate = masterDataset.getXDate(0, Integers.round(domainAnchor));
     }
 
     /**

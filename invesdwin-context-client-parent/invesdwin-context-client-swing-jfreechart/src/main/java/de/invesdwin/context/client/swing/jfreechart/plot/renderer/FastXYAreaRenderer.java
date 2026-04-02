@@ -38,6 +38,7 @@ import de.invesdwin.context.client.swing.jfreechart.plot.annotation.priceline.IP
 import de.invesdwin.context.client.swing.jfreechart.plot.annotation.priceline.XYPriceLineAnnotation;
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.IPlotSourceDataset;
 import de.invesdwin.context.client.swing.jfreechart.plot.renderer.custom.ACustomXYItemRenderer;
+import de.invesdwin.util.math.Integers;
 
 /**
  * Instead of drawing an outline, this one draws a line so that at start and end of series the line does not go to zero.
@@ -291,8 +292,8 @@ public class FastXYAreaRenderer extends ACustomXYItemRenderer implements IDelega
 
         // get the previous point and the next point so we can calculate a
         // "hot spot" for the area (used by the chart entity)...
-        final double x0 = dataset.getXValue(series, Math.max(item - 1, 0));
-        double y0 = dataset.getYValue(series, Math.max(item - 1, 0));
+        final double x0 = dataset.getXValue(series, Integers.max(item - 1, 0));
+        double y0 = dataset.getYValue(series, Integers.max(item - 1, 0));
         if (Double.isNaN(y0)) {
             y0 = 0.0;
         }

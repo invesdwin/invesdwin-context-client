@@ -610,9 +610,9 @@ public class PlotZoomHelper {
         final double axisLength = AxisType.DOMAIN_AXIS.equals(axisDragInfo.getAxis()) ? axisDragInfo.getPlotWidth()
                 : axisDragInfo.getPlotHeight();
         if (axisRangeChange > 0.0D) {
-            zoomFactor = 1D / (1D + Doubles.divide(Math.abs(axisRangeChange), axisLength / 2));
+            zoomFactor = 1D / (1D + Doubles.divide(Doubles.abs(axisRangeChange), axisLength / 2));
         } else {
-            zoomFactor = 1D + Doubles.divide(Math.abs(axisRangeChange), axisLength / 2);
+            zoomFactor = 1D + Doubles.divide(Doubles.abs(axisRangeChange), axisLength / 2);
         }
 
         Range newRange = null;
@@ -639,8 +639,8 @@ public class PlotZoomHelper {
             final Range limitRange = getLimitRange(newRange);
             if (limitRange != null) {
                 try {
-                    return new Range(Math.max(newRange.getLowerBound(), limitRange.getLowerBound()),
-                            Math.min(newRange.getUpperBound(), limitRange.getUpperBound()));
+                    return new Range(Doubles.max(newRange.getLowerBound(), limitRange.getLowerBound()),
+                            Doubles.min(newRange.getUpperBound(), limitRange.getUpperBound()));
                 } catch (final IllegalArgumentException e) {
                     //For some reason it can happen that lowerBound > upperBound here and the Exception is thrown.
                     //Probably happens when getLimitRange appended/prepended more data.

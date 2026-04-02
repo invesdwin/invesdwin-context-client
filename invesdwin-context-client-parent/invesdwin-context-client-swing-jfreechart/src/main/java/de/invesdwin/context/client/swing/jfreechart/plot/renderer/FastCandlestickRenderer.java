@@ -242,7 +242,7 @@ public class FastCandlestickRenderer extends ACustomXYItemRenderer
         final RectangleEdge edge = plot.getDomainAxisEdge();
         final double xx1 = axis.valueToJava2D(x1, dataArea, edge);
         final double xx2 = axis.valueToJava2D(x2, dataArea, edge);
-        this.maxCandleWidth = Math.min(Math.abs(xx2 - xx1), MAX_CANDLE_WIDTH_LIMIT);
+        this.maxCandleWidth = Doubles.min(Doubles.abs(xx2 - xx1), MAX_CANDLE_WIDTH_LIMIT);
         // Absolute value, since the relative x
         // positions are reversed for horizontal orientation
 
@@ -327,10 +327,10 @@ public class FastCandlestickRenderer extends ACustomXYItemRenderer
         g2.setStroke(s);
         g2.setPaint(p);
 
-        final double yyMaxOpenClose = Math.max(yyOpen, yyClose);
-        final double yyMinOpenClose = Math.min(yyOpen, yyClose);
-        final double maxOpenClose = Math.max(yOpen, yClose);
-        final double minOpenClose = Math.min(yOpen, yClose);
+        final double yyMaxOpenClose = Doubles.max(yyOpen, yyClose);
+        final double yyMinOpenClose = Doubles.min(yyOpen, yyClose);
+        final double maxOpenClose = Doubles.max(yOpen, yClose);
+        final double minOpenClose = Doubles.min(yOpen, yClose);
 
         // draw the upper shadow
         if (yHigh > maxOpenClose) {
@@ -443,7 +443,7 @@ public class FastCandlestickRenderer extends ACustomXYItemRenderer
             xxWidth *= autoWidthFactorSmall;
         }
         xxWidth = Doubles.min(xxWidth, this.maxCandleWidth);
-        stickWidth = Math.max(Math.min(STROKE_SCALING_MIN_WIDTH, this.maxCandleWidth), xxWidth);
+        stickWidth = Doubles.max(Doubles.min(STROKE_SCALING_MIN_WIDTH, this.maxCandleWidth), xxWidth);
         return stickWidth;
     }
 

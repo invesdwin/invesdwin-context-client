@@ -14,6 +14,7 @@ import javax.swing.text.JTextComponent;
 import org.jdesktop.application.ApplicationAction;
 
 import de.invesdwin.context.beans.hook.IStartupHook;
+import de.invesdwin.util.math.Integers;
 
 /**
  * Workaround for http://kenai.com/jira/browse/BSAF-116
@@ -77,7 +78,7 @@ public class SelectAllActionWorkaround implements IStartupHook {
                 final int dot = caret.getDot();
                 final int mark = caret.getMark();
                 final int length = text.getDocument().getLength();
-                final boolean enabled = Math.abs(mark - dot) != length;
+                final boolean enabled = Integers.abs(mark - dot) != length;
                 selectAllAction.setEnabled(enabled);
                 final Action proxy = selectAllAction.getProxy();
                 if (proxy != null) {

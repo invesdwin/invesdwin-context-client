@@ -574,7 +574,7 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
         //invalidate two elements to reload them
         final List<MasterOHLCDataItem> data = getData();
         int replacedCount = 0;
-        for (int i = Math.max(0, data.size() - 2); i <= data.size() - 1; i++) {
+        for (int i = Integers.max(0, data.size() - 2); i <= data.size() - 1; i++) {
             final MasterOHLCDataItem existingItem = data.get(i);
             appendItems.add(existingItem);
             replacedCount++;
@@ -722,7 +722,7 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
     private boolean updateTrailingItems(final FDate lastTickTime, final List<MasterOHLCDataItem> data,
             final Range rangeBefore) {
         //remove at least two elements
-        int lastItemIndex = Math.max(0, data.size() - 3);
+        int lastItemIndex = Integers.max(0, data.size() - 3);
         TimeRangedOHLCDataItem lastItem = data.get(lastItemIndex);
         final ICloseableIterable<? extends TimeRangedOHLCDataItem> history = provider.getValues(lastItem.getEndTime(),
                 lastTickTime);

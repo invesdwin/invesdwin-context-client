@@ -19,6 +19,8 @@ import org.jfree.data.RangeType;
 import de.invesdwin.context.client.swing.jfreechart.panel.InteractiveChartPanel;
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.IPlotSourceDataset;
 import de.invesdwin.context.jfreechart.axis.AxisType;
+import de.invesdwin.util.math.Doubles;
+import de.invesdwin.util.math.Longs;
 
 @Immutable
 public final class Axises {
@@ -124,13 +126,13 @@ public final class Axises {
         final PlotRenderingInfo plotRenderingInfo = chartPanel.getChartPanel().getChartRenderingInfo().getPlotInfo();
         if (AxisType.DOMAIN_AXIS.equals(axis)) {
             final ValueAxis domainAxis = chartPanel.getCombinedPlot().getDomainAxis();
-            final double roundedPlotWidth = Math.round(plotRenderingInfo.getPlotArea().getWidth());
+            final double roundedPlotWidth = Longs.round(plotRenderingInfo.getPlotArea().getWidth());
             return new AxisDragInfo(point2D, domainAxis, roundedPlotWidth, axis, plotRenderingInfo);
         } else if (AxisType.RANGE_AXIS.equals(axis)) {
             final int subplotIndex = Axises.getSubplotIndexFromPlotArea(chartPanel, point2D);
             final ValueAxis rangeAxis = getRangeAxis(chartPanel, point2D, subplotIndex);
             if (rangeAxis != null) {
-                final double roundedPlotHeight = Math
+                final double roundedPlotHeight = Longs
                         .round(plotRenderingInfo.getSubplotInfo(subplotIndex).getPlotArea().getHeight());
                 return new AxisDragInfo(point2D, rangeAxis, subplotIndex, roundedPlotHeight, axis);
             }
@@ -218,16 +220,16 @@ public final class Axises {
             double upper = r.getUpperBound();
             double lower = r.getLowerBound();
             if (numberAxis.getRangeType() == RangeType.POSITIVE) {
-                lower = Math.max(0.0, lower);
-                upper = Math.max(0.0, upper);
+                lower = Doubles.max(0.0, lower);
+                upper = Doubles.max(0.0, upper);
             } else if (numberAxis.getRangeType() == RangeType.NEGATIVE) {
-                lower = Math.min(0.0, lower);
-                upper = Math.min(0.0, upper);
+                lower = Doubles.min(0.0, lower);
+                upper = Doubles.min(0.0, upper);
             }
 
             if (numberAxis.getAutoRangeIncludesZero()) {
-                lower = Math.min(lower, 0.0);
-                upper = Math.max(upper, 0.0);
+                lower = Doubles.min(lower, 0.0);
+                upper = Doubles.max(upper, 0.0);
             }
             final double range = upper - lower;
 
@@ -243,7 +245,7 @@ public final class Axises {
                     upper = upper + expand;
                     lower = lower - expand;
                     if (lower == upper) { // see bug report 1549218
-                        final double adjust = Math.abs(lower) / 10.0;
+                        final double adjust = Doubles.abs(lower) / 10.0;
                         lower = lower - adjust;
                         upper = upper + adjust;
                     }
@@ -262,12 +264,12 @@ public final class Axises {
 
                 if (numberAxis.getAutoRangeStickyZero()) {
                     if (upper <= 0.0) {
-                        upper = Math.min(0.0, upper + numberAxis.getUpperMargin() * range);
+                        upper = Doubles.min(0.0, upper + numberAxis.getUpperMargin() * range);
                     } else {
                         upper = upper + numberAxis.getUpperMargin() * range;
                     }
                     if (lower >= 0.0) {
-                        lower = Math.max(0.0, lower - numberAxis.getLowerMargin() * range);
+                        lower = Doubles.max(0.0, lower - numberAxis.getLowerMargin() * range);
                     } else {
                         lower = lower - numberAxis.getLowerMargin() * range;
                     }
@@ -300,7 +302,7 @@ public final class Axises {
             final RectangleEdge edge) {
         final double zero = axis.java2DToValue(0.0, area, edge);
         final double l = axis.java2DToValue(length, area, edge);
-        return Math.abs(l - zero);
+        return Doubles.abs(l - zero);
     }
 
 }
