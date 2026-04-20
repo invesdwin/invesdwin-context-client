@@ -365,7 +365,7 @@ public class InteractiveChartPanel extends JPanel {
         //Keep at least the defaultTralingRangeGapMinimum
         final int defaultTrailingRangeGapMinimum = getDefaultTrailingRangeGapMinimum();
         int userGapAbsolute = (int) (visibleItemCount * gapRateBefore);
-        userGapAbsolute = Math.max(defaultTrailingRangeGapMinimum, userGapAbsolute);
+        userGapAbsolute = Integers.max(defaultTrailingRangeGapMinimum, userGapAbsolute);
         final int lastItemIndex = masterDataset.getItemCount(0) - 1;
         final int upperBound = lastItemIndex + userGapAbsolute;
         final int lowerBound = upperBound - visibleItemCount;

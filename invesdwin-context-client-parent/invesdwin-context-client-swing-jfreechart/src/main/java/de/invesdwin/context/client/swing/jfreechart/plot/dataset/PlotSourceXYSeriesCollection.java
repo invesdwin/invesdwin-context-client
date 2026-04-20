@@ -17,6 +17,7 @@ import de.invesdwin.context.jfreechart.dataset.Datasets;
 import de.invesdwin.context.jfreechart.dataset.ListXYSeriesOHLC;
 import de.invesdwin.context.jfreechart.dataset.MutableXYDataItemOHLC;
 import de.invesdwin.util.assertions.Assertions;
+import de.invesdwin.util.math.Doubles;
 import de.invesdwin.util.math.expression.IExpression;
 
 @NotThreadSafe
@@ -129,10 +130,10 @@ public class PlotSourceXYSeriesCollection extends XYSeriesCollection implements 
                         final double lvalue = cSeries.getItemMinY(ohlc);
                         final double uvalue = cSeries.getItemMaxY(ohlc);
                         if (!Double.isNaN(lvalue)) {
-                            minimum = Math.min(minimum, lvalue);
+                            minimum = Doubles.min(minimum, lvalue);
                         }
                         if (!Double.isNaN(uvalue)) {
-                            maximum = Math.max(maximum, uvalue);
+                            maximum = Doubles.max(maximum, uvalue);
                         }
                     }
                 }

@@ -47,6 +47,7 @@ import de.invesdwin.context.jfreechart.dataset.MutableXYDataItemOHLC;
 import de.invesdwin.context.jfreechart.dataset.TimeRangedOHLCDataItem;
 import de.invesdwin.util.lang.color.Colors;
 import de.invesdwin.util.math.Doubles;
+import de.invesdwin.util.math.Integers;
 
 /**
  * High is Profit, Low is Drawdown and Close is EquityChange.
@@ -293,7 +294,7 @@ public abstract class ACustomEquityChangeRenderer extends AbstractXYItemRenderer
         final PlotSourceXYSeriesCollection cDataset = (PlotSourceXYSeriesCollection) dataset;
         final ListXYSeriesOHLC cSeries = cDataset.getSeries(series);
         final List<MutableXYDataItemOHLC> data = cSeries.getData();
-        final int item0 = Math.max(item1 - 1, 0);
+        final int item0 = Integers.max(item1 - 1, 0);
         final TimeRangedOHLCDataItem cItem0 = data.get(item0).getOHLC();
         final TimeRangedOHLCDataItem cItem1 = data.get(item1).getOHLC();
 

@@ -62,18 +62,21 @@ public class RichApplicationStub extends StubSupport {
                 }
             }
         }
-        if (statusBar == null) {
-            statusBar = MergedContext.getInstance().getBean(StatusBar.class);
+        final MergedContext mergedContext = MergedContext.getInstance();
+        if (statusBar == null && mergedContext.isActive()) {
+            statusBar = mergedContext.getBean(StatusBar.class);
         }
         statusBar.reset();
         statusBar = null;
-        if (contentPane == null) {
-            contentPane = MergedContext.getInstance().getBean(ContentPane.class);
+        if (contentPane == null && mergedContext.isActive()) {
+            contentPane = mergedContext.getBean(ContentPane.class);
         }
         contentPane.reset();
         contentPane = null;
-        for (final Task<?, ?> task : GuiService.get().getTaskService().getTasks()) {
-            task.cancel(true);
+        if (mergedContext.isActive()) {
+            for (final Task<?, ?> task : GuiService.get().getTaskService().getTasks()) {
+                task.cancel(true);
+            }
         }
         RichApplicationProperties.reset();
     }
