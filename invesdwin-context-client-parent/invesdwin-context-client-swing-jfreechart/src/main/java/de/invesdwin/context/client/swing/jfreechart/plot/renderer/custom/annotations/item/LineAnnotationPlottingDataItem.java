@@ -152,16 +152,18 @@ public class LineAnnotationPlottingDataItem extends AAnnotationPlottingDataItem 
             //no slope
             return startPrice;
         }
-        final long startTimeLoadedKey = (long) dataset.getXValueAsDateTimeEnd(0, startTimeLoadedIndex);
-        if (startTime.millisValue() == startTimeLoadedKey) {
-            //no adjustment needed, since we hit the point
-            return startPrice;
-        }
-        final double expectedTimeRange = endTime.millisValue() - startTime.millisValue();
-        final double priceIncrementPerMillisecond = (endPrice - startPrice) / expectedTimeRange;
-        final double millisDifference = startTimeLoadedKey - startTime.millisValue();
-        final double startPriceLoaded = startPrice + millisDifference * priceIncrementPerMillisecond;
-        return startPriceLoaded;
+        //WARNING: this interpolation is inherently wrong, the code that creates the annotation should be responsible for providing the correct price
+        //        final long startTimeLoadedKey = (long) dataset.getXValueAsDateTimeEnd(0, startTimeLoadedIndex);
+        //        if (startTime.millisValue() == startTimeLoadedKey) {
+        //            //no adjustment needed, since we hit the point
+        //            return startPrice;
+        //        }
+        //        final double expectedTimeRange = endTime.millisValue() - startTime.millisValue();
+        //        final double priceIncrementPerMillisecond = (endPrice - startPrice) / expectedTimeRange;
+        //        final double millisDifference = startTimeLoadedKey - startTime.millisValue();
+        //        final double startPriceLoaded = startPrice + millisDifference * priceIncrementPerMillisecond;
+        //        return startPriceLoaded;
+        return startPrice;
     }
 
     public double getEndPriceLoaded() {
@@ -177,16 +179,18 @@ public class LineAnnotationPlottingDataItem extends AAnnotationPlottingDataItem 
             //no slope
             return startPrice;
         }
-        final long endTimeLoadedKey = (long) dataset.getXValueAsDateTimeEnd(0, endTimeLoadedIndex);
-        if (endTime.millisValue() == endTimeLoadedKey) {
-            //no adjustment needed, since we hit the point
-            return endPrice;
-        }
-        final double expectedTimeRange = endTime.millisValue() - startTime.millisValue();
-        final double priceIncrementPerMillisecond = (endPrice - startPrice) / expectedTimeRange;
-        final double millisDifference = endTimeLoadedKey - endTime.millisValue();
-        final double endPriceLoaded = endPrice + millisDifference * priceIncrementPerMillisecond;
-        return endPriceLoaded;
+        //        final long endTimeLoadedKey = (long) dataset.getXValueAsDateTimeEnd(0, endTimeLoadedIndex);
+        //        if (endTime.millisValue() == endTimeLoadedKey) {
+        //            //no adjustment needed, since we hit the point
+        //            return endPrice;
+        //        }
+        //WARNING: this interpolation is inherently wrong, the code that creates the annotation should be responsible for providing the correct price
+        //        final double expectedTimeRange = endTime.millisValue() - startTime.millisValue();
+        //        final double priceIncrementPerMillisecond = (endPrice - startPrice) / expectedTimeRange;
+        //        final double millisDifference = endTimeLoadedKey - endTime.millisValue();
+        //        final double endPriceLoaded = endPrice + millisDifference * priceIncrementPerMillisecond;
+        //        return endPriceLoaded;
+        return endPrice;
     }
 
 }
