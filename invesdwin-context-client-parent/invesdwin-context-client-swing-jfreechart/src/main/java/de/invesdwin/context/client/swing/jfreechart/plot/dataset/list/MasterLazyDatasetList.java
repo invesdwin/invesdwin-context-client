@@ -484,7 +484,7 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
             final List<MasterOHLCDataItem> items,
             final ICloseableIterable<? extends TimeRangedOHLCDataItem> masterValues, final boolean append,
             final int replacedCount, final int addedCount) {
-        final double priority = items.get(0).getEndTime().millisValue();
+        final double priority = items.get(0).getEndTime().doubleValue();
         executor.execute(new IPriorityRunnable() {
             @Override
             public void run() {

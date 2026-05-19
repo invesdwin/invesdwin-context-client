@@ -59,10 +59,10 @@ public class LabelAnnotationPlottingDataItem extends AAnnotationPlottingDataItem
     }
 
     @Override
-    public void updateItemLoaded(final long firstLoadedKeyMillis, final long lastLoadedKeyMillis,
-            final boolean trailingLoaded, final AnnotationPlottingDataset dataset) {
-        if (!trailingLoaded && getTime().millisValue() > lastLoadedKeyMillis
-                || getTime() != null && getTime().millisValue() < firstLoadedKeyMillis) {
+    public void updateItemLoaded(final FDate firstLoadedKey, final FDate lastLoadedKey, final boolean trailingLoaded,
+            final AnnotationPlottingDataset dataset) {
+        if (!trailingLoaded && getTime().isAfterNotNullSafe(lastLoadedKey)
+                || getTime() != null && getTime().isBeforeNotNullSafe(firstLoadedKey)) {
             if (itemLoaded) {
                 itemLoaded = false;
                 timeLoadedIndex = Integer.MIN_VALUE;

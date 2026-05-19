@@ -14,7 +14,6 @@ import org.jfree.data.Range;
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.IIndexedDateTimeXYDataset;
 import de.invesdwin.util.time.date.FDate;
 import de.invesdwin.util.time.date.FDates;
-import de.invesdwin.util.time.date.FTimeUnit;
 import de.invesdwin.util.time.duration.Duration;
 
 @NotThreadSafe
@@ -49,8 +48,8 @@ public class IndexedDateTimeNumberFormat extends NumberFormat {
     }
 
     private String formatItem(final int item) {
-        final long prevEndTime = (long) dataset.getXValueAsDateTimeEnd(0, item - 1);
-        final long endTime = (long) dataset.getXValueAsDateTimeEnd(0, item);
+        final FDate prevEndTime = dataset.getXValueAsDateTimeEnd(0, item - 1);
+        final FDate endTime = dataset.getXValueAsDateTimeEnd(0, item);
         final boolean lastItem = item == dataset.getItemCount(0) - 1;
         final String endTimeStr = formatTime(prevEndTime, endTime, lastItem);
         return endTimeStr;
@@ -66,13 +65,13 @@ public class IndexedDateTimeNumberFormat extends NumberFormat {
 
     public String formatFromTo(final int item) {
         final StringBuilder sb = new StringBuilder();
-        final long prevStartTime = (long) dataset.getXValueAsDateTimeStart(0, item - 1);
-        final long startTime = (long) dataset.getXValueAsDateTimeStart(0, item);
+        final FDate prevStartTime = dataset.getXValueAsDateTimeStart(0, item - 1);
+        final FDate startTime = dataset.getXValueAsDateTimeStart(0, item);
         final boolean lastItem = item == dataset.getItemCount(0) - 1;
         final String startTimeStr = formatTime(prevStartTime, startTime, lastItem);
         sb.append(startTimeStr);
-        final long endTime = (long) dataset.getXValueAsDateTimeEnd(0, item);
-        if (endTime != startTime) {
+        final FDate endTime = dataset.getXValueAsDateTimeEnd(0, item);
+        if (!endTime.equalsNotNullSafe(startTime)) {
             final String endTimeStr = formatTime(startTime, endTime, lastItem);
             if (!endTimeStr.equals(startTimeStr)) {
                 sb.append(" -> ");
@@ -82,30 +81,28 @@ public class IndexedDateTimeNumberFormat extends NumberFormat {
         return sb.toString();
     }
 
-    private String formatTime(final long prevTime, final long time, final boolean lastItem) {
-        final FDate prevDate = new FDate(prevTime);
-        final FDate date = new FDate(time);
+    private String formatTime(final FDate prevTime, final FDate time, final boolean lastItem) {
         final Range range = domainAxis.getRange();
-        final double millis = dataset.getXValueAsDateTimeStart(0, (int) range.getUpperBound())
-                - dataset.getXValueAsDateTimeStart(0, (int) range.getLowerBound());
-        final Duration duration = new Duration((long) millis, FTimeUnit.MILLISECONDS);
+        final FDate from = dataset.getXValueAsDateTimeStart(0, (int) range.getLowerBound());
+        final FDate to = dataset.getXValueAsDateTimeStart(0, (int) range.getUpperBound());
+        final Duration duration = new Duration(from, to);
         final DateFormat format;
         if (lastItem) {
-            format = getFallbackTimeFormat(date);
+            format = getFallbackTimeFormat(time);
         } else {
-            if (duration.isLessThan(MILLISECOND_THRESHOLD) && FDates.isSameSecond(date, prevDate)) {
+            if (duration.isLessThan(MILLISECOND_THRESHOLD) && FDates.isSameSecond(time, prevTime)) {
                 format = millisecondFormat;
-            } else if (duration.isLessThan(SECOND_THRESHOLD) && FDates.isSameMinute(date, prevDate)) {
+            } else if (duration.isLessThan(SECOND_THRESHOLD) && FDates.isSameMinute(time, prevTime)) {
                 format = secondFormat;
-            } else if (duration.isLessThan(MINUTE_THRESHOLD) && FDates.isSameJulianDay(date, prevDate)) {
+            } else if (duration.isLessThan(MINUTE_THRESHOLD) && FDates.isSameJulianDay(time, prevTime)) {
                 format = minuteFormat;
-            } else if (date.isWithoutTime()) {
+            } else if (time.isWithoutTime()) {
                 format = dateFormat;
             } else {
-                format = getFallbackTimeFormat(date);
+                format = getFallbackTimeFormat(time);
             }
         }
-        return format.format(date.dateValue());
+        return format.format(time.dateValue());
     }
 
     private DateFormat getFallbackTimeFormat(final FDate date) {

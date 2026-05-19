@@ -39,6 +39,7 @@ import de.invesdwin.util.concurrent.lock.ILock;
 import de.invesdwin.util.lang.Objects;
 import de.invesdwin.util.math.expression.IExpression;
 import de.invesdwin.util.time.date.FDate;
+import de.invesdwin.util.time.date.FDates;
 import de.invesdwin.util.time.range.TimeRange;
 
 @NotThreadSafe
@@ -71,8 +72,8 @@ public class AnnotationPlottingDataset extends AbstractXYDataset implements IAnn
     private final ISlaveLazyDatasetListener slaveDatasetListener;
     private final WrappedExecutorService executor;
 
-    private long prevFirstLoadedKeyMillis;
-    private long prevLastLoadedKeyMillis;
+    private FDate prevFirstLoadedKey;
+    private FDate prevLastLoadedKey;
     private final List<AnnotationItem> reusableTailList = new ArrayList<AnnotationItem>();
 
     public AnnotationPlottingDataset(final String seriesKey, final IndexedDateTimeOHLCDataset masterDataset) {
@@ -220,12 +221,12 @@ public class AnnotationPlottingDataset extends AbstractXYDataset implements IAnn
     }
 
     @Override
-    public double getXValueAsDateTimeStart(final int series, final int item) {
+    public FDate getXValueAsDateTimeStart(final int series, final int item) {
         return masterDataset.getXValueAsDateTimeStart(series, item);
     }
 
     @Override
-    public double getXValueAsDateTimeEnd(final int series, final int item) {
+    public FDate getXValueAsDateTimeEnd(final int series, final int item) {
         return masterDataset.getXValueAsDateTimeEnd(series, item);
     }
 
@@ -245,17 +246,17 @@ public class AnnotationPlottingDataset extends AbstractXYDataset implements IAnn
             //ignore obsolete annotation
             return true;
         }
-        final long firstLoadedKeyMillis = (long) getXValueAsDateTimeEnd(0, 0);
-        final long lastLoadedKeyMillis = (long) getXValueAsDateTimeEnd(0, getItemCount(0) - 1);
+        final FDate firstLoadedKey = getXValueAsDateTimeEnd(0, 0);
+        final FDate lastLoadedKey = getXValueAsDateTimeEnd(0, getItemCount(0) - 1);
         final boolean trailingLoaded = masterDataset.isTrailingLoaded();
-        annotation.updateItemLoaded(firstLoadedKeyMillis, lastLoadedKeyMillis, trailingLoaded, this);
-        final AnnotationItem item = new AnnotationItem(annotation.getEndTime().millisValue(),
-                annotation.getAnnotationId(), annotation);
+        annotation.updateItemLoaded(firstLoadedKey, lastLoadedKey, trailingLoaded, this);
+        final AnnotationItem item = new AnnotationItem(annotation.getEndTime(), annotation.getAnnotationId(),
+                annotation);
         itemsLock.lock();
         try {
             final AnnotationItem existing = annotationId_item.get(annotation.getAnnotationId());
             if (existing != null) {
-                if (existing.endTimeMillis == item.endTimeMillis) {
+                if (existing.endTime.equalsNotNullSafe(item.endTime)) {
                     existing.setAnnotation(annotation);
                 } else {
                     items.remove(existing);
@@ -322,11 +323,11 @@ public class AnnotationPlottingDataset extends AbstractXYDataset implements IAnn
      */
     @Override
     public ICloseableIterable<AAnnotationPlottingDataItem> getVisibleItems(final int firstItem, final int lastItem) {
-        final long fromMillis = (long) masterDataset.getXValueAsDateTimeStart(0, firstItem);
+        final FDate from = masterDataset.getXValueAsDateTimeStart(0, firstItem);
         reusableTailList.clear();
         itemsLock.lock();
         try {
-            reusableTailList.addAll(items.tailSet(new AnnotationItem(fromMillis, "", null)));
+            reusableTailList.addAll(items.tailSet(new AnnotationItem(from, "", null)));
         } finally {
             itemsLock.unlock();
         }
@@ -474,44 +475,42 @@ public class AnnotationPlottingDataset extends AbstractXYDataset implements IAnn
 
     private void updateItemsLoaded(final boolean forced, final TimeRange visibleTimeRange) {
         //we need to search for start time, otherwise entries will be plotted one bar too early
-        final long firstLoadedKeyMillis;
+        final FDate firstLoadedKey;
         if (visibleTimeRange != null && visibleTimeRange.getFrom() != null) {
-            firstLoadedKeyMillis = visibleTimeRange.getFrom().millisValue();
+            firstLoadedKey = visibleTimeRange.getFrom();
         } else {
-            firstLoadedKeyMillis = (long) getXValueAsDateTimeEnd(0, 0);
+            firstLoadedKey = getXValueAsDateTimeEnd(0, 0);
         }
-        final long lastLoadedKeyMillis = (long) getXValueAsDateTimeEnd(0, getItemCount(0) - 1);
-        if (forced || prevFirstLoadedKeyMillis != firstLoadedKeyMillis
-                || prevLastLoadedKeyMillis != lastLoadedKeyMillis) {
+        final FDate lastLoadedKey = getXValueAsDateTimeEnd(0, getItemCount(0) - 1);
+        if (forced || !prevFirstLoadedKey.equalsNotNullSafe(firstLoadedKey) || !prevLastLoadedKey.equalsNotNullSafe(lastLoadedKey)) {
             final boolean trailingLoaded = masterDataset.isTrailingLoaded();
             itemsLock.lock();
             try {
-                final SortedSet<AnnotationItem> tail = items
-                        .tailSet(new AnnotationItem(firstLoadedKeyMillis, "", null));
+                final SortedSet<AnnotationItem> tail = items.tailSet(new AnnotationItem(firstLoadedKey, "", null));
                 for (final AnnotationItem item : tail) {
                     item.getAnnotation()
-                            .updateItemLoaded(firstLoadedKeyMillis, lastLoadedKeyMillis, trailingLoaded,
+                            .updateItemLoaded(firstLoadedKey, lastLoadedKey, trailingLoaded,
                                     AnnotationPlottingDataset.this);
                 }
             } finally {
                 itemsLock.unlock();
             }
-            prevFirstLoadedKeyMillis = firstLoadedKeyMillis;
-            prevLastLoadedKeyMillis = lastLoadedKeyMillis;
+            prevFirstLoadedKey = firstLoadedKey;
+            prevLastLoadedKey = lastLoadedKey;
         }
     }
 
     private static final class AnnotationItem implements Comparable<AnnotationItem> {
         private final String annotationId;
-        private final long endTimeMillis;
+        private final FDate endTime;
         private final int hashCode;
         private AAnnotationPlottingDataItem annotation;
 
-        private AnnotationItem(final long endTimeMillis, final String annotationId,
+        private AnnotationItem(final FDate endTime, final String annotationId,
                 final AAnnotationPlottingDataItem annotation) {
             this.annotationId = annotationId;
-            this.endTimeMillis = endTimeMillis;
-            this.hashCode = Objects.hashCode(endTimeMillis, annotationId);
+            this.endTime = endTime;
+            this.hashCode = Objects.hashCode(endTime, annotationId);
             this.annotation = annotation;
         }
 
@@ -536,14 +535,14 @@ public class AnnotationPlottingDataset extends AbstractXYDataset implements IAnn
         public boolean equals(final Object obj) {
             if (obj instanceof AnnotationItem) {
                 final AnnotationItem cObj = (AnnotationItem) obj;
-                return endTimeMillis == cObj.endTimeMillis && annotationId.equals(cObj.annotationId);
+                return endTime.equalsNotNullSafe(cObj.endTime) && annotationId.equals(cObj.annotationId);
             }
             return false;
         }
 
         @Override
         public int compareTo(final AnnotationItem o) {
-            final int compared = Long.compare(endTimeMillis, o.endTimeMillis);
+            final int compared = FDates.compare(endTime, o.endTime);
             if (compared != 0) {
                 return compared;
             }

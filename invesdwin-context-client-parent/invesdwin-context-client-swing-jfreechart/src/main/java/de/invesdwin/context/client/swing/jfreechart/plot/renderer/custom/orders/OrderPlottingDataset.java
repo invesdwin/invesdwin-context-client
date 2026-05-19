@@ -73,8 +73,8 @@ public class OrderPlottingDataset extends AbstractXYDataset
     private final ISlaveLazyDatasetListener slaveDatasetListener;
     private final WrappedExecutorService executor;
 
-    private long prevFirstLoadedKeyMillis;
-    private long prevLastLoadedKeyMillis;
+    private FDate prevFirstLoadedKey;
+    private FDate prevLastLoadedKey;
 
     public OrderPlottingDataset(final String seriesKey, final IndexedDateTimeOHLCDataset masterDataset) {
         Assertions.checkNotNull(seriesKey);
@@ -219,12 +219,12 @@ public class OrderPlottingDataset extends AbstractXYDataset
     }
 
     @Override
-    public double getXValueAsDateTimeStart(final int series, final int item) {
+    public FDate getXValueAsDateTimeStart(final int series, final int item) {
         return masterDataset.getXValueAsDateTimeStart(series, item);
     }
 
     @Override
-    public double getXValueAsDateTimeEnd(final int series, final int item) {
+    public FDate getXValueAsDateTimeEnd(final int series, final int item) {
         return masterDataset.getXValueAsDateTimeEnd(series, item);
     }
 
@@ -240,20 +240,20 @@ public class OrderPlottingDataset extends AbstractXYDataset
 
     public void addOrUpdate(final OrderPlottingDataItem order) {
         //we need to search for start time, otherwise entries will be plotted one bar too early
-        final long firstLoadedKeyMillis = (long) getXValueAsDateTimeStart(0, 0);
-        final long lastLoadedKeyMillis = (long) getXValueAsDateTimeStart(0, getItemCount(0) - 1);
+        final FDate firstLoadedKeyMillis = getXValueAsDateTimeStart(0, 0);
+        final FDate lastLoadedKeyMillis = getXValueAsDateTimeStart(0, getItemCount(0) - 1);
         final boolean trailingLoaded = masterDataset.isTrailingLoaded();
         order.updateItemLoaded(firstLoadedKeyMillis, lastLoadedKeyMillis, trailingLoaded, this);
         FDate closeTime = order.getCloseTime();
         if (closeTime == null) {
             closeTime = FDates.MAX_DATE;
         }
-        final OrderItem item = new OrderItem(closeTime.millisValue(), order.getOrderId(), order);
+        final OrderItem item = new OrderItem(closeTime, order.getOrderId(), order);
         itemsLock.lock();
         try {
             final OrderItem existing = orderId_item.get(order.getOrderId());
             if (existing != null) {
-                if (existing.endTimeMillis == item.endTimeMillis) {
+                if (existing.endTime.equalsNotNullSafe(item.endTime)) {
                     existing.setOrder(order);
                 } else {
                     items.remove(existing);
@@ -310,11 +310,11 @@ public class OrderPlottingDataset extends AbstractXYDataset
 
     @GuardedBy("itemsLock")
     public ICloseableIterable<OrderPlottingDataItem> getVisibleItems(final int firstItem, final int lastItem) {
-        final long fromMillis = (long) masterDataset.getXValueAsDateTimeStart(0, firstItem);
+        final FDate from = masterDataset.getXValueAsDateTimeStart(0, firstItem);
         final List<OrderItem> tail;
         itemsLock.lock();
         try {
-            tail = new ArrayList<>(items.tailSet(new OrderItem(fromMillis, "", null)));
+            tail = new ArrayList<>(items.tailSet(new OrderItem(from, "", null)));
         } finally {
             itemsLock.unlock();
         }
@@ -466,42 +466,41 @@ public class OrderPlottingDataset extends AbstractXYDataset
 
     private void updateItemsLoaded(final boolean forced, final TimeRange visibleTimeRange) {
         //we need to search for start time, otherwise entries will be plotted one bar too early
-        final long firstLoadedKeyMillis;
+        final FDate firstLoadedKey;
         if (visibleTimeRange != null && visibleTimeRange.getFrom() != null) {
-            firstLoadedKeyMillis = visibleTimeRange.getFrom().millisValue();
+            firstLoadedKey = visibleTimeRange.getFrom();
         } else {
-            firstLoadedKeyMillis = (long) getXValueAsDateTimeStart(0, 0);
+            firstLoadedKey = getXValueAsDateTimeStart(0, 0);
         }
-        final long lastLoadedKeyMillis = (long) getXValueAsDateTimeStart(0, getItemCount(0) - 1);
-        if (forced || prevFirstLoadedKeyMillis != firstLoadedKeyMillis
-                || prevLastLoadedKeyMillis != lastLoadedKeyMillis) {
+        final FDate lastLoadedKeyMillis = getXValueAsDateTimeStart(0, getItemCount(0) - 1);
+        if (forced || !prevFirstLoadedKey.equalsNotNullSafe(firstLoadedKey) || !prevLastLoadedKey.equalsNotNullSafe(lastLoadedKeyMillis)) {
             final boolean trailingLoaded = masterDataset.isTrailingLoaded();
             itemsLock.lock();
             try {
-                final SortedSet<OrderItem> tail = items.tailSet(new OrderItem(firstLoadedKeyMillis, "", null));
+                final SortedSet<OrderItem> tail = items.tailSet(new OrderItem(firstLoadedKey, "", null));
                 for (final OrderItem item : tail) {
                     item.getOrder()
-                            .updateItemLoaded(firstLoadedKeyMillis, lastLoadedKeyMillis, trailingLoaded,
+                            .updateItemLoaded(firstLoadedKey, lastLoadedKeyMillis, trailingLoaded,
                                     OrderPlottingDataset.this);
                 }
             } finally {
                 itemsLock.unlock();
             }
-            prevFirstLoadedKeyMillis = firstLoadedKeyMillis;
-            prevLastLoadedKeyMillis = lastLoadedKeyMillis;
+            prevFirstLoadedKey = firstLoadedKey;
+            prevLastLoadedKey = lastLoadedKeyMillis;
         }
     }
 
     private static final class OrderItem implements Comparable<OrderItem> {
         private final String orderId;
-        private final long endTimeMillis;
+        private final FDate endTime;
         private final int hashCode;
         private OrderPlottingDataItem order;
 
-        private OrderItem(final long endTimeMillis, final String orderId, final OrderPlottingDataItem order) {
+        private OrderItem(final FDate endTime, final String orderId, final OrderPlottingDataItem order) {
             this.orderId = orderId;
-            this.endTimeMillis = endTimeMillis;
-            this.hashCode = Objects.hashCode(endTimeMillis, orderId);
+            this.endTime = endTime;
+            this.hashCode = Objects.hashCode(endTime, orderId);
             this.order = order;
         }
 
@@ -526,14 +525,14 @@ public class OrderPlottingDataset extends AbstractXYDataset
         public boolean equals(final Object obj) {
             if (obj instanceof OrderItem) {
                 final OrderItem cObj = (OrderItem) obj;
-                return endTimeMillis == cObj.endTimeMillis && orderId.equals(cObj.orderId);
+                return endTime.equalsNotNullSafe(cObj.endTime) && orderId.equals(cObj.orderId);
             }
             return false;
         }
 
         @Override
         public int compareTo(final OrderItem o) {
-            final int compared = Long.compare(endTimeMillis, o.endTimeMillis);
+            final int compared = FDates.compare(endTime, o.endTime);
             if (compared != 0) {
                 return compared;
             }

@@ -226,11 +226,11 @@ public class CandlestickDemo extends JFrame {
                         new TimeRangedOHLCDataItem(ohlcItem.getStartTime(), ohlcItem.getEndTime(), Double.NaN,
                                 Double.NaN, Double.NaN, value, Double.NaN));
                 final int index = list.size();
-                final double xValueAsDateTime = chartPanel.getMasterDataset().getXValueAsDateTimeEnd(0, index);
-                if (xValueAsDateTime != item.getXValue()) {
-                    throw new IllegalStateException(
-                            "Async at index [" + index + "]: ohlc[" + new FDate((long) xValueAsDateTime)
-                                    + "] != series[" + new FDate((long) item.getXValue()) + "]");
+                final FDate xValueAsDateTime = chartPanel.getMasterDataset().getXValueAsDateTimeEnd(0, index);
+                final Number itemXValue = item.getX();
+                if (!xValueAsDateTime.equalsNotNullSafe(itemXValue)) {
+                    throw new IllegalStateException("Async at index [" + index + "]: ohlc[" + xValueAsDateTime
+                            + "] != series[" + item.getXValue() + "]");
                 }
                 list.add(item);
                 series.updateBoundsForAddedItem(item);
@@ -361,11 +361,11 @@ public class CandlestickDemo extends JFrame {
                         new TimeRangedOHLCDataItem(ohlcItem.getStartTime(), ohlcItem.getEndTime(), Double.NaN,
                                 Double.NaN, Double.NaN, value, Double.NaN));
                 final int index = list.size();
-                final double xValueAsDateTime = chartPanel.getMasterDataset().getXValueAsDateTimeEnd(0, index);
-                if (xValueAsDateTime != item.getXValue()) {
-                    throw new IllegalStateException(
-                            "Async at index [" + index + "]: ohlc[" + new FDate((long) xValueAsDateTime)
-                                    + "] != series[" + new FDate((long) item.getXValue()) + "]");
+                final FDate xValueAsDateTime = chartPanel.getMasterDataset().getXValueAsDateTimeEnd(0, index);
+                final Number itemXValue = item.getX();
+                if (!xValueAsDateTime.equalsNotNullSafe(itemXValue)) {
+                    throw new IllegalStateException("Async at index [" + index + "]: ohlc[" + xValueAsDateTime
+                            + "] != series[" + itemXValue + "]");
                 }
                 list.add(item);
                 series.updateBoundsForAddedItem(item);

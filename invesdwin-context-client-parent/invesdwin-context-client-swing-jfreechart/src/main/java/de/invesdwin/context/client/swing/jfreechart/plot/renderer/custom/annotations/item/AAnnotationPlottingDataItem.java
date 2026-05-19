@@ -20,7 +20,7 @@ public abstract class AAnnotationPlottingDataItem {
 
     public abstract boolean isItemLoaded();
 
-    public abstract void updateItemLoaded(long firstLoadedKeyMillis, long lastLoadedKeyMillis, boolean trailingLoaded,
+    public abstract void updateItemLoaded(FDate firstLoadedKey, FDate lastLoadedKey, boolean trailingLoaded,
             AnnotationPlottingDataset dataset);
 
     public abstract void modifyItemLoadedIndexes(int fromIndex, int addend);
