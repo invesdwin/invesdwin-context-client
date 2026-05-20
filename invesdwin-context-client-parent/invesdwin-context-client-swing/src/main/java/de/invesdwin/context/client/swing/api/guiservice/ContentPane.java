@@ -364,7 +364,7 @@ public class ContentPane {
     }
 
     public FDate getLastMouseClickTime() {
-        return contentPaneView.getLastMouseClickTime();
+        return contentPaneView.getLastMouseClickTimeMillis();
     }
 
     public Instant getLastMouseClickInstant() {

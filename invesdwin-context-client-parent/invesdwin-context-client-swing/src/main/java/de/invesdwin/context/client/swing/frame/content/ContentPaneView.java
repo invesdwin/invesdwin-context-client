@@ -48,7 +48,7 @@ public class ContentPaneView extends AView<ContentPaneView, JPanel> {
     private CControl control;
     private CWorkingArea workingArea;
     private CContentArea contentArea;
-    private long lastMouseClickTime = FDates.MIN_DATE.millisValue();
+    private long lastMouseClickTimeMillis = FDates.MIN_DATE.millisValue();
     @SuppressWarnings("deprecation")
     private long lastMouseClickInstant = Instant.DUMMY.nanosValue();
 
@@ -132,7 +132,7 @@ public class ContentPaneView extends AView<ContentPaneView, JPanel> {
         control.getController().getGlobalMouseDispatcher().addMouseListener(new MouseListenerSupport() {
             @Override
             public void mouseReleased(final MouseEvent e) {
-                lastMouseClickTime = System.currentTimeMillis();
+                lastMouseClickTimeMillis = System.currentTimeMillis();
                 lastMouseClickInstant = System.nanoTime();
             }
         });
@@ -241,8 +241,8 @@ public class ContentPaneView extends AView<ContentPaneView, JPanel> {
         return workingArea;
     }
 
-    public FDate getLastMouseClickTime() {
-        return new FDate(lastMouseClickTime);
+    public FDate getLastMouseClickTimeMillis() {
+        return new FDate(lastMouseClickTimeMillis);
     }
 
     public Instant getLastMouseClickInstant() {
