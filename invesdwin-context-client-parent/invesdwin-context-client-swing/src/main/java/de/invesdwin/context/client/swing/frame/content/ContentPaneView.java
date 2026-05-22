@@ -37,6 +37,8 @@ import de.invesdwin.util.swing.listener.MouseListenerSupport;
 import de.invesdwin.util.time.Instant;
 import de.invesdwin.util.time.date.FDate;
 import de.invesdwin.util.time.date.FDates;
+import de.invesdwin.util.time.date.millis.FDateMillis;
+import de.invesdwin.util.time.date.millis.FDateNanos;
 import jakarta.inject.Inject;
 
 @NotThreadSafe
@@ -132,8 +134,8 @@ public class ContentPaneView extends AView<ContentPaneView, JPanel> {
         control.getController().getGlobalMouseDispatcher().addMouseListener(new MouseListenerSupport() {
             @Override
             public void mouseReleased(final MouseEvent e) {
-                lastMouseClickTimeMillis = System.currentTimeMillis();
-                lastMouseClickInstant = System.nanoTime();
+                lastMouseClickTimeMillis = FDateMillis.nowMillis();
+                lastMouseClickInstant = FDateNanos.elapsedNanos();
             }
         });
 
