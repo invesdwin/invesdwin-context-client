@@ -119,7 +119,7 @@ public class BookmarkMenuItem extends JMenu {
     }
 
     public void updateLastUsed() {
-        plotConfigurationHelper.getBookmarkStorage().putValue(new Bookmark(bookmark, new FDate()));
+        plotConfigurationHelper.getBookmarkStorage().putValue(new Bookmark(bookmark, FDate.now()));
     }
 
     public void remove() {

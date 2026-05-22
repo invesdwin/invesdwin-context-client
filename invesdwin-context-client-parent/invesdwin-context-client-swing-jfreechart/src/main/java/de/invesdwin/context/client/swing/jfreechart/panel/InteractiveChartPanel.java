@@ -608,10 +608,10 @@ public class InteractiveChartPanel extends JPanel {
                 if (new Duration(lastVerticalScroll).isGreaterThan(SCROLL_LOCK_DURATION)) {
                     if (e.getButton() == 4) {
                         plotPanHelper.panLeft();
-                        lastHorizontalScroll = new FDate();
+                        lastHorizontalScroll = FDate.now();
                     } else if (e.getButton() == 5) {
                         plotPanHelper.panRight();
-                        lastHorizontalScroll = new FDate();
+                        lastHorizontalScroll = FDate.now();
                     }
                 }
             } catch (final Throwable t) {
@@ -741,7 +741,7 @@ public class InteractiveChartPanel extends JPanel {
                     } else {
                         plotZoomHelper.mouseWheelMoved(e);
                     }
-                    lastVerticalScroll = new FDate();
+                    lastVerticalScroll = FDate.now();
                 }
                 chartPanel.requestFocusInWindow();
             } catch (final Throwable t) {

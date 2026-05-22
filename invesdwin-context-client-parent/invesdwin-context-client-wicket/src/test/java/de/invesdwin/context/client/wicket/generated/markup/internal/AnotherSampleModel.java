@@ -33,8 +33,8 @@ public class AnotherSampleModel extends AValueObject {
 
     private final List<SampleModel> rows;
     private SampleModel someTableArray;
-    private Date someDate = new FDate().dateValue();
-    private Calendar someCalendar = new FDate().calendarValue();
+    private Date someDate = FDate.now().dateValue();
+    private Calendar someCalendar = FDate.now().calendarValue();
     private boolean somePrimitiveBoolean;
     private Boolean someBoolean;
 
@@ -223,8 +223,8 @@ public class AnotherSampleModel extends AValueObject {
         this.someProperty = "asdf";
         this.someComboBoxArray = "haha";
         this.someTableArray = null;
-        this.someDate = new FDate().dateValue();
-        this.someCalendar = new FDate().calendarValue();
+        this.someDate = FDate.now().dateValue();
+        this.someCalendar = FDate.now().calendarValue();
         this.somePrimitiveBoolean = false;
         this.someBoolean = null;
     }
