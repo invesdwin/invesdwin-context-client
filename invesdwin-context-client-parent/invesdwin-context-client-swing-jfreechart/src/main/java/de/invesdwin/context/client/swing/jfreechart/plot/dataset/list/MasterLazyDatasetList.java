@@ -251,7 +251,7 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
         }
         //append a few more so that trailing is not detected wrong
         final ICloseableIterable<? extends TimeRangedOHLCDataItem> nextValues = provider
-                .getNextValues(to.addMilliseconds(1), RELOAD_TRAILING_ITEM_COUNT);
+                .getNextValues(to.addPicoseconds(1), RELOAD_TRAILING_ITEM_COUNT);
         try (ICloseableIterator<? extends TimeRangedOHLCDataItem> it = nextValues.iterator()) {
             while (true) {
                 final TimeRangedOHLCDataItem next = it.next();
@@ -407,7 +407,7 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
 
                 final int insertedIndex = 0;
                 final ICloseableIterable<? extends TimeRangedOHLCDataItem> masterPrependValues = provider
-                        .getPreviousValues(firstLoadedItem.getEndTime().addMilliseconds(-1), prependCount);
+                        .getPreviousValues(firstLoadedItem.getEndTime().addPicoseconds(-1), prependCount);
                 final boolean added = false;
                 final int replacedCount = 0;
                 loadItems(data, insertedIndex, prependItems, masterPrependValues, added, replacedCount, prependCount);

@@ -21,6 +21,9 @@ public class IndexedDateTimeNumberFormat extends NumberFormat {
     private static final String DATE_TIME_SEPARATOR = " ";
     private static final String DATE_FORMAT = "yyyy-MM-dd";
     private static final int THRESHOLD_MULTIPLIER = 10;
+    private static final Duration PICOSECOND_THRESHOLD = Duration.ONE_NANOSECOND.multiply(THRESHOLD_MULTIPLIER);
+    private static final Duration NANOSECOND_THRESHOLD = Duration.ONE_MICROSECOND.multiply(THRESHOLD_MULTIPLIER);
+    private static final Duration MICROSECOND_THRESHOLD = Duration.ONE_MILLISECOND.multiply(THRESHOLD_MULTIPLIER);
     private static final Duration MILLISECOND_THRESHOLD = Duration.ONE_MINUTE.multiply(THRESHOLD_MULTIPLIER);
     private static final Duration SECOND_THRESHOLD = Duration.ONE_HOUR.multiply(THRESHOLD_MULTIPLIER);
     private static final Duration MINUTE_THRESHOLD = Duration.ONE_DAY.multiply(THRESHOLD_MULTIPLIER);
@@ -31,6 +34,12 @@ public class IndexedDateTimeNumberFormat extends NumberFormat {
             DATE_FORMAT + DATE_TIME_SEPARATOR + FDate.FORMAT_ISO_TIME, Locale.ENGLISH);
     private final DateFormat millisecondFormat = new java.text.SimpleDateFormat(
             DATE_FORMAT + DATE_TIME_SEPARATOR + FDate.FORMAT_ISO_TIME_MS, Locale.ENGLISH);
+    private final DateFormat microsecondFormat = new java.text.SimpleDateFormat(
+            DATE_FORMAT + DATE_TIME_SEPARATOR + FDate.FORMAT_ISO_TIME_US, Locale.ENGLISH);
+    private final DateFormat nanosecondFormat = new java.text.SimpleDateFormat(
+            DATE_FORMAT + DATE_TIME_SEPARATOR + FDate.FORMAT_ISO_TIME_NS, Locale.ENGLISH);
+    private final DateFormat picosecondFormat = new java.text.SimpleDateFormat(
+            DATE_FORMAT + DATE_TIME_SEPARATOR + FDate.FORMAT_ISO_TIME_PS, Locale.ENGLISH);
     private final IIndexedDateTimeXYDataset dataset;
     private final NumberAxis domainAxis;
 
@@ -90,7 +99,13 @@ public class IndexedDateTimeNumberFormat extends NumberFormat {
         if (lastItem) {
             format = getFallbackTimeFormat(time);
         } else {
-            if (duration.isLessThan(MILLISECOND_THRESHOLD) && FDates.isSameSecond(time, prevTime)) {
+            if (duration.isLessThan(PICOSECOND_THRESHOLD) && FDates.isSameNanosecond(time, prevTime)) {
+                format = picosecondFormat;
+            } else if (duration.isLessThan(NANOSECOND_THRESHOLD) && FDates.isSameMicrosecond(time, prevTime)) {
+                format = nanosecondFormat;
+            } else if (duration.isLessThan(MICROSECOND_THRESHOLD) && FDates.isSameMillisecond(time, prevTime)) {
+                format = microsecondFormat;
+            } else if (duration.isLessThan(MILLISECOND_THRESHOLD) && FDates.isSameSecond(time, prevTime)) {
                 format = millisecondFormat;
             } else if (duration.isLessThan(SECOND_THRESHOLD) && FDates.isSameMinute(time, prevTime)) {
                 format = secondFormat;
@@ -106,7 +121,13 @@ public class IndexedDateTimeNumberFormat extends NumberFormat {
     }
 
     private DateFormat getFallbackTimeFormat(final FDate date) {
-        if (date.getMillisecond() != 0) {
+        if (date.getPicosecond() != 0) {
+            return picosecondFormat;
+        } else if (date.getNanosecond() != 0) {
+            return nanosecondFormat;
+        } else if (date.getMicrosecond() != 0) {
+            return microsecondFormat;
+        } else if (date.getMillisecond() != 0) {
             return millisecondFormat;
         } else if (date.getSecond() != 0) {
             return secondFormat;
