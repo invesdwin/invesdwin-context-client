@@ -388,7 +388,8 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
         if (preloadLowerBound < 0) {
             final TimeRangedOHLCDataItem firstLoadedItem = getFirstLoadedItem();
             final FDate firstAvailableBarEndTime = getFirstAvailableBarEndTime();
-            if (firstAvailableBarEndTime != null && firstAvailableBarEndTime.isBefore(firstLoadedItem.getEndTime())) {
+            if (firstAvailableBarEndTime != null
+                    && firstAvailableBarEndTime.isBeforeNotNullSafe(firstLoadedItem.getEndTime())) {
                 //prepend a whole screen additional to the requested items
                 final int prependCount = Integers.min(MAX_STEP_ITEM_COUNT,
                         Integers.abs(preloadLowerBound) * STEP_ITEM_COUNT_MULTIPLIER);
@@ -419,7 +420,7 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
             if (preloadUpperBound > data.size()) {
                 final TimeRangedOHLCDataItem lastLoadedItem = getLastLoadedItem();
                 final FDate lastAvailableKeyTo = provider.getLastAvailableTickTime();
-                if (lastAvailableKeyTo != null && lastAvailableKeyTo.isAfter(lastLoadedItem.getEndTime())
+                if (lastAvailableKeyTo != null && lastAvailableKeyTo.isAfterNotNullSafe(lastLoadedItem.getEndTime())
                         && !Objects.equals(prevLastAvailableKeyTo, lastAvailableKeyTo)) {
                     /*
                      * don't check again if the same last available to is used, otherwise an endless loop might occur
