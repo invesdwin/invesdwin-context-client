@@ -10,6 +10,7 @@ import javax.annotation.concurrent.ThreadSafe;
 
 import de.invesdwin.util.assertions.Assertions;
 import de.invesdwin.util.time.date.FTimeUnit;
+import de.invesdwin.util.time.date.millis.FDateNanos;
 import de.invesdwin.util.time.duration.Duration;
 
 /**
@@ -100,7 +101,7 @@ public final class TimeoutEventQueue extends EventQueue {
      */
     @Override
     protected void dispatchEvent(final AWTEvent anEvent) {
-        setEventDispatchingStart(anEvent, System.nanoTime(), Thread.currentThread());
+        setEventDispatchingStart(anEvent, FDateNanos.elapsedNanos(), Thread.currentThread());
         super.dispatchEvent(anEvent);
         setEventDispatchingStart(null, -1, null);
     }
@@ -179,7 +180,7 @@ public final class TimeoutEventQueue extends EventQueue {
                 edt = eventDispatchThread;
             }
 
-            final long currentTime = System.nanoTime();
+            final long currentTime = FDateNanos.elapsedNanos();
 
             // Check if event is being processed longer than allowed
             if (time != -1 && (currentTime - time > maxProcessingTimeNanos)

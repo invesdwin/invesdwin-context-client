@@ -58,23 +58,23 @@ public class IndexedDateTimeOHLCDataset extends ListOHLCDataset
     }
 
     @Override
-    public double getXValueAsDateTimeStart(final int series, final int item) {
+    public FDate getXValueAsDateTimeStart(final int series, final int item) {
         final int itemCount = getItemCount(series);
         if (itemCount == 0) {
-            return Double.NaN;
+            return null;
         }
         final int usedItem = Integers.between(item, 0, itemCount - 1);
-        return getData().get(usedItem).getStartTime().millisValue();
+        return getData().get(usedItem).getStartTime();
     }
 
     @Override
-    public double getXValueAsDateTimeEnd(final int series, final int item) {
+    public FDate getXValueAsDateTimeEnd(final int series, final int item) {
         final int itemCount = getItemCount(series);
         if (itemCount == 0) {
-            return Double.NaN;
+            return null;
         }
         final int usedItem = Integers.between(item, 0, itemCount - 1);
-        return getData().get(usedItem).getEndTime().millisValue();
+        return getData().get(usedItem).getEndTime();
     }
 
     public boolean isTrailingLoaded() {

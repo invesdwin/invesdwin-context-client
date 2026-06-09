@@ -17,17 +17,16 @@ public final class DummyAnnotationPlottingDataset extends DummyXYDataset impleme
     private static final WrappedExecutorService DISABLED_EXECUTOR = Executors
             .newDisabledExecutor(DummyAnnotationPlottingDataset.class.getSimpleName());
 
-    private DummyAnnotationPlottingDataset() {
+    private DummyAnnotationPlottingDataset() {}
+
+    @Override
+    public FDate getXValueAsDateTimeStart(final int series, final int item) {
+        return null;
     }
 
     @Override
-    public double getXValueAsDateTimeStart(final int series, final int item) {
-        return Double.NaN;
-    }
-
-    @Override
-    public double getXValueAsDateTimeEnd(final int series, final int item) {
-        return Double.NaN;
+    public FDate getXValueAsDateTimeEnd(final int series, final int item) {
+        return null;
     }
 
     @Override
@@ -56,8 +55,7 @@ public final class DummyAnnotationPlottingDataset extends DummyXYDataset impleme
     }
 
     @Override
-    public void remove(final String annotationId) {
-    }
+    public void remove(final String annotationId) {}
 
     @Override
     public ICloseableIterable<AAnnotationPlottingDataItem> getVisibleItems(final int firstItem, final int lastItem) {

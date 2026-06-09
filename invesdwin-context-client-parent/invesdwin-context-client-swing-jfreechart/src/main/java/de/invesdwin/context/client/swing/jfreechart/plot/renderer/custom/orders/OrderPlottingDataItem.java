@@ -132,10 +132,10 @@ public class OrderPlottingDataItem {
         return itemLoaded;
     }
 
-    public void updateItemLoaded(final long firstLoadedKeyMillis, final long lastLoadedKeyMillis,
-            final boolean trailingLoaded, final OrderPlottingDataset dataset) {
-        if (!trailingLoaded && getOpenTime().millisValue() > lastLoadedKeyMillis
-                || getCloseTime() != null && getCloseTime().millisValue() < firstLoadedKeyMillis) {
+    public void updateItemLoaded(final FDate firstLoadedKey, final FDate lastLoadedKey, final boolean trailingLoaded,
+            final OrderPlottingDataset dataset) {
+        if (!trailingLoaded && getOpenTime().isAfterNotNullSafe(lastLoadedKey)
+                || getCloseTime() != null && getCloseTime().isBeforeNotNullSafe(firstLoadedKey)) {
             if (itemLoaded) {
                 itemLoaded = false;
                 openTimeLoadedIndex = Integer.MIN_VALUE;
@@ -148,8 +148,8 @@ public class OrderPlottingDataItem {
                 final int endIndexFromEndTime = dataset.getDateTimeEndAsItemIndex(0, closeTime);
                 //close happend either inside this bar or right at the end of it?
                 this.closeTimeLoadedIndex = endIndexFromEndTime;
-                final long endTimeMillis = (long) dataset.getXValueAsDateTimeEnd(0, endIndexFromEndTime);
-                checkCloseInsideNextBar(dataset, endIndexFromEndTime, endTimeMillis);
+                final FDate endTime = dataset.getXValueAsDateTimeEnd(0, endIndexFromEndTime);
+                checkCloseInsideNextBar(dataset, endIndexFromEndTime, endTime);
             } else {
                 final int lastIndex = dataset.getItemCount(0) - 1;
                 this.closeTimeLoadedIndex = lastIndex;
@@ -159,11 +159,11 @@ public class OrderPlottingDataItem {
     }
 
     private void checkCloseInsideNextBar(final OrderPlottingDataset dataset, final int endIndexFromEndTime,
-            final long endTimeMillis) {
+            final FDate endTime) {
         //end time is exclusive, start time is inclusive for time bars
 
         //close happened inside the next bar?
-        if (closeTime.millisValue() < endTimeMillis) {
+        if (closeTime.isBeforeNotNullSafe(endTime)) {
             return;
         }
 
@@ -172,11 +172,11 @@ public class OrderPlottingDataItem {
         if (nextBarIndex > lastIndex) {
             return;
         }
-        if (closeTime.millisValue() > endTimeMillis) {
+        if (closeTime.isAfterNotNullSafe(endTime)) {
             this.closeTimeLoadedIndex = nextBarIndex;
         } else {
-            final long nextStartTimeMillis = (long) dataset.getXValueAsDateTimeStart(0, nextBarIndex);
-            if (nextStartTimeMillis == endTimeMillis || closeTime.millisValue() >= nextStartTimeMillis) {
+            final FDate nextStartTime = dataset.getXValueAsDateTimeStart(0, nextBarIndex);
+            if (nextStartTime.equalsNotNullSafe(endTime) || closeTime.isAfterOrEqualToNotNullSafe(nextStartTime)) {
                 final double high = dataset.getHighValue(0, nextBarIndex);
                 final double low = dataset.getLowValue(0, nextBarIndex);
                 if (low <= closePrice && closePrice <= high) {

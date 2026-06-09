@@ -6,9 +6,9 @@ import de.invesdwin.util.time.date.FDate;
 
 public interface IIndexedDateTimeXYDataset extends XYDataset {
 
-    double getXValueAsDateTimeStart(int series, int item);
+    FDate getXValueAsDateTimeStart(int series, int item);
 
-    double getXValueAsDateTimeEnd(int series, int item);
+    FDate getXValueAsDateTimeEnd(int series, int item);
 
     int getDateTimeStartAsItemIndex(int series, FDate time);
 

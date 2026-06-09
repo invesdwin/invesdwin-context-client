@@ -246,7 +246,7 @@ public class PlotConfigurationHelper {
                     bookmarksRememberItem.addActionListener(new ActionListener() {
                         @Override
                         public void actionPerformed(final ActionEvent e) {
-                            bookmarkStorage.putValue(new Bookmark(visibleTimeRange, new FDate()));
+                            bookmarkStorage.putValue(new Bookmark(visibleTimeRange, FDate.now()));
                             chartPanel.setVisibleTimeRange(visibleTimeRange);
                         }
                     });
