@@ -1,6 +1,5 @@
 package de.invesdwin.context.client.swing.jfreechart.plot;
 
-import java.text.DateFormat;
 import java.text.FieldPosition;
 import java.text.NumberFormat;
 import java.text.ParsePosition;
@@ -14,6 +13,7 @@ import org.jfree.data.Range;
 import de.invesdwin.context.client.swing.jfreechart.plot.dataset.IIndexedDateTimeXYDataset;
 import de.invesdwin.util.time.date.FDate;
 import de.invesdwin.util.time.date.FDates;
+import de.invesdwin.util.time.date.format.FDateTimeFormatter;
 import de.invesdwin.util.time.duration.Duration;
 
 @NotThreadSafe
@@ -27,19 +27,25 @@ public class IndexedDateTimeNumberFormat extends NumberFormat {
     private static final Duration MILLISECOND_THRESHOLD = Duration.ONE_MINUTE.multiply(THRESHOLD_MULTIPLIER);
     private static final Duration SECOND_THRESHOLD = Duration.ONE_HOUR.multiply(THRESHOLD_MULTIPLIER);
     private static final Duration MINUTE_THRESHOLD = Duration.ONE_DAY.multiply(THRESHOLD_MULTIPLIER);
-    private final DateFormat dateFormat = new java.text.SimpleDateFormat(DATE_FORMAT, Locale.ENGLISH);
-    private final DateFormat minuteFormat = new java.text.SimpleDateFormat(DATE_FORMAT + DATE_TIME_SEPARATOR + "HH:mm",
-            Locale.ENGLISH);
-    private final DateFormat secondFormat = new java.text.SimpleDateFormat(
-            DATE_FORMAT + DATE_TIME_SEPARATOR + FDate.FORMAT_ISO_TIME, Locale.ENGLISH);
-    private final DateFormat millisecondFormat = new java.text.SimpleDateFormat(
-            DATE_FORMAT + DATE_TIME_SEPARATOR + FDate.FORMAT_ISO_TIME_MS, Locale.ENGLISH);
-    private final DateFormat microsecondFormat = new java.text.SimpleDateFormat(
-            DATE_FORMAT + DATE_TIME_SEPARATOR + FDate.FORMAT_ISO_TIME_US, Locale.ENGLISH);
-    private final DateFormat nanosecondFormat = new java.text.SimpleDateFormat(
-            DATE_FORMAT + DATE_TIME_SEPARATOR + FDate.FORMAT_ISO_TIME_NS, Locale.ENGLISH);
-    private final DateFormat picosecondFormat = new java.text.SimpleDateFormat(
-            DATE_FORMAT + DATE_TIME_SEPARATOR + FDate.FORMAT_ISO_TIME_PS, Locale.ENGLISH);
+    private final FDateTimeFormatter dateFormat = FDateTimeFormatter.forPattern(DATE_FORMAT).withLocale(Locale.ENGLISH);
+    private final FDateTimeFormatter minuteFormat = FDateTimeFormatter
+            .forPattern(DATE_FORMAT + DATE_TIME_SEPARATOR + "HH:mm")
+            .withLocale(Locale.ENGLISH);
+    private final FDateTimeFormatter secondFormat = FDateTimeFormatter
+            .forPattern(DATE_FORMAT + DATE_TIME_SEPARATOR + FDate.FORMAT_ISO_TIME)
+            .withLocale(Locale.ENGLISH);
+    private final FDateTimeFormatter millisecondFormat = FDateTimeFormatter
+            .forPattern(DATE_FORMAT + DATE_TIME_SEPARATOR + FDate.FORMAT_ISO_TIME_MS)
+            .withLocale(Locale.ENGLISH);
+    private final FDateTimeFormatter microsecondFormat = FDateTimeFormatter
+            .forPattern(DATE_FORMAT + DATE_TIME_SEPARATOR + FDate.FORMAT_ISO_TIME_US)
+            .withLocale(Locale.ENGLISH);
+    private final FDateTimeFormatter nanosecondFormat = FDateTimeFormatter
+            .forPattern(DATE_FORMAT + DATE_TIME_SEPARATOR + FDate.FORMAT_ISO_TIME_NS)
+            .withLocale(Locale.ENGLISH);
+    private final FDateTimeFormatter picosecondFormat = FDateTimeFormatter
+            .forPattern(DATE_FORMAT + DATE_TIME_SEPARATOR + FDate.FORMAT_ISO_TIME_PS)
+            .withLocale(Locale.ENGLISH);
     private final IIndexedDateTimeXYDataset dataset;
     private final NumberAxis domainAxis;
 
@@ -95,7 +101,7 @@ public class IndexedDateTimeNumberFormat extends NumberFormat {
         final FDate from = dataset.getXValueAsDateTimeStart(0, (int) range.getLowerBound());
         final FDate to = dataset.getXValueAsDateTimeStart(0, (int) range.getUpperBound());
         final Duration duration = new Duration(from, to);
-        final DateFormat format;
+        final FDateTimeFormatter format;
         if (lastItem) {
             format = getFallbackTimeFormat(time);
         } else {
@@ -117,10 +123,10 @@ public class IndexedDateTimeNumberFormat extends NumberFormat {
                 format = getFallbackTimeFormat(time);
             }
         }
-        return format.format(time.dateValue());
+        return format.print(time);
     }
 
-    private DateFormat getFallbackTimeFormat(final FDate date) {
+    private FDateTimeFormatter getFallbackTimeFormat(final FDate date) {
         if (date.getPicosecond() != 0) {
             return picosecondFormat;
         } else if (date.getNanosecond() != 0) {
