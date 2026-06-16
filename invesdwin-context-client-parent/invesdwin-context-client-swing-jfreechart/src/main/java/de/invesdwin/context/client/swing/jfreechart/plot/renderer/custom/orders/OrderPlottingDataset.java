@@ -73,8 +73,8 @@ public class OrderPlottingDataset extends AbstractXYDataset
     private final ISlaveLazyDatasetListener slaveDatasetListener;
     private final WrappedExecutorService executor;
 
-    private FDate prevFirstLoadedKey;
-    private FDate prevLastLoadedKey;
+    private FDate prevFirstLoadedKey = FDates.MIN_DATE;
+    private FDate prevLastLoadedKey = FDates.MIN_DATE;
 
     public OrderPlottingDataset(final String seriesKey, final IndexedDateTimeOHLCDataset masterDataset) {
         Assertions.checkNotNull(seriesKey);
@@ -473,7 +473,8 @@ public class OrderPlottingDataset extends AbstractXYDataset
             firstLoadedKey = getXValueAsDateTimeStart(0, 0);
         }
         final FDate lastLoadedKeyMillis = getXValueAsDateTimeStart(0, getItemCount(0) - 1);
-        if (forced || !prevFirstLoadedKey.equalsNotNullSafe(firstLoadedKey) || !prevLastLoadedKey.equalsNotNullSafe(lastLoadedKeyMillis)) {
+        if (forced || !prevFirstLoadedKey.equalsNotNullSafe(firstLoadedKey)
+                || !prevLastLoadedKey.equalsNotNullSafe(lastLoadedKeyMillis)) {
             final boolean trailingLoaded = masterDataset.isTrailingLoaded();
             itemsLock.lock();
             try {

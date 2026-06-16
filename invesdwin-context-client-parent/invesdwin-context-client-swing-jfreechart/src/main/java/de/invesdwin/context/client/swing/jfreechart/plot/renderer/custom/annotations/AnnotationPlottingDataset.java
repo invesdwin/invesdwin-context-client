@@ -72,8 +72,8 @@ public class AnnotationPlottingDataset extends AbstractXYDataset implements IAnn
     private final ISlaveLazyDatasetListener slaveDatasetListener;
     private final WrappedExecutorService executor;
 
-    private FDate prevFirstLoadedKey;
-    private FDate prevLastLoadedKey;
+    private FDate prevFirstLoadedKey = FDates.MIN_DATE;
+    private FDate prevLastLoadedKey = FDates.MIN_DATE;
     private final List<AnnotationItem> reusableTailList = new ArrayList<AnnotationItem>();
 
     public AnnotationPlottingDataset(final String seriesKey, final IndexedDateTimeOHLCDataset masterDataset) {
@@ -482,7 +482,8 @@ public class AnnotationPlottingDataset extends AbstractXYDataset implements IAnn
             firstLoadedKey = getXValueAsDateTimeEnd(0, 0);
         }
         final FDate lastLoadedKey = getXValueAsDateTimeEnd(0, getItemCount(0) - 1);
-        if (forced || !prevFirstLoadedKey.equalsNotNullSafe(firstLoadedKey) || !prevLastLoadedKey.equalsNotNullSafe(lastLoadedKey)) {
+        if (forced || !prevFirstLoadedKey.equalsNotNullSafe(firstLoadedKey)
+                || !prevLastLoadedKey.equalsNotNullSafe(lastLoadedKey)) {
             final boolean trailingLoaded = masterDataset.isTrailingLoaded();
             itemsLock.lock();
             try {
