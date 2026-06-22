@@ -472,6 +472,9 @@ public class OrderPlottingDataset extends AbstractXYDataset
         } else {
             firstLoadedKey = getXValueAsDateTimeStart(0, 0);
         }
+        if (firstLoadedKey == null) {
+            return;
+        }
         final FDate lastLoadedKeyMillis = getXValueAsDateTimeStart(0, getItemCount(0) - 1);
         if (forced || !prevFirstLoadedKey.equalsNotNullSafe(firstLoadedKey)
                 || !prevLastLoadedKey.equalsNotNullSafe(lastLoadedKeyMillis)) {

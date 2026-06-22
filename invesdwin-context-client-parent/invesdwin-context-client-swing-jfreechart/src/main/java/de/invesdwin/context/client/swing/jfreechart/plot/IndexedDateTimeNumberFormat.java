@@ -64,6 +64,9 @@ public class IndexedDateTimeNumberFormat extends NumberFormat {
 
     private String formatItem(final int item) {
         final FDate prevEndTime = dataset.getXValueAsDateTimeEnd(0, item - 1);
+        if (prevEndTime == null) {
+            return "";
+        }
         final FDate endTime = dataset.getXValueAsDateTimeEnd(0, item);
         final boolean lastItem = item == dataset.getItemCount(0) - 1;
         final String endTimeStr = formatTime(prevEndTime, endTime, lastItem);
@@ -81,6 +84,9 @@ public class IndexedDateTimeNumberFormat extends NumberFormat {
     public String formatFromTo(final int item) {
         final StringBuilder sb = new StringBuilder();
         final FDate prevStartTime = dataset.getXValueAsDateTimeStart(0, item - 1);
+        if (prevStartTime == null) {
+            return "";
+        }
         final FDate startTime = dataset.getXValueAsDateTimeStart(0, item);
         final boolean lastItem = item == dataset.getItemCount(0) - 1;
         final String startTimeStr = formatTime(prevStartTime, startTime, lastItem);

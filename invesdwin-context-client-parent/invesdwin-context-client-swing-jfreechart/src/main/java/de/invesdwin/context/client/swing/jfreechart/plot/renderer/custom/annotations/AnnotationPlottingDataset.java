@@ -481,6 +481,9 @@ public class AnnotationPlottingDataset extends AbstractXYDataset implements IAnn
         } else {
             firstLoadedKey = getXValueAsDateTimeEnd(0, 0);
         }
+        if (firstLoadedKey == null) {
+            return;
+        }
         final FDate lastLoadedKey = getXValueAsDateTimeEnd(0, getItemCount(0) - 1);
         if (forced || !prevFirstLoadedKey.equalsNotNullSafe(firstLoadedKey)
                 || !prevLastLoadedKey.equalsNotNullSafe(lastLoadedKey)) {
