@@ -78,10 +78,10 @@ public class LineAnnotationPlottingDataItem extends AAnnotationPlottingDataItem 
     }
 
     @Override
-    public void updateItemLoaded(final long firstLoadedKeyMillis, final long lastLoadedKeyMillis,
-            final boolean trailingLoaded, final AnnotationPlottingDataset dataset) {
-        if (!trailingLoaded && getStartTime().millisValue() > lastLoadedKeyMillis
-                || getEndTime() != null && getEndTime().millisValue() < firstLoadedKeyMillis) {
+    public void updateItemLoaded(final FDate firstLoadedKey, final FDate lastLoadedKey, final boolean trailingLoaded,
+            final AnnotationPlottingDataset dataset) {
+        if (!trailingLoaded && getStartTime().isAfterNotNullSafe(lastLoadedKey)
+                || getEndTime() != null && getEndTime().isBeforeNotNullSafe(firstLoadedKey)) {
             if (itemLoaded) {
                 itemLoaded = false;
                 startTimeLoadedIndex = Integer.MIN_VALUE;

@@ -251,7 +251,7 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
         }
         //append a few more so that trailing is not detected wrong
         final ICloseableIterable<? extends TimeRangedOHLCDataItem> nextValues = provider
-                .getNextValues(to.addMilliseconds(1), RELOAD_TRAILING_ITEM_COUNT);
+                .getNextValues(to.addPicoseconds(1), RELOAD_TRAILING_ITEM_COUNT);
         try (ICloseableIterator<? extends TimeRangedOHLCDataItem> it = nextValues.iterator()) {
             while (true) {
                 final TimeRangedOHLCDataItem next = it.next();
@@ -388,7 +388,8 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
         if (preloadLowerBound < 0) {
             final TimeRangedOHLCDataItem firstLoadedItem = getFirstLoadedItem();
             final FDate firstAvailableBarEndTime = getFirstAvailableBarEndTime();
-            if (firstAvailableBarEndTime != null && firstAvailableBarEndTime.isBefore(firstLoadedItem.getEndTime())) {
+            if (firstAvailableBarEndTime != null
+                    && firstAvailableBarEndTime.isBeforeNotNullSafe(firstLoadedItem.getEndTime())) {
                 //prepend a whole screen additional to the requested items
                 final int prependCount = Integers.min(MAX_STEP_ITEM_COUNT,
                         Integers.abs(preloadLowerBound) * STEP_ITEM_COUNT_MULTIPLIER);
@@ -407,7 +408,7 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
 
                 final int insertedIndex = 0;
                 final ICloseableIterable<? extends TimeRangedOHLCDataItem> masterPrependValues = provider
-                        .getPreviousValues(firstLoadedItem.getEndTime().addMilliseconds(-1), prependCount);
+                        .getPreviousValues(firstLoadedItem.getEndTime().addPicoseconds(-1), prependCount);
                 final boolean added = false;
                 final int replacedCount = 0;
                 loadItems(data, insertedIndex, prependItems, masterPrependValues, added, replacedCount, prependCount);
@@ -419,7 +420,7 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
             if (preloadUpperBound > data.size()) {
                 final TimeRangedOHLCDataItem lastLoadedItem = getLastLoadedItem();
                 final FDate lastAvailableKeyTo = provider.getLastAvailableTickTime();
-                if (lastAvailableKeyTo != null && lastAvailableKeyTo.isAfter(lastLoadedItem.getEndTime())
+                if (lastAvailableKeyTo != null && lastAvailableKeyTo.isAfterNotNullSafe(lastLoadedItem.getEndTime())
                         && !Objects.equals(prevLastAvailableKeyTo, lastAvailableKeyTo)) {
                     /*
                      * don't check again if the same last available to is used, otherwise an endless loop might occur
@@ -484,7 +485,7 @@ public class MasterLazyDatasetList extends ALazyDatasetList<MasterOHLCDataItem> 
             final List<MasterOHLCDataItem> items,
             final ICloseableIterable<? extends TimeRangedOHLCDataItem> masterValues, final boolean append,
             final int replacedCount, final int addedCount) {
-        final double priority = items.get(0).getEndTime().millisValue();
+        final double priority = items.get(0).getEndTime().doubleValue();
         executor.execute(new IPriorityRunnable() {
             @Override
             public void run() {

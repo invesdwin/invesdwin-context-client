@@ -24,8 +24,8 @@ public class SuffixModelSuffix extends AValueObject {
     private String one;
     private String two;
     private String three;
-    private Date someDate = new FDate().dateValue();
-    private Calendar someCalendar = new FDate().calendarValue();
+    private Date someDate = FDate.now().dateValue();
+    private Calendar someCalendar = FDate.now().calendarValue();
 
     public SuffixModelSuffix() {
         one = "single";
