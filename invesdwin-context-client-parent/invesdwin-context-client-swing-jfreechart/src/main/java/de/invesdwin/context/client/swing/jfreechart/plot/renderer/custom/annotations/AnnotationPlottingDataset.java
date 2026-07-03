@@ -247,9 +247,11 @@ public class AnnotationPlottingDataset extends AbstractXYDataset implements IAnn
             return true;
         }
         final FDate firstLoadedKey = getXValueAsDateTimeEnd(0, 0);
-        final FDate lastLoadedKey = getXValueAsDateTimeEnd(0, getItemCount(0) - 1);
-        final boolean trailingLoaded = masterDataset.isTrailingLoaded();
-        annotation.updateItemLoaded(firstLoadedKey, lastLoadedKey, trailingLoaded, this);
+        if (firstLoadedKey != null) {
+            final FDate lastLoadedKey = getXValueAsDateTimeEnd(0, getItemCount(0) - 1);
+            final boolean trailingLoaded = masterDataset.isTrailingLoaded();
+            annotation.updateItemLoaded(firstLoadedKey, lastLoadedKey, trailingLoaded, this);
+        }
         final AnnotationItem item = new AnnotationItem(annotation.getEndTime(), annotation.getAnnotationId(),
                 annotation);
         itemsLock.lock();
