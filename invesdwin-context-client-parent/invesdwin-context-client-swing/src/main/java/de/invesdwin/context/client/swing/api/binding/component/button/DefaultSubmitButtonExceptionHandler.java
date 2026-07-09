@@ -4,6 +4,8 @@ import java.awt.Component;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
+import org.apache.logging.log4j.Level;
+
 import de.invesdwin.context.client.swing.api.guiservice.GuiService;
 import de.invesdwin.context.client.swing.util.Views;
 import de.invesdwin.context.log.error.Err;
@@ -14,8 +16,8 @@ import de.invesdwin.util.swing.Dialogs;
 @NotThreadSafe
 public class DefaultSubmitButtonExceptionHandler implements ISubmitButtonExceptionHandler {
 
-    private static final org.slf4j.ext.XLogger LOG = org.slf4j.ext.XLoggerFactory
-            .getXLogger(DefaultSubmitButtonExceptionHandler.class);
+    private static final org.apache.logging.log4j.Logger LOG = org.apache.logging.log4j.LogManager
+            .getLogger(DefaultSubmitButtonExceptionHandler.class);
 
     @Override
     public void handleSubmitButtonException(final Component component, final Throwable t) {
@@ -59,8 +61,7 @@ public class DefaultSubmitButtonExceptionHandler implements ISubmitButtonExcepti
     }
 
     public void logShowExceptionMessage(final Throwable t) {
-        LOG.catching(org.slf4j.ext.XLogger.Level.WARN,
-                new RuntimeException("Showing message dialog for button exception...", t));
+        LOG.catching(Level.WARN, new RuntimeException("Showing message dialog for button exception...", t));
     }
 
     public RuntimeException logPropagateExceptionMessage(final Throwable t) {
@@ -68,7 +69,7 @@ public class DefaultSubmitButtonExceptionHandler implements ISubmitButtonExcepti
     }
 
     private void logSwallowExceptionMessage(final Throwable t) {
-        LOG.catching(org.slf4j.ext.XLogger.Level.WARN, new RuntimeException("Button exception swallowed...", t));
+        LOG.catching(Level.WARN, new RuntimeException("Button exception swallowed...", t));
     }
 
 }

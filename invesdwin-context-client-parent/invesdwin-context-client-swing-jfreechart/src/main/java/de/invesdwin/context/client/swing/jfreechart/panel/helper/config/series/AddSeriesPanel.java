@@ -50,7 +50,8 @@ public class AddSeriesPanel extends JPanel {
     private static final int MIDDLE_SERIES_PROVIDER_RANK = 2;
     private static final int MAX_SERIES_PROVIDER_RANK = 3;
 
-    private static final org.slf4j.ext.XLogger LOG = org.slf4j.ext.XLoggerFactory.getXLogger(AddSeriesPanel.class);
+    private static final org.apache.logging.log4j.Logger LOG = org.apache.logging.log4j.LogManager
+            .getLogger(AddSeriesPanel.class);
     private static final Cursor HAND_CURSOR = Cursor.getPredefinedCursor(Cursor.HAND_CURSOR);
     private final PlotConfigurationHelper plotConfigurationHelper;
 
