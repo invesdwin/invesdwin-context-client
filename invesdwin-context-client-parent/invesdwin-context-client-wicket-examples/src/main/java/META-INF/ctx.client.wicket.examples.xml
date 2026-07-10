@@ -23,7 +23,7 @@
 			access="hasRole('KERBEROS_AUTHENTICATED')" />
 	</security:http>
 
-	<security:http entry-point-ref="samlEntryPoint"
+	<!-- <security:http entry-point-ref="samlEntryPoint"
 		use-expressions="true" pattern="/springsamlsecure">
 
 		<security:csrf disabled="true" />
@@ -32,8 +32,8 @@
 			<security:content-type-options disabled="true" />
 		</security:headers>
 
-		<!-- register saml login page, a missing metadatageneratorfilter will result 
-			in exceptions -->
+		<!- - register saml login page, a missing metadatageneratorfilter will result 
+			in exceptions - ->
 		<security:custom-filter before="FIRST"
 			ref="metadataGeneratorFilter" />
 		<security:custom-filter
@@ -41,9 +41,9 @@
 
 		<security:intercept-url
 			pattern="/springsamlsecure" access="hasRole('SAML_AUTHENTICATED')" />
-	</security:http>
+	</security:http> -->
 
-	<security:http entry-point-ref="casEntryPoint"
+	<!-- <security:http entry-point-ref="casEntryPoint"
 		use-expressions="true" pattern="/springcassecure">
 
 		<security:csrf disabled="true" />
@@ -57,7 +57,7 @@
 
 		<security:intercept-url
 			pattern="/springcassecure" access="hasRole('CAS_AUTHENTICATED')" />
-	</security:http>
+	</security:http> -->
 
 	<security:http
 		authentication-manager-ref="exampleAuthenticationManager"
@@ -92,14 +92,14 @@
 			</security:user-service>
 		</security:authentication-provider>
 		<!-- integrate saml authentication -->
-		<security:authentication-provider
-			ref="samlAuthenticationProvider" />
+		<!-- <security:authentication-provider
+			ref="samlAuthenticationProvider" /> -->
 		<security:authentication-provider
 			ref="kerberosAuthenticationProvider" />
 		<security:authentication-provider
 			ref="kerberosServiceAuthenticationProvider" />
-		<security:authentication-provider
-			ref="casAuthenticationProvider" />
+		<!-- <security:authentication-provider
+			ref="casAuthenticationProvider" /> -->
 	</security:authentication-manager>
 
 </beans>

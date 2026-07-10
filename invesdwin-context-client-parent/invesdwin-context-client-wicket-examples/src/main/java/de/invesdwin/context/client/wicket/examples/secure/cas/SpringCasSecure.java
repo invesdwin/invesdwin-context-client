@@ -2,7 +2,6 @@ package de.invesdwin.context.client.wicket.examples.secure.cas;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
-import de.invesdwin.context.client.wicket.cas.CasRoles;
 import de.invesdwin.context.client.wicket.examples.guestbook.GuestbookExample;
 import de.invesdwin.context.client.wicket.examples.secure.ExampleRoles;
 import de.invesdwin.nowicket.generated.markup.annotation.GeneratedMarkup;
@@ -17,7 +16,8 @@ public class SpringCasSecure extends AValueObject {
     }
 
     public boolean isCasAuthentication() {
-        return CasRoles.isCasAuthenticated();
+        return false;
+        //        return CasRoles.isCasAuthenticated();
     }
 
     public GuestbookExample home() throws Exception {

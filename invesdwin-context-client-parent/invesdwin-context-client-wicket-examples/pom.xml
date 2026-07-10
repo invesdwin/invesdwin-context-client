@@ -25,14 +25,14 @@
 		</plugins>
 	</build>
 	<dependencies>
-		<dependency>
+		<!--<dependency>
 			<groupId>de.invesdwin</groupId>
 			<artifactId>invesdwin-context-client-wicket-saml</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>de.invesdwin</groupId>
 			<artifactId>invesdwin-context-client-wicket-cas</artifactId>
-		</dependency>
+		</dependency>-->
 		<dependency>
 			<groupId>de.invesdwin</groupId>
 			<artifactId>invesdwin-context-client-wicket-kerberos</artifactId>
