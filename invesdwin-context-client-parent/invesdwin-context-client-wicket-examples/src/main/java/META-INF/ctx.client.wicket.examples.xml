@@ -4,7 +4,7 @@
 	xsi:schemaLocation="http://www.springframework.org/schema/security http://www.springframework.org/schema/security/spring-security.xsd
 		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-	<security:http entry-point-ref="spnegoEntryPoint"
+	<security:http request-matcher="ant" entry-point-ref="spnegoEntryPoint"
 		use-expressions="true" pattern="/springkerberossecure">
 
 		<security:csrf disabled="true" />
@@ -23,7 +23,7 @@
 			access="hasRole('KERBEROS_AUTHENTICATED')" />
 	</security:http>
 
-	<!-- <security:http entry-point-ref="samlEntryPoint"
+	<!-- <security:http request-matcher="ant" entry-point-ref="samlEntryPoint"
 		use-expressions="true" pattern="/springsamlsecure">
 
 		<security:csrf disabled="true" />
@@ -43,7 +43,7 @@
 			pattern="/springsamlsecure" access="hasRole('SAML_AUTHENTICATED')" />
 	</security:http> -->
 
-	<!-- <security:http entry-point-ref="casEntryPoint"
+	<!-- <security:http request-matcher="ant" entry-point-ref="casEntryPoint"
 		use-expressions="true" pattern="/springcassecure">
 
 		<security:csrf disabled="true" />
@@ -59,7 +59,7 @@
 			pattern="/springcassecure" access="hasRole('CAS_AUTHENTICATED')" />
 	</security:http> -->
 
-	<security:http
+	<security:http request-matcher="ant"
 		authentication-manager-ref="exampleAuthenticationManager"
 		use-expressions="true">
 
