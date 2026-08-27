@@ -108,7 +108,7 @@ public class IndexedDateTimeNumberFormat extends NumberFormat {
         final FDate to = dataset.getXValueAsDateTimeStart(0, (int) range.getUpperBound());
         final Duration duration = new Duration(from, to);
         final FDateTimeFormatter format;
-        if (lastItem) {
+        if (lastItem || duration.isZero()) {
             format = getFallbackTimeFormat(time);
         } else {
             if (duration.isLessThan(PICOSECOND_THRESHOLD) && FDates.isSameNanosecond(time, prevTime)) {
