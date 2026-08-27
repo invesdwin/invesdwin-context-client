@@ -29,7 +29,8 @@ import de.invesdwin.util.swing.listener.DocumentListenerSupport;
 @NotThreadSafe
 public class ExpressionSettingsPanel extends JPanel implements ISettingsPanelActions {
 
-    private static final org.slf4j.ext.XLogger LOG = org.slf4j.ext.XLoggerFactory.getXLogger(AddSeriesPanel.class);
+    private static final org.apache.logging.log4j.Logger LOG = org.apache.logging.log4j.LogManager
+            .getLogger(AddSeriesPanel.class);
 
     private final PlotConfigurationHelper plotConfigurationHelper;
     private final IPlotSourceDataset dataset;

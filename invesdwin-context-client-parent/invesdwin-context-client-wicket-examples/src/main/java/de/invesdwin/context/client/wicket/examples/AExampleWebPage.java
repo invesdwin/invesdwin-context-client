@@ -17,16 +17,10 @@ import de.agilecoders.wicket.core.markup.html.bootstrap.navbar.NavbarButton;
 import de.agilecoders.wicket.core.markup.html.bootstrap.navbar.NavbarComponents;
 import de.agilecoders.wicket.core.markup.html.bootstrap.navbar.NavbarDropDownButton;
 import de.agilecoders.wicket.extensions.markup.html.bootstrap.icon.FontAwesome6IconType;
-import de.invesdwin.context.client.wicket.cas.page.CasLoginPage;
-import de.invesdwin.context.client.wicket.cas.page.CasLogoutPage;
 import de.invesdwin.context.client.wicket.examples.guestbook.GuestbookExamplePage;
-import de.invesdwin.context.client.wicket.examples.secure.cas.SpringCasSecurePage;
 import de.invesdwin.context.client.wicket.examples.secure.kerberos.SpringKerberosSecurePage;
 import de.invesdwin.context.client.wicket.examples.secure.local.SpringSecurePage;
 import de.invesdwin.context.client.wicket.examples.secure.local.WicketSecurePage;
-import de.invesdwin.context.client.wicket.examples.secure.saml.SpringSamlSecurePage;
-import de.invesdwin.context.client.wicket.saml.page.SamlLoginPage;
-import de.invesdwin.context.client.wicket.saml.page.SamlLogoutPage;
 import de.invesdwin.nowicket.application.AWebPage;
 import de.invesdwin.nowicket.application.auth.ABaseWebApplication;
 import de.invesdwin.nowicket.application.auth.Roles;
@@ -77,33 +71,33 @@ public abstract class AExampleWebPage extends AWebPage {
 
                 }));
 
-        navbar.addComponents(NavbarComponents.transform(ComponentPosition.LEFT,
-                new NavbarDropDownButton(new ResourceModel("menu.secure.saml")) {
-
-                    @Override
-                    public boolean isActive(final Component item) {
-                        return false;
-                    }
-
-                    @Override
-                    protected List<AbstractLink> newSubMenuButtons(final String buttonMarkupId) {
-                        final List<AbstractLink> subMenu = new ArrayList<AbstractLink>();
-
-                        subMenu.add(new MenuBookmarkablePageLink<Void>(SpringSamlSecurePage.class,
-                                new ResourceModel("menu.springsamlsecure")));
-
-                        if (Roles.isAuthenticated()) {
-                            subMenu.add(new MenuBookmarkablePageLink<Void>(SamlLogoutPage.class,
-                                    new ResourceModel("menu.sign.out")));
-                        } else {
-                            subMenu.add(new MenuBookmarkablePageLink<Void>(SamlLoginPage.class,
-                                    new ResourceModel("menu.sign.in")));
-                        }
-
-                        return subMenu;
-                    }
-
-                }));
+        //        navbar.addComponents(NavbarComponents.transform(ComponentPosition.LEFT,
+        //                new NavbarDropDownButton(new ResourceModel("menu.secure.saml")) {
+        //
+        //                    @Override
+        //                    public boolean isActive(final Component item) {
+        //                        return false;
+        //                    }
+        //
+        //                    @Override
+        //                    protected List<AbstractLink> newSubMenuButtons(final String buttonMarkupId) {
+        //                        final List<AbstractLink> subMenu = new ArrayList<AbstractLink>();
+        //
+        //                        subMenu.add(new MenuBookmarkablePageLink<Void>(SpringSamlSecurePage.class,
+        //                                new ResourceModel("menu.springsamlsecure")));
+        //
+        //                        if (Roles.isAuthenticated()) {
+        //                            subMenu.add(new MenuBookmarkablePageLink<Void>(SamlLogoutPage.class,
+        //                                    new ResourceModel("menu.sign.out")));
+        //                        } else {
+        //                            subMenu.add(new MenuBookmarkablePageLink<Void>(SamlLoginPage.class,
+        //                                    new ResourceModel("menu.sign.in")));
+        //                        }
+        //
+        //                        return subMenu;
+        //                    }
+        //
+        //                }));
 
         navbar.addComponents(NavbarComponents.transform(ComponentPosition.LEFT,
                 new NavbarDropDownButton(new ResourceModel("menu.secure.kerberos")) {
@@ -133,33 +127,33 @@ public abstract class AExampleWebPage extends AWebPage {
 
                 }));
 
-        navbar.addComponents(NavbarComponents.transform(ComponentPosition.LEFT,
-                new NavbarDropDownButton(new ResourceModel("menu.secure.cas")) {
-
-                    @Override
-                    public boolean isActive(final Component item) {
-                        return false;
-                    }
-
-                    @Override
-                    protected List<AbstractLink> newSubMenuButtons(final String buttonMarkupId) {
-                        final List<AbstractLink> subMenu = new ArrayList<AbstractLink>();
-
-                        subMenu.add(new MenuBookmarkablePageLink<Void>(SpringCasSecurePage.class,
-                                new ResourceModel("menu.springcassecure")));
-
-                        if (Roles.isAuthenticated()) {
-                            subMenu.add(new MenuBookmarkablePageLink<Void>(CasLogoutPage.class,
-                                    new ResourceModel("menu.sign.out")));
-                        } else {
-                            subMenu.add(new MenuBookmarkablePageLink<Void>(CasLoginPage.class,
-                                    new ResourceModel("menu.sign.in")));
-                        }
-
-                        return subMenu;
-                    }
-
-                }));
+        //        navbar.addComponents(NavbarComponents.transform(ComponentPosition.LEFT,
+        //                new NavbarDropDownButton(new ResourceModel("menu.secure.cas")) {
+        //
+        //                    @Override
+        //                    public boolean isActive(final Component item) {
+        //                        return false;
+        //                    }
+        //
+        //                    @Override
+        //                    protected List<AbstractLink> newSubMenuButtons(final String buttonMarkupId) {
+        //                        final List<AbstractLink> subMenu = new ArrayList<AbstractLink>();
+        //
+        //                        subMenu.add(new MenuBookmarkablePageLink<Void>(SpringCasSecurePage.class,
+        //                                new ResourceModel("menu.springcassecure")));
+        //
+        //                        if (Roles.isAuthenticated()) {
+        //                            subMenu.add(new MenuBookmarkablePageLink<Void>(CasLogoutPage.class,
+        //                                    new ResourceModel("menu.sign.out")));
+        //                        } else {
+        //                            subMenu.add(new MenuBookmarkablePageLink<Void>(CasLoginPage.class,
+        //                                    new ResourceModel("menu.sign.in")));
+        //                        }
+        //
+        //                        return subMenu;
+        //                    }
+        //
+        //                }));
 
         return navbar;
     }

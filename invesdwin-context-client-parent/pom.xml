@@ -206,10 +206,6 @@
 						<groupId>org.springframework</groupId>
 					</exclusion>
 					<exclusion>
-						<artifactId>commons-logging</artifactId>
-						<groupId>commons-logging</groupId>
-					</exclusion>
-					<exclusion>
 						<artifactId>swing-worker</artifactId>
 						<groupId>org.swinglabs</groupId>
 					</exclusion>

@@ -240,10 +240,12 @@ public class OrderPlottingDataset extends AbstractXYDataset
 
     public void addOrUpdate(final OrderPlottingDataItem order) {
         //we need to search for start time, otherwise entries will be plotted one bar too early
-        final FDate firstLoadedKeyMillis = getXValueAsDateTimeStart(0, 0);
-        final FDate lastLoadedKeyMillis = getXValueAsDateTimeStart(0, getItemCount(0) - 1);
-        final boolean trailingLoaded = masterDataset.isTrailingLoaded();
-        order.updateItemLoaded(firstLoadedKeyMillis, lastLoadedKeyMillis, trailingLoaded, this);
+        final FDate firstLoadedKey = getXValueAsDateTimeStart(0, 0);
+        if (firstLoadedKey != null) {
+            final FDate lastLoadedKey = getXValueAsDateTimeStart(0, getItemCount(0) - 1);
+            final boolean trailingLoaded = masterDataset.isTrailingLoaded();
+            order.updateItemLoaded(firstLoadedKey, lastLoadedKey, trailingLoaded, this);
+        }
         FDate closeTime = order.getCloseTime();
         if (closeTime == null) {
             closeTime = FDates.MAX_DATE;
@@ -475,23 +477,22 @@ public class OrderPlottingDataset extends AbstractXYDataset
         if (firstLoadedKey == null) {
             return;
         }
-        final FDate lastLoadedKeyMillis = getXValueAsDateTimeStart(0, getItemCount(0) - 1);
+        final FDate lastLoadedKey = getXValueAsDateTimeStart(0, getItemCount(0) - 1);
         if (forced || !prevFirstLoadedKey.equalsNotNullSafe(firstLoadedKey)
-                || !prevLastLoadedKey.equalsNotNullSafe(lastLoadedKeyMillis)) {
+                || !prevLastLoadedKey.equalsNotNullSafe(lastLoadedKey)) {
             final boolean trailingLoaded = masterDataset.isTrailingLoaded();
             itemsLock.lock();
             try {
                 final SortedSet<OrderItem> tail = items.tailSet(new OrderItem(firstLoadedKey, "", null));
                 for (final OrderItem item : tail) {
                     item.getOrder()
-                            .updateItemLoaded(firstLoadedKey, lastLoadedKeyMillis, trailingLoaded,
-                                    OrderPlottingDataset.this);
+                            .updateItemLoaded(firstLoadedKey, lastLoadedKey, trailingLoaded, OrderPlottingDataset.this);
                 }
             } finally {
                 itemsLock.unlock();
             }
             prevFirstLoadedKey = firstLoadedKey;
-            prevLastLoadedKey = lastLoadedKeyMillis;
+            prevLastLoadedKey = lastLoadedKey;
         }
     }
 
