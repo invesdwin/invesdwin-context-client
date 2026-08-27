@@ -199,6 +199,9 @@ public class GuiService implements IGuiService {
 
     @Override
     public void updateAllViews(final AView<?, ?> view) {
+        if (view == null) {
+            return;
+        }
         updateAllViews(view.getComponent());
     }
 

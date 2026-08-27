@@ -16,6 +16,7 @@ import de.invesdwin.util.error.UnknownArgumentException;
 import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.math.expression.IExpression;
 import de.invesdwin.util.time.date.FDate;
+import de.invesdwin.util.time.date.FDates;
 
 @NotThreadSafe
 public class IndexedDateTimeOHLCDataset extends ListOHLCDataset
@@ -61,7 +62,7 @@ public class IndexedDateTimeOHLCDataset extends ListOHLCDataset
     public FDate getXValueAsDateTimeStart(final int series, final int item) {
         final int itemCount = getItemCount(series);
         if (itemCount == 0) {
-            return null;
+            return FDates.ZERO;
         }
         final int usedItem = Integers.between(item, 0, itemCount - 1);
         return getData().get(usedItem).getStartTime();
@@ -71,7 +72,7 @@ public class IndexedDateTimeOHLCDataset extends ListOHLCDataset
     public FDate getXValueAsDateTimeEnd(final int series, final int item) {
         final int itemCount = getItemCount(series);
         if (itemCount == 0) {
-            return null;
+            return FDates.ZERO;
         }
         final int usedItem = Integers.between(item, 0, itemCount - 1);
         return getData().get(usedItem).getEndTime();
