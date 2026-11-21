@@ -6,7 +6,7 @@ import org.junit.platform.suite.api.SelectClasses;
 import org.junit.platform.suite.api.Suite;
 
 @Suite
-@SelectClasses({ TestModelViewTest.class })
+@SelectClasses({ TestModelViewTest.class, StatusBarTaskViewTest.class })
 @Immutable
 public class ClientSwingTestSuite {
 
