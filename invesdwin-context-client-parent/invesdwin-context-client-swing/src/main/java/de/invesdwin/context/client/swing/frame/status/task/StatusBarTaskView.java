@@ -4,7 +4,6 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
-import java.awt.FontMetrics;
 import java.awt.Insets;
 import java.awt.event.ComponentEvent;
 import java.beans.PropertyChangeEvent;
@@ -47,8 +46,6 @@ public class StatusBarTaskView extends AView<StatusBarTaskView, JPanel> implemen
     public static final Border VISIBLE_BORDER = BorderFactory.createEmptyBorder(1, 0, 2, 0);
     public static final Border INVISIBLE_BORDER = BorderFactory.createEmptyBorder(0, 0, 0, 0);
     private static final Duration ETA_THRESHOLD = new Duration(10, FTimeUnit.SECONDS);
-    private static final String ABBREVIATION_MARKER = "...";
-    private static final int MIN_ABBREVIATED_CHARS = ABBREVIATION_MARKER.length() + 2;
     /**
      * The label still gets this wide even if everything else in the status bar claims
      * the space; the unabbreviated text is always available in the tooltip.
@@ -173,9 +170,8 @@ public class StatusBarTaskView extends AView<StatusBarTaskView, JPanel> implemen
         if (foregroundTaskText == null) {
             return;
         }
-        lblForegroundTask.setText(
-                abbreviateToFit(lblForegroundTask.getFontMetrics(lblForegroundTask.getFont()), foregroundTaskText,
-                        getForegroundTaskTextMaxWidth()) + " ");
+        lblForegroundTask.setText(Components.abbreviateToFit(lblForegroundTask, foregroundTaskText,
+                getForegroundTaskTextMaxWidth()) + " ");
     }
 
     /**
@@ -298,45 +294,6 @@ public class StatusBarTaskView extends AView<StatusBarTaskView, JPanel> implemen
             s.append(eta.toString(FTimeUnit.SECONDS));
         }
         return s.toString();
-    }
-
-    /**
-     * Abbreviates only what is displayed - the text of the task itself is never
-     * changed, so the full string remains in the tooltip. The middle is cut
-     * (prefix + marker + suffix) so the trailing progress/message/ETA part of the
-     * rendered text stays visible. A maxWidth of 0 means the layout is not known
-     * yet and returns the text unchanged.
-     */
-    public static String abbreviateToFit(final FontMetrics fontMetrics, final String text, final int maxWidth) {
-        if (maxWidth <= 0) {
-            return text;
-        }
-        if (fontMetrics.stringWidth(text) <= maxWidth) {
-            return text;
-        }
-        //largest char count whose abbreviated form fits - every candidate is measured
-        //as the exact string that will be returned, so no monotonicity is assumed
-        int low = MIN_ABBREVIATED_CHARS;
-        int high = text.length() - 1;
-        while (low < high) {
-            final int mid = (low + high + 1) / 2;
-            if (fontMetrics.stringWidth(abbreviateMiddle(text, mid)) <= maxWidth) {
-                low = mid;
-            } else {
-                high = mid - 1;
-            }
-        }
-        return abbreviateMiddle(text, low);
-    }
-
-    private static String abbreviateMiddle(final String text, final int maxChars) {
-        if (text.length() <= maxChars) {
-            return text;
-        }
-        final int content = maxChars - ABBREVIATION_MARKER.length();
-        final int prefix = (content + 1) / 2;
-        final int suffix = content - prefix;
-        return text.substring(0, prefix) + ABBREVIATION_MARKER + text.substring(text.length() - suffix);
     }
 
     @Override
