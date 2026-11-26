@@ -61,11 +61,6 @@
 		</dependency>
 		<dependency>
 			<groupId>org.kordamp.ikonli</groupId>
-			<artifactId>ikonli-materialdesign-pack</artifactId>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.kordamp.ikonli</groupId>
 			<artifactId>ikonli-dashicons-pack</artifactId>
 			<scope>test</scope>
 		</dependency>

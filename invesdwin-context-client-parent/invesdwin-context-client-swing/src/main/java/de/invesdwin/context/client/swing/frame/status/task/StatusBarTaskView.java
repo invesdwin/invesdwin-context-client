@@ -1,7 +1,11 @@
 package de.invesdwin.context.client.swing.frame.status.task;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
+import java.awt.Container;
 import java.awt.Dimension;
+import java.awt.Insets;
+import java.awt.event.ComponentEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.List;
@@ -26,10 +30,12 @@ import de.invesdwin.context.client.swing.api.view.AView;
 import de.invesdwin.context.client.swing.frame.app.DelegateRichApplication;
 import de.invesdwin.context.client.swing.frame.status.heap.HeapIndicator;
 import de.invesdwin.util.lang.string.Strings;
+import de.invesdwin.util.math.Integers;
 import de.invesdwin.util.swing.Components;
 import de.invesdwin.util.swing.Fonts;
 import de.invesdwin.util.swing.HiDPI;
 import de.invesdwin.util.swing.MouseEnteredListener;
+import de.invesdwin.util.swing.listener.ComponentListenerSupport;
 import de.invesdwin.util.time.date.FTimeUnit;
 import de.invesdwin.util.time.duration.Duration;
 
@@ -40,6 +46,11 @@ public class StatusBarTaskView extends AView<StatusBarTaskView, JPanel> implemen
     public static final Border VISIBLE_BORDER = BorderFactory.createEmptyBorder(1, 0, 2, 0);
     public static final Border INVISIBLE_BORDER = BorderFactory.createEmptyBorder(0, 0, 0, 0);
     private static final Duration ETA_THRESHOLD = new Duration(10, FTimeUnit.SECONDS);
+    /**
+     * The label still gets this wide even if everything else in the status bar claims
+     * the space; the unabbreviated text is always available in the tooltip.
+     */
+    private static final int MIN_FOREGROUND_TASK_TEXT_WIDTH = 80;
     private TaskMonitor taskMonitor;
     private JLabel lblForegroundTask;
     private MouseEnteredListener lblForegroundTask_mouseEnteredListener;
@@ -48,6 +59,8 @@ public class StatusBarTaskView extends AView<StatusBarTaskView, JPanel> implemen
     private JProgressBar pgbForegroundTask;
     private MouseEnteredListener pgbForegroundTask_mouseEnteredListener;
     private JPanel pnlProgress;
+    private String foregroundTaskText;
+    private boolean foregroundTaskResizeListenerAdded;
 
     /**
      * @wbp.parser.entryPoint
@@ -124,7 +137,8 @@ public class StatusBarTaskView extends AView<StatusBarTaskView, JPanel> implemen
         if (foregroundTask != null) {
             final Task<?, ?> task = determineForegroundTask(foregroundTask, tasks);
             final String taskToString = taskToString(task);
-            lblForegroundTask.setText(taskToString + " ");
+            foregroundTaskText = taskToString;
+            applyForegroundTaskText();
             final StringBuilder tooltip = new StringBuilder("<html>");
             tooltip.append(taskToString);
             //Description
@@ -143,12 +157,73 @@ public class StatusBarTaskView extends AView<StatusBarTaskView, JPanel> implemen
             }
             pnlProgress.setVisible(true);
         } else {
+            foregroundTaskText = null;
             lblForegroundTask.setText(null);
             Components.setToolTipText(lblForegroundTask, null, lblForegroundTask_mouseEnteredListener.isMouseEntered());
             pnlProgress.setVisible(false);
         }
         Components.setToolTipText(pgbForegroundTask, lblForegroundTask.getToolTipText(),
                 pgbForegroundTask_mouseEnteredListener.isMouseEntered());
+    }
+
+    private void applyForegroundTaskText() {
+        if (foregroundTaskText == null) {
+            return;
+        }
+        lblForegroundTask.setText(Components.abbreviateToFit(lblForegroundTask, foregroundTaskText,
+                getForegroundTaskTextMaxWidth()) + " ");
+    }
+
+    /**
+     * The width left for the label once the progress bar, the task count and the other
+     * status bar elements (message, heap indicator) keep their preferred width. The task
+     * names can be whole derived store key strings, which would otherwise push those
+     * elements off the bar. Answers 0 while the view is not inside the status bar yet,
+     * which means: do not abbreviate (layout unknown).
+     */
+    private int getForegroundTaskTextMaxWidth() {
+        final Component panel = lblForegroundTask.getParent();
+        if (panel == null) {
+            return 0;
+        }
+        final Container parent = panel.getParent();
+        if (parent == null) {
+            return 0;
+        }
+        if (!foregroundTaskResizeListenerAdded) {
+            foregroundTaskResizeListenerAdded = true;
+            //re-abbreviate when the bar changes width, otherwise the label keeps
+            //whatever fit the old width
+            parent.addComponentListener(new ComponentListenerSupport() {
+                @Override
+                public void componentResized(final ComponentEvent e) {
+                    applyForegroundTaskText();
+                }
+            });
+        }
+        int width = parent.getWidth();
+        final Insets insets = parent.getInsets();
+        if (insets != null) {
+            width -= insets.left + insets.right;
+        }
+        for (final Component sibling : parent.getComponents()) {
+            if (sibling == panel || !sibling.isVisible()) {
+                continue;
+            }
+            final Dimension preferredSize = sibling.getPreferredSize();
+            if (preferredSize != null) {
+                width -= preferredSize.width;
+            }
+        }
+        final Dimension progressPreferredSize = pgbForegroundTask.getPreferredSize();
+        if (progressPreferredSize != null) {
+            width -= progressPreferredSize.width;
+        }
+        final Dimension tasksPreferredSize = lblTasks.getPreferredSize();
+        if (tasksPreferredSize != null) {
+            width -= tasksPreferredSize.width;
+        }
+        return Integers.max(width, MIN_FOREGROUND_TASK_TEXT_WIDTH);
     }
 
     private Task<?, ?> determineForegroundTask(final Task<?, ?> foregroundTask, final List<Task<?, ?>> tasks) {
